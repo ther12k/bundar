@@ -15,3 +15,4 @@
 - [ADR-0013 — Use Focused Packages and Versioned HTMX Subpaths](0013-package-boundaries.md) — Architecture decision record for use focused packages and versioned htmx subpaths.
 - [ADR-0014 — Define Stability by Tested Profiles, Not Floating Majors](0014-compatibility-policy.md) — Architecture decision record for define stability by tested profiles, not floating majors.
 - [ADR-0015 — Brand Clearance Record and Temporary Namespace Policy](0015-brand-clearance.md) — Evidence-based namespace, registry, domain, and trademark screening for the Bundar name with an explicit temporariness policy and migration path.
+- [ADR-0016 — Freeze Public API Principles and Package Boundaries](0016-public-api-boundaries-freeze.md) — Frozen package map, dependency direction, handler contract, JSX boundary, HTMX stable subset with escape hatch, forbidden dependencies, and the pre-1.0 API change classification.

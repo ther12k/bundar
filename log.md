@@ -56,3 +56,14 @@ No third-party certification is claimed by this event.
 - Updated `project/naming-and-brand.md` safeguards and `decisions/index.md`; evidence transcript in `evidence/gh-004/verification-transcript.md`.
 
 No namespace reservation, trademark registration, or legal opinion is claimed by this event.
+
+## 2026-08-21 — GH-005: public API principles and package boundaries frozen (ADR-0016)
+
+- Froze the package map and dependency direction; `@bundar/core` and `@bundar/jsx` zero-runtime-dependency policy made explicit and machine-enforced.
+- Implemented `bun run architecture:check` (`tools/architecture-check/`): machine-readable boundary manifest plus a scanner enforcing cross-package import allowlists, external-dependency rejection, relative-escape detection, and confinement of raw `HX-*`/`htmx:*` strings to `@bundar/htmx`; wired into CI.
+- Verified adversarially: injected violations in `@bundar/core` (dialect import, external `yaml` import, raw `HX-Request` string) are all caught with exit 1; clean tree passes.
+- Added the symbol ownership map to `engineering/package-api.md` — every planned public symbol family has an owning package; nothing is silently unowned.
+- Froze the handler contract (`Response | Promise<Response>` only, no second router, no hidden browser runtime), the server-only JSX boundary, the HTMX stable subset with escape hatch, forbidden dependencies, non-goals, and the pre-1.0 A/B/C API change classification with evidence requirements.
+- Evidence transcript in `evidence/gh-005/verification-transcript.md`.
+
+No public API stability claim beyond the frozen principles is made by this event; exact signatures remain deferred to owning milestone issues.
