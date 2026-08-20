@@ -78,3 +78,13 @@ No public API stability claim beyond the frozen principles is made by this event
 - Evidence transcript in `evidence/gh-009/verification-transcript.md`; configuration mapping in `github/configuration-manifest.json`.
 
 GH-009 is complete in the live repository; GH-010 remains blocked until GH-007 and GH-008 are complete.
+
+## 2026-08-21 — GH-007: reproducible raw Bun and Hono benchmark harness
+
+- Pinned Hono `4.13.3` as the Bun framework reference and added nine equivalent in-process Request/Response scenarios: static, dynamic, parameterized, sync/async middleware, escaped fragment, async component, page/fragment negotiation, and validated form.
+- Added parity-before-timing checks, raw response snapshots, warmups, repetitions, nanosecond samples, min/mean/max/p50/p95/p99, standard deviation, relative standard deviation, environment metadata, and ignored artifact output.
+- Added `bench:smoke`, `bench:parity`, and `bench` scripts; benchmark tests assert no localhost networking, parity, raw sample retention, and explicit Bundar deferral (`501` until M1/M2).
+- Completed verification: 31 tests pass; smoke/parity/full report, format, docs, architecture, build, and frozen install all pass. Raw report and summary are in `evidence/gh-007/`.
+- No performance claim or regression threshold is made. Bundar is not timed until its runtime implementation exists; observed raw Bun/Hono values are environment-specific baseline evidence only.
+
+GH-007 is complete; GH-010 remains blocked only by GH-008.

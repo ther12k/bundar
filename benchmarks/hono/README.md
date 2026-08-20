@@ -1,4 +1,7 @@
 # benchmarks/hono
 
-Placeholder directory created by GH-001. The Hono baseline is implemented with
-the benchmark harness in GH-007.
+Hono `4.13.3` on Bun is the ergonomic framework reference for GH-007. The
+pinned adapter lives in `tools/benchmark/adapters.ts`; parity is asserted
+against raw Bun before timing.
+
+This baseline is a comparator, not a Bundar performance claim.

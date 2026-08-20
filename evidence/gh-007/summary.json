@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-20T20:39:14.967Z",
+  "methodology": {
+    "timing": "in-process Request/Response; no localhost networking",
+    "warmupIterations": 10,
+    "measuredIterations": 50,
+    "parityCheckedBeforeTiming": true,
+    "rawSamplesIncluded": true
+  },
+  "environment": {
+    "bun": "1.4.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuCount": 12,
+    "cpuModel": "unavailable from portable Bun API"
+  },
+  "scenarioCount": 9,
+  "parityCount": 9,
+  "resultCount": 18,
+  "resultsSummary": [
+    {
+      "scenario": "static-response",
+      "adapter": "raw-bun",
+      "p50Ns": 3899,
+      "p95Ns": 10439,
+      "p99Ns": 15190,
+      "relativeStandardDeviation": 0.631757050369865
+    },
+    {
+      "scenario": "static-response",
+      "adapter": "hono",
+      "p50Ns": 5888,
+      "p95Ns": 34769,
+      "p99Ns": 132914,
+      "relativeStandardDeviation": 1.8019460309219673
+    },
+    {
+      "scenario": "dynamic-text",
+      "adapter": "raw-bun",
+      "p50Ns": 3438,
+      "p95Ns": 7450,
+      "p99Ns": 11359,
+      "relativeStandardDeviation": 0.45666277244021497
+    },
+    {
+      "scenario": "dynamic-text",
+      "adapter": "hono",
+      "p50Ns": 5469,
+      "p95Ns": 20613,
+      "p99Ns": 32951,
+      "relativeStandardDeviation": 0.8226760776566675
+    },
+    {
+      "scenario": "parameterized-route",
+      "adapter": "raw-bun",
+      "p50Ns": 3825,
+      "p95Ns": 11675,
+      "p99Ns": 24594,
+      "relativeStandardDeviation": 0.7270344022513473
+    },
+    {
+      "scenario": "parameterized-route",
+      "adapter": "hono",
+      "p50Ns": 7141,
+      "p95Ns": 25222,
+      "p99Ns": 43001,
+      "relativeStandardDeviation": 0.7710064441904679
+    },
+    {
+      "scenario": "sync-middleware",
+      "adapter": "raw-bun",
+      "p50Ns": 2861,
+      "p95Ns": 9977,
+      "p99Ns": 16157,
+      "relativeStandardDeviation": 0.6241896652575336
+    },
+    {
+      "scenario": "sync-middleware",
+      "adapter": "hono",
+      "p50Ns": 4417,
+      "p95Ns": 7858,
+      "p99Ns": 12518,
+      "relativeStandardDeviation": 0.4320932125223933
+    },
+    {
+      "scenario": "async-middleware",
+      "adapter": "raw-bun",
+      "p50Ns": 3043,
+      "p95Ns": 6935,
+      "p99Ns": 17341,
+      "relativeStandardDeviation": 0.5666501196218056
+    },
+    {
+      "scenario": "async-middleware",
+      "adapter": "hono",
+      "p50Ns": 5125,
+      "p95Ns": 10284,
+      "p99Ns": 20574,
+      "relativeStandardDeviation": 0.5809335502077684
+    },
+    {
+      "scenario": "escaped-jsx-fragment",
+      "adapter": "raw-bun",
+      "p50Ns": 3129,
+      "p95Ns": 6602,
+      "p99Ns": 8988,
+      "relativeStandardDeviation": 0.3807984054438155
+    },
+    {
+      "scenario": "escaped-jsx-fragment",
+      "adapter": "hono",
+      "p50Ns": 4505,
+      "p95Ns": 8356,
+      "p99Ns": 8806,
+      "relativeStandardDeviation": 0.326223378161435
+    },
+    {
+      "scenario": "async-jsx-component",
+      "adapter": "raw-bun",
+      "p50Ns": 3190,
+      "p95Ns": 9538,
+      "p99Ns": 11029,
+      "relativeStandardDeviation": 0.44808504735614546
+    },
+    {
+      "scenario": "async-jsx-component",
+      "adapter": "hono",
+      "p50Ns": 6187,
+      "p95Ns": 12567,
+      "p99Ns": 23111,
+      "relativeStandardDeviation": 0.5246704248616854
+    },
+    {
+      "scenario": "page-fragment-negotiation",
+      "adapter": "raw-bun",
+      "p50Ns": 3483,
+      "p95Ns": 10651,
+      "p99Ns": 19855,
+      "relativeStandardDeviation": 0.6820258578467717
+    },
+    {
+      "scenario": "page-fragment-negotiation",
+      "adapter": "hono",
+      "p50Ns": 6139,
+      "p95Ns": 17577,
+      "p99Ns": 121043,
+      "relativeStandardDeviation": 1.727879755685581
+    },
+    {
+      "scenario": "validated-form",
+      "adapter": "raw-bun",
+      "p50Ns": 8215,
+      "p95Ns": 41134,
+      "p99Ns": 115801,
+      "relativeStandardDeviation": 1.3184130041267994
+    },
+    {
+      "scenario": "validated-form",
+      "adapter": "hono",
+      "p50Ns": 17017,
+      "p95Ns": 61829,
+      "p99Ns": 88852,
+      "relativeStandardDeviation": 0.7834519687916974
+    }
+  ]
+}

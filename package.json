@@ -28,6 +28,9 @@
     "docs:links": "bun tools/okf-validator/cli.ts links",
     "issues:graph": "bun tools/okf-validator/cli.ts graph",
     "architecture:check": "bun tools/architecture-check/check.ts",
+    "bench:smoke": "bun tools/benchmark/smoke.ts",
+    "bench:parity": "bun tools/benchmark/parity.ts",
+    "bench": "bun tools/benchmark/runner.ts",
     "clean": "bun run scripts/clean.ts"
   },
   "devDependencies": {
@@ -35,6 +38,7 @@
     "@types/bun": "1.3.14",
     "eslint": "10.8.1",
     "eslint-config-prettier": "10.1.8",
+    "hono": "4.13.3",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "typescript-eslint": "8.67.0",

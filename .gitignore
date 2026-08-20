@@ -11,6 +11,8 @@ coverage/
 # Benchmark and conformance raw run outputs; curated gate evidence is tracked
 # under evidence/ by the milestone gate issues instead.
 benchmarks/**/results/
+artifacts/bench*.json
+artifacts/benchmarks/
 
 # Environment and credentials
 .env
