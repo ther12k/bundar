@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Scenarios have behavior-parity assertions before timing.
-- [ ] Harness does not use localhost networking where in-process timing is intended, and clearly labels network tests.
-- [ ] Results are stored as artifacts and never hard-coded as passing claims.
-- [ ] Regression thresholds can be configured only after a baseline is reviewed.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Scenarios have behavior-parity assertions before timing.
+- [x] Harness does not use localhost networking where in-process timing is intended, and clearly labels network tests.
+- [x] Results are stored as artifacts and never hard-coded as passing claims.
+- [x] Regression thresholds can be configured only after a baseline is reviewed.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-007
+Commit / PR: branch `gh-007-benchmark-harness`; no GitHub remote yet for this branch.
+Files changed: `tools/benchmark/{types.ts,scenarios.ts,adapters.ts,runner.ts,smoke.ts,parity.ts}`, `tests/benchmark/benchmark.test.ts`, `benchmarks/README.md`, `benchmarks/{raw-bun,hono,bundar}/README.md`, root `package.json` and `bun.lock` (Hono 4.13.3 dev dependency), `.gitignore`, `evidence/gh-007/{bench.json,summary.json,verification-transcript.md}`, `log.md`.
+Commands executed: `bun run bench:smoke`, `bun run bench:parity`, `bun run bench -- --warmup 10 --iterations 50 --output evidence/gh-007/bench.json`, `bun run format:check`, `bun run docs:validate`, `bun run docs:check`, `bun run architecture:check`, `bun test` (31/31), `bun run build`, `bun install --frozen-lockfile` — all exit 0.
+Evidence: raw JSON report and summary under `evidence/gh-007/`; transcript in `evidence/gh-007/verification-transcript.md`.
+Contract/API changes: benchmark tooling only; no runtime package API changes; Hono is a dev-only comparator dependency.
+Security/performance impact: no network listener used; raw samples retained; no thresholds or speed claims configured; Bundar comparator explicitly deferred with 501 until M1/M2.
+Remaining risks: CPU model/governor unavailable from portable Bun API; network/slow-client workloads remain future gate work.
+Documentation updated: benchmark README and comparator READMEs, `log.md`, this closure record.
+Newly unblocked issues: GH-010 remains blocked by GH-008; GH-024 and GH-037 receive the benchmark harness.

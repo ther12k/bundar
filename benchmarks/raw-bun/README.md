@@ -1,4 +1,7 @@
 # benchmarks/raw-bun
 
-Placeholder directory created by GH-001. The raw `Bun.serve` baseline is
-implemented with the benchmark harness in GH-007.
+Raw Bun is the native baseline for GH-007. The equivalent in-process handlers
+live in `tools/benchmark/adapters.ts`; scenario definitions and methodology
+are documented in [`benchmarks/README.md`](../README.md).
+
+This baseline is a comparator, not a Bundar performance claim.
