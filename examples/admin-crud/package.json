@@ -3,5 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Admin CRUD reference application exercising sessions, validation, and multi-region updates."
+  "description": "Admin CRUD reference application exercising sessions, validation, and multi-region updates.",
+  "license": "MIT"
 }

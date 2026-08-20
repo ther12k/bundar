@@ -1,0 +1,17 @@
+# CODEOWNERS for the Bundar repository.
+# The @bundar-maintainers team is created when GitHub automation is
+# configured in GH-009; until then these rules document review policy.
+
+# Default owner for everything in the repository.
+* @bundar-maintainers
+
+# Security-sensitive paths require security-owner review.
+/SECURITY.md @bundar-maintainers
+/packages/jsx/ @bundar-maintainers
+/packages/core/src/ @bundar-maintainers
+
+# Dialect adapters carry version-discipline risk.
+/packages/htmx/ @bundar-maintainers
+
+# CI and release automation.
+/.github/workflows/ @bundar-maintainers

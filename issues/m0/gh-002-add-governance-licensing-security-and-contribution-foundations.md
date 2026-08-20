@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] License identity matches package metadata.
-- [ ] Security reports have a private path and no issue template encourages public zero-day disclosure.
-- [ ] Contribution guide requires evidence and links to the OKF corpus.
-- [ ] CODEOWNERS or equivalent review policy covers security and release paths.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] License identity matches package metadata.
+- [x] Security reports have a private path and no issue template encourages public zero-day disclosure.
+- [x] Contribution guide requires evidence and links to the OKF corpus.
+- [x] CODEOWNERS or equivalent review policy covers security and release paths.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -125,3 +125,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-002
+Commit / PR: branch `gh-002-governance-foundations`; no GitHub remote yet, so no PR number.
+Files changed: `LICENSE`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `MAINTAINERS.md`, `.github/CODEOWNERS`, `scripts/docs-check.ts`, root and all 11 workspace `package.json` manifests (`license: MIT`), `.github/workflows/ci.yml` (docs:check step), `evidence/gh-002/verification-transcript.md`, `log.md`.
+Commands executed: `test -f LICENSE`/`SECURITY.md`/`CONTRIBUTING.md` (exit 0), `bun run docs:check` (exit 0), adversarial removal of a manifest license field (docs:check exits 1 with the offending package named), plus the full regression battery (`bun install --frozen-lockfile`, `format:check`, `lint`, `typecheck`, `bun test` 4/4, `build`) — all exit 0.
+Evidence: `evidence/gh-002/verification-transcript.md`.
+Contract/API changes: new root script `docs:check` implementing the issue's planned placeholder command as `scripts/docs-check.ts`.
+Security/performance impact: coordinated-disclosure policy published; no public vulnerability-reporting path; `docs:check` fails closed if issue templates ever introduce public disclosure.
+Remaining risks: `@bundar-maintainers` team and "The Bundar Authors" are placeholders pending GH-004 (namespace) and GH-009 (GitHub automation); no security email until the namespace is cleared; CI still not executed on GitHub runners.
+Documentation updated: `log.md`, this closure record, `issues/m0/index.md`, `README.md`.
+Newly unblocked issues: GH-003 (dependency GH-001 already complete); GH-004 additionally requires GH-002 only, so GH-004 is also unblocked.

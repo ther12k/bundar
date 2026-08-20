@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Bundar — a Bun-native, HTML-first TypeScript framework with server-only JSX and official htmx.",
+  "license": "MIT",
   "packageManager": "bun@1.4.0",
   "engines": {
     "bun": ">=1.4.0"
@@ -22,6 +23,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
+    "docs:check": "bun run scripts/docs-check.ts",
     "clean": "bun run scripts/clean.ts"
   },
   "devDependencies": {
@@ -30,7 +32,7 @@
     "eslint": "10.8.1",
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.6",
-    "typescript": "6",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.67.0"
   }
 }

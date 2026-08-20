@@ -25,6 +25,8 @@ jobs:
         run: bun run lint
       - name: Typecheck
         run: bun run typecheck
+      - name: Governance documents
+        run: bun run docs:check
       - name: Test
         run: bun test
       - name: Build packages
