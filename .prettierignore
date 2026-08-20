@@ -1,0 +1,9 @@
+# Formatting scope decision (GH-001): Prettier owns code and config files only.
+# The OKF design corpus is generated, frontmatter-rich Markdown whose formatting
+# is governed by the OKF validator installed in GH-003, not by Prettier.
+**/*.md
+bun.lock
+node_modules/
+dist/
+coverage/
+evidence/

@@ -74,3 +74,23 @@ The package records source observations current on **August 21, 2026**. Bun 1.4 
 ## What “easy HTMX 4 switching” means
 
 Reference applications must run under htmx 2 and htmx 4 by changing only the selected adapter and installed htmx version. Route handlers, application components, form workflows, and domain logic must not change. Raw use of version-specific htmx features is allowed only behind an escape hatch and is reported by the migration audit command.
+
+## Implementation status
+
+This repository now hosts the Bundar implementation alongside the design corpus. Work executes through the [issue backlog](issues/index.md) in dependency order; progress is recorded in [log.md](log.md) and in per-issue closure records under `evidence/`.
+
+Toolchain requirements: Bun >= 1.4.0 (preflight fails closed otherwise). No Node package manager is needed.
+
+```bash
+bun install --frozen-lockfile   # install
+bun run preflight               # verify the runtime
+bun run format:check            # formatting
+bun run lint                    # eslint
+bun run typecheck               # strict tsc
+bun test                        # bun:test
+bun run build                   # build all workspace packages
+bun run clean                   # remove build artifacts
+```
+
+Completed: GH-001 (workspace skeleton). In progress: none. Next ready: GH-002, GH-003.
+

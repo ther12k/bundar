@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/jsx",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar server-only JSX renderer: escaped HTML from TSX without hydration.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/schema",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar Standard Schema validation adapter for forms and actions.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

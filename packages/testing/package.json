@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar in-process test client and request helpers.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

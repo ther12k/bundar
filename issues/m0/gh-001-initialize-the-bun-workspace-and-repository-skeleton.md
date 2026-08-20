@@ -62,13 +62,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A fresh checkout installs with the documented Bun command and no Node package manager is required.
-- [ ] Every planned public package directory exists but contains no invented implementation.
-- [ ] Root scripts execute successfully on the empty skeleton.
-- [ ] Generated files, caches, credentials, and release artifacts are excluded intentionally.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A fresh checkout installs with the documented Bun command and no Node package manager is required.
+- [x] Every planned public package directory exists but contains no invented implementation.
+- [x] Root scripts execute successfully on the empty skeleton.
+- [x] Generated files, caches, credentials, and release artifacts are excluded intentionally.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -133,3 +133,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-001
+Commit / PR: branch `gh-001-initialize-bun-workspace` (design corpus initial commit on `main`, implementation commit on the branch; no GitHub remote exists yet, so no PR number).
+Files changed: root `package.json`, `bun.lock`, `bunfig.toml`, `tsconfig.base.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc`, `.prettierignore`, `.gitignore`; `packages/{core,jsx,htmx,schema,testing,cli}/{package.json,tsconfig.json,README.md,src/index.ts}`; `create-bundar/{package.json,tsconfig.json,README.md,src/index.ts}`; `examples/{minimal,todo,admin-crud}/{package.json,README.md}`; `fixtures/{htmx2,htmx4,cross-dialect-app}/README.md`; `benchmarks/{raw-bun,hono,bundar}/README.md`; `docs/okf/README.md`; `scripts/{preflight.ts,clean.ts}`; `tests/skeleton.test.ts`; `.github/workflows/ci.yml`; `evidence/gh-001/verification-transcript.md`; `log.md`.
+Commands executed: `bun --version`, `bun install --frozen-lockfile`, `bun run format:check`, `bun run lint`, `bun run typecheck`, `bun test`, `bun run build`, `bun run clean`, `node scripts/preflight.ts` (adversarial), `rm -rf node_modules && bun install --frozen-lockfile` (fresh-checkout proof). All exit 0 except the adversarial Node run, which exits 1 as required.
+Evidence: `evidence/gh-001/verification-transcript.md` (environment versions, command transcripts, tooling decisions).
+Contract/API changes: none. No framework API exists yet; package manifests are skeleton-only and `private`.
+Security/performance impact: `.gitignore` excludes credentials and release artifacts; preflight fails closed on unsupported runtimes; no security claims made.
+Remaining risks: CI pipeline not yet executed on GitHub-hosted runners (GH-009); `@types/bun` 1.3.14 lags the Bun 1.4.0 runtime by one day; TypeScript 7 blocked on typescript-eslint support.
+Documentation updated: `log.md` entry, this closure record, `issues/m0/index.md` status, `README.md` implementation section.
+Newly unblocked issues: GH-002, GH-003.
