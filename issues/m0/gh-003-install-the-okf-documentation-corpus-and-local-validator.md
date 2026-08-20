@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every non-reserved Markdown concept has parseable frontmatter and a non-empty type.
-- [ ] Reserved index and log files follow OKF conventions.
-- [ ] Broken links, duplicate stable issue IDs, missing dependencies, and cycles fail validation.
-- [ ] Validation output states that it is local structural validation, not external certification.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every non-reserved Markdown concept has parseable frontmatter and a non-empty type.
+- [x] Reserved index and log files follow OKF conventions.
+- [x] Broken links, duplicate stable issue IDs, missing dependencies, and cycles fail validation.
+- [x] Validation output states that it is local structural validation, not external certification.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-003
+Commit / PR: branch `gh-003-okf-corpus-validator`; no GitHub remote yet, so no PR number.
+Files changed: `tools/okf-validator/{corpus.ts,rules.ts,cli.ts,okf-validator.test.ts}`, `docs/okf/README.md`, `.github/workflows/docs.yml`, root `package.json` (three new scripts + `yaml` devDependency), `tsconfig.json` (tools scope), `CONTRIBUTING.md` (battery), `evidence/gh-003/verification-transcript.md`, `log.md`.
+Commands executed: `bun run docs:validate` (exit 0; 205 documents, 96 issues), `bun run docs:links` (exit 0; 1031 links), `bun run issues:graph` (exit 0; 96 issues, 213 edges, no cycles, root GH-001), plus the full regression battery including `bun test` 14/14 — all exit 0.
+Evidence: `evidence/gh-003/verification-transcript.md`.
+Contract/API changes: new scripts `docs:validate`, `docs:links`, `issues:graph`; new `yaml` devDependency (validator tooling only — the zero-runtime-dependency policy for `@bundar/core` and `@bundar/jsx` is untouched and still enforced by tests).
+Security/performance impact: none; documentation tooling only.
+Remaining risks: link extraction ignores Markdown code fences (no current corpus reliance); validation is structural, not semantic review.
+Documentation updated: `docs/okf/README.md` (bundle layout), `log.md`, this closure record, `issues/m0/index.md`, `README.md`.
+Newly unblocked issues: GH-005 (with GH-004 also already unblocked), GH-009 (dependency GH-002 complete).

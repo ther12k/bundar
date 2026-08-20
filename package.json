@@ -24,6 +24,9 @@
     "test": "bun test",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
     "docs:check": "bun run scripts/docs-check.ts",
+    "docs:validate": "bun tools/okf-validator/cli.ts validate",
+    "docs:links": "bun tools/okf-validator/cli.ts links",
+    "issues:graph": "bun tools/okf-validator/cli.ts graph",
     "clean": "bun run scripts/clean.ts"
   },
   "devDependencies": {
@@ -33,6 +36,7 @@
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.67.0"
+    "typescript-eslint": "8.67.0",
+    "yaml": "2.9.0"
   }
 }
