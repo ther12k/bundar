@@ -1,7 +1,7 @@
 # M0 — Contracts & Foundation
 
 - [GH-001 — Initialize the Bun workspace and repository skeleton](gh-001-initialize-the-bun-workspace-and-repository-skeleton.md) — P0 / M; depends on none — **complete 2026-08-21** (closure record in issue)
-- [GH-002 — Add governance, licensing, security, and contribution foundations](gh-002-add-governance-licensing-security-and-contribution-foundations.md) — P0 / S; depends on GH-001
+- [GH-002 — Add governance, licensing, security, and contribution foundations](gh-002-add-governance-licensing-security-and-contribution-foundations.md) — P0 / S; depends on GH-001 — **complete 2026-08-21** (closure record in issue)
 - [GH-003 — Install the OKF documentation corpus and local validator](gh-003-install-the-okf-documentation-corpus-and-local-validator.md) — P0 / M; depends on GH-001
 - [GH-004 — Clear the Bundar brand and public namespaces](gh-004-clear-the-bundar-brand-and-public-namespaces.md) — P0 / M; depends on GH-001, GH-002
 - [GH-005 — Freeze public API principles and package boundaries](gh-005-freeze-public-api-principles-and-package-boundaries.md) — P0 / M; depends on GH-003, GH-004

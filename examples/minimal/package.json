@@ -3,5 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Minimal Bundar starter application."
+  "description": "Minimal Bundar starter application.",
+  "license": "MIT"
 }

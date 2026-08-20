@@ -3,5 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Todo reference application exercising forms, fragments, and actions."
+  "description": "Todo reference application exercising forms, fragments, and actions.",
+  "license": "MIT"
 }
