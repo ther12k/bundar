@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/htmx",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar HTMX dialect adapters: version-neutral protocol model with htmx 2 and htmx 4 profiles.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

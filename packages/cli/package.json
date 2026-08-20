@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar command-line tooling: dev server, route manifests, and the HTMX migration audit.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

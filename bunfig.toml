@@ -1,0 +1,5 @@
+# Bundar workspace-level Bun configuration.
+
+[install]
+# Record exact versions when adding dependencies so bun.lock stays deterministic.
+exact = true

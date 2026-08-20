@@ -1,0 +1,11 @@
+{
+  "name": "@bundar/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar HTTP core: typed route registration compiled to Bun.serve native route tables.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  }
+}

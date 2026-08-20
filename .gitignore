@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+*.tsbuildinfo
+
+# Test and coverage artifacts
+coverage/
+
+# Benchmark and conformance raw run outputs; curated gate evidence is tracked
+# under evidence/ by the milestone gate issues instead.
+benchmarks/**/results/
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+
+# Logs and caches
+*.log
+.cache/
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
