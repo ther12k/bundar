@@ -1,0 +1,25 @@
+# Declarative project automation policy for GH-009.
+# The GitHub Project UI/API owns runtime rules; this file is the reviewable source.
+name: Bundar Delivery
+new_issue_status: Todo
+pull_request_status: In Review
+merge_behavior: manual_done_only_with_acceptance_evidence
+dependency_behavior: no_automatic_ready_transition
+required_fields:
+  - Stable ID
+  - Status
+  - Milestone
+  - Priority
+  - Area
+  - Size
+  - Depends On
+  - Blocked By Upstream
+  - Evidence Link
+  - Release Gate
+views:
+  - Ready by milestone
+  - Blocked and upstream-dependent
+  - Security/P0
+  - HTMX 4 migration
+  - Release gate evidence
+  - Contributor-friendly tasks

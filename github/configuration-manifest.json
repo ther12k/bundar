@@ -1,0 +1,40 @@
+{
+  "repository": "ther12k/bundar",
+  "labels": {
+    "source": "github/labels.md",
+    "count": 45
+  },
+  "milestones": {
+    "source": "github/milestones.md",
+    "count": 8
+  },
+  "templates": {
+    "issue": ".github/ISSUE_TEMPLATE/implementation.yml",
+    "issueConfig": ".github/ISSUE_TEMPLATE/config.yml",
+    "pullRequest": ".github/pull_request_template.md"
+  },
+  "project": {
+    "source": ".github/project-fields.json",
+    "automationSource": ".github/project-automation.yml",
+    "title": "Bundar Delivery",
+    "number": 3,
+    "url": "https://github.com/users/ther12k/projects/3",
+    "owner": "ther12k",
+    "visibility": "PUBLIC",
+    "items": 96,
+    "views": [
+      "Ready by milestone",
+      "Blocked and upstream-dependent",
+      "Security/P0",
+      "HTMX 4 migration",
+      "Release gate evidence",
+      "Contributor-friendly tasks"
+    ],
+    "unsafeDefaultWorkflowsRemoved": ["Auto-close issue", "Pull request merged"]
+  },
+  "issueRegistration": {
+    "source": "github-created-issue-map.tsv",
+    "stableIds": 96,
+    "policy": "Stable IDs remain authoritative; GitHub numbers are mappings only."
+  }
+}

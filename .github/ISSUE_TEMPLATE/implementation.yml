@@ -1,0 +1,60 @@
+name: Implementation issue
+description: Propose one scoped, dependency-aware implementation task.
+title: ""
+labels: []
+body:
+  - type: input
+    id: stable-id
+    attributes:
+      label: Stable issue ID
+      description: Use the generated GH-NNN identifier; do not guess a GitHub issue number.
+      placeholder: GH-NNN
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: State one verifiable result.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and deliverables
+      description: List included work, concrete files, behavior, tests, and documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use observable, testable criteria.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Preserve stable IDs in dependency declarations.
+      placeholder: |
+        Depends on: GH-...
+        Blocks: GH-...
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification and evidence
+      description: Include exact commands, versions, artifacts, traces, or screenshots.
+    validations:
+      required: true
+  - type: checkboxes
+    id: governance
+    attributes:
+      label: Governance
+      options:
+        - label: I read MASTER_AGENT_PROMPT.md and checked the dependency ledger.
+          required: true
+        - label: I will update affected OKF documents and log.md with the change.
+          required: true
