@@ -3,6 +3,7 @@
   "include": [
     "scripts/**/*.ts",
     "tests/**/*.ts",
+    "tools/**/*.ts",
     "packages/*/src/**/*.ts",
     "create-bundar/src/**/*.ts"
   ]

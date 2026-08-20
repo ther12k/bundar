@@ -24,6 +24,8 @@ bun run typecheck
 bun test
 bun run build
 bun run docs:check
+bun run docs:validate
+bun run issues:graph
 ```
 
 Bun >= 1.4.0 is the only supported runtime; no Node package manager is

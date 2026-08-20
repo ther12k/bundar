@@ -92,5 +92,5 @@ bun run build                   # build all workspace packages
 bun run clean                   # remove build artifacts
 ```
 
-Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy). In progress: none. Next ready: GH-003, GH-004.
+Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy), GH-003 (OKF corpus + local validator: `docs:validate`, `docs:links`, `issues:graph`). In progress: none. Next ready: GH-004, GH-009; GH-005 after GH-004.
 
