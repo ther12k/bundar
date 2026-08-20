@@ -1,0 +1,124 @@
+---
+type: GitHub Issue Specification
+title: GH-035 — Add typed common HTMX attributes without runtime coupling
+description: TSX recognizes common stable `hx-*` attributes while the JSX runtime remains independent of any HTMX version package.
+tags:
+- github-issue
+- m2
+- jsx
+- feature
+- p1
+- m
+status: draft
+generated:
+  by: openai/gpt-5.6-pro
+  at: '2026-08-21T21:30:00+07:00'
+issue:
+  stable_id: GH-035
+  milestone: M2 — Server JSX Runtime
+  labels:
+  - type:feature
+  - area:jsx
+  - priority:p1
+  - size:m
+  priority: p1
+  size: m
+  depends_on:
+  - GH-005
+  - GH-028
+  blocks:
+  - GH-036
+  - GH-047
+  - GH-051
+---
+
+# GH-035 — Add typed common HTMX attributes without runtime coupling
+
+**Milestone:** M2 — Server JSX Runtime  
+**Labels:** `type:feature`, `area:jsx`, `priority:p1`, `size:m`  
+**Priority:** `P1`  
+**Size:** `M`
+
+## Outcome
+
+TSX recognizes common stable `hx-*` attributes while the JSX runtime remains independent of any HTMX version package.
+
+## Context
+
+This issue implements one bounded part of the [Bundar roadmap](../../delivery/roadmap.md), follows the [master agent prompt](../../MASTER_AGENT_PROMPT.md), and must satisfy the [release-gate standard](../../engineering/release-gates.md). Stable IDs remain authoritative even after GitHub assigns repository-specific issue numbers.
+
+## Deliverables
+
+- Add string-literal types for stable common attributes and documented open-string escape behavior.
+- Keep raw attribute names visible rather than wrapping every element in custom components.
+- Separate stable subset from dialect-specific augmentation modules.
+- Test HTML output remains ordinary attributes.
+
+## Out of scope
+
+- Parsing request headers or creating response directives.
+
+## Acceptance criteria
+
+- [ ] Common htmx attributes typecheck in normal intrinsic elements.
+- [ ] Unknown experimental attributes can be enabled deliberately without `any` leaking globally.
+- [ ] JSX package has no runtime dependency on `@bundar/htmx` or htmx.
+- [ ] Generated HTML does not rewrite attribute names.
+- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+
+## Verification
+
+```bash
+bun test packages/jsx/test/types/htmx-attributes.test-d.ts
+bun run architecture:check
+```
+
+Commands are planned contracts. During implementation, replace unavailable placeholder script names only through a documented tooling decision, and preserve equivalent or stronger evidence.
+
+## Dependencies
+
+- [GH-005 — Freeze public API principles and package boundaries](../m0/gh-005-freeze-public-api-principles-and-package-boundaries.md)
+- [GH-028 — Implement HTML attributes, class, style, and boolean serialization](gh-028-implement-html-attributes-class-style-and-boolean-serialization.md)
+
+## Blocks
+
+- [GH-036 — Close JSX conformance, security, and snapshot coverage](gh-036-close-jsx-conformance-security-and-snapshot-coverage.md)
+- [GH-047 — Add inheritance and extension compatibility helpers](../m3/gh-047-add-inheritance-and-extension-compatibility-helpers.md)
+- [GH-051 — Implement version-neutral out-of-band and partial update intents](../m3/gh-051-implement-version-neutral-out-of-band-and-partial-update-intents.md)
+
+
+## Suggested files
+
+- `packages/jsx/src/types/htmx.ts`
+- `packages/jsx/src/types/intrinsic.ts`
+- `packages/jsx/test/types/**`
+
+## Evidence required for closure
+
+- Source commit and pull request.
+- Exact Bun, TypeScript, operating-system, browser, Bundar-package, and relevant HTMX versions.
+- Exact commands with exit status and summarized output.
+- Test, benchmark, trace, screenshot, API report, package, or security artifacts required by the acceptance criteria.
+- Documentation and compatibility changes.
+- Residual risks, deviations, and newly unblocked stable IDs.
+
+## Implementation notes
+
+- Follow the master agent prompt and stop on contradictory evidence rather than weakening this issue.
+
+## Closure report template
+
+```markdown
+Stable ID: GH-035
+Commit / PR:
+Files changed:
+Commands executed:
+Evidence:
+Contract/API changes:
+Security/performance impact:
+Remaining risks:
+Documentation updated:
+Newly unblocked issues:
+```
