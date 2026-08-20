@@ -88,3 +88,13 @@ GH-009 is complete in the live repository; GH-010 remains blocked until GH-007 a
 - No performance claim or regression threshold is made. Bundar is not timed until its runtime implementation exists; observed raw Bun/Hono values are environment-specific baseline evidence only.
 
 GH-007 is complete; GH-010 remains blocked only by GH-008.
+
+## 2026-08-21 — GH-008: browser conformance harness for htmx 2 and htmx 4 lanes
+
+- Added a real Playwright CLI browser harness with a Bun ephemeral-port fixture server and one shared application source executed against pinned htmx `2.0.10` and htmx `4.0.0-beta6` assets.
+- Added smoke, fragment swap, form POST, history push, request-log, DOM, screenshot, console, and trace/network evidence capture. Exact asset versions, byte counts, and SHA-256 hashes are recorded in `evidence/gh-008/report.json`.
+- Added a fail-closed incorrect-header fixture. Both lanes exit nonzero with the intended missing `HX-Trigger-After-Swap` assertion; neither result is downgraded to a warning or pass.
+- Stable htmx2 records `event: afterRequest`. The htmx4 beta lane records `event: none` as a separate experimental observation; this is not an htmx 4 GA compatibility claim.
+- Browser verification passed: `bun run test:browser:htmx2`, `bun run test:browser:htmx4`, and `bun run test:browser:report` all exit 0. Transcript: `evidence/gh-008/verification-transcript.md`.
+
+GH-008 is complete; GH-010 is ready for the M0 contract-freeze gate. GH-053 and GH-054 inherit the browser harness for their dialect-profile closure work.

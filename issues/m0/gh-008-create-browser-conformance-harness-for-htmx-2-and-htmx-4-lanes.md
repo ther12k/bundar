@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-008
+Commit / PR: branch `gh-008-browser-conformance`; local implementation commit to be merged after repository gates.
+Files changed: `tests/browser/{server.ts,run.ts,report.ts}`, `fixtures/cross-dialect-app/index.html`, `fixtures/htmx2/{README.md,htmx.min.js}`, `fixtures/htmx4/{README.md,htmx.min.js}`, root `package.json`, `.gitignore`, `.prettierignore`, `evidence/gh-008/{report.json,verification-transcript.md}`, `issues/m0/index.md`, and `log.md`.
+Commands executed: `bun run test:browser:htmx2`, `bun run test:browser:htmx4`, and `bun run test:browser:report` — all exit 0. Full repository verification is required before merge.
+Evidence: combined report at `evidence/gh-008/report.json`; exact lane artifacts under `output/playwright/htmx2/` and `output/playwright/htmx4/` during local runs; transcript at `evidence/gh-008/verification-transcript.md`.
+Contract/API changes: browser-test and fixture tooling only; no Bundar runtime package API changes. htmx2 is the stable pinned lane; htmx4 `4.0.0-beta6` remains experimental and is explicitly not GA evidence.
+Security/performance impact: no external publication or production listener; negative header fixture fails closed; no performance claim is made.
+Remaining risks: htmx4 lifecycle state differs (`event: none` versus stable htmx2 `event: afterRequest`) and requires future adapter mapping; streaming/partial transport and Bundar runtime conformance remain future work.
+Documentation updated: `fixtures/htmx2/README.md`, `fixtures/htmx4/README.md`, `protocol/compatibility-matrix.md` and `engineering/browser-conformance.md` are the governing compatibility/conformance references; `evidence/gh-008/verification-transcript.md` and `log.md` record this run.
+Newly unblocked issues: GH-010 M0 contract-freeze gate; GH-053 and GH-054 receive the browser harness and remain responsible for closing their respective dialect profiles.

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-20T20:59:49.812Z",
+  "disclaimer": "Local browser conformance evidence only. htmx4 is beta/experimental and this report makes no htmx4 GA compatibility claim.",
+  "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+  "lanes": [
+    {
+      "lane": "htmx2",
+      "stability": "stable",
+      "htmxVersion": "2.0.10",
+      "asset": {
+        "path": "fixtures/htmx2/htmx.min.js",
+        "bytes": 51238,
+        "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
+      },
+      "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+      "baseUrl": "http://127.0.0.1:35711",
+      "scenarios": [
+        "smoke-page",
+        "fragment-swap",
+        "form-post",
+        "history-push",
+        "incorrect-header-negative"
+      ],
+      "lifecycleEvent": {
+        "expected": "event: afterRequest",
+        "observed": "event: afterRequest",
+        "classification": "stable-lane assertion",
+        "passed": true
+      },
+      "negativeFixture": {
+        "expected": "failure",
+        "observedExitCode": 1,
+        "reason": "HX-Trigger-After-Swap is intentionally absent; fixture must not be reported as a pass."
+      },
+      "artifacts": [
+        "baseline-snapshot.stdout.txt",
+        "fragment-snapshot.stdout.txt",
+        "dom.html",
+        "state.json",
+        "page.png",
+        "requests.stdout.txt",
+        "console.stdout.txt",
+        "trace-stop.stdout.txt"
+      ]
+    },
+    {
+      "lane": "htmx4",
+      "stability": "experimental",
+      "htmxVersion": "4.0.0-beta6",
+      "asset": {
+        "path": "fixtures/htmx4/htmx.min.js",
+        "bytes": 36282,
+        "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
+      },
+      "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+      "baseUrl": "http://127.0.0.1:45313",
+      "scenarios": [
+        "smoke-page",
+        "fragment-swap",
+        "form-post",
+        "history-push",
+        "incorrect-header-negative"
+      ],
+      "lifecycleEvent": {
+        "expected": "event: afterRequest",
+        "observed": "event: none",
+        "classification": "experimental-lane observation",
+        "passed": true
+      },
+      "negativeFixture": {
+        "expected": "failure",
+        "observedExitCode": 1,
+        "reason": "HX-Trigger-After-Swap is intentionally absent; fixture must not be reported as a pass."
+      },
+      "artifacts": [
+        "baseline-snapshot.stdout.txt",
+        "fragment-snapshot.stdout.txt",
+        "dom.html",
+        "state.json",
+        "page.png",
+        "requests.stdout.txt",
+        "console.stdout.txt",
+        "trace-stop.stdout.txt"
+      ]
+    }
+  ]
+}

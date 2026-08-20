@@ -49,3 +49,13 @@ sources:
 # Interpretation
 
 “Supported” means a pinned version passes Bundar conformance fixtures. It does not mean every upstream feature receives a cross-major guarantee. The stable subset is narrower than either upstream API.
+
+## GH-008 browser evidence
+
+The GH-008 fixture currently records htmx `2.0.10` as the stable lane and htmx
+`4.0.0-beta6` as an experimental lane. The shared browser source passes smoke,
+fragment, form, and history scenarios in both lanes. The stable lane observes
+`htmx:afterRequest`; the beta lane currently observes no matching legacy event.
+That difference is retained as adapter work and is not an htmx 4 GA compatibility
+claim. Exact asset hashes and run artifacts are recorded in
+`evidence/gh-008/report.json`.
