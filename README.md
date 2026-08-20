@@ -92,5 +92,5 @@ bun run build                   # build all workspace packages
 bun run clean                   # remove build artifacts
 ```
 
-Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy), GH-003 (OKF corpus + local validator: `docs:validate`, `docs:links`, `issues:graph`). In progress: none. Next ready: GH-004, GH-009; GH-005 after GH-004.
+Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy), GH-003 (OKF corpus + local validator: `docs:validate`, `docs:links`, `issues:graph`), GH-004 (brand clearance — ADR-0015; all identifiers temporary until reserved; planned GitHub org: `bundarjs`). In progress: GH-005. Next ready: GH-009.
 
