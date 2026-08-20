@@ -1,0 +1,89 @@
+{
+  "project": {
+    "title": "Bundar Delivery",
+    "description": "Dependency-aware delivery board for Bundar's 96 stable-ID issues.",
+    "owner": "ther12k",
+    "repository": "ther12k/bundar"
+  },
+  "fields": [
+    {
+      "name": "Stable ID",
+      "dataType": "TEXT",
+      "purpose": "Portable GH-NNN identity independent of GitHub issue numbers."
+    },
+    {
+      "name": "Status",
+      "dataType": "SINGLE_SELECT",
+      "options": ["Todo", "In Progress", "Done"],
+      "note": "GitHub's native project status field currently exposes Todo/In Progress/Done; review state is represented by pull-request linkage and the committed PR template."
+    },
+    {
+      "name": "Milestone",
+      "dataType": "MILESTONE",
+      "purpose": "M0 through M7 release milestones."
+    },
+    {
+      "name": "Priority",
+      "dataType": "SINGLE_SELECT",
+      "options": ["P0", "P1", "P2"]
+    },
+    {
+      "name": "Area",
+      "dataType": "SINGLE_SELECT",
+      "options": [
+        "repo",
+        "core",
+        "routing",
+        "middleware",
+        "jsx",
+        "htmx",
+        "forms",
+        "security",
+        "assets",
+        "cli",
+        "testing",
+        "docs",
+        "release"
+      ]
+    },
+    {
+      "name": "Size",
+      "dataType": "SINGLE_SELECT",
+      "options": ["XS", "S", "M", "L"]
+    },
+    {
+      "name": "Depends On",
+      "dataType": "TEXT",
+      "purpose": "Stable IDs only; never GitHub numbers."
+    },
+    {
+      "name": "Blocked By Upstream",
+      "dataType": "SINGLE_SELECT",
+      "options": ["No", "Yes"]
+    },
+    {
+      "name": "Evidence Link",
+      "dataType": "TEXT",
+      "purpose": "Path or URL to recorded verification evidence."
+    },
+    {
+      "name": "Release Gate",
+      "dataType": "SINGLE_SELECT",
+      "options": ["None", "M0", "M1", "M2", "M3", "M4", "M5", "M6", "M7"]
+    }
+  ],
+  "views": [
+    "Ready by milestone",
+    "Blocked and upstream-dependent",
+    "Security/P0",
+    "HTMX 4 migration",
+    "Release gate evidence",
+    "Contributor-friendly tasks"
+  ],
+  "automation": {
+    "newIssueStatus": "Todo",
+    "pullRequestStatus": "In Review",
+    "mergeBehavior": "Never auto-close as Done without acceptance evidence",
+    "dependencyBehavior": "Dependency completion does not automatically mark an issue Ready"
+  }
+}

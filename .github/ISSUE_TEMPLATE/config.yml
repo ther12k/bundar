@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability reporting
+    url: https://github.com/ther12k/bundar/security/advisories/new
+    about: Do not disclose vulnerabilities in public issues; use private vulnerability reporting.

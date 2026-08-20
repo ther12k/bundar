@@ -116,7 +116,10 @@ if (existsSync(issueTemplateDirectory)) {
     .map((entry) => join(".github", "ISSUE_TEMPLATE", entry.name));
   for (const template of templateFiles) {
     const content = readFileSync(join(repositoryRoot, template), "utf8");
-    if (/vulnerab|exploit|zero-day/i.test(content)) {
+    const isSecurityContact =
+      template.endsWith("/config.yml") &&
+      /security\/advisories\/new/i.test(content);
+    if (!isSecurityContact && /vulnerab|exploit|zero-day/i.test(content)) {
       problems.push(
         `${template} discusses vulnerabilities; security reports must stay private (SECURITY.md)`,
       );

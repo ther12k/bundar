@@ -67,3 +67,14 @@ No namespace reservation, trademark registration, or legal opinion is claimed by
 - Evidence transcript in `evidence/gh-005/verification-transcript.md`.
 
 No public API stability claim beyond the frozen principles is made by this event; exact signatures remain deferred to owning milestone issues.
+
+## 2026-08-21 — GH-009: GitHub labels, milestones, project fields, and automation
+
+- Created the public GitHub repository `ther12k/bundar` project configuration: 45 labels, 8 milestones, and project `Bundar Delivery` (#3) at `https://github.com/users/ther12k/projects/3`.
+- Added implementation issue and PR templates requiring stable IDs, dependency metadata, evidence, tests, security review, no-JS/dual-HTMX consideration, and OKF/log updates; public blank issues disabled and security reports routed privately.
+- Added a reviewable project field/automation manifest and populated all 96 project items with stable ID, priority, area, size, dependencies, upstream flag, release gate, and evidence links for completed issues. GH-001–GH-006 are `Done`; GH-009 is `In Progress`; remaining issues are `Todo`.
+- Configured six live views: Ready by milestone, Blocked and upstream-dependent, Security/P0, HTMX 4 migration, Release gate evidence, and Contributor-friendly tasks.
+- Removed GitHub's unsafe default `Auto-close issue` and `Pull request merged` workflows so merged PRs cannot close issues without acceptance evidence.
+- Evidence transcript in `evidence/gh-009/verification-transcript.md`; configuration mapping in `github/configuration-manifest.json`.
+
+GH-009 is complete in the live repository; GH-010 remains blocked until GH-007 and GH-008 are complete.

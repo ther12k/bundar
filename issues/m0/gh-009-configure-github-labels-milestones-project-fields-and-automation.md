@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Labels and milestones match the OKF configuration exactly.
-- [ ] Issue creation does not rely on guessed GitHub issue numbers.
-- [ ] Dependency links remain readable before and after GitHub-native relationships are added.
-- [ ] Automation never closes an issue merely because a PR merged without acceptance evidence.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Labels and milestones match the OKF configuration exactly.
+- [x] Issue creation does not rely on guessed GitHub issue numbers.
+- [x] Dependency links remain readable before and after GitHub-native relationships are added.
+- [x] Automation never closes an issue merely because a PR merged without acceptance evidence.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -120,3 +120,17 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-009
+Commit / PR: branch `gh-009-github-project-automation`; no separate PR required in this session; pushed through the repository's `main` workflow after verification.
+Files changed: `.github/ISSUE_TEMPLATE/implementation.yml`, `.github/ISSUE_TEMPLATE/config.yml`, `.github/pull_request_template.md`, `.github/project-fields.json`, `.github/project-automation.yml`, `github/configuration-manifest.json`, `evidence/gh-009/verification-transcript.md`, `scripts/docs-check.ts`, `log.md`.
+Live configuration: public project `https://github.com/users/ther12k/projects/3`, 96 items, 8 milestones, required custom fields, six requested views, and unsafe auto-close/PR-merged workflows removed.
+Commands executed: `bun run docs:validate`, `bun run docs:check`, template/config syntax checks, `gh project create/edit/link`, `gh project field-create`, `gh project item-add`, GraphQL view creation/update, GraphQL workflow deletion, and project field population for all 96 issues. All required commands exited 0.
+Evidence: `evidence/gh-009/verification-transcript.md`; live mapping in `github/configuration-manifest.json`.
+Contract/API changes: repository issue and PR templates now enforce stable IDs, evidence, dependency metadata, and governance checks; no framework runtime API changes.
+Security/performance impact: public issues now direct vulnerability reports to private GitHub advisories; unsafe project auto-close behavior removed.
+Remaining risks: project ownership is the user account `ther12k`, not a future maintainer organization; GitHub native status supports Todo/In Progress/Done only, with review represented by PR linkage/template.
+Documentation updated: `github/configuration-manifest.json`, `.github/project-fields.json`, `log.md`, this closure record.
+Newly unblocked issues: GH-010 remains gated on GH-007 and GH-008.
