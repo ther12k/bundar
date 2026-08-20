@@ -50,9 +50,14 @@ Both lanes execute the same source fixture and cover:
 - deliberately incorrect response-header fixture.
 
 Each lane records command output, DOM HTML, state JSON, screenshot, request log,
-console output, and Playwright trace/network resources under
-`output/playwright/<lane>/`. The curated combined report is
+explicit response headers, console output, and Playwright trace/network resources
+under `output/playwright/<lane>/`. The curated combined report is
 `evidence/gh-008/report.json`.
+
+The captured `/fragment` response headers in both lanes include status `200`,
+`content-type: text/html; charset=utf-8`, `vary: HX-Request`, and
+`x-bundar-fixture: fragment`; the exact JSON artifacts are
+`output/playwright/<lane>/response-headers.json`.
 
 Observed request sequence in both lanes:
 

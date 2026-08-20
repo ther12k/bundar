@@ -81,6 +81,12 @@ try {
     "run-code",
     "async page => { await page.waitForTimeout(250); }",
   ]);
+  await run("response-headers", [
+    "eval",
+    "async () => { const response = await fetch('/fragment', { headers: { 'HX-Request': 'true' } }); return JSON.stringify({ status: response.status, headers: Object.fromEntries(response.headers.entries()) }); }",
+    "--filename",
+    "response-headers.json",
+  ]);
 
   await run("dom-eval", [
     "eval",
@@ -167,6 +173,7 @@ try {
       "state.json",
       "page.png",
       "requests.stdout.txt",
+      "response-headers.json",
       "console.stdout.txt",
       "trace-stop.stdout.txt",
     ],

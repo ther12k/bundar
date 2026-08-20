@@ -129,8 +129,8 @@ Newly unblocked issues:
 Stable ID: GH-008
 Commit / PR: branch `gh-008-browser-conformance`; local implementation commit to be merged after repository gates.
 Files changed: `tests/browser/{server.ts,run.ts,report.ts}`, `fixtures/cross-dialect-app/index.html`, `fixtures/htmx2/{README.md,htmx.min.js}`, `fixtures/htmx4/{README.md,htmx.min.js}`, root `package.json`, `.gitignore`, `.prettierignore`, `evidence/gh-008/{report.json,verification-transcript.md}`, `issues/m0/index.md`, and `log.md`.
-Commands executed: `bun run test:browser:htmx2`, `bun run test:browser:htmx4`, and `bun run test:browser:report` — all exit 0. Full repository verification is required before merge.
-Evidence: combined report at `evidence/gh-008/report.json`; exact lane artifacts under `output/playwright/htmx2/` and `output/playwright/htmx4/` during local runs; transcript at `evidence/gh-008/verification-transcript.md`.
+Commands executed: `bun run test:browser:htmx2`, `bun run test:browser:htmx4`, and `bun run test:browser:report` — all exit 0. Full repository verification after the final evidence hardening also passed: format, lint, typecheck, docs validation/links/check, architecture check, 31 tests, build, and frozen install.
+Evidence: combined report at `evidence/gh-008/report.json`; exact lane artifacts under `output/playwright/htmx2/` and `output/playwright/htmx4/` during local runs, including captured `response-headers.json`; transcript at `evidence/gh-008/verification-transcript.md`.
 Contract/API changes: browser-test and fixture tooling only; no Bundar runtime package API changes. htmx2 is the stable pinned lane; htmx4 `4.0.0-beta6` remains experimental and is explicitly not GA evidence.
 Security/performance impact: no external publication or production listener; negative header fixture fails closed; no performance claim is made.
 Remaining risks: htmx4 lifecycle state differs (`event: none` versus stable htmx2 `event: afterRequest`) and requires future adapter mapping; streaming/partial transport and Bundar runtime conformance remain future work.

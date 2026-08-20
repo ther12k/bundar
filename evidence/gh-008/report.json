@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T20:59:49.812Z",
+  "generatedAt": "2026-08-20T21:10:09.687Z",
   "disclaimer": "Local browser conformance evidence only. htmx4 is beta/experimental and this report makes no htmx4 GA compatibility claim.",
   "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
   "lanes": [
@@ -14,7 +14,7 @@
         "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:35711",
+      "baseUrl": "http://127.0.0.1:33861",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
@@ -40,6 +40,7 @@
         "state.json",
         "page.png",
         "requests.stdout.txt",
+        "response-headers.json",
         "console.stdout.txt",
         "trace-stop.stdout.txt"
       ]
@@ -54,7 +55,7 @@
         "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:45313",
+      "baseUrl": "http://127.0.0.1:37999",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
@@ -80,6 +81,7 @@
         "state.json",
         "page.png",
         "requests.stdout.txt",
+        "response-headers.json",
         "console.stdout.txt",
         "trace-stop.stdout.txt"
       ]
