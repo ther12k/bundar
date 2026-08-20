@@ -64,13 +64,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Core and JSX zero-runtime-dependency policy is explicit.
-- [ ] No package creates a second router or hidden browser runtime.
-- [ ] HTMX version-specific details are confined to adapters and raw escape hatches.
-- [ ] Every planned public symbol has an owning package or is deliberately deferred.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Core and JSX zero-runtime-dependency policy is explicit.
+- [x] No package creates a second router or hidden browser runtime.
+- [x] HTMX version-specific details are confined to adapters and raw escape hatches.
+- [x] Every planned public symbol has an owning package or is deliberately deferred.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -131,3 +131,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-005
+Commit / PR: branch `gh-005-api-boundaries-freeze`; no GitHub remote yet, so no PR number.
+Files changed: `decisions/0016-public-api-boundaries-freeze.md` (new ADR), `decisions/index.md`, `engineering/package-api.md` (symbol ownership map + A/B/C classification), `tools/architecture-check/{check.ts,boundaries.json}`, root `package.json` (`architecture:check` script), `.github/workflows/ci.yml`, `evidence/gh-005/verification-transcript.md`, `log.md`, `issues/m0/index.md`, `README.md`.
+Commands executed: `bun run docs:validate` (exit 0, 207 documents), `bun run architecture:check` (exit 0, 7 package rules), adversarial probe with three injected violations (dialect import, external dependency, raw `HX-Request` string — all caught, exit 1, then restored), plus the full battery (format/lint/typecheck/`bun test` 14/14/build/docs:check/issues:graph — exit 0).
+Evidence: `evidence/gh-005/verification-transcript.md`; freeze in ADR-0016.
+Contract/API changes: frozen principles only — package map, dependency direction, handler contract, JSX boundary, HTMX subset + escape hatch, forbidden dependencies, non-goals, pre-1.0 change classification. Exact signatures deliberately deferred per issue scope.
+Security/performance impact: raw-htmx-string confinement outside `@bundar/htmx` is now machine-enforced; external-dependency injection into framework packages is machine-rejected.
+Remaining risks: string-level scanning is heuristic until the GH-006 harness layers stricter checks; examples are not yet covered by the manifest (empty until M5).
+Documentation updated: ADR-0016, `engineering/package-api.md`, `decisions/index.md`, `log.md`, README status.
+Newly unblocked issues: GH-006, GH-007, GH-008.

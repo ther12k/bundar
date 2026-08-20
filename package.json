@@ -27,6 +27,7 @@
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
     "docs:links": "bun tools/okf-validator/cli.ts links",
     "issues:graph": "bun tools/okf-validator/cli.ts graph",
+    "architecture:check": "bun tools/architecture-check/check.ts",
     "clean": "bun run scripts/clean.ts"
   },
   "devDependencies": {

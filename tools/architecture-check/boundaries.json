@@ -1,0 +1,61 @@
+{
+  "comment": "Frozen package boundary rules from ADR-0016 (GH-005). Enforced by tools/architecture-check/check.ts via `bun run architecture:check`. Changes require an ADR.",
+  "packages": {
+    "@bundar/core": {
+      "path": "packages/core",
+      "allowedBundarPackages": [],
+      "allowedExternalImports": []
+    },
+    "@bundar/jsx": {
+      "path": "packages/jsx",
+      "allowedBundarPackages": [],
+      "allowedExternalImports": []
+    },
+    "@bundar/htmx": {
+      "path": "packages/htmx",
+      "allowedBundarPackages": ["@bundar/jsx"],
+      "allowedExternalImports": []
+    },
+    "@bundar/schema": {
+      "path": "packages/schema",
+      "allowedBundarPackages": ["@bundar/core", "@bundar/jsx"],
+      "allowedExternalImports": []
+    },
+    "@bundar/testing": {
+      "path": "packages/testing",
+      "allowedBundarPackages": [
+        "@bundar/core",
+        "@bundar/jsx",
+        "@bundar/htmx",
+        "@bundar/schema"
+      ],
+      "allowedExternalImports": []
+    },
+    "@bundar/cli": {
+      "path": "packages/cli",
+      "allowedBundarPackages": [
+        "@bundar/core",
+        "@bundar/jsx",
+        "@bundar/htmx",
+        "@bundar/schema",
+        "@bundar/testing"
+      ],
+      "allowedExternalImports": []
+    },
+    "create-bundar": {
+      "path": "create-bundar",
+      "allowedBundarPackages": [
+        "@bundar/core",
+        "@bundar/jsx",
+        "@bundar/htmx",
+        "@bundar/schema",
+        "@bundar/testing",
+        "@bundar/cli"
+      ],
+      "allowedExternalImports": []
+    }
+  },
+  "builtinPrefixes": ["bun:", "node:"],
+  "rawHtmxConfinedTo": "@bundar/htmx",
+  "rawHtmxPatterns": ["HX-[A-Z][A-Za-z-]*", "htmx:[a-z][A-Za-z]*"]
+}
