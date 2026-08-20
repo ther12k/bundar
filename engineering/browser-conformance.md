@@ -23,3 +23,12 @@ Assertions focus on user-visible DOM, focus, URL/history, event payloads, networ
 # Failure artifacts
 
 Capture trace, screenshot, browser console, server logs, request/response headers, HTMX version/hash, and test seed. Retain artifacts for failed CI runs.
+
+# GH-008 baseline
+
+The GH-008 local harness uses one shared fixture source with exact local htmx
+assets, a Bun ephemeral-port server, and Playwright CLI sessions for the stable
+htmx `2.0.10` lane and experimental htmx `4.0.0-beta6` lane. It records DOM,
+history, request, console, screenshot, and trace/network artifacts. A deliberate
+missing-header fixture must exit nonzero. Beta observations are reported
+separately and cannot establish htmx 4 GA compatibility.
