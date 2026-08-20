@@ -14,3 +14,4 @@
 - [ADR-0012 — Do Not Add Hydration to Bundar Core](0012-no-hydration.md) — Architecture decision record for do not add hydration to bundar core.
 - [ADR-0013 — Use Focused Packages and Versioned HTMX Subpaths](0013-package-boundaries.md) — Architecture decision record for use focused packages and versioned htmx subpaths.
 - [ADR-0014 — Define Stability by Tested Profiles, Not Floating Majors](0014-compatibility-policy.md) — Architecture decision record for define stability by tested profiles, not floating majors.
+- [ADR-0015 — Brand Clearance Record and Temporary Namespace Policy](0015-brand-clearance.md) — Evidence-based namespace, registry, domain, and trademark screening for the Bundar name with an explicit temporariness policy and migration path.

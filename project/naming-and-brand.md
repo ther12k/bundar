@@ -50,7 +50,14 @@ import { htmx4 } from "@bundar/htmx/4";
 
 # Brand safeguards
 
-The selected name is a product decision, not evidence that npm scopes, GitHub organizations, domains, social handles, or trademarks are available. Before public announcement, complete issue `GH-004` and record searches, registrations, legal review when appropriate, and a fallback namespace.
+The selected name is a product decision, not evidence that npm scopes, GitHub organizations, domains, social handles, or trademarks are available. GH-004 completed automated screening on 2026-08-21; the full record lives in [ADR-0015](../decisions/0015-brand-clearance.md). Summary:
+
+- npm: `@bundar/*`, `bundar`, `create-bundar`, and fallback `@bundarjs/*` all appear unpublished (HTTP 404); **nothing is reserved yet — all identifiers are explicitly temporary**.
+- GitHub: a personal account `Bundar` (since 2016) blocks the `bundar` organization name; the planned organization is **`bundarjs`** (screened available, unreserved).
+- Domains: `bundar.com` is registered and parked; `bundar.dev` and others appear unregistered. No domain is reserved.
+- Trademark: web screening found no exact "Bundar" software mark (closest: BUNDLAR, an AR platform); official database screening (USPTO, EUIPO, WIPO, Indonesia DGIP) and counsel review remain **required before any public announcement**. No search result is legal advice.
+
+Reservation is enforced at the publication gates (GH-086 and the M6 release issues), which must re-verify availability immediately before first publication.
 
 Preferred fallback order if `@bundar` is unavailable:
 

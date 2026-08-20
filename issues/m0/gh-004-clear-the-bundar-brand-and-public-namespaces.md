@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No document treats a search result as legal advice.
-- [ ] The decision record distinguishes word meaning from trademark and namespace availability.
-- [ ] Package names and repository URLs are either reserved or explicitly temporary.
-- [ ] A rejected name has a documented migration path before external packages are published.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No document treats a search result as legal advice.
+- [x] The decision record distinguishes word meaning from trademark and namespace availability.
+- [x] Package names and repository URLs are either reserved or explicitly temporary.
+- [x] A rejected name has a documented migration path before external packages are published.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,17 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-004
+Commit / PR: branch `gh-004-brand-clearance`; no GitHub remote yet, so no PR number.
+Files changed: `decisions/0015-brand-clearance.md` (new ADR), `decisions/index.md`, `project/naming-and-brand.md`, `evidence/gh-004/verification-transcript.md`, `log.md`, this issue file, `issues/m0/index.md`, `README.md`.
+Commands executed: npm registry HTTP probes (7 identifiers, all 404), GitHub API probes (`users/bundar` 200 — org name blocked; `users/bundarjs`/`orgs/bundarjs` 404 — available), PyPI 404, crates.io 404, DNS NS status for 7 domains (`bundar.com` NOERROR/parked; `.dev/.org/.io/.app`, `bundarjs.org/.dev` NXDOMAIN), trademark web screening, `bun run docs:validate` (exit 0, 206 documents). Full outputs in the evidence transcript.
+Evidence: `evidence/gh-004/verification-transcript.md`; decision in ADR-0015.
+Contract/API changes: none. Package names remain temporary and `private`; the planned GitHub organization is `bundarjs` because a personal account holds the `bundar` name since 2016.
+Security/performance impact: none.
+Remaining risks: nothing is reserved — availability can change; official trademark databases (USPTO/EUIPO/WIPO/DGIP) and counsel review not done (announcement-gate precondition); social handles unchecked; DNS NXDOMAIN is not registrar proof.
+Documentation updated: ADR-0015, `decisions/index.md`, `project/naming-and-brand.md`, `log.md`, README status.
+Path deviation: decision record at `decisions/0015-brand-clearance.md` (repository-root OKF bundle, per GH-003) instead of the suggested `docs/okf/decisions/…`; stronger evidence because `docs:validate` now structurally validates the ADR.
+Newly unblocked issues: GH-005.
