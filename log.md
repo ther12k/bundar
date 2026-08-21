@@ -302,3 +302,12 @@ GH-019 is complete; GH-023 and GH-062 gain their access-adapter prerequisite.
 - Verification: jsx 75/75 (13 async tests), full repo 224/224, typecheck, lint, architecture (34 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-030/verification-transcript.md`.
 
 GH-030 is complete; GH-033 and GH-034 are unblocked.
+
+## 2026-08-21 — GH-043: pinned stable HTMX 2 dialect adapter
+
+- Built the full v2 profile in `packages/htmx/src/dialects/v2/`: exact 2.0.10 pin (GH-008 SHA-256), complete header lists, lifecycle/history/error/inheritance records, supported extensions, and an explicit unimplemented list (hx-vals js:, sse/websocket) — nothing approximated silently. decode/encode delegate to the GH-041/GH-042 neutral layers.
+- Type repair: stale GH-040-era HtmxRequestMetadata replaced by an alias to NormalizedHtmxRequest; v4 adapter migrated onto the same delegating decoders.
+- Stable-lane purity asserted: no beta/htmx4/v4 strings anywhere in the v2 profile or metadata.
+- Verification: v2 suite 13/13 (positive/absent/malformed/conflict per field), htmx 50/50, browser htmx2 lane exit 0, full repo 237/237, typecheck, lint, architecture (35 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-043/verification-transcript.md`.
+
+GH-043 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-053 are unblocked.

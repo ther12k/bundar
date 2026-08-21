@@ -4,6 +4,7 @@ import {
   isEmulated,
   isNative,
   isUnsupported,
+  normalizeHtmxRequest,
   type HtmxDialectAdapter,
   type HtmxRequestMetadata,
   type HtmxResponseDirective,
@@ -44,14 +45,14 @@ describe("GH-040 dialect adapter interface", () => {
     });
     const decoded: HtmxRequestMetadata = htmx2.decodeRequest(request);
     expect(decoded.isHtmx).toBe(true);
-    expect(decoded.target).toBe("main");
-    expect(decoded.trigger).toBe("btn");
-    expect(decoded.currentUrl).toBe("http://localhost/");
-    expect(Object.isFrozen(decoded)).toBe(true);
+    expect(decoded.target.value).toBe("main");
+    expect(decoded.sourceElement.value).toBe("btn");
+    expect(decoded.currentUrl.value?.href).toBe("http://localhost/");
+    expect(decoded.kind).toBe("standard");
 
     const plain = htmx2.decodeRequest(new Request("http://localhost/"));
     expect(plain.isHtmx).toBe(false);
-    expect(plain.target).toBeNull();
+    expect(plain.target.value).toBeNull();
   });
 
   test("encodeResponseDirective covers every neutral directive kind", () => {
@@ -112,14 +113,8 @@ describe("GH-040 synthetic third dialect extensibility", () => {
     }),
     metadata: Object.freeze({ "synthetic:note": "test-only dialect" }),
     decodeRequest: (request: Request): HtmxRequestMetadata =>
-      Object.freeze({
-        isHtmx: request.headers.has("X-Synth"),
-        isBoosted: false,
-        target: null,
-        trigger: null,
-        triggerName: null,
-        currentUrl: null,
-        prompt: null,
+      normalizeHtmxRequest(request, {
+        headerAliases: { "HX-Request": "X-Synth" },
       }),
     encodeResponseDirective: () => new Headers(),
     describeAsset: () => ({
@@ -138,7 +133,7 @@ describe("GH-040 synthetic third dialect extensibility", () => {
     expect(synthetic.id).toBe("synthetic-hx");
     expect(
       synthetic.decodeRequest(
-        new Request("http://x/", { headers: { "X-Synth": "1" } }),
+        new Request("http://x/", { headers: { "X-Synth": "true" } }),
       ).isHtmx,
     ).toBe(true);
     expect(synthetic.describeAsset().source).toBe("custom");
@@ -178,6 +173,11 @@ describe("GH-040 synthetic third dialect extensibility", () => {
     );
     expect(r1.isHtmx).toBe(true);
     expect(r2.isHtmx).toBe(false);
-    expect(r3).toEqual(r1);
+    // data fields identical across decodes (raw is a per-decode diagnostic fn)
+    const { raw: rawA, ...data1 } = r1;
+    const { raw: rawB, ...data3 } = r3;
+    expect(data1).toEqual(data3);
+    expect(rawA.__diagnosticOnly).toBe(true);
+    expect(rawB.__diagnosticOnly).toBe(true);
   });
 });
