@@ -5,6 +5,7 @@
  * entries. Route matching is performed entirely by Bun; Bundar never scans
  * the route list at request time.
  */
+import { createContext, type ContextServicesOptions } from "../context";
 import { validateRouteConflicts, type RouteDeclaration } from "./conflicts";
 import type { RouteDescriptor } from "./types";
 
@@ -23,7 +24,7 @@ export type BunRouteEntry =
   | { readonly [method: string]: Response | BunRouteHandler };
 
 /** Deterministic subset of Bun's `Serve` options produced by the compiler. */
-export interface CompiledServerOptions {
+export interface CompiledServerOptions extends ContextServicesOptions {
   routes: Record<string, BunRouteEntry>;
   fetch: (request: Request) => Response | Promise<Response>;
 }
@@ -74,6 +75,7 @@ export class StaticRouteMetadataError extends Error {
  */
 export function compileRoutes(
   routes: readonly RouteDescriptor[],
+  options: ContextServicesOptions = {},
 ): CompiledServerOptions {
   const declarations: RouteDeclaration[] = routes.map((route, index) => ({
     route,
@@ -111,7 +113,12 @@ export function compileRoutes(
 
     const handler = descriptor.handler;
     for (const method of descriptor.methods) {
-      group[method] = (request) => handler(request, request.params ?? {});
+      // GH-017: a Context is created only here, per dynamic request. Static
+      // Response entries above never allocate a Context.
+      group[method] = (request) => {
+        const params = request.params ?? {};
+        return handler(createContext(request, params, options), params);
+      };
     }
   }
 

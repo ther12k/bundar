@@ -8,7 +8,7 @@
  * re-registered for normal runs by `route-descriptor.test.ts`.
  */
 import { describe, expect, test } from "bun:test";
-import { HTTP_METHODS, isHttpMethod } from "@bundar/core";
+import { createContext, HTTP_METHODS, isHttpMethod } from "@bundar/core";
 import type {
   HandlerRoute,
   HttpMethod,
@@ -146,9 +146,9 @@ describe("GH-012 route descriptor type model", () => {
     const route: HandlerRoute<"/users/:id"> = {
       path: "/users/:id",
       methods: ["GET"],
-      handler: (request, params) => {
+      handler: (context, params) => {
         const id: string = params.id;
-        return new Response(`${request.method} user ${id}`);
+        return new Response(`${context.request.method} user ${id}`);
       },
       meta: { name: "user-detail" },
     };
@@ -156,7 +156,10 @@ describe("GH-012 route descriptor type model", () => {
     expect(route.methods).toEqual(["GET"]);
     expect(route.meta).toEqual({ name: "user-detail" });
     expect(
-      route.handler(new Request("http://x/users/7"), { id: "7" }),
+      route.handler(
+        createContext(new Request("http://x/users/7"), { id: "7" }),
+        { id: "7" },
+      ),
     ).toBeInstanceOf(Response);
   });
 
@@ -169,14 +172,17 @@ describe("GH-012 route descriptor type model", () => {
     const asyncRoute: HandlerRoute<"/async"> = {
       path: "/async",
       methods: ["POST"],
-      handler: async (request) => new Response(await request.text()),
+      handler: async (context) => new Response(await context.request.text()),
     };
-    expect(sync.handler(new Request("http://x/sync"), {})).toBeInstanceOf(
-      Response,
-    );
+    expect(
+      sync.handler(createContext(new Request("http://x/sync"), {}), {}),
+    ).toBeInstanceOf(Response);
     await expect(
       asyncRoute.handler(
-        new Request("http://x/async", { method: "POST", body: "payload" }),
+        createContext(
+          new Request("http://x/async", { method: "POST", body: "payload" }),
+          {},
+        ),
         {},
       ),
     ).resolves.toBeInstanceOf(Response);

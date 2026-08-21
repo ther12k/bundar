@@ -226,3 +226,12 @@ GH-040 is complete; GH-041, GH-042, GH-046, and GH-047 are unblocked.
 - Verification: fast-path tests 5/5, full repo 112/112, typecheck, lint, architecture (25 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-016/verification-transcript.md`.
 
 GH-016 is complete; GH-023 gains its static-path prerequisite.
+
+## 2026-08-21 — GH-017: request context contract
+
+- Landed `Context` in `packages/core/src/context.ts`: by-reference `request`/native `params`, memoized `url`, lazy single-parse `query()`/`cookie()`, frozen app-level `services` (via `compile`/`serve` options), and per-request `state` (middleware's declared extension vehicle). Handlers now receive the Context as first argument per the GH-012 note; return contract unchanged.
+- Proved contexts are created only for dynamic handlers (static entries stay bare Responses), no eager body read, and zero state leakage across 64 gated concurrent requests.
+- Benchmark artifact: context+lazy access p50 812ns over 100k iterations (`evidence/gh-017/context-bench.json`).
+- Verification: full repo 123/123, typecheck, lint, architecture (26 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-017/verification-transcript.md`.
+
+GH-017 is complete; GH-018, GH-019, GH-020, GH-021, and GH-057 are unblocked.
