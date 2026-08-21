@@ -1,13 +1,24 @@
 /**
- * Bun.serve route table compiler (GH-015).
+ * Bun.serve route table compiler (GH-015, GH-018 middleware composition).
  *
  * Compiles Bundar route descriptors into native `Bun.serve({ routes })`
  * entries. Route matching is performed entirely by Bun; Bundar never scans
- * the route list at request time.
+ * the route list at request time. Middleware chains compose ONCE here.
  */
 import { createContext, type ContextServicesOptions } from "../context";
+import { composeMiddleware, type Middleware } from "../middleware";
 import { validateRouteConflicts, type RouteDeclaration } from "./conflicts";
 import type { RouteDescriptor } from "./types";
+
+/** Route descriptor carrying its composed middleware chain (compile-time). */
+export type MiddlewareRouteDescriptor = RouteDescriptor & {
+  middleware?: readonly Middleware[];
+};
+
+export type CompileOptions = ContextServicesOptions & {
+  /** App-level middleware prepended to every route's own chain. */
+  middleware?: readonly Middleware[];
+};
 
 /**
  * A Bun native route handler. Bun extends Request with a `params` record
@@ -75,7 +86,7 @@ export class StaticRouteMetadataError extends Error {
  */
 export function compileRoutes(
   routes: readonly RouteDescriptor[],
-  options: ContextServicesOptions = {},
+  options: CompileOptions = {},
 ): CompiledServerOptions {
   const declarations: RouteDeclaration[] = routes.map((route, index) => ({
     route,
@@ -88,6 +99,7 @@ export function compileRoutes(
     string,
     Record<string, Response | BunRouteHandler>
   >();
+  const appMiddleware = options.middleware ?? [];
 
   for (const descriptor of normalized) {
     let group = pathGroups.get(descriptor.path);
@@ -112,12 +124,26 @@ export function compileRoutes(
     }
 
     const handler = descriptor.handler;
+    // Route-level middleware (captured at registration under meta.middleware)
+    // composes after app-level middleware.
+    const routeMiddleware = descriptor.meta?.["middleware"] as
+      readonly Middleware[] | undefined;
+    const chain = [...appMiddleware, ...(routeMiddleware ?? [])];
+
     for (const method of descriptor.methods) {
       // GH-017: a Context is created only here, per dynamic request. Static
       // Response entries above never allocate a Context.
+      // GH-018: the middleware chain is composed ONCE here at compile time.
       group[method] = (request) => {
         const params = request.params ?? {};
-        return handler(createContext(request, params, options), params);
+        const context = createContext(request, params, options);
+        if (chain.length === 0) {
+          return handler(context, params);
+        }
+        const composed = composeMiddleware(chain, (ctx) =>
+          handler(ctx, params),
+        );
+        return composed(context);
       };
     }
   }

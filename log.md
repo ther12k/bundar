@@ -276,3 +276,12 @@ GH-041 is complete; GH-043, GH-044, and GH-048 gain their request-metadata prere
 - Verification: htmx 37/37, full repo 189/189, typecheck, lint, architecture (31 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-042/verification-transcript.md`.
 
 GH-042 is complete; GH-043, GH-044, GH-050, and GH-052 are unblocked.
+
+## 2026-08-21 — GH-018: startup-composed sync and async middleware
+
+- Landed `composeMiddleware` in `packages/core/src/middleware.ts`: onion ordering with reverse unwind, one-time startup composition in the compiler, sync fast path (all-sync chains return plain Responses — no framework Promise), DoubleNextError/MissingResponseError diagnostics, and `App.use()` scoping where chains travel per-route under frozen meta.middleware.
+- Scope discipline: group chains evaluate parent scope lazily; `mount()` strips the module's own chain and applies the mounting app's chain — module middleware never crosses boundaries silently; no app-level/route-level double application.
+- Benchmark artifact: bare 121ns, sync×1 149ns, sync×5 207ns, async×1 ~200ns (`evidence/gh-018/middleware-bench.json`).
+- Verification: middleware suite 12/12 (live-server scope tests), full repo 201/201, typecheck, lint, architecture (32 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-018/verification-transcript.md`.
+
+GH-018 is complete; GH-020, GH-023, and the M4 security middleware chain are unblocked.

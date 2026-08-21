@@ -62,13 +62,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Ordering and unwind behavior are covered by deterministic tests.
-- [ ] Double `next()` fails clearly.
-- [ ] Sync-only route instrumentation reports no framework-created Promise path.
-- [ ] Middleware scope cannot silently cross mounted module boundaries.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Ordering and unwind behavior are covered by deterministic tests.
+- [x] Double `next()` fails clearly.
+- [x] Sync-only route instrumentation reports no framework-created Promise path.
+- [x] Middleware scope cannot silently cross mounted module boundaries.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
