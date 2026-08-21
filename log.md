@@ -155,3 +155,21 @@ GH-013 is complete; GH-014 is now implemented on its dedicated worktree.
   `evidence/gh-014/verification-transcript.md`.
 
 GH-014 is complete; GH-015 is unblocked after this branch merges.
+
+## 2026-08-21 — GH-026: @bundar/jsx package and JSX type surface
+
+- Landed the JSX type surface in `@bundar/jsx`: automatic runtime (`jsx`,
+  `jsxs`, `Fragment`), development runtime (`jsxDEV`), `JSX.IntrinsicElements`
+  for a representative HTML element set, `JSXNode`/`JSXChild`/`JSXComponent`
+  types, and `UnsupportedClientEvent` guidance for browser handler conventions.
+- Added three package exports: `.`, `./jsx-runtime`, `./jsx-dev-runtime`. Zero
+  runtime dependencies. No React, DOM, or hydration dependency.
+- TSX consumer fixture at `tests/consumer/jsx/fixture.tsx` compiles with
+  `jsxImportSource: "@bundar/jsx"` under TypeScript 6's `react-jsx` transform.
+  Client event handlers produce a type error with the guidance literal. Added
+  `test:consumer:jsx` script.
+- Verification: package typecheck, runtime test 1/1, consumer fixture compile,
+  lint, architecture, package inspection, build all exit 0. Evidence:
+  `evidence/gh-026/verification-transcript.md`.
+
+GH-026 is complete; GH-027 is unblocked.

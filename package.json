@@ -24,6 +24,7 @@
     "test:types": "bun scripts/test-types.ts",
     "typecheck:perf": "bun scripts/typecheck-perf.ts",
     "test": "bun test",
+    "test:consumer:jsx": "bunx tsc --noEmit -p tests/consumer/jsx/tsconfig.json",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
     "docs:check": "bun run scripts/docs-check.ts",
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
