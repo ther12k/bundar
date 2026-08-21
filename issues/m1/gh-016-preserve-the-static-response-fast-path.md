@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Object identity or equivalent inspection proves pass-through behavior.
-- [ ] No Bundar handler closure is introduced for a pure static route.
-- [ ] Behavior matches raw Bun for status, headers, and body.
-- [ ] Benchmark artifact records overhead versus raw Bun.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Object identity or equivalent inspection proves pass-through behavior.
+- [x] No Bundar handler closure is introduced for a pure static route.
+- [x] Behavior matches raw Bun for status, headers, and body.
+- [x] Benchmark artifact records overhead versus raw Bun.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

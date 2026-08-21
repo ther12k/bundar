@@ -36,11 +36,35 @@ export function defaultNotFound(): Response {
 }
 
 /**
+ * Metadata keys that would force dynamic handling of an otherwise static
+ * route. Middleware does not exist yet (GH-018); when it does, attaching it
+ * to a static entry must convert the entry to a handler rather than silently
+ * discarding the middleware. Until then, such metadata fails closed here.
+ */
+export const STATIC_ROUTE_FORBIDDEN_META_KEYS: readonly string[] = [
+  "middleware",
+  "dynamic",
+  "per-request",
+];
+
+/** Thrown when a static Response entry carries metadata it cannot honor. */
+export class StaticRouteMetadataError extends Error {
+  public constructor(path: string, key: string) {
+    super(
+      `static Response route "${path}" declares meta.${key}, which requires dynamic handling; ` +
+        `register a handler route instead so the behavior is explicit`,
+    );
+    this.name = "StaticRouteMetadataError";
+  }
+}
+
+/**
  * Compiles descriptors into a Bun route table.
  *
  * - Descriptor paths are normalized and conflict-checked first (GH-014).
- * - Static `Response` entries are passed through untouched so Bun's
- *   zero-allocation static dispatch remains available (GH-016 gate).
+ * - Static `Response` entries are passed to Bun by reference so Bun's
+ *   zero-allocation static dispatch remains available (GH-016): the compiled
+ *   entry IS the caller's Response instance, and no Bundar closure wraps it.
  * - Handler routes are wrapped once at compile time; the wrapper reads
  *   `request.params` provided by Bun's router and adapts it to Bundar's
  *   `(request, params)` handler contract.
@@ -72,6 +96,13 @@ export function compileRoutes(
     }
 
     if ("response" in descriptor) {
+      if (descriptor.meta) {
+        for (const key of STATIC_ROUTE_FORBIDDEN_META_KEYS) {
+          if (key in descriptor.meta) {
+            throw new StaticRouteMetadataError(descriptor.path, key);
+          }
+        }
+      }
       for (const method of descriptor.methods) {
         group[method] = descriptor.response;
       }

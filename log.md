@@ -217,3 +217,12 @@ GH-027 is complete; GH-028, GH-029, and GH-031 are unblocked.
 - Proved extensibility with a synthetic third dialect implemented entirely in tests; asserted immutability and cross-request reusability. Verification: htmx suite 15/15, test:types 9/9, typecheck, lint, architecture (25 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-040/verification-transcript.md`.
 
 GH-040 is complete; GH-041, GH-042, GH-046, and GH-047 are unblocked.
+
+## 2026-08-21 — GH-016: preserve the static Response fast path
+
+- Proved the compiler's static pass-through by object identity: the native route-table entry IS the caller's Response instance, with no Bundar closure (`typeof` contrast against handler routes). Live-server comparison against a hand-written raw Bun table shows identical status/headers/body.
+- Added fail-closed guards: `StaticRouteMetadataError` rejects static entries declaring `middleware`/`dynamic`/`per-request` meta, documenting when a static response must become a handler (pre-GH-018 boundary).
+- Benchmark tool `tools/benchmark/static-fast-path.ts` records raw numbers: −6.23% p50 overhead vs raw Bun (noise; identical native dispatch). Artifact: `evidence/gh-016/static-response-bench.json`.
+- Verification: fast-path tests 5/5, full repo 112/112, typecheck, lint, architecture (25 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-016/verification-transcript.md`.
+
+GH-016 is complete; GH-023 gains its static-path prerequisite.

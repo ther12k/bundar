@@ -31,6 +31,8 @@ describe("GH-011 @bundar/core package skeleton", () => {
       "RouteConflictError",
       "RoutePathValidationError",
       "RouteValidationError",
+      "STATIC_ROUTE_FORBIDDEN_META_KEYS",
+      "StaticRouteMetadataError",
       "assertRouteConflictsFree",
       "cloneRouteDescriptor",
       "compileRoutes",
