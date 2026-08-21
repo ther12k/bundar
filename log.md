@@ -117,3 +117,12 @@ GH-008 is complete; GH-053 and GH-054 inherit the browser harness for their dial
 - Residuals: publish-time layout deferred to GH-084–GH-086; tar parser does not interpret pax path overrides (not emitted at current path lengths).
 
 GH-011 is complete; GH-012 and GH-026 are unblocked.
+
+## 2026-08-21 — GH-012: route descriptor and handler types
+
+- Landed the first public type surface of `@bundar/core` in `packages/core/src/routing/types.ts`: `HTTP_METHODS`/`isHttpMethod` (exactly the `Bun.serve` route-table methods; CONNECT/TRACE absent), `RouteParams` literal `:param` inference, `ValidateRoutePath` with documented wildcard/optional-pattern behavior, `RouteHandler` (`Response | Promise<Response>` only, ADR-0016), `RouteMethods` duplicate rejection for const tuples, `RouteMetadata`, and the `HandlerRoute`/`StaticRoute`/`RouteDescriptor` unions with static `Response` entries modeled separately from callable handlers.
+- Added `packages/core/test/types/route-descriptor.test-d.ts` (21 compile-time expectations plus 9 runtime tests) with `type-utils.ts` helpers; root `tsconfig.json` now includes `packages/*/test/**/*.ts` so `bun run typecheck` enforces the type tests. Tooling decision: Bun discovery does not match `.test-d.ts`, so the planned command runs the file via an explicit `./` path and a `.test.ts` wrapper re-registers it for normal runs.
+- Adversarial verification: a corrupted `RouteParams` expectation fails root typecheck (exit 2) and the restored file passes; the type tests themselves caught three model defects during development (bare-`*` ordering, `Simplify<unknown>` normalization, `@ts-expect-error` placement).
+- Full battery green: format, lint, package/root typecheck, architecture (8 source files), `pack:inspect` (4 packed files, 0 dependencies), `bun test` 44/44, build, frozen install, docs validate/links/graph/check. Evidence: `evidence/gh-012/verification-transcript.md`.
+
+GH-012 is complete; GH-013 and GH-014 are unblocked.

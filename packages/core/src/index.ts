@@ -1,3 +1,8 @@
-// @bundar/core skeleton (GH-001). Framework behavior is intentionally absent;
-// routing, context, middleware, and error handling land with M1 (GH-011–GH-025).
-export {};
+/**
+ * @bundar/core public surface.
+ *
+ * GH-012 exports the typed route model. Runtime routing (builder, path
+ * normalization, compilation to `Bun.serve` route tables) lands with
+ * GH-013–GH-015; context, middleware, and error handling with GH-017–GH-022.
+ */
+export * from "./routing/types";
