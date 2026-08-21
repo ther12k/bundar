@@ -4,7 +4,10 @@
  * Text context escaping covers `&`, `<`, and `>`. Attribute-value escaping
  * (GH-028 scope for full attributes) additionally neutralizes both quote
  * characters so hostile strings cannot break out of either quoting style.
+ * Branded raw values (GH-031) are the only objects that bypass escaping.
  */
+import { isRawHtml } from "./raw";
+
 const TEXT_ESCAPES: Readonly<Record<string, string>> = {
   "&": "&amp;",
   "<": "&lt;",
@@ -76,5 +79,7 @@ export function renderPrimitive(child: unknown): string {
     return String(child);
   }
   if (type === "bigint") return `${child}`;
+  // GH-031: the only object form renderable as text is a branded raw value.
+  if (isRawHtml(child)) return child.html;
   throw new UnsupportedChildError(child);
 }
