@@ -1,6 +1,8 @@
 # @bundar/cli
 
-Skeleton package created by GH-001. No commands are implemented yet.
+Bundar command-line interface framework (GH-070).
 
-- Purpose: the `bundar` CLI — command framework (GH-070), dev server and reload loop (GH-072), typed route manifests (GH-073), and the HTMX 2→4 audit (GH-078).
-- Boundaries: consumes public package APIs only; `@bundar/core` never imports it (`engineering/repository-layout.md`).
+- Purpose: `bundar` CLI executable, command registry, argument parsing, and diagnostic reporting.
+- Executable: `bundar` (defined in `bin.ts`).
+- Zero runtime dependencies: uses native Bun APIs and lightweight argument parsing.
+- Future commands: dev server (GH-072), manifest generation (GH-073), test helpers (GH-074), and HTMX migration audit (GH-078).

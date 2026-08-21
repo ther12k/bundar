@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] `bunx bundar --help` and `--version` work from a packed fixture.
-- [ ] Unknown commands and invalid options exit nonzero with useful messages.
-- [ ] CLI reports Bun, Bundar package, platform, and selected adapter versions without leaking environment secrets.
-- [ ] Runtime dependencies satisfy the approved policy.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] `bunx bundar --help` and `--version` work from a packed fixture.
+- [x] Unknown commands and invalid options exit nonzero with useful messages.
+- [x] CLI reports Bun, Bundar package, platform, and selected adapter versions without leaking environment secrets.
+- [x] Runtime dependencies satisfy the approved policy.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

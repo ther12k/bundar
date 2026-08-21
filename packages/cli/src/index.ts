@@ -1,3 +1,6 @@
-// @bundar/cli skeleton (GH-001). Framework behavior is intentionally absent;
-// the command framework lands with M5 (GH-070–GH-078).
-export {};
+/**
+ * @bundar/cli programmatic API (GH-070).
+ */
+export { BUNDAR_VERSION, parseArgs, registerCommand, runCli } from "./cli";
+
+export type { CommandContext, CommandDefinition, CommandHandler } from "./cli";

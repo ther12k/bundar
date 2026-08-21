@@ -182,3 +182,13 @@ GH-026 is complete; GH-027 is unblocked.
 - Verification: package typecheck, focused tests 6/6, consumer test 1/1, architecture check, package inspection, and build all exit 0. Evidence: `evidence/gh-039/verification-transcript.md`.
 
 GH-039 is complete; GH-040 is unblocked.
+
+## 2026-08-21 — GH-070: @bundar/cli command framework
+
+- Created `@bundar/cli` package and `bundar` executable (`src/bin.ts`).
+- Implemented lightweight argument/flag parsing and command registry.
+- Added `--help`, `--version`, and `info` diagnostic command reporting Bun, platform, and architecture without secret leakage.
+- Clean exit code model: 0 on success/help, 1 on unknown commands/errors. Zero runtime dependencies.
+- Verification: package typecheck, focused tests 6/6, lint, architecture check, package inspection, and build all exit 0. Evidence: `evidence/gh-070/verification-transcript.md`.
+
+GH-070 is complete; GH-071, GH-072, GH-073, GH-074, and GH-078 are unblocked.
