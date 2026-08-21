@@ -22,8 +22,11 @@ function readManifest(): Manifest {
 }
 
 describe("GH-011 @bundar/core package skeleton", () => {
-  test("imports from a workspace consumer and exposes no premature framework behavior", () => {
-    expect(Object.keys(core).sort()).toEqual([]);
+  test("imports from a workspace consumer and exposes only the declared runtime surface", () => {
+    // GH-012 added the typed route model; its runtime surface is exactly the
+    // method definition and its guard. Everything else is compile-time only,
+    // and dispatch/building behavior remains unimplemented (GH-013–GH-015).
+    expect(Object.keys(core).sort()).toEqual(["HTTP_METHODS", "isHttpMethod"]);
   });
 
   test("published files are allow-listed", () => {

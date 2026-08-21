@@ -68,6 +68,16 @@ Deliberately deferred (no owning package yet): none. Any future symbol
 without a row here must either gain an owning-package row via ADR-0016
 amendment or be rejected.
 
+# Landed surface (progress notes)
+
+- GH-012: `@bundar/core` exports the typed route model from
+  `packages/core/src/routing/types.ts` — `HTTP_METHODS`/`isHttpMethod`,
+  `HttpMethod`, `RouteParams`, `ValidateRoutePath` (+ `RoutePathError`),
+  `RouteHandler`, `RouteMethods` (+ `DuplicateMethodError`), `RouteMetadata`,
+  `Simplify`, `HandlerRoute`, `StaticRoute`, `RouteDescriptor`. Handlers
+  return `Response | Promise<Response>` only. Builder/compile APIs remain
+  with GH-013–GH-015; context/middleware/errors with GH-017–GH-022.
+
 # Pre-1.0 API change classification
 
 Changes are classified A (breaking), B (additive), or C (experimental) per

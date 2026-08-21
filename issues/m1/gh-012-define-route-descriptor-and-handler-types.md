@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Literal `/users/:id` exposes `id` as a string parameter.
-- [ ] Wildcard and optional/unsupported patterns have documented behavior.
-- [ ] A handler must return `Response | Promise<Response>`.
-- [ ] Type tests reject invalid methods and duplicate method declarations in one descriptor.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Literal `/users/:id` exposes `id` as a string parameter.
+- [x] Wildcard and optional/unsupported patterns have documented behavior.
+- [x] A handler must return `Response | Promise<Response>`.
+- [x] Type tests reject invalid methods and duplicate method declarations in one descriptor.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-012
+Commit / PR: branch `gh-012-route-descriptor-types`; implementation and evidence commits recorded in repository history and on GitHub issue #12.
+Files changed: `packages/core/src/routing/types.ts` (new), `packages/core/src/index.ts` (re-exports), `packages/core/test/types/{route-descriptor.test-d.ts,route-descriptor.test.ts,type-utils.ts}` (new), `packages/core/test/import.test.ts` (runtime surface now `["HTTP_METHODS","isHttpMethod"]`), `packages/core/README.md`, root `tsconfig.json` (includes `packages/*/test/**/*.ts` so root typecheck enforces type tests), `evidence/gh-012/verification-transcript.md` (new), `issues/m1/index.md`, `log.md`.
+Commands executed: `bun test ./packages/core/test/types/route-descriptor.test-d.ts` (9 pass / 0 fail) — documented tooling decision: Bun discovery does not match `.test-d.ts`, so the planned file runs via explicit `./` path plus a `.test.ts` wrapper for normal runs; `bun run typecheck` (root and package, exit 0); adversarial corrupted-expectation probe (typecheck exit 2, restored to exit 0); full battery: format, lint, architecture (8 files), `pack:inspect @bundar/core` (4 packed files, 0 dependencies), `bun test` 44/44, build, frozen install, docs validate/links/graph/check — all exit 0.
+Evidence: `evidence/gh-012/verification-transcript.md`.
+Contract/API changes: first public type surface of `@bundar/core` — `HTTP_METHODS`, `isHttpMethod`, `HttpMethod`, `RouteParams`, `ValidateRoutePath` (+ `RoutePathError` literals), `RouteHandler`, `RouteMethods` (+ `DuplicateMethodError`), `RouteMetadata`, `Simplify`, `HandlerRoute`, `StaticRoute`, `RouteDescriptor`. Handler return contract is `Response | Promise<Response>` only (ADR-0016). No routing runtime added.
+Security/performance impact: none — no dispatch, path matching, or body parsing exists yet; zero runtime dependencies preserved.
+Remaining risks: stray `:` in static segments and identifier-charset strictness delegated to GH-014 runtime validation; wildcard request-value exposure unmodeled until GH-015 records real `Bun.serve` behavior; duplicate-method type check covers const tuples only (dynamic arrays are GH-014 scope).
+Documentation updated: `packages/core/README.md`, `engineering/package-api.md` (GH-012 landed-surface note), `issues/m1/index.md`, `log.md`.
+Newly unblocked issues: GH-013 (app builder, grouping, mounting) and GH-014 (path normalization and conflict detection).

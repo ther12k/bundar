@@ -1,7 +1,7 @@
 # M1 — Bun-native HTTP Core
 
 - [GH-011 — Create the @bundar/core package skeleton](gh-011-create-the-bundar-core-package-skeleton.md) — P0 / S; depends on GH-010 — **complete 2026-08-21** (closure record and evidence)
-- [GH-012 — Define route descriptor and handler types](gh-012-define-route-descriptor-and-handler-types.md) — P0 / M; depends on GH-011
+- [GH-012 — Define route descriptor and handler types](gh-012-define-route-descriptor-and-handler-types.md) — P0 / M; depends on GH-011 — **complete 2026-08-21** (closure record and evidence)
 - [GH-013 — Implement App builder, grouping, and module mounting](gh-013-implement-app-builder-grouping-and-module-mounting.md) — P0 / M; depends on GH-012
 - [GH-014 — Implement path normalization and route-conflict detection](gh-014-implement-path-normalization-and-route-conflict-detection.md) — P0 / M; depends on GH-012
 - [GH-015 — Compile Bundar routes to Bun.serve native route tables](gh-015-compile-bundar-routes-to-bun-serve-native-route-tables.md) — P0 / L; depends on GH-013, GH-014
