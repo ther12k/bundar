@@ -9,9 +9,12 @@ Bundar HTTP core package.
   path/wildcard/optional-pattern behavior), `RouteMetadata`, and the
   `HandlerRoute`/`StaticRoute`/`RouteDescriptor` unions with `Response`
   static entries modeled separately from callable handlers.
-- Not implemented yet (by design): the app builder, path normalization and
-  conflict detection, and compilation to `Bun.serve` route tables land with
-  GH-013–GH-015; context, middleware, and error handling with GH-017–GH-022.
+- Surface (GH-013): `App` verb helpers, descriptor registration, grouped
+  prefixes, module mounting, `RouteModule`, and defensive deterministic
+  `RouteManifest` snapshots. Registration does not call `Bun.serve`.
+- Not implemented yet (by design): runtime path normalization and conflict
+  detection, and compilation to `Bun.serve` route tables land with GH-014–GH-015;
+  context, middleware, and error handling with GH-017–GH-022.
 - Runtime dependency policy: zero runtime dependencies
   (`decisions/0011-zero-runtime-deps.md`), enforced by tests, the
   architecture boundary check, and `bun run pack:inspect @bundar/core`.
