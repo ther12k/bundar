@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A smoke page runs in both lanes.
-- [ ] The report identifies exact HTMX artifact hashes or versions.
-- [ ] A deliberately incorrect header/event fixture fails in the appropriate lane.
-- [ ] Experimental htmx 4 failures are reported separately from stable-lane failures.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A smoke page runs in both lanes.
+- [x] The report identifies exact HTMX artifact hashes or versions.
+- [x] A deliberately incorrect header/event fixture fails in the appropriate lane.
+- [x] Experimental htmx 4 failures are reported separately from stable-lane failures.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

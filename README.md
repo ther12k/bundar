@@ -92,5 +92,5 @@ bun run build                   # build all workspace packages
 bun run clean                   # remove build artifacts
 ```
 
-Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy), GH-003 (OKF corpus + local validator: `docs:validate`, `docs:links`, `issues:graph`), GH-004 (brand clearance — ADR-0015; all identifiers temporary until reserved; planned GitHub org: `bundarjs`), GH-005 (API/boundary freeze — ADR-0016, `architecture:check`), GH-006 (architecture-boundary harness), GH-007 (raw Bun/Hono benchmark harness), GH-008 (pinned htmx 2/4 browser conformance harness), and GH-009 (GitHub project configuration). GH-010 is ready for the M0 contract-freeze gate.
+Completed: GH-001 (workspace skeleton), GH-002 (governance, MIT license, security policy), GH-003 (OKF corpus + local validator: `docs:validate`, `docs:links`, `issues:graph`), GH-004 (brand clearance decision — ADR-0015; identifiers remain temporary until reserved), GH-005 (API/boundary freeze — ADR-0016, `architecture:check`), GH-006 (architecture-boundary harness), GH-007 (raw Bun/Hono benchmark harness), GH-008 (pinned htmx 2/4 browser conformance harness), GH-009 (GitHub project configuration), and GH-010 (M0 contract-freeze gate). M1/M2/M3/M5 foundation issues are authorized within the recorded residual risks; publication and htmx 4 GA claims remain gated.
 

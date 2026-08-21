@@ -34,6 +34,7 @@
     "test:browser:htmx2": "bun tests/browser/run.ts htmx2",
     "test:browser:htmx4": "bun tests/browser/run.ts htmx4",
     "test:browser:report": "bun tests/browser/report.ts",
+    "ci:m0": "bun scripts/m0-gate.ts",
     "clean": "bun run scripts/clean.ts"
   },
   "devDependencies": {

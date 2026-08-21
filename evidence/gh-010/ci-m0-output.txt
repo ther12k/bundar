@@ -1,0 +1,192 @@
+$ bun scripts/m0-gate.ts
+
+[m0] preflight: bun run preflight
+$ bun run scripts/preflight.ts
+bundar preflight: ok (bun 1.4.0, minimum 1.4.0)
+[m0] preflight: exit 0
+
+[m0] format:check: bun run format:check
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+[m0] format:check: exit 0
+
+[m0] lint: bun run lint
+$ eslint .
+[m0] lint: exit 0
+
+[m0] typecheck: bun run typecheck
+$ tsc --noEmit -p tsconfig.json
+[m0] typecheck: exit 0
+
+[m0] docs:validate: bun run docs:validate
+$ bun tools/okf-validator/cli.ts validate
+docs:validate: ok (207 documents, 96 issues, local structural validation only — it is not certification by Google or any third party)
+[m0] docs:validate: exit 0
+
+[m0] docs:links: bun run docs:links
+$ bun tools/okf-validator/cli.ts links
+docs:links: ok (1034 links across 207 documents)
+[m0] docs:links: exit 0
+
+[m0] issues:graph: bun run issues:graph
+$ bun tools/okf-validator/cli.ts graph
+issues:graph: 96 issues, 213 dependency edges, no cycles
+  M2 — Server JSX Runtime: 13
+  M0 — Contracts & Foundation: 10
+  M6 — Alpha Readiness: 7
+  M7 — HTMX 4 GA Adoption: 8
+  M5 — Tooling, Examples & Docs: 12
+  M3 — HTMX Protocol & Dual Dialects: 18
+  M1 — Bun-native HTTP Core: 15
+  M4 — Forms, Actions & Security: 13
+  graph roots: GH-001
+[m0] issues:graph: exit 0
+
+[m0] docs:check: bun run docs:check
+$ bun run scripts/docs-check.ts
+docs:check: ok (7 governance files, 11 manifests verified)
+[m0] docs:check: exit 0
+
+[m0] architecture tests: bun test tests/architecture
+bun test v1.4.0 (34cbb9a40)
+
+tests/architecture/boundary-harness.test.ts:
+(pass) architecture boundary harness: forbidden dependency directions > a core-to-HTMX dependency fails [1.56ms]
+(pass) architecture boundary harness: forbidden dependency directions > a jsx-to-core dependency fails [0.21ms]
+(pass) architecture boundary harness: forbidden dependency directions > an approved htmx-to-jsx dependency passes [0.04ms]
+(pass) architecture boundary harness: runtime dependencies > a React import in a server package fails [0.08ms]
+(pass) architecture boundary harness: runtime dependencies > a hydration runtime import fails [0.03ms]
+(pass) architecture boundary harness: runtime dependencies > a dynamic external import fails too [0.03ms]
+(pass) architecture boundary harness: runtime dependencies > Bun and Node builtins pass [0.03ms]
+(pass) architecture boundary harness: raw HTMX confinement > raw HX-* header access outside the adapter fails [0.03ms]
+(pass) architecture boundary harness: raw HTMX confinement > raw htmx lifecycle event names outside the adapter fail [0.03ms]
+(pass) architecture boundary harness: raw HTMX confinement > the dialect adapter package may use raw htmx strings [0.02ms]
+(pass) architecture boundary harness: relative imports > a relative import escaping its package fails [0.12ms]
+(pass) architecture boundary harness: relative imports > relative imports inside a package pass [0.03ms]
+(pass) architecture boundary harness: real repository > the actual workspace passes all frozen rules [79.12ms]
+
+ 13 pass
+ 0 fail
+ 16 expect() calls
+Ran 13 tests across 1 file. [120.00ms]
+[m0] architecture tests: exit 0
+
+[m0] architecture:check: bun run architecture:check
+$ bun tools/architecture-check/check.ts
+architecture:check: ok (7 source files, 7 package rules enforced)
+[m0] architecture:check: exit 0
+
+[m0] bench:smoke: bun run bench:smoke
+$ bun tools/benchmark/smoke.ts
+bench:smoke: 9 scenarios passed parity and response checks
+[m0] bench:smoke: exit 0
+
+[m0] bench:parity: bun run bench:parity
+$ bun tools/benchmark/parity.ts
+bench:parity: 9 scenarios passed raw Bun/Hono parity checks
+[m0] bench:parity: exit 0
+
+[m0] test:browser:htmx2: bun run test:browser:htmx2
+$ bun tests/browser/run.ts htmx2
+browser:htmx2: smoke and interaction scenarios passed; negative fixture failed as expected
+[m0] test:browser:htmx2: exit 0
+
+[m0] test:browser:htmx4: bun run test:browser:htmx4
+$ bun tests/browser/run.ts htmx4
+browser:htmx4: smoke and interaction scenarios passed; negative fixture failed as expected
+[m0] test:browser:htmx4: exit 0
+
+[m0] test:browser:report: bun run test:browser:report
+$ bun tests/browser/report.ts
+browser:report: 2 lanes recorded in evidence/gh-008/report.json
+[m0] test:browser:report: exit 0
+
+[m0] test: bun test
+bun test v1.4.0 (34cbb9a40)
+
+tests/skeleton.test.ts:
+(pass) GH-001 workspace skeleton > every planned directory exists [0.11ms]
+(pass) GH-001 workspace skeleton > every planned public package exists with its package name and entry point [0.16ms]
+(pass) GH-001 workspace skeleton > the create-bundar scaffolding package exists [0.03ms]
+(pass) GH-001 workspace skeleton > core and jsx declare zero runtime dependencies [0.10ms]
+
+tests/architecture/boundary-harness.test.ts:
+(pass) architecture boundary harness: forbidden dependency directions > a core-to-HTMX dependency fails [0.40ms]
+(pass) architecture boundary harness: forbidden dependency directions > a jsx-to-core dependency fails [0.10ms]
+(pass) architecture boundary harness: forbidden dependency directions > an approved htmx-to-jsx dependency passes [0.02ms]
+(pass) architecture boundary harness: runtime dependencies > a React import in a server package fails [0.04ms]
+(pass) architecture boundary harness: runtime dependencies > a hydration runtime import fails [0.03ms]
+(pass) architecture boundary harness: runtime dependencies > a dynamic external import fails too [0.02ms]
+(pass) architecture boundary harness: runtime dependencies > Bun and Node builtins pass [0.02ms]
+(pass) architecture boundary harness: raw HTMX confinement > raw HX-* header access outside the adapter fails [0.02ms]
+(pass) architecture boundary harness: raw HTMX confinement > raw htmx lifecycle event names outside the adapter fail [0.02ms]
+(pass) architecture boundary harness: raw HTMX confinement > the dialect adapter package may use raw htmx strings [0.02ms]
+(pass) architecture boundary harness: relative imports > a relative import escaping its package fails [0.09ms]
+(pass) architecture boundary harness: relative imports > relative imports inside a package pass [0.02ms]
+(pass) architecture boundary harness: real repository > the actual workspace passes all frozen rules [83.04ms]
+
+tests/benchmark/benchmark.test.ts:
+(pass) benchmark parity > all declared scenarios have equivalent raw Bun and Hono behavior [4.05ms]
+(pass) benchmark parity > parity executes in process without a network listener [0.09ms]
+(pass) benchmark parity > Bundar is explicitly deferred rather than reported as a benchmark result [0.07ms]
+(pass) benchmark report > includes raw samples, parity metadata, and distributions [1.65ms]
+
+tools/okf-validator/okf-validator.test.ts:
+(pass) okf-validator concept rules > accepts a concept with frontmatter and a non-empty type [0.09ms]
+(pass) okf-validator concept rules > rejects missing frontmatter, empty type, and unparseable frontmatter [0.03ms]
+(pass) okf-validator concept rules > reserved files must not declare a concept type [0.02ms]
+(pass) okf-validator link rules > reports broken links and accepts existing targets [0.14ms]
+(pass) okf-validator link rules > external URLs and anchors are out of scope [0.02ms]
+(pass) okf-validator issue rules > detects duplicate stable IDs and unknown dependency targets [0.21ms]
+(pass) okf-validator issue rules > rejects malformed stable IDs [0.03ms]
+(pass) okf-validator issue rules > detects dependency cycles [0.05ms]
+(pass) okf-validator issue rules > accepts an acyclic graph with known targets [0.02ms]
+(pass) okf-validator on the real bundle > the repository corpus passes full structural validation [103.78ms]
+
+ 31 pass
+ 0 fail
+ 74 expect() calls
+Ran 31 tests across 4 files. [259.00ms]
+[m0] test: exit 0
+
+[m0] build: bun run build
+$ bun run --filter='./packages/*' --filter='./create-bundar' build
+@bundar/jsx build: Bundled 1 module in 6ms
+@bundar/jsx build: 
+@bundar/htmx build: Bundled 1 module in 7ms
+@bundar/htmx build: 
+@bundar/htmx build:   index.js  8 bytes  (entry point)
+@bundar/htmx build: 
+@bundar/schema build: Bundled 1 module in 7ms
+@bundar/schema build: 
+@bundar/schema build:   index.js  8 bytes  (entry point)
+@bundar/schema build: 
+@bundar/core build: Bundled 1 module in 7ms
+@bundar/core build: 
+@bundar/core build:   index.js  8 bytes  (entry point)
+@bundar/core build: 
+@bundar/testing build: Bundled 1 module in 6ms
+@bundar/testing build: 
+@bundar/testing build:   index.js  8 bytes  (entry point)
+@bundar/testing build: 
+create-bundar build: Bundled 1 module in 7ms
+create-bundar build: 
+create-bundar build:   index.js  8 bytes  (entry point)
+create-bundar build: 
+@bundar/schema build: Exited with code 0
+@bundar/core build: Exited with code 0
+@bundar/jsx build:   index.js  8 bytes  (entry point)
+@bundar/jsx build: 
+create-bundar build: Exited with code 0
+@bundar/testing build: Exited with code 0
+@bundar/jsx build: Exited with code 0
+@bundar/cli build: Bundled 1 module in 9ms
+@bundar/cli build: 
+@bundar/cli build:   index.js  8 bytes  (entry point)
+@bundar/cli build: 
+@bundar/htmx build: Exited with code 0
+@bundar/cli build: Exited with code 0
+[m0] build: exit 0
+
+[m0] all 17 required steps passed

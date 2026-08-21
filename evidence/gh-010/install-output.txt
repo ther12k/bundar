@@ -1,0 +1,6 @@
+bun install v1.4.0 (34cbb9a40)
+
+$ bun run scripts/preflight.ts
+bundar preflight: ok (bun 1.4.0, minimum 1.4.0)
+
+Done! Checked 107 packages (no changes) [48.00ms]

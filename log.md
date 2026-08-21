@@ -77,7 +77,7 @@ No public API stability claim beyond the frozen principles is made by this event
 - Removed GitHub's unsafe default `Auto-close issue` and `Pull request merged` workflows so merged PRs cannot close issues without acceptance evidence.
 - Evidence transcript in `evidence/gh-009/verification-transcript.md`; configuration mapping in `github/configuration-manifest.json`.
 
-GH-009 is complete in the live repository; GH-010 remains blocked until GH-007 and GH-008 are complete.
+GH-009 implementation is complete in the live repository; its historical project setup snapshot is superseded by the GH-010 final-state audit.
 
 ## 2026-08-21 — GH-007: reproducible raw Bun and Hono benchmark harness
 
@@ -87,7 +87,7 @@ GH-009 is complete in the live repository; GH-010 remains blocked until GH-007 a
 - Completed verification: 31 tests pass; smoke/parity/full report, format, docs, architecture, build, and frozen install all pass. Raw report and summary are in `evidence/gh-007/`.
 - No performance claim or regression threshold is made. Bundar is not timed until its runtime implementation exists; observed raw Bun/Hono values are environment-specific baseline evidence only.
 
-GH-007 is complete; GH-010 remains blocked only by GH-008.
+GH-007 is complete; the historical note above is superseded by the GH-010 gate audit below.
 
 ## 2026-08-21 — GH-008: browser conformance harness for htmx 2 and htmx 4 lanes
 
@@ -97,4 +97,13 @@ GH-007 is complete; GH-010 remains blocked only by GH-008.
 - Stable htmx2 records `event: afterRequest`. The htmx4 beta lane records `event: none` as a separate experimental observation; this is not an htmx 4 GA compatibility claim.
 - Browser verification passed: `bun run test:browser:htmx2`, `bun run test:browser:htmx4`, and `bun run test:browser:report` all exit 0. Transcript: `evidence/gh-008/verification-transcript.md`.
 
-GH-008 is complete; GH-010 is ready for the M0 contract-freeze gate. GH-053 and GH-054 inherit the browser harness for their dialect-profile closure work.
+GH-008 is complete; GH-053 and GH-054 inherit the browser harness for their dialect-profile closure work. GH-010 supersedes the temporary “ready” state with the final gate event below.
+
+## 2026-08-21 — GH-010: M0 contract-freeze gate
+
+- Added the canonical fail-closed `bun run ci:m0` runner with 17 ordered steps covering Bun preflight, format/lint/typecheck, OKF and governance validation, architecture tests/checks, benchmark smoke/parity, both browser lanes/report, full tests, and build.
+- Reconciled GH-006 durable architecture evidence and GH-008 acceptance checklists; the GH-009 transcript now distinguishes its historical setup snapshot from the final-state project audit.
+- Added the authoritative OKF gate concept at `delivery/gates/m0.md` and linked it from `delivery/index.md`; the root `log.md` remains the reserved chronological log, so the stale `docs/okf/log.md` suggestion was not used.
+- Gate execution passed on Bun `1.4.0`, TypeScript `6.0.3`, Linux x86_64: frozen install exit 0, `ci:m0` all 17 steps exit 0, `docs:validate` exit 0, and `architecture:check` exit 0. Evidence: `evidence/gh-010/verification-transcript.md`.
+- Accepted residuals: temporary/unreserved naming, deferred exact API signatures, source-text boundary enforcement, local-only browser tooling, in-process raw Bun/Hono benchmarks, and experimental htmx `4.0.0-beta6` behavior. No production framework, performance, security, publication, or htmx 4 GA claim is made.
+- The exact gate authorization commit and main merge SHA are recorded in the GH-010 closure record and transcript after this change is merged. GH-011, GH-026, GH-039, and GH-070 are newly unblocked within the frozen contract.
