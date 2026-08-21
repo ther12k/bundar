@@ -6,6 +6,7 @@
 - Gate branch: `gh-010-m0-gate`
 - Pre-gate `main` commit: `a7f14011cd89af2ee663f4c0a9acdcd947dd3659`
 - Authorized implementation SHA: `fe6139e409d62833a816117cee9cc482cec6a762`
+- Closure metadata commit: `781ac82`
 - Main merge SHA: recorded in the final closure update after merge
 - Runtime: Bun `1.4.0`
 - TypeScript: `6.0.3`
@@ -18,7 +19,7 @@
 ## Commands and results
 
 The canonical command is `bun run ci:m0`. It runs 17 ordered steps and stops on
-the first nonzero child status. The initial gate run passed all steps:
+the first nonzero child status. The initial gate run and the final committed-state run both passed all steps. The final output is retained in `evidence/gh-010/ci-m0-final-output.txt`:
 
 ```text
 $ bun install --frozen-lockfile
@@ -44,9 +45,8 @@ The 17-step aggregate includes `preflight`, `format:check`, `lint`,
 `bun test tests/architecture`, `architecture:check`, `bench:smoke`,
 `bench:parity`, both browser lanes, the browser report, full `bun test`, and
 `build`. Full command output is retained in the local gate-run artifacts
-`evidence/gh-010/install-output.txt` and `evidence/gh-010/ci-m0-output.txt`
-when the ignored raw output is available; this transcript is the durable
-summary.
+`evidence/gh-010/install-output.txt`, `evidence/gh-010/ci-m0-output.txt`, and
+`evidence/gh-010/ci-m0-final-output.txt`; this transcript is the durable summary.
 
 ## Dependency evidence
 

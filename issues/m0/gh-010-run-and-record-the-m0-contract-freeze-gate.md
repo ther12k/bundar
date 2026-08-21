@@ -137,7 +137,7 @@ Newly unblocked issues:
 ## Closure record (2026-08-21)
 
 Stable ID: GH-010
-Commit / PR: authorized implementation commit `fe6139e409d62833a816117cee9cc482cec6a762`; main merge SHA is recorded in the final post-merge closure update.
+Commit / PR: authorized implementation commit `fe6139e409d62833a816117cee9cc482cec6a762`; closure metadata commit `781ac82`; main merge SHA is recorded in the final post-merge closure update.
 Files changed: `scripts/m0-gate.ts`, `package.json`, `delivery/gates/m0.md`, `delivery/index.md`, `evidence/gh-006/verification-transcript.md`, `evidence/gh-010/verification-transcript.md`, GH-006/GH-008 closure records, GH-009 final-state evidence, `issues/m0/index.md`, and `log.md`.
 Commands executed: `bun install --frozen-lockfile`, `bun run ci:m0`, `bun run docs:validate`, and `bun run architecture:check`; the canonical gate passed all 17 ordered steps. The gate includes format, lint, typecheck, docs/links/graph/governance, architecture tests/check, benchmark smoke/parity, both browser lanes/report, full tests, and build.
 Evidence: `evidence/gh-010/verification-transcript.md`, `evidence/gh-010/ci-m0-output.txt`, `evidence/gh-010/install-output.txt`, `delivery/gates/m0.md`, and dependency transcripts under `evidence/gh-004` through `evidence/gh-009`.
