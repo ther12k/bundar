@@ -3,10 +3,34 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Bundar HTMX dialect adapters: version-neutral protocol model with htmx 2 and htmx 4 profiles.",
-  "main": "./src/index.ts",
-  "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  "description": "Bundar HTMX dialect adapters: version-neutral protocol model with htmx 2 stable and htmx 4 experimental profiles.",
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.4.0"
   },
-  "license": "MIT"
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./2": {
+      "types": "./src/v2.ts",
+      "default": "./src/v2.ts"
+    },
+    "./4": {
+      "types": "./src/v4.ts",
+      "default": "./src/v4.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
+  }
 }

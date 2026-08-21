@@ -1,6 +1,6 @@
 # M3 — HTMX Protocol & Dual Dialects
 
-- [GH-039 — Create @bundar/htmx and the version-neutral protocol model](gh-039-create-bundar-htmx-and-the-version-neutral-protocol-model.md) — P0 / M; depends on GH-010, GH-005
+- [GH-039 — Create @bundar/htmx and the version-neutral protocol model](gh-039-create-bundar-htmx-and-the-version-neutral-protocol-model.md) — P0 / M; depends on GH-010, GH-005 — **complete 2026-08-21** (closure record and evidence)
 - [GH-040 — Define the HTMX dialect adapter interface](gh-040-define-the-htmx-dialect-adapter-interface.md) — P0 / L; depends on GH-039
 - [GH-041 — Implement normalized HTMX request metadata](gh-041-implement-normalized-htmx-request-metadata.md) — P0 / L; depends on GH-040
 - [GH-042 — Implement normalized HTMX response directives](gh-042-implement-normalized-htmx-response-directives.md) — P0 / L; depends on GH-040

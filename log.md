@@ -173,3 +173,12 @@ GH-014 is complete; GH-015 is unblocked after this branch merges.
   `evidence/gh-026/verification-transcript.md`.
 
 GH-026 is complete; GH-027 is unblocked.
+
+## 2026-08-21 — GH-039: @bundar/htmx neutral protocol model
+
+- Created `@bundar/htmx` package with version-neutral protocol constants, header types, and request/response inspection helpers (`isHtmxRequest`, `isBoostedRequest`, `getHtmxTarget`, `getHtmxTrigger`, `withHtmxHeaders`).
+- Exported stable `@bundar/htmx/2` dialect adapter pinned to `2.0.10`.
+- Exported experimental `@bundar/htmx/4` dialect adapter pinned to `4.0.0-beta6` with explicit `experimental: true` flags and non-GA notices.
+- Verification: package typecheck, focused tests 6/6, consumer test 1/1, architecture check, package inspection, and build all exit 0. Evidence: `evidence/gh-039/verification-transcript.md`.
+
+GH-039 is complete; GH-040 is unblocked.
