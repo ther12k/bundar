@@ -260,3 +260,11 @@ GH-029 is complete; GH-030 and GH-032 are unblocked.
 - Verification: jsx 62/62, full repo 167/167, typecheck, lint, architecture (29 files), pack inspect, build, format, consumer compile — all exit 0. Evidence: `evidence/gh-031/verification-transcript.md`.
 
 GH-031 is complete; GH-036 gains its raw-boundary prerequisite.
+
+## 2026-08-21 — GH-041: normalized HTMX request metadata
+
+- Landed `normalizeHtmxRequest` in `packages/htmx/src/request.ts`: version-neutral fields (kind, sourceElement, target, currentUrl, boosted, prompt, historyRestore, representation) with present/absent/malformed/unsupported status, explicit `untrusted` trust level on every browser-supplied value, header-alias version mapping (v4 HX-Source → sourceElement), and raw headers reachable only via a `__diagnosticOnly` accessor.
+- Security: platform Headers reject CR/LF/NUL at construction (asserted); parser keeps a defense-in-depth control-character layer; attacker-hosted URLs parse as data and are never promoted to redirect destinations.
+- Verification: htmx 24/24, full repo 176/176, typecheck, lint, architecture (30 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-041/verification-transcript.md`.
+
+GH-041 is complete; GH-043, GH-044, and GH-048 gain their request-metadata prerequisite.

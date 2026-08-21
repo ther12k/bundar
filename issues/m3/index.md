@@ -2,7 +2,7 @@
 
 - [GH-039 — Create @bundar/htmx and the version-neutral protocol model](gh-039-create-bundar-htmx-and-the-version-neutral-protocol-model.md) — P0 / M; depends on GH-010, GH-005 — **complete 2026-08-21** (closure record and evidence)
 - [GH-040 — Define the HTMX dialect adapter interface](gh-040-define-the-htmx-dialect-adapter-interface.md) — P0 / L; depends on GH-039 — **complete 2026-08-21** (closure record and evidence)
-- [GH-041 — Implement normalized HTMX request metadata](gh-041-implement-normalized-htmx-request-metadata.md) — P0 / L; depends on GH-040
+- [GH-041 — Implement normalized HTMX request metadata](gh-041-implement-normalized-htmx-request-metadata.md) — P0 / L; depends on GH-040 — **complete 2026-08-21** (closure record and evidence)
 - [GH-042 — Implement normalized HTMX response directives](gh-042-implement-normalized-htmx-response-directives.md) — P0 / L; depends on GH-040
 - [GH-043 — Implement and pin the stable HTMX 2 dialect adapter](gh-043-implement-and-pin-the-stable-htmx-2-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042
 - [GH-044 — Implement the experimental HTMX 4 beta6 dialect adapter](gh-044-implement-the-experimental-htmx-4-beta6-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042
