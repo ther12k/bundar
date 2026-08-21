@@ -209,3 +209,11 @@ GH-015 is complete; GH-016, GH-017, GH-022, GH-072, and GH-073 are unblocked.
 - Verification: jsx suite 18/18 (1901 expect calls), root typecheck, lint, architecture (23 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-027/verification-transcript.md`.
 
 GH-027 is complete; GH-028, GH-029, and GH-031 are unblocked.
+
+## 2026-08-21 — GH-040: HTMX dialect adapter interface
+
+- Defined the capability-aware `HtmxDialectAdapter` in `packages/htmx/src/dialect.ts`: identity/maturity/`supportedRange`, complete `CapabilityMap` (fail-closed builder in `capabilities.ts`), namespaced metadata, and pure `decodeRequest`/`encodeResponseDirective`/`describeAsset`/`diagnose` methods. Interface fields carry no v2/v4-only names; dialect detail lives under `htmx2:`/`htmx4:` metadata keys.
+- Rebuilt `htmx2` (stable, `>=2.0.0 <3.0.0`, all-native capabilities, pinned 2.0.10 asset integrity) and `htmx4Experimental` (experimental, explicit `gaClaim: none`, emulated after-swap/after-settle and unsupported cache-control per GH-008 beta observations) as full adapter implementations.
+- Proved extensibility with a synthetic third dialect implemented entirely in tests; asserted immutability and cross-request reusability. Verification: htmx suite 15/15, test:types 9/9, typecheck, lint, architecture (25 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-040/verification-transcript.md`.
+
+GH-040 is complete; GH-041, GH-042, GH-046, and GH-047 are unblocked.

@@ -9,8 +9,8 @@ describe("HTMX consumer fixture", () => {
       headers: { "HX-Request": "true" },
     });
     expect(isHtmxRequest(req)).toBe(true);
-    expect(htmx2.version).toBe("htmx2");
-    expect(htmx4Experimental.version).toBe("htmx4");
-    expect(htmx4Experimental.experimental).toBe(true);
+    expect(htmx2.id).toBe("htmx2");
+    expect(htmx4Experimental.id).toBe("htmx4");
+    expect(htmx4Experimental.maturity).toBe("experimental");
   });
 });
