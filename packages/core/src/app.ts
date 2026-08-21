@@ -6,6 +6,7 @@ import {
   type RouteManifest,
   type RouteModule,
 } from "./module";
+import { compileRoutes, type CompiledServerOptions } from "./routing/compiler";
 import type {
   HttpMethod,
   RouteDescriptor,
@@ -158,6 +159,25 @@ export class App {
 
   public module(): RouteModule {
     return defineModule(this.manifest().routes);
+  }
+
+  public compile(): CompiledServerOptions {
+    return compileRoutes(this.manifest().routes);
+  }
+
+  /**
+   * Starts a Bun server from the compiled route table. Ownership is explicit:
+   * the caller receives the `Bun.Server` instance and is responsible for
+   * stopping it (`server.stop()`).
+   */
+  public serve(
+    options: { port?: number; hostname?: string } = {},
+  ): ReturnType<typeof Bun.serve> {
+    return Bun.serve({
+      ...this.compile(),
+      port: options.port ?? 0,
+      ...(options.hostname ? { hostname: options.hostname } : {}),
+    });
   }
 
   private register(route: RouteDescriptor): void {

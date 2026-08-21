@@ -1,13 +1,14 @@
 /**
  * @bundar/core public surface.
  *
- * GH-013 adds registration and immutable manifest construction. Path
- * normalization/conflict validation and compilation to `Bun.serve` route
- * tables remain GH-014–GH-015; context, middleware, and error handling land
- * with GH-017–GH-022.
+ * GH-013 adds registration and immutable manifest construction. GH-014 adds
+ * path normalization and conflict diagnostics. GH-015 compiles descriptors to
+ * native `Bun.serve` route tables. Context, middleware, and error handling
+ * land with GH-017–GH-022.
  */
 export * from "./app";
 export * from "./module";
+export * from "./routing/compiler";
 export * from "./routing/conflicts";
 export * from "./routing/path";
 export * from "./routing/types";
