@@ -23,6 +23,8 @@ function readManifest(): Manifest {
 
 describe("GH-011 @bundar/core package skeleton", () => {
   test("imports from a workspace consumer and exposes the landed runtime surface", () => {
+    // Runtime surface: type-only exports (BunRouteEntry, BunRouteHandler,
+    // CompiledServerOptions) do not appear at runtime.
     expect(Object.keys(core).sort()).toEqual([
       "App",
       "HTTP_METHODS",
@@ -31,6 +33,8 @@ describe("GH-011 @bundar/core package skeleton", () => {
       "RouteValidationError",
       "assertRouteConflictsFree",
       "cloneRouteDescriptor",
+      "compileRoutes",
+      "defaultNotFound",
       "defineModule",
       "freezeManifest",
       "isHttpMethod",

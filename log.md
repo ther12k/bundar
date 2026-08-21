@@ -192,3 +192,12 @@ GH-039 is complete; GH-040 is unblocked.
 - Verification: package typecheck, focused tests 6/6, lint, architecture check, package inspection, and build all exit 0. Evidence: `evidence/gh-070/verification-transcript.md`.
 
 GH-070 is complete; GH-071, GH-072, GH-073, GH-074, and GH-078 are unblocked.
+
+## 2026-08-21 — GH-015: compile routes to Bun.serve native tables
+
+- Landed `compileRoutes`/`CompiledServerOptions` in `packages/core/src/routing/compiler.ts` plus `App.compile()` and `App.serve()`. Descriptors normalize and conflict-check first; static `Response` entries pass to Bun untouched; handler wrappers adapt Bun's `request.params` to Bundar's `(request, params)` contract once at compile time; unmatched requests hit a plain 404 `fetch` fallback.
+- Integration test against a real `Bun.serve` on an ephemeral port proves Bun owns matching and parameter extraction (`/users/42` → `user:42`), static fast-path serving, shared-path method dispatch (200/201), and 404 fallback.
+- Repaired root `typecheck` broken on main since the GH-039 merge by adding `@bundar/htmx` path mappings to the root tsconfig (verified failing before, green after).
+- Verification: compiler tests 7/7, integration 5/5, core 36/36, full repo 81/81, typecheck, lint, architecture (21 files), pack inspect, build, docs/graph — all exit 0. Evidence: `evidence/gh-015/verification-transcript.md`.
+
+GH-015 is complete; GH-016, GH-017, GH-022, GH-072, and GH-073 are unblocked.
