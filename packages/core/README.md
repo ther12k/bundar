@@ -12,9 +12,12 @@ Bundar HTTP core package.
 - Surface (GH-013): `App` verb helpers, descriptor registration, grouped
   prefixes, module mounting, `RouteModule`, and defensive deterministic
   `RouteManifest` snapshots. Registration does not call `Bun.serve`.
-- Not implemented yet (by design): runtime path normalization and conflict
-  detection, and compilation to `Bun.serve` route tables land with GH-014–GH-015;
-  context, middleware, and error handling with GH-017–GH-022.
+- Surface (GH-014): `normalizeRoutePath`, descriptor normalization, and
+  deterministic path/method conflict diagnostics. Only Bun-native-style
+  parameters and bare final wildcards are accepted; native route compilation
+  remains GH-015.
+- Not implemented yet (by design): compilation to `Bun.serve` route tables,
+  context, middleware, and error handling land with GH-015 and GH-017–GH-022.
 - Runtime dependency policy: zero runtime dependencies
   (`decisions/0011-zero-runtime-deps.md`), enforced by tests, the
   architecture boundary check, and `bun run pack:inspect @bundar/core`.

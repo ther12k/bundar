@@ -126,3 +126,32 @@ GH-011 is complete; GH-012 and GH-026 are unblocked.
 - Full battery green: format, lint, package/root typecheck, architecture (8 source files), `pack:inspect` (4 packed files, 0 dependencies), `bun test` 44/44, build, frozen install, docs validate/links/graph/check. Evidence: `evidence/gh-012/verification-transcript.md`.
 
 GH-012 is complete; GH-013 and GH-014 are unblocked.
+
+## 2026-08-21 — GH-013: app builder, grouping, and module mounting
+
+- Landed `App`, deterministic verb/descriptor registration, grouped prefixes,
+  immutable module mounting, and defensive `RouteManifest` snapshots in
+  `packages/core/src/{app,module}.ts`. Registration remains pre-compilation and
+  does not call `Bun.serve`; the public API avoids accumulating route-list
+  generics per the type-system policy.
+- Added focused builder tests and explicit `test:types`/`typecheck:perf`
+  workspace commands. Verification passed: builder 4/4, core 17/17, root and
+  package typecheck, typecheck budget 861ms/10s, lint, architecture, package
+  inspection, build, and OKF/docs checks. Evidence: `evidence/gh-013/verification-transcript.md`.
+
+GH-013 is complete; GH-014 is now implemented on its dedicated worktree.
+
+## 2026-08-21 — GH-014: path normalization and route-conflict detection
+
+- Landed Bun-native path normalization and deterministic conflict diagnostics in
+  `packages/core/src/routing/{path,conflicts}.ts`: slash-equivalent paths
+  canonicalize, method-specific routes may share paths, duplicate normalized
+  path/method keys and handler/static replacements fail, and source labels redact
+  absolute path-like values.
+- Added focused path/conflict tests covering wildcard and unsupported syntax,
+  runtime method validation, collision diagnostics, and redaction. Verification
+  passed: focused tests 7/7, core regression 24/24, typecheck, lint,
+  architecture, package inspection, and build. Evidence:
+  `evidence/gh-014/verification-transcript.md`.
+
+GH-014 is complete; GH-015 is unblocked after this branch merges.

@@ -9,7 +9,7 @@ tags:
 - feature
 - p0
 - m
-status: draft
+status: complete
 generated:
   by: openai/gpt-5.6-pro
   at: '2026-08-21T21:30:00+07:00'
@@ -57,22 +57,22 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Duplicate registrations fail deterministically.
-- [ ] Equivalent normalized paths cannot bypass collision detection.
-- [ ] Valid method-specific routes share a path.
-- [ ] Diagnostics do not expose absolute user paths in normal production output.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Duplicate registrations fail deterministically.
+- [x] Equivalent normalized paths cannot bypass collision detection.
+- [x] Valid method-specific routes share a path.
+- [x] Diagnostics do not expose absolute user paths in normal production output.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
 ```bash
-bun test packages/core/test/routing/conflicts.test.ts
-bun test packages/core/test/routing/paths.test.ts
+bun test ./packages/core/test/routing/conflicts.test.ts
+bun test ./packages/core/test/routing/paths.test.ts
 ```
 
-Commands are planned contracts. During implementation, replace unavailable placeholder script names only through a documented tooling decision, and preserve equivalent or stronger evidence.
+Tooling decision: Bun 1.4 requires the explicit `./` path form for these file-specific tests; the equivalent commands above preserve the planned test targets without name-filter ambiguity.
 
 ## Dependencies
 
@@ -81,7 +81,6 @@ Commands are planned contracts. During implementation, replace unavailable place
 ## Blocks
 
 - [GH-015 — Compile Bundar routes to Bun.serve native route tables](gh-015-compile-bundar-routes-to-bun-serve-native-route-tables.md)
-
 
 ## Suggested files
 
@@ -106,13 +105,13 @@ Commands are planned contracts. During implementation, replace unavailable place
 
 ```markdown
 Stable ID: GH-014
-Commit / PR:
-Files changed:
-Commands executed:
-Evidence:
-Contract/API changes:
-Security/performance impact:
-Remaining risks:
-Documentation updated:
-Newly unblocked issues:
+Commit / PR: fb0c9d4 (implementation branch; merge commit recorded after verification)
+Files changed: packages/core/src/routing/path.ts, packages/core/src/routing/conflicts.ts, packages/core/src/index.ts, packages/core/test/routing/paths.test.ts, packages/core/test/routing/conflicts.test.ts, packages/core/test/import.test.ts, packages/core/README.md, engineering/package-api.md, evidence/gh-014/verification-transcript.md, issues/m1/index.md, log.md
+Commands executed: frozen install; focused path/conflict tests; package/root typecheck; lint; architecture check; package inspection; full core tests; build — all exit 0
+Evidence: evidence/gh-014/verification-transcript.md
+Contract/API changes: runtime path normalization and deterministic normalized path/method conflict diagnostics; only Bun-native-style parameters and bare final wildcards accepted; no dispatch or native compilation
+Security/performance impact: diagnostics redact absolute path-like source labels; no network/body/runtime dependency changes
+Remaining risks: native route matching/precedence and wildcard runtime values remain GH-015 scope
+Documentation updated: packages/core/README.md, engineering/package-api.md, issues/m1/index.md, log.md
+Newly unblocked issues: GH-015 once GH-013 is merged (GH-013 is already complete on main)
 ```
