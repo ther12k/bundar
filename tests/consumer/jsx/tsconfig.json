@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@bundar/jsx",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@bundar/jsx": ["../../../packages/jsx/src/index.ts"],
+      "@bundar/jsx/*": ["../../../packages/jsx/src/*"]
+    }
+  },
+  "include": ["fixture.tsx"]
+}
