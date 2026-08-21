@@ -75,8 +75,12 @@ amendment or be rejected.
   `HttpMethod`, `RouteParams`, `ValidateRoutePath` (+ `RoutePathError`),
   `RouteHandler`, `RouteMethods` (+ `DuplicateMethodError`), `RouteMetadata`,
   `Simplify`, `HandlerRoute`, `StaticRoute`, `RouteDescriptor`. Handlers
-  return `Response | Promise<Response>` only. Builder/compile APIs remain
-  with GH-013–GH-015; context/middleware/errors with GH-017–GH-022.
+  return `Response | Promise<Response>` only.
+- GH-013: `@bundar/core` exports `App`, `RouteModule`, `RouteManifest`,
+  `defineModule`, and immutable manifest helpers. Builder registration is
+  deterministic and does not call `Bun.serve`; path validation/conflicts and
+  native compilation remain GH-014–GH-015, context/middleware/errors remain
+  GH-017–GH-022.
 
 # Pre-1.0 API change classification
 
