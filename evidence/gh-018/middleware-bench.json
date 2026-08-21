@@ -1,0 +1,12 @@
+{
+  "issue": "GH-018",
+  "scenario": "middleware-sync-async",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "iterations": 50000,
+  "bareP50Ns": 130,
+  "sync1P50Ns": 144,
+  "sync5P50Ns": 246,
+  "async1P50Ns": 200,
+  "note": "Sync chains return plain Responses (no framework Promise); one async participant makes the chain Promise-returning by necessity."
+}

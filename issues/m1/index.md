@@ -7,7 +7,7 @@
 - [GH-015 — Compile Bundar routes to Bun.serve native route tables](gh-015-compile-bundar-routes-to-bun-serve-native-route-tables.md) — P0 / L; depends on GH-013, GH-014 — **complete 2026-08-21** (closure record and evidence)
 - [GH-016 — Preserve the static Response fast path](gh-016-preserve-the-static-response-fast-path.md) — P1 / S; depends on GH-015 — **complete 2026-08-21** (closure record and evidence)
 - [GH-017 — Implement the request context contract](gh-017-implement-the-request-context-contract.md) — P0 / M; depends on GH-015 — **complete 2026-08-21** (closure record and evidence)
-- [GH-018 — Implement startup-composed sync and async middleware](gh-018-implement-startup-composed-sync-and-async-middleware.md) — P0 / L; depends on GH-017
+- [GH-018 — Implement startup-composed sync and async middleware](gh-018-implement-startup-composed-sync-and-async-middleware.md) — P0 / L; depends on GH-017 — **complete 2026-08-21** (closure record and evidence)
 - [GH-019 — Implement params, query, and cookie access adapters](gh-019-implement-params-query-and-cookie-access-adapters.md) — P1 / M; depends on GH-017
 - [GH-020 — Implement HttpError and the global error boundary](gh-020-implement-httperror-and-the-global-error-boundary.md) — P0 / M; depends on GH-017, GH-018
 - [GH-021 — Implement explicit response helpers](gh-021-implement-explicit-response-helpers.md) — P1 / M; depends on GH-017

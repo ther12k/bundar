@@ -8,6 +8,7 @@ import {
 } from "./module";
 import type { ServiceMap } from "./context";
 import type { ContextServicesOptions } from "./context";
+import type { Middleware } from "./middleware";
 import { compileRoutes, type CompiledServerOptions } from "./routing/compiler";
 import type {
   HttpMethod,
@@ -28,11 +29,32 @@ type RouteSink = (route: RouteDescriptor) => void;
  */
 export class App {
   private readonly registered: RouteDescriptor[] = [];
+  /** Middleware scoped to this App level; composition happens at compile. */
+  private readonly scopedMiddleware: Middleware[] = [];
+  /**
+   * Lazy thunk for the enclosing scope's chain. Laziness is required so
+   * `use()` calls made after a group is created still apply to it.
+   */
+  private readonly parentChain: () => readonly Middleware[];
 
   public constructor(
     private readonly prefix = "",
     private readonly sink?: RouteSink,
-  ) {}
+    parentChain: () => readonly Middleware[] = () => [],
+  ) {
+    this.parentChain = parentChain;
+  }
+
+  /** Attaches middleware to this App/group scope. */
+  public use(...middlewares: Middleware[]): this {
+    this.scopedMiddleware.push(...middlewares);
+    return this;
+  }
+
+  /** Middleware effective for registrations made through this App. */
+  public middlewareChain(): readonly Middleware[] {
+    return Object.freeze([...this.parentChain(), ...this.scopedMiddleware]);
+  }
 
   public route<Path extends string, Methods extends readonly HttpMethod[]>(
     descriptor: RouteDescriptor<Path, Methods>,
@@ -67,7 +89,12 @@ export class App {
         : descriptorOrPath
     ) as RouteDescriptor<Path, Methods>;
 
-    this.register(cloneRouteDescriptor(descriptor, this.prefix));
+    // Registrations stamp the OWNING scope's chain; sinks only bubble the
+    // already-stamped descriptor toward the root manifest.
+    this.register(
+      cloneRouteDescriptor(descriptor, this.prefix),
+      this.middlewareChain(),
+    );
     return this;
   }
 
@@ -130,8 +157,13 @@ export class App {
   public group(prefix: string, configure: (group: App) => void): this;
   public group(prefix: string): App;
   public group(prefix: string, configure?: (group: App) => void): this | App {
-    const group = new App(joinRoutePath(this.prefix, prefix), (route) =>
-      this.register(route),
+    // The child's parent-chain thunk is lazy, so parent `use()` calls after
+    // group creation still apply. The sink only bubbles the child's
+    // already-stamped descriptors — it never re-stamps middleware.
+    const group = new App(
+      joinRoutePath(this.prefix, prefix),
+      (route) => this.register(route),
+      () => this.middlewareChain(),
     );
 
     if (configure) {
@@ -147,9 +179,22 @@ export class App {
     module: RouteModule | readonly RouteDescriptor[],
   ): this {
     const routes = "routes" in module ? module.routes : module;
+    // Scope boundary: mounting strips the module's own middleware chain and
+    // applies the mounting app's chain instead. A module's middleware stays
+    // with the module; it never crosses into the parent silently.
     for (const route of routes) {
+      const moduleMeta = { ...(route.meta ?? {}) } as {
+        middleware?: readonly Middleware[];
+      };
+      delete moduleMeta.middleware;
+      const hasMeta = Object.keys(moduleMeta).length > 0;
+      const stripped = {
+        ...route,
+        meta: hasMeta ? moduleMeta : undefined,
+      } as RouteDescriptor;
       this.register(
-        cloneRouteDescriptor(route, joinRoutePath(this.prefix, prefix)),
+        cloneRouteDescriptor(stripped, joinRoutePath(this.prefix, prefix)),
+        this.middlewareChain(),
       );
     }
     return this;
@@ -164,6 +209,8 @@ export class App {
   }
 
   public compile(options: ContextServicesOptions = {}): CompiledServerOptions {
+    // Middleware travels per-route under meta.middleware (stamped at
+    // registration by the owning scope); no app-level duplication here.
     return compileRoutes(this.manifest().routes, options);
   }
 
@@ -184,8 +231,40 @@ export class App {
     });
   }
 
-  private register(route: RouteDescriptor): void {
-    const copy = cloneRouteDescriptor(route);
+  private register(
+    route: RouteDescriptor,
+    middleware?: readonly Middleware[],
+  ): void {
+    // Route-level middleware travels under meta.middleware (a frozen array
+    // whose reference survives cloneRouteDescriptor's meta spread), keeping
+    // the frozen-descriptor contract intact.
+    const inherited = (
+      route.meta as { middleware?: readonly Middleware[] } | undefined
+    )?.middleware;
+    const combined = [...(inherited ?? []), ...(middleware ?? [])];
+    const meta =
+      combined.length > 0
+        ? Object.freeze({
+            ...(route.meta ?? {}),
+            middleware: Object.freeze(combined),
+          })
+        : route.meta;
+
+    const copy =
+      "handler" in route
+        ? Object.freeze({
+            path: route.path,
+            methods: Object.freeze([...route.methods]),
+            handler: route.handler,
+            ...(meta ? { meta } : {}),
+          })
+        : Object.freeze({
+            path: route.path,
+            methods: Object.freeze([...route.methods]),
+            response: route.response,
+            ...(meta ? { meta } : {}),
+          });
+
     this.registered.push(copy);
     this.sink?.(copy);
   }
