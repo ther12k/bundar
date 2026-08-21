@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Conflicting redirect/location/history directives fail before a response is sent.
-- [ ] Multiple triggers serialize predictably.
-- [ ] Header values are validated against CRLF/header injection.
-- [ ] The neutral object can be encoded by both dialect fixtures.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Conflicting redirect/location/history directives fail before a response is sent.
+- [x] Multiple triggers serialize predictably.
+- [x] Header values are validated against CRLF/header injection.
+- [x] The neutral object can be encoded by both dialect fixtures.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

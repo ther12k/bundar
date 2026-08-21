@@ -268,3 +268,11 @@ GH-031 is complete; GH-036 gains its raw-boundary prerequisite.
 - Verification: htmx 24/24, full repo 176/176, typecheck, lint, architecture (30 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-041/verification-transcript.md`.
 
 GH-041 is complete; GH-043, GH-044, and GH-048 gain their request-metadata prerequisite.
+
+## 2026-08-21 — GH-042: normalized HTMX response directives
+
+- Landed `packages/htmx/src/directives.ts`: typed directive union, deterministic ordering (navigation → targeting → triggers), conflict detection (one navigation directive max, duplicates throw before encoding), trigger merge semantics (sorted JSON, first-definition-wins), CRLF/selector/URL/event-name validation, and non-mutating `applyDirectives` preserving status/body/non-HX headers.
+- Neutrality proven: the same directive array encodes identically through v2 adapter, v4 adapter, and the directive encoder (pairwise header equality).
+- Verification: htmx 37/37, full repo 189/189, typecheck, lint, architecture (31 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-042/verification-transcript.md`.
+
+GH-042 is complete; GH-043, GH-044, GH-050, and GH-052 are unblocked.
