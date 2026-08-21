@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Core and JSX do not import `@bundar/htmx`.
-- [ ] Applications can select a dialect through one explicit adapter value/import.
-- [ ] Experimental v4 exports are visibly marked and version-pinned.
-- [ ] Package metadata does not claim htmx 4 GA support.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Core and JSX do not import `@bundar/htmx`.
+- [x] Applications can select a dialect through one explicit adapter value/import.
+- [x] Experimental v4 exports are visibly marked and version-pinned.
+- [x] Package metadata does not claim htmx 4 GA support.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
