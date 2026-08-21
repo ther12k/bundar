@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Repeated query keys are not silently collapsed.
-- [ ] Params reflect Bun decoding semantics and tests record edge cases.
-- [ ] Cookie mutations affect the eventual response through an explicit mechanism.
-- [ ] No body parsing occurs when only params/query/cookies are used.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Repeated query keys are not silently collapsed.
+- [x] Params reflect Bun decoding semantics and tests record edge cases.
+- [x] Cookie mutations affect the eventual response through an explicit mechanism.
+- [x] No body parsing occurs when only params/query/cookies are used.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

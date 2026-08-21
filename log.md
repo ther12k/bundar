@@ -285,3 +285,11 @@ GH-042 is complete; GH-043, GH-044, GH-050, and GH-052 are unblocked.
 - Verification: middleware suite 12/12 (live-server scope tests), full repo 201/201, typecheck, lint, architecture (32 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-018/verification-transcript.md`.
 
 GH-018 is complete; GH-020, GH-023, and the M4 security middleware chain are unblocked.
+
+## 2026-08-21 — GH-019: params, query, and cookie access adapters
+
+- Landed `packages/core/src/request/adapters.ts`: typed params (`param`/`requiredParam`/`intParam`) over Bun-decoded route matches (encoded-segment edge case recorded live), lazy `queryAdapter` preserving repeated keys, and a `CookieMutations` queue with full Set-Cookie attribute serialization applied explicitly via `withCookies` (non-mutating; signed cookies deferred to GH-062).
+- Invalid cookie names and control-character values rejected; request cookie reads never observe queued mutations; no body parsing anywhere (`bodyUsed` asserted false).
+- Verification: request-data suite 10/10 incl. end-to-end live-server composition, full repo 211/211, typecheck, lint, architecture (33 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-019/verification-transcript.md`.
+
+GH-019 is complete; GH-023 and GH-062 gain their access-adapter prerequisite.

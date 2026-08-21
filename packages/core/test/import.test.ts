@@ -27,8 +27,10 @@ describe("GH-011 @bundar/core package skeleton", () => {
     // CompiledServerOptions) do not appear at runtime.
     expect(Object.keys(core).sort()).toEqual([
       "App",
+      "CookieMutations",
       "DoubleNextError",
       "HTTP_METHODS",
+      "InvalidCookieNameError",
       "MissingResponseError",
       "RouteConflictError",
       "RoutePathValidationError",
@@ -43,6 +45,7 @@ describe("GH-011 @bundar/core package skeleton", () => {
       "defaultNotFound",
       "defineModule",
       "freezeManifest",
+      "intParam",
       "isContext",
       "isHttpMethod",
       "isSyncChain",
@@ -51,8 +54,12 @@ describe("GH-011 @bundar/core package skeleton", () => {
       "normalizeRouteDescriptor",
       "normalizeRouteDescriptors",
       "normalizeRoutePath",
+      "param",
+      "queryAdapter",
+      "requiredParam",
       "routeConflictKey",
       "validateRouteConflicts",
+      "withCookies",
     ]);
   });
 
