@@ -4,9 +4,28 @@
   "private": true,
   "type": "module",
   "description": "Bundar command-line tooling: dev server, route manifests, and the HTMX migration audit.",
-  "main": "./src/index.ts",
-  "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.4.0"
   },
-  "license": "MIT"
+  "bin": {
+    "bundar": "./src/bin.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build ./src/bin.ts --outdir ./dist --target=bun",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
+  }
 }

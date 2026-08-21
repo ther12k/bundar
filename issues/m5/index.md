@@ -1,6 +1,6 @@
 # M5 — Tooling, Examples & Docs
 
-- [GH-070 — Create the Bundar CLI package and command framework](gh-070-create-the-bundar-cli-package-and-command-framework.md) — P1 / M; depends on GH-010
+- [GH-070 — Create the Bundar CLI package and command framework](gh-070-create-the-bundar-cli-package-and-command-framework.md) — P1 / M; depends on GH-010 — **complete 2026-08-21** (closure record and evidence)
 - [GH-071 — Implement create-bundar scaffolding](gh-071-implement-create-bundar-scaffolding.md) — P0 / L; depends on GH-038, GH-056, GH-069, GH-070
 - [GH-072 — Implement the Bundar development command and reload loop](gh-072-implement-the-bundar-development-command-and-reload-loop.md) — P1 / L; depends on GH-015, GH-070
 - [GH-073 — Generate route manifests and typed URL builders](gh-073-generate-route-manifests-and-typed-url-builders.md) — P0 / L; depends on GH-012, GH-015, GH-070
