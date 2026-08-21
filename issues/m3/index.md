@@ -5,7 +5,7 @@
 - [GH-041 — Implement normalized HTMX request metadata](gh-041-implement-normalized-htmx-request-metadata.md) — P0 / L; depends on GH-040 — **complete 2026-08-21** (closure record and evidence)
 - [GH-042 — Implement normalized HTMX response directives](gh-042-implement-normalized-htmx-response-directives.md) — P0 / L; depends on GH-040 — **complete 2026-08-21** (closure record and evidence)
 - [GH-043 — Implement and pin the stable HTMX 2 dialect adapter](gh-043-implement-and-pin-the-stable-htmx-2-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042 — **complete 2026-08-21** (closure record and evidence)
-- [GH-044 — Implement the experimental HTMX 4 beta6 dialect adapter](gh-044-implement-the-experimental-htmx-4-beta6-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042
+- [GH-044 — Implement the experimental HTMX 4 beta6 dialect adapter](gh-044-implement-the-experimental-htmx-4-beta6-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042 — **complete 2026-08-21** (closure record and evidence)
 - [GH-045 — Implement the HTMX asset registry and local serving contract](gh-045-implement-the-htmx-asset-registry-and-local-serving-contract.md) — P1 / M; depends on GH-021, GH-043, GH-044
 - [GH-046 — Normalize HTMX lifecycle and application events](gh-046-normalize-htmx-lifecycle-and-application-events.md) — P1 / L; depends on GH-040, GH-043, GH-044
 - [GH-047 — Add inheritance and extension compatibility helpers](gh-047-add-inheritance-and-extension-compatibility-helpers.md) — P1 / L; depends on GH-035, GH-040, GH-043, GH-044
