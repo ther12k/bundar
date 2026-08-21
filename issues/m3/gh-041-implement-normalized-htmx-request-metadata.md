@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No consumer needs to know whether v2 sent `HX-Trigger` or v4 sent `HX-Source`.
-- [ ] Unknown request types degrade to documented safe behavior.
-- [ ] Raw client values are never treated as authorization or trusted redirect destinations.
-- [ ] Header parsing is case-insensitive and deterministic.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No consumer needs to know whether v2 sent `HX-Trigger` or v4 sent `HX-Source`.
+- [x] Unknown request types degrade to documented safe behavior.
+- [x] Raw client values are never treated as authorization or trusted redirect destinations.
+- [x] Header parsing is case-insensitive and deterministic.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
