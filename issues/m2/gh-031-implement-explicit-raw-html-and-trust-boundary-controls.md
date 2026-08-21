@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Ordinary strings always escape even when typed broadly.
-- [ ] Only branded values bypass text escaping.
-- [ ] Raw values cannot be forged accidentally through plain object shape.
-- [ ] Security tests cover script, SVG, attribute, comment, and closing-tag payloads.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Ordinary strings always escape even when typed broadly.
+- [x] Only branded values bypass text escaping.
+- [x] Raw values cannot be forged accidentally through plain object shape.
+- [x] Security tests cover script, SVG, attribute, comment, and closing-tag payloads.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

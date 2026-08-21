@@ -5,6 +5,8 @@ export {
   renderPrimitive,
   UnsupportedChildError,
 } from "./escape";
+export { isRawHtml, raw } from "./raw";
+export type { RawHtml } from "./raw";
 export {
   BOOLEAN_ATTRIBUTES,
   isBooleanAttribute,

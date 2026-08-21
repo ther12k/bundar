@@ -251,3 +251,12 @@ GH-028 is complete; GH-032 and GH-035 are unblocked.
 - Verification: jsx 55/55, full repo 160/160, typecheck, lint, architecture (28 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-029/verification-transcript.md`.
 
 GH-029 is complete; GH-030 and GH-032 are unblocked.
+
+## 2026-08-21 — GH-031: explicit raw HTML trust boundary
+
+- Landed `raw()`/`isRawHtml()` in `packages/jsx/src/raw.ts`: symbol-branded frozen values are the only object form that bypasses text escaping. Spread, plain-shape, and JSON impostors cannot forge the brand; attribute-position raw still escapes; no sanitizer is bundled (caller owns sanitization; documented safe alternatives).
+- Security suite covers script/SVG/attribute/comment/closing-tag payloads in both directions (unbranded always escape; branded pass verbatim by explicit contract).
+- Added `security:raw-html-audit` tool scanning for real raw/unsafeHtml call sites (comment/string lines excluded); current tree reports zero non-test call sites.
+- Verification: jsx 62/62, full repo 167/167, typecheck, lint, architecture (29 files), pack inspect, build, format, consumer compile — all exit 0. Evidence: `evidence/gh-031/verification-transcript.md`.
+
+GH-031 is complete; GH-036 gains its raw-boundary prerequisite.
