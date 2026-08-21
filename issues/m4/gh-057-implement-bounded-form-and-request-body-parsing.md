@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Oversized or excessive inputs fail before unbounded allocation.
-- [ ] Malformed media types produce controlled 4xx responses.
-- [ ] Repeated fields retain order and multiplicity.
-- [ ] Body parsing does not run on routes that do not request it.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Oversized or excessive inputs fail before unbounded allocation.
+- [x] Malformed media types produce controlled 4xx responses.
+- [x] Repeated fields retain order and multiplicity.
+- [x] Body parsing does not run on routes that do not request it.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
