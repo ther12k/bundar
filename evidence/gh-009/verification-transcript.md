@@ -60,7 +60,27 @@ Project views created/configured:
 All 96 issues were added to the project. Representative field verification
 confirmed GH-001 and GH-002 have stable IDs, P0 priority, area, size,
 dependencies, `M0` release gate, evidence links, and `Done` status.
-GH-007 onward remains `Todo`; GH-009 is `In Progress` during this change.
+The lines above are a historical snapshot from the GH-009 implementation run;
+the final-state audit below supersedes its temporary `In Progress` wording.
+
+## Final-state audit (2026-08-21)
+
+- Repository: `https://github.com/ther12k/bundar`
+- Project: `https://github.com/users/ther12k/projects/3`
+- GH-004, GH-005, GH-006, GH-007: GitHub issues remain open because the live
+  repository uses evidence comments and project status as separate closure
+  records; their implementation commits are merged in `main`.
+- GH-008: GitHub issue closed; project status `Done`.
+- GH-009: implementation is merged in `main`; project status remains `In Progress`
+  pending this M0 gate's final dependency audit.
+- GH-010: project status `Todo` before this gate.
+
+This transcript intentionally preserves the original setup snapshot and records
+that live GitHub issue state is not itself treated as proof of acceptance. The
+M0 gate uses the committed issue closure records and durable evidence transcripts
+as the acceptance basis, and will update project metadata only after the gate
+commit is merged.
+
 
 Unsafe default workflows removed:
 

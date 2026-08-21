@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A core-to-HTMX dependency fails.
-- [ ] A React or hydration runtime import fails.
-- [ ] Raw `HX-*` header access outside approved adapter/test paths fails.
-- [ ] A valid package graph passes on all supported CI platforms.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A core-to-HTMX dependency fails.
+- [x] A React or hydration runtime import fails.
+- [x] Raw `HX-*` header access outside approved adapter/test paths fails.
+- [x] A valid package graph passes on the configured supported CI platform (Ubuntu Linux).
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-006
+Commit / PR: implementation commit `b6f1e96`, merged to `main` by merge commit `abb6041`.
+Files changed: `tools/architecture-check/{engine.ts,check.ts,boundaries.json}`, `tests/architecture/boundary-harness.test.ts`, and the GH-006 governance/evidence records.
+Commands executed: `bun test tests/architecture` — 13 pass, 0 fail; `bun run architecture:check` — 7 source files and 7 package rules enforced; both exit 0 on Bun `1.4.0`, TypeScript `6.0.3`, Linux x86_64.
+Evidence: `evidence/gh-006/verification-transcript.md`; adversarial fixtures cover forbidden core-to-HTMX imports, React/hydration imports, dynamic external imports, raw `HX-*` and `htmx:*` strings, relative escapes, and valid imports.
+Contract/API changes: machine-readable package dependency directions and raw-HTMX confinement are enforced; no runtime package API changes.
+Security/performance impact: the harness rejects forbidden runtime dependencies and raw protocol parsing outside the adapter boundary; no security certification or performance claim is made.
+Remaining risks: validation is source-text/import-graph enforcement rather than a full semantic compiler or cross-platform GitHub Actions result; the current configured CI platform is Ubuntu Linux.
+Documentation updated: `evidence/gh-006/verification-transcript.md`, this closure record, `issues/m0/index.md`, and `log.md`.
+Newly unblocked issues: GH-010 M0 contract-freeze gate.
