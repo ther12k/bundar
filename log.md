@@ -311,3 +311,11 @@ GH-030 is complete; GH-033 and GH-034 are unblocked.
 - Verification: v2 suite 13/13 (positive/absent/malformed/conflict per field), htmx 50/50, browser htmx2 lane exit 0, full repo 237/237, typecheck, lint, architecture (35 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-043/verification-transcript.md`.
 
 GH-043 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-053 are unblocked.
+
+## 2026-08-21 — GH-044: experimental HTMX 4 beta6 dialect adapter
+
+- Built the full provisional v4 profile in `packages/htmx/src/dialects/v4/`: experimental identity pinned to 4.0.0-beta6 (GH-008 SHA-256), HX-Source request aliasing onto neutral sourceElement, GH-008 lifecycle observations (afterRequest not fired under beta; after-swap/after-settle emulated), five migration-difference records with fixture/record status, and cache-control unsupported. Every provisional field annotated; gaClaim states GA revalidation is mandatory.
+- Isolation proven: separate frozen adapters; v2 stays stable-native; HX-Source decodes only under v4; shared neutral encoder produces identical headers.
+- Verification: v4 suite 13/13, htmx 63/63, browser htmx4 lane exit 0, full repo 250/250, typecheck, lint, architecture (36 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-044/verification-transcript.md`.
+
+GH-044 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-054 are unblocked.
