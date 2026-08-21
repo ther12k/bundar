@@ -293,3 +293,12 @@ GH-018 is complete; GH-020, GH-023, and the M4 security middleware chain are unb
 - Verification: request-data suite 10/10 incl. end-to-end live-server composition, full repo 211/211, typecheck, lint, architecture (33 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-019/verification-transcript.md`.
 
 GH-019 is complete; GH-023 and GH-062 gain their access-adapter prerequisite.
+
+## 2026-08-21 — GH-030: async components and promised children
+
+- Landed `packages/jsx/src/render/async.ts`: `renderNodeAsync` (document-order resolution, component-context rejection wrapping, AbortSignal propagation bounding unbounded work), and `renderNodeAuto` (structural async probe — sync trees stay on the plain-string sync path, no Promise wrapping).
+- Determinism proven: slow/fast siblings serialize in document order regardless of timing; abort tests show bounded invocation (fewer components run after abort; zero on pre-aborted signals).
+- Benchmark artifact: sync 406µs vs async 720µs on 1000-item trees; auto probe adds ~15% on the sync path (`evidence/gh-030/jsx-async-bench.json`).
+- Verification: jsx 75/75 (13 async tests), full repo 224/224, typecheck, lint, architecture (34 files), pack inspect, build, format, docs — all exit 0. Evidence: `evidence/gh-030/verification-transcript.md`.
+
+GH-030 is complete; GH-033 and GH-034 are unblocked.
