@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Boolean attributes serialize according to HTML semantics.
-- [ ] Class and style ordering is deterministic.
-- [ ] Attribute values cannot escape their quoting context.
-- [ ] Inline `on*` handlers are rejected or require an explicit unsafe API documented by ADR.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Boolean attributes serialize according to HTML semantics.
+- [x] Class and style ordering is deterministic.
+- [x] Attribute values cannot escape their quoting context.
+- [x] Inline `on*` handlers are rejected or require an explicit unsafe API documented by ADR.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
