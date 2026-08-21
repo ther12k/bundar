@@ -10,6 +10,8 @@
  * adapter can be promoted to stable.
  */
 import { capabilities } from "./capabilities";
+import { normalizeHtmxRequest } from "./request";
+import { encodeDirectives } from "./directives";
 import type {
   HtmxCapability,
   HtmxDialectAdapter,
@@ -18,59 +20,11 @@ import type {
 } from "./dialect";
 
 function decode(request: Request): HtmxRequestMetadata {
-  return Object.freeze({
-    isHtmx: request.headers.get("HX-Request") === "true",
-    isBoosted: request.headers.get("HX-Boosted") === "true",
-    target: request.headers.get("HX-Target"),
-    trigger: request.headers.get("HX-Trigger"),
-    triggerName: request.headers.get("HX-Trigger-Name"),
-    currentUrl: request.headers.get("HX-Current-URL"),
-    prompt: request.headers.get("HX-Prompt"),
-  });
+  return normalizeHtmxRequest(request);
 }
 
 function encode(directive: HtmxResponseDirective): Headers {
-  const headers = new Headers();
-  switch (directive.kind) {
-    case "reswap":
-      headers.set("HX-Reswap", directive.strategy);
-      break;
-    case "retarget":
-      headers.set("HX-Retarget", directive.selector);
-      break;
-    case "reselect":
-      headers.set("HX-Reselect", directive.selector);
-      break;
-    case "redirect":
-      headers.set("HX-Redirect", directive.url);
-      break;
-    case "location":
-      headers.set("HX-Location", directive.url);
-      break;
-    case "refresh":
-      headers.set("HX-Refresh", "true");
-      break;
-    case "push-url":
-      headers.set(
-        "HX-Push-URL",
-        directive.url === false ? "false" : directive.url,
-      );
-      break;
-    case "replace-url":
-      headers.set("HX-Replace-URL", directive.url);
-      break;
-    case "trigger":
-      headers.set(
-        "HX-Trigger",
-        JSON.stringify(
-          Object.fromEntries(
-            directive.events.map((event) => [event.name, event.detail ?? {}]),
-          ),
-        ),
-      );
-      break;
-  }
-  return headers;
+  return encodeDirectives([directive]);
 }
 
 export const htmx4Experimental: HtmxDialectAdapter = Object.freeze({

@@ -22,15 +22,8 @@ export type HtmxCapability =
 export type CapabilityMap = Readonly<Record<HtmxCapability, CapabilitySupport>>;
 
 /** Version-neutral decoded HTMX request metadata (GH-041 owns the decoder). */
-export interface HtmxRequestMetadata {
-  readonly isHtmx: boolean;
-  readonly isBoosted: boolean;
-  readonly target: string | null;
-  readonly trigger: string | null;
-  readonly triggerName: string | null;
-  readonly currentUrl: string | null;
-  readonly prompt: string | null;
-}
+import type { NormalizedHtmxRequest } from "./request";
+export type HtmxRequestMetadata = NormalizedHtmxRequest;
 
 /** Version-neutral response directive (GH-042 owns the encoder). */
 export type HtmxResponseDirective =

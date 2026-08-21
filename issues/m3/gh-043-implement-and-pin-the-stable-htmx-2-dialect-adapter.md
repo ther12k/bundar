@@ -64,13 +64,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every profile field has positive, absent, malformed, and conflict tests.
-- [ ] Profile states the exact htmx 2 version tested.
-- [ ] Unimplemented upstream features are documented rather than silently approximated.
-- [ ] Stable lane contains no htmx 4 beta assumptions.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every profile field has positive, absent, malformed, and conflict tests.
+- [x] Profile states the exact htmx 2 version tested.
+- [x] Unimplemented upstream features are documented rather than silently approximated.
+- [x] Stable lane contains no htmx 4 beta assumptions.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
