@@ -1,0 +1,24 @@
+{
+  "issue": "GH-016",
+  "scenario": "static-response",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "iterations": 5000,
+  "warmup": 200,
+  "raw": {
+    "label": "raw-bun",
+    "p50Ns": 24201,
+    "p95Ns": 64067,
+    "meanNs": 35168,
+    "iterations": 5000
+  },
+  "bundar": {
+    "label": "bundar",
+    "p50Ns": 22693,
+    "p95Ns": 55433,
+    "meanNs": 27852,
+    "iterations": 5000
+  },
+  "bundarVsRawP50OverheadPercent": -6.23,
+  "note": "Both servers are real Bun.serve instances over localhost; the Bundar table is compiled by compileRoutes with the same Response instance passed by reference."
+}
