@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Package can be imported from a workspace consumer.
-- [ ] Published files are allow-listed.
-- [ ] Runtime dependency count is zero.
-- [ ] No route behavior is prematurely implemented.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Package can be imported from a workspace consumer.
+- [x] Published files are allow-listed.
+- [x] Runtime dependency count is zero.
+- [x] No route behavior is prematurely implemented.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure record (2026-08-21)
+
+Stable ID: GH-011
+Commit / PR: branch `gh-011-core-package-skeleton`; implementation and evidence commits are recorded in the repository history and on GitHub issue #11.
+Files changed: `packages/core/package.json` (engines, exports/types, files allow-list, typecheck/test scripts), `packages/core/tsconfig.json` (includes `test/**`), `packages/core/test/import.test.ts` (new), `packages/core/README.md`, `scripts/pack-inspect.ts` (new), root `package.json` (`pack:inspect`), `evidence/gh-011/verification-transcript.md` (new), `issues/m1/index.md`, `log.md`.
+Commands executed: `bun run --filter @bundar/core typecheck` (exit 0), `bun test packages/core` (4 pass / 0 fail), `bun run pack:inspect @bundar/core` (exit 0; 3 packed files, 0 runtime dependencies), plus four adversarial `pack:inspect` probes (unknown selector, stale allow-list entry, injected runtime dependency — all exit 1 with the intended message and no leaked tarball) and the full repository battery: format, lint, typecheck, docs validate/links/graph/check, architecture check, `bun test` 35/35, build, frozen install — all exit 0.
+Evidence: `evidence/gh-011/verification-transcript.md`.
+Contract/API changes: package manifest only. `src/index.ts` remains an intentional empty placeholder; no routing, app, context, middleware, or response symbols are exported (asserted by test). The planned `pack:inspect` placeholder is now a real fail-closed tool reusable for later packages.
+Security/performance impact: supply-chain surface unchanged — zero runtime dependencies enforced by four independent checks (package test, skeleton test, architecture check, `pack:inspect` ADR-0011 rule). No runtime code was added, so there is no performance surface.
+Remaining risks: publish-time layout (`dist`, export-map variants) deferred to GH-084–GH-086; pax header path overrides are not interpreted by the tar parser (not emitted for current path lengths); zero-dependency enforcement in `pack:inspect` covers exactly `@bundar/core` and `@bundar/jsx` per ADR-0011.
+Documentation updated: `packages/core/README.md`, `evidence/gh-011/verification-transcript.md`, `issues/m1/index.md`, `log.md`.
+Newly unblocked issues: GH-012 (route descriptor and handler types) and GH-026 (`@bundar/jsx` package skeleton).

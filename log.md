@@ -107,3 +107,13 @@ GH-008 is complete; GH-053 and GH-054 inherit the browser harness for their dial
 - Gate execution passed on Bun `1.4.0`, TypeScript `6.0.3`, Linux x86_64: frozen install exit 0, `ci:m0` all 17 steps exit 0, `docs:validate` exit 0, and `architecture:check` exit 0. Evidence: `evidence/gh-010/verification-transcript.md`.
 - Accepted residuals: temporary/unreserved naming, deferred exact API signatures, source-text boundary enforcement, local-only browser tooling, in-process raw Bun/Hono benchmarks, and experimental htmx `4.0.0-beta6` behavior. No production framework, performance, security, publication, or htmx 4 GA claim is made.
 - Authorization commit `fe6139e409d62833a816117cee9cc482cec6a762` and main merge commit `766d770` are recorded in the GH-010 closure record and transcript. GH-011, GH-026, GH-039, and GH-070 are newly unblocked within the frozen contract.
+
+## 2026-08-21 — GH-011: @bundar/core package skeleton
+
+- Turned the core package manifest into a real contract: `engines.bun >= 1.4.0`, `exports["."]` with `types`/`default` pointing at `./src/index.ts`, a `files` allow-list (`src`, `README.md`), and package-local `typecheck`/`test` scripts. `src/index.ts` remains an intentional empty placeholder — no routing, app, context, or middleware behavior (GH-012–GH-025 scope).
+- Added `packages/core/test/import.test.ts`: workspace-consumer import through the root symlink, empty public export surface, allow-list presence, zero runtime dependencies, and engine/typed-entry assertions (4 tests; repository total now 35).
+- Implemented the planned `pack:inspect` placeholder as `scripts/pack-inspect.ts` + root script: resolves the workspace package, enforces the ADR-0011 zero-dependency rule for core/jsx, packs with `bun pm pack`, parses the tarball in pure TypeScript, and fails closed on out-of-allow-list files, stale allow-list entries, missing typed exports, or unknown selectors — with tarball cleanup guaranteed on failure.
+- Verification: planned issue commands pass (`--filter typecheck`, `bun test packages/core` 4/4, `pack:inspect @bundar/core` exit 0 with 3 packed files and 0 dependencies); four adversarial probes fail closed with no leaked artifacts; full battery green. Evidence: `evidence/gh-011/verification-transcript.md`.
+- Residuals: publish-time layout deferred to GH-084–GH-086; tar parser does not interpret pax path overrides (not emitted at current path lengths).
+
+GH-011 is complete; GH-012 and GH-026 are unblocked.
