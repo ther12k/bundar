@@ -7,7 +7,7 @@
 - Pre-gate `main` commit: `a7f14011cd89af2ee663f4c0a9acdcd947dd3659`
 - Authorized implementation SHA: `fe6139e409d62833a816117cee9cc482cec6a762`
 - Closure metadata commit: `781ac82`
-- Main merge SHA: recorded in the final closure update after merge
+- Main merge SHA: `766d770`
 - Runtime: Bun `1.4.0`
 - TypeScript: `6.0.3`
 - ESLint: `10.8.1`
