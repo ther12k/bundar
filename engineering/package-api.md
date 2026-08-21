@@ -78,9 +78,11 @@ amendment or be rejected.
   return `Response | Promise<Response>` only.
 - GH-013: `@bundar/core` exports `App`, `RouteModule`, `RouteManifest`,
   `defineModule`, and immutable manifest helpers. Builder registration is
-  deterministic and does not call `Bun.serve`; path validation/conflicts and
-  native compilation remain GH-014–GH-015, context/middleware/errors remain
-  GH-017–GH-022.
+  deterministic and does not call `Bun.serve`.
+- GH-014: `@bundar/core` exports route path normalization and deterministic
+  path/method conflict diagnostics. Only Bun-native-style parameters and bare
+  final wildcards are accepted; native compilation remains GH-015 and
+  context/middleware/errors remain GH-017–GH-022.
 
 # Pre-1.0 API change classification
 

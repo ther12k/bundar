@@ -8,4 +8,6 @@
  */
 export * from "./app";
 export * from "./module";
+export * from "./routing/conflicts";
+export * from "./routing/path";
 export * from "./routing/types";

@@ -26,11 +26,20 @@ describe("GH-011 @bundar/core package skeleton", () => {
     expect(Object.keys(core).sort()).toEqual([
       "App",
       "HTTP_METHODS",
+      "RouteConflictError",
+      "RoutePathValidationError",
+      "RouteValidationError",
+      "assertRouteConflictsFree",
       "cloneRouteDescriptor",
       "defineModule",
       "freezeManifest",
       "isHttpMethod",
       "joinRoutePath",
+      "normalizeRouteDescriptor",
+      "normalizeRouteDescriptors",
+      "normalizeRoutePath",
+      "routeConflictKey",
+      "validateRouteConflicts",
     ]);
   });
 
