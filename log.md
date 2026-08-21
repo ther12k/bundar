@@ -201,3 +201,11 @@ GH-070 is complete; GH-071, GH-072, GH-073, GH-074, and GH-078 are unblocked.
 - Verification: compiler tests 7/7, integration 5/5, core 36/36, full repo 81/81, typecheck, lint, architecture (21 files), pack inspect, build, docs/graph — all exit 0. Evidence: `evidence/gh-015/verification-transcript.md`.
 
 GH-015 is complete; GH-016, GH-017, GH-022, GH-072, and GH-073 are unblocked.
+
+## 2026-08-21 — GH-027: safe text, primitive, and empty-child rendering
+
+- Landed `escapeText`/`escapeAttributeValue`/`renderPrimitive`/`UnsupportedChildError` in `packages/jsx/src/escape.ts`. Text context escapes `&<>`; attribute values additionally neutralize both quotes. Nullish/boolean children render empty; numbers/bigint use canonical forms; non-finite numbers, objects, arrays, functions, and symbols are rejected with type-naming diagnostics instead of `[object Object]`.
+- Fuzz fixtures (`packages/jsx/test/fuzz/escaping.test.ts`) generate a 244+-case pairwise delimiter corpus plus structured hostile composites; hostile payloads (`</script>`, `<img onerror>`, `<svg/onload>`, `\u003c` spellings) provably cannot break out of text context.
+- Verification: jsx suite 18/18 (1901 expect calls), root typecheck, lint, architecture (23 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-027/verification-transcript.md`.
+
+GH-027 is complete; GH-028, GH-029, and GH-031 are unblocked.

@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] `&`, `<`, `>`, quotes where relevant, and Unicode are handled correctly.
-- [ ] Nullish and boolean children follow the approved omission contract.
-- [ ] Unsafe strings cannot break out of text context.
-- [ ] Property-based/fuzz fixtures cover delimiter combinations.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] `- [ ] `&`, `<`, `>`, quotes where relevant, and Unicode are handled correctly.`, `<`, `>`, quotes where relevant, and Unicode are handled correctly.
+- [x] Nullish and boolean children follow the approved omission contract.
+- [x] Unsafe strings cannot break out of text context.
+- [x] Property-based/fuzz fixtures cover delimiter combinations.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

@@ -1,4 +1,10 @@
 export { Fragment, jsx, jsxDEV, jsxs } from "./jsx-runtime";
+export {
+  escapeAttributeValue,
+  escapeText,
+  renderPrimitive,
+  UnsupportedChildError,
+} from "./escape";
 export type {
   AnchorAttributes,
   FormAttributes,
