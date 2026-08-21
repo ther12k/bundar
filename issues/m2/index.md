@@ -2,7 +2,7 @@
 
 - [GH-026 — Create the @bundar/jsx package and JSX type surface](gh-026-create-the-bundar-jsx-package-and-jsx-type-surface.md) — P0 / M; depends on GH-010, GH-011 — **complete 2026-08-21** (closure record and evidence)
 - [GH-027 — Implement safe text, primitive, and empty-child rendering](gh-027-implement-safe-text-primitive-and-empty-child-rendering.md) — P0 / M; depends on GH-026 — **complete 2026-08-21** (closure record and evidence)
-- [GH-028 — Implement HTML attributes, class, style, and boolean serialization](gh-028-implement-html-attributes-class-style-and-boolean-serialization.md) — P0 / L; depends on GH-027
+- [GH-028 — Implement HTML attributes, class, style, and boolean serialization](gh-028-implement-html-attributes-class-style-and-boolean-serialization.md) — P0 / L; depends on GH-027 — **complete 2026-08-21** (closure record and evidence)
 - [GH-029 — Implement fragments, arrays, iterables, and functional components](gh-029-implement-fragments-arrays-iterables-and-functional-components.md) — P0 / L; depends on GH-027
 - [GH-030 — Implement async components and promised children](gh-030-implement-async-components-and-promised-children.md) — P0 / L; depends on GH-029
 - [GH-031 — Implement explicit raw HTML and trust-boundary controls](gh-031-implement-explicit-raw-html-and-trust-boundary-controls.md) — P0 / M; depends on GH-027

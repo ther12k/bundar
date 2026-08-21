@@ -5,6 +5,21 @@ export {
   renderPrimitive,
   UnsupportedChildError,
 } from "./escape";
+export {
+  BOOLEAN_ATTRIBUTES,
+  isBooleanAttribute,
+  renderAttributes,
+  serializeAttribute,
+  serializeClass,
+  serializeStyle,
+  UnsafeAttributeNameError,
+  validateAttributeName,
+} from "./render/attributes";
+export type {
+  ClassValue,
+  SerializedAttribute,
+  StyleValue,
+} from "./render/attributes";
 export type {
   AnchorAttributes,
   FormAttributes,

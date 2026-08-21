@@ -235,3 +235,11 @@ GH-016 is complete; GH-023 gains its static-path prerequisite.
 - Verification: full repo 123/123, typecheck, lint, architecture (26 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-017/verification-transcript.md`.
 
 GH-017 is complete; GH-018, GH-019, GH-020, GH-021, and GH-057 are unblocked.
+
+## 2026-08-21 — GH-028: HTML attribute serialization
+
+- Landed `packages/jsx/src/render/attributes.ts`: validated attribute names (`on*` always rejected), 22-name HTML boolean-attribute set with presence/omission semantics, class model (string/nested arrays/boolean record, sorted tokens), deterministic style model (string or sorted hyphenated declarations), and sorted whole-record rendering with both quote forms escaped.
+- Security suite proves eight hostile payloads cannot escape double-quoted context (exactly one attribute occurrence, exactly two delimiter quotes after entity removal, no markup smuggling).
+- Verification: jsx 41/41 incl. attribute+injection suites, full repo 146/146, typecheck, lint, architecture (27 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-028/verification-transcript.md`.
+
+GH-028 is complete; GH-032 and GH-035 are unblocked.
