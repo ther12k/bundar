@@ -243,3 +243,11 @@ GH-017 is complete; GH-018, GH-019, GH-020, GH-021, and GH-057 are unblocked.
 - Verification: jsx 41/41 incl. attribute+injection suites, full repo 146/146, typecheck, lint, architecture (27 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-028/verification-transcript.md`.
 
 GH-028 is complete; GH-032 and GH-035 are unblocked.
+
+## 2026-08-21 — GH-029: fragments, arrays, iterables, functional components
+
+- Landed `renderNode` in `packages/jsx/src/render/node.ts`: plain-function components (error attribution by name, no lifecycle), Fragment without wrapper, order-preserving flattening of nested arrays/Sets/generators, keys never serialized, cyclic-structure and depth-512 recursion guards, and Promise-returning components rejected with a GH-030 pointer.
+- Scale tests: 1000-deep nesting round-trip and a 10,000-item list (exactly 10k `<li>` in order); benchmark artifact records jsx-list p50 4.94ms (`evidence/gh-029/jsx-list-bench.json`).
+- Verification: jsx 55/55, full repo 160/160, typecheck, lint, architecture (28 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-029/verification-transcript.md`.
+
+GH-029 is complete; GH-030 and GH-032 are unblocked.

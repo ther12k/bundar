@@ -1,0 +1,11 @@
+{
+  "issue": "GH-029",
+  "scenario": "jsx-list",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "listSize": 10000,
+  "iterations": 200,
+  "p50Ns": 4938695,
+  "p95Ns": 7774957,
+  "meanNs": 5108752
+}

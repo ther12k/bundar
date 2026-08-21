@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Components are ordinary functions and have no hook lifecycle.
-- [ ] Nested children preserve source order.
-- [ ] Keys are not required for server output and do not leak as HTML.
-- [ ] Recursive/cyclic values fail safely with actionable diagnostics.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Components are ordinary functions and have no hook lifecycle.
+- [x] Nested children preserve source order.
+- [x] Keys are not required for server output and do not leak as HTML.
+- [x] Recursive/cyclic values fail safely with actionable diagnostics.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
