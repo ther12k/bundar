@@ -20,6 +20,13 @@ export type {
   SerializedAttribute,
   StyleValue,
 } from "./render/attributes";
+export {
+  AsyncComponentError,
+  ComponentRenderError,
+  CyclicChildError,
+  MAX_COMPONENT_DEPTH,
+  renderNode,
+} from "./render/node";
 export type {
   AnchorAttributes,
   FormAttributes,
