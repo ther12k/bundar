@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A context is created only for dynamic Bundar handlers.
-- [ ] Request and native route data are not copied without reason.
-- [ ] State cannot leak across concurrent requests.
-- [ ] Context public shape matches the package API document.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A context is created only for dynamic Bundar handlers.
+- [x] Request and native route data are not copied without reason.
+- [x] State cannot leak across concurrent requests.
+- [x] Context public shape matches the package API document.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

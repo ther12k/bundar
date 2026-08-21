@@ -99,13 +99,15 @@ export type ValidateRoutePath<Path extends string> = Path extends "/"
     : "path must start with '/'";
 
 /**
- * Handler contract frozen by ADR-0016: a route handler receives the request
- * and the path parameters and returns `Response | Promise<Response>`. There
- * is no implicit return-value language; GH-017 extends the first argument
- * with the request context without changing the return contract.
+ * Handler contract frozen by ADR-0016: a route handler returns
+ * `Response | Promise<Response>` — there is no implicit return-value
+ * language. Per the GH-012 note, GH-017 extends the first argument with the
+ * request context: handlers receive a `Context` (request, native params, lazy
+ * query/cookie access, services, per-request state) instead of a bare
+ * `Request`. The return contract is unchanged.
  */
 export type RouteHandler<Params = RouteParams<string>> = (
-  request: Request,
+  context: import("../context").Context<Params>,
   params: Params,
 ) => Response | Promise<Response>;
 

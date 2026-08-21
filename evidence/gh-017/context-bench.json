@@ -1,0 +1,11 @@
+{
+  "issue": "GH-017",
+  "scenario": "context-creation",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "iterations": 100000,
+  "p50Ns": 812,
+  "p95Ns": 2183,
+  "meanNs": 1134,
+  "note": "Per-context cost including lazy query+cookie first access; static routes never allocate a context (GH-016)."
+}

@@ -6,6 +6,8 @@ import {
   type RouteManifest,
   type RouteModule,
 } from "./module";
+import type { ServiceMap } from "./context";
+import type { ContextServicesOptions } from "./context";
 import { compileRoutes, type CompiledServerOptions } from "./routing/compiler";
 import type {
   HttpMethod,
@@ -161,22 +163,24 @@ export class App {
     return defineModule(this.manifest().routes);
   }
 
-  public compile(): CompiledServerOptions {
-    return compileRoutes(this.manifest().routes);
+  public compile(options: ContextServicesOptions = {}): CompiledServerOptions {
+    return compileRoutes(this.manifest().routes, options);
   }
 
   /**
    * Starts a Bun server from the compiled route table. Ownership is explicit:
    * the caller receives the `Bun.Server` instance and is responsible for
-   * stopping it (`server.stop()`).
+   * stopping it (`server.stop()`). `services` becomes the frozen app-level
+   * service map exposed on every request context.
    */
   public serve(
-    options: { port?: number; hostname?: string } = {},
+    options: { port?: number; hostname?: string; services?: ServiceMap } = {},
   ): ReturnType<typeof Bun.serve> {
+    const { port, hostname, services } = options;
     return Bun.serve({
-      ...this.compile(),
-      port: options.port ?? 0,
-      ...(options.hostname ? { hostname: options.hostname } : {}),
+      ...this.compile(services ? { services } : {}),
+      port: port ?? 0,
+      ...(hostname ? { hostname } : {}),
     });
   }
 
