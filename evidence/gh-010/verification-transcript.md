@@ -5,8 +5,8 @@
 - Stable ID: GH-010
 - Gate branch: `gh-010-m0-gate`
 - Pre-gate `main` commit: `a7f14011cd89af2ee663f4c0a9acdcd947dd3659`
-- Authorized implementation SHA: pending final gate commit
-- Main merge SHA: pending final merge
+- Authorized implementation SHA: `fe6139e409d62833a816117cee9cc482cec6a762`
+- Main merge SHA: recorded in the final closure update after merge
 - Runtime: Bun `1.4.0`
 - TypeScript: `6.0.3`
 - ESLint: `10.8.1`
