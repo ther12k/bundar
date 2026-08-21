@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A fully synchronous tree uses the synchronous renderer path.
-- [ ] Async output order is deterministic.
-- [ ] Rejections reach the global/application error boundary when integrated.
-- [ ] Aborted renders do not continue unbounded work.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A fully synchronous tree uses the synchronous renderer path.
+- [x] Async output order is deterministic.
+- [x] Rejections reach the global/application error boundary when integrated.
+- [x] Aborted renders do not continue unbounded work.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

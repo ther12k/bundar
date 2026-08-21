@@ -1,0 +1,10 @@
+{
+  "issue": "GH-030",
+  "scenario": "jsx-sync-async",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "syncRendererMeanNs": 405600,
+  "autoSyncPathMeanNs": 467944,
+  "asyncRendererMeanNs": 719864,
+  "note": "Sync trees stay on renderNodeAuto's synchronous string path; async adds per-node await bookkeeping by necessity."
+}

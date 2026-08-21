@@ -29,6 +29,12 @@ export {
   MAX_COMPONENT_DEPTH,
   renderNode,
 } from "./render/node";
+export {
+  AbortedRenderError,
+  AsyncComponentRenderError,
+  renderNodeAsync,
+  renderNodeAuto,
+} from "./render/async";
 export type {
   AnchorAttributes,
   FormAttributes,
