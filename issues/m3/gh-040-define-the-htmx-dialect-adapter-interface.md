@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A synthetic third dialect can be implemented in a test without changing core types.
-- [ ] Interface does not contain raw v2-only or v4-only field names unless inside dialect-owned metadata.
-- [ ] Capabilities distinguish unsupported, emulated, and native behavior.
-- [ ] Adapters are immutable and safe to reuse across requests.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A synthetic third dialect can be implemented in a test without changing core types.
+- [x] Interface does not contain raw v2-only or v4-only field names unless inside dialect-owned metadata.
+- [x] Capabilities distinguish unsupported, emulated, and native behavior.
+- [x] Adapters are immutable and safe to reuse across requests.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

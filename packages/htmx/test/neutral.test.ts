@@ -51,17 +51,19 @@ describe("GH-039 @bundar/htmx neutral protocol model", () => {
   });
 
   test("htmx2 adapter is stable and correctly pinned", () => {
-    expect(htmx2.version).toBe("htmx2");
-    expect(htmx2.experimental).toBe(false);
-    expect(htmx2.pinnedVersion).toBe("2.0.10");
+    expect(htmx2.id).toBe("htmx2");
+    expect(htmx2.maturity).toBe("stable");
+    expect(htmx2.metadata["htmx2:pinnedVersion"]).toBe("2.0.10");
     expect(Object.isFrozen(htmx2)).toBe(true);
   });
 
   test("htmx4 adapter is visibly experimental and version-pinned", () => {
-    expect(htmx4Experimental.version).toBe("htmx4");
-    expect(htmx4Experimental.experimental).toBe(true);
-    expect(htmx4Experimental.pinnedVersion).toBe("4.0.0-beta6");
-    expect(htmx4Experimental.pinnedVersion).not.toBe("4.0.0");
+    expect(htmx4Experimental.id).toBe("htmx4");
+    expect(htmx4Experimental.maturity).toBe("experimental");
+    expect(htmx4Experimental.metadata["htmx4:pinnedVersion"]).toBe(
+      "4.0.0-beta6",
+    );
+    expect(htmx4Experimental.metadata["htmx4:pinnedVersion"]).not.toBe("4.0.0");
     expect(Object.isFrozen(htmx4Experimental)).toBe(true);
   });
 });
