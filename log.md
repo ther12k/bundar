@@ -319,3 +319,11 @@ GH-043 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-053 a
 - Verification: v4 suite 13/13, htmx 63/63, browser htmx4 lane exit 0, full repo 250/250, typecheck, lint, architecture (36 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-044/verification-transcript.md`.
 
 GH-044 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-054 are unblocked.
+
+## 2026-08-21 — GH-057: bounded form and request-body parsing
+
+- Landed `packages/core/src/request/body.ts`: lazy content-type-dispatched APIs (`parseForm`/`parseJson`/`parseText`) with secure frozen defaults (1 MiB, 100 fields, 10 files, depth 8, 10s timeout), oversize rejection before unbounded allocation (Content-Length pre-check + mid-stream reader cancellation), single-consumption semantics (`BodyConsumedError`), controlled 415/400 error classes, and ordered repeated-key form data distinguishing absent from empty.
+- Live-server test proves opt-in only: a passthrough handler leaves `bodyUsed` false — no route pays parsing cost unless it asks.
+- Verification: body suite 13/13, full repo 263/263, typecheck, lint, architecture (37 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-057/verification-transcript.md`.
+
+GH-057 is complete; GH-058, GH-061, GH-064, and GH-067 are unblocked.
