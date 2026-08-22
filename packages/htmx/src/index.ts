@@ -179,3 +179,16 @@ export type {
   HtmxExtensionDescriptor,
   RawExtension,
 } from "./extensions";
+export {
+  composeNavigation,
+  htmxLocation,
+  htmxRedirect,
+  htmxRefresh,
+  validateRedirectUrl,
+  InvalidRedirectUrlError,
+} from "./navigation";
+export type {
+  ComposeNavigationOptions,
+  HtmxLocationConfig,
+  RedirectUrlOptions,
+} from "./navigation";

@@ -567,3 +567,11 @@ GH-046 is complete.
 - Verified in unit tests (12/12), browser lanes in `htmx2` and `htmx4`, full repository tests (624/624), architecture (73 files), pack:inspect, build, and docs. Evidence: `evidence/gh-047/verification-transcript.md`.
 
 GH-047 is complete; GH-078 is unblocked.
+
+## 2026-08-22 — GH-052: redirect, location, and history helpers
+
+- Added `validateRedirectUrl()`, `composeNavigation()`, `htmxRedirect()`, `htmxLocation()`, and `htmxRefresh()` in @bundar/htmx.
+- Implemented open-redirect defense: protocol-relative URLs (`//evil.com`), dangerous URI schemes (`javascript:`), and unlisted external origins are denied by default with `InvalidRedirectUrlError`.
+- Verified in unit tests (11/11), `security:redirects` audit script, browser lanes in `htmx2` and `htmx4`, full repository tests (635/635), architecture (74 files), pack:inspect, build, and docs. Evidence: `evidence/gh-052/verification-transcript.md`.
+
+GH-052 is complete.

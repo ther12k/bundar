@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] External redirects are denied by default or require explicit allow-listing.
-- [ ] Normal fallback uses standards-compliant redirect responses.
-- [ ] Enhanced navigation preserves the requested history semantics.
-- [ ] Header conflicts and malformed URLs fail closed.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] External redirects are denied by default or require explicit allow-listing.
+- [x] Normal fallback uses standards-compliant redirect responses.
+- [x] Enhanced navigation preserves the requested history semantics.
+- [x] Header conflicts and malformed URLs fail closed.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-052
+Commit / PR: merged `gh-052-navigation` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/navigation.ts` (new), `packages/htmx/test/navigation/navigation.test.ts` (new, 11 tests), `tools/security/redirects-audit.ts` (new) + `security:redirects` script, browser lane `navigation-adaptive` scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-052/verification-transcript.md` (new).
+Commands executed: navigation 11/11; `security:redirects` audit; both browser lanes; htmx + root typecheck; lint; format; full repo 635/635; architecture (74 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-052/verification-transcript.md`; `output/playwright/*/navigation.json`.
+Contract/API changes: new exports in @bundar/htmx — `composeNavigation`, `htmxRedirect`, `htmxLocation`, `htmxRefresh`, `validateRedirectUrl`, `InvalidRedirectUrlError`, `ComposeNavigationOptions`, `HtmxLocationConfig`, `RedirectUrlOptions` types. No existing API changed.
+Security/performance impact: open-redirect defense denies protocol-relative URLs (`//evil.com`), JavaScript/data URI schemes, and unlisted external domains by default; normal requests get 303 Location; enhanced requests get HX-Redirect / HX-Location headers.
+Remaining risks: none.
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-055 (when GH-053 and GH-054 complete).

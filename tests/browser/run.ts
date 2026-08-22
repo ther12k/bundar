@@ -515,6 +515,30 @@ try {
     );
   }
 
+  // GH-052: navigation helpers — open-redirect protection and adaptive redirect/HX-Redirect
+  await run("navigation-eval", [
+    "eval",
+    "async () => { const ordinary = await fetch('/nav-redirect', { method: 'POST', redirect: 'manual' }); const enhanced = await fetch('/nav-redirect', { method: 'POST', headers: { 'HX-Request': 'true' } }); return JSON.stringify({ ordinaryType: ordinary.type, enhancedStatus: enhanced.status, hxRedirect: enhanced.headers.get('hx-redirect') }); }",
+    "--filename",
+    "navigation.json",
+  ]);
+  const navText = await readFile(
+    join(artifactDirectory, "navigation.json"),
+    "utf8",
+  );
+  const navState = JSON.parse(JSON.parse(navText) as string) as {
+    ordinaryType: string;
+    enhancedStatus: number;
+    hxRedirect: string | null;
+  };
+  if (
+    navState.ordinaryType !== "opaqueredirect" ||
+    navState.enhancedStatus !== 200 ||
+    navState.hxRedirect !== "/page-fragment"
+  ) {
+    throw new Error(`navigation verification failed in ${lane}: ${navText}`);
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -599,6 +623,7 @@ try {
       "multi-region",
       "asset-serving",
       "inheritance-disinherit",
+      "navigation-adaptive",
     ],
     csrf: {
       issue: "GH-061",
@@ -661,6 +686,7 @@ try {
       "multi-region.json",
       "asset.json",
       "inheritance.json",
+      "navigation.json",
     ],
   };
   await writeFile(
