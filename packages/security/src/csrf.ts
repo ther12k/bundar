@@ -374,7 +374,10 @@ export function csrfMiddleware(options: CsrfMiddlewareOptions): Middleware {
     }
 
     const response = await next(context);
-    // Rotate after every verified state change.
+    // Rotate after every verified state change. A 4xx/5xx response changed
+    // nothing: the verified token stays valid so a re-rendered form (e.g.
+    // a 422 re-render with field errors) can resubmit without a re-fetch.
+    if (response.status >= 400) return response;
     const issued = await issueCsrfToken(options.secret, binding);
     return setTokenCookie(
       response,

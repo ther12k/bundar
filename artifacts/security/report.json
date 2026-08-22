@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-22T13:07:11.982Z",
+  "generatedAt": "2026-08-22T13:26:00.479Z",
   "posture": "pass",
   "testMatrix": {
     "schemaVersion": 1,
-    "generatedAt": "2026-08-22T13:04:35.734Z",
+    "generatedAt": "2026-08-22T13:26:00.448Z",
     "total": 9,
     "passed": 9,
     "failed": 0,
@@ -12,47 +12,47 @@
       {
         "name": "security:raw-html-audit",
         "exitCode": 0,
-        "durationMs": 29
+        "durationMs": 52
       },
       {
         "name": "security:validation-redaction",
         "exitCode": 0,
-        "durationMs": 46
+        "durationMs": 44
       },
       {
         "name": "security:jsx",
         "exitCode": 0,
-        "durationMs": 33
+        "durationMs": 46
       },
       {
         "name": "security:csrf",
         "exitCode": 0,
-        "durationMs": 51
+        "durationMs": 74
       },
       {
         "name": "security:cookies",
         "exitCode": 0,
-        "durationMs": 23
+        "durationMs": 57
       },
       {
         "name": "security:uploads",
         "exitCode": 0,
-        "durationMs": 29
+        "durationMs": 57
       },
       {
         "name": "security:cache",
         "exitCode": 0,
-        "durationMs": 33
+        "durationMs": 53
       },
       {
         "name": "security:redirects",
         "exitCode": 0,
-        "durationMs": 31
+        "durationMs": 63
       },
       {
         "name": "security:headers",
         "exitCode": 0,
-        "durationMs": 214
+        "durationMs": 43
       }
     ]
   },

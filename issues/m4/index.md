@@ -12,4 +12,4 @@
 - [GH-066 — Implement security headers, CSP, and nonce propagation](gh-066-implement-security-headers-csp-and-nonce-propagation.md) — P0 / L; depends on GH-018, GH-032, GH-045 — **complete 2026-08-22** (closure record and evidence)
 - [GH-067 — Implement request budgets, timeouts, and abort propagation](gh-067-implement-request-budgets-timeouts-and-abort-propagation.md) — P0 / L; depends on GH-018, GH-057 — **complete 2026-08-22** (closure record and evidence)
 - [GH-068 — Close the forms and security test matrix](gh-068-close-the-forms-and-security-test-matrix.md) — P0 / L; depends on GH-060, GH-061, GH-062, GH-063, GH-064, GH-065, GH-066, GH-067 — **complete 2026-08-22** (closure record and evidence)
-- [GH-069 — Run the M4 progressive-workflow security gate](gh-069-run-the-m4-progressive-workflow-security-gate.md) — P0 / M; depends on GH-068
+- [GH-069 — Run the M4 progressive-workflow security gate](gh-069-run-the-m4-progressive-workflow-security-gate.md) — P0 / M; depends on GH-068 — **complete 2026-08-22** (closure record and evidence; M4 milestone closed by `delivery/gates/m4.md`)

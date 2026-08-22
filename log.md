@@ -633,3 +633,14 @@ GH-066 is complete; **GH-068 (forms and security matrix) is unblocked — all de
 - Verification: 9/9 audits, 8/8 matrix tests, full repo 663/663, typecheck, lint, architecture (77 files), build, docs — all exit 0. Evidence: `evidence/gh-068/verification-transcript.md`.
 
 GH-068 is complete; GH-069 (M4 gate) is unblocked.
+
+## 2026-08-22 — GH-069: M4 progressive-workflow security gate
+
+- Built `examples/workflow-gate`: the reference authenticated create/delete workflow composing sessions, session-bound synchronizer CSRF (page renderers issue tokens bound to `session.id`; verification scoped to action routes), `runFormAction` validation, flash, `action`/`actionResponse` PRG/fragment composition, `errorViewResponse` 401/404 negotiation, and `ErrorBoundary` wired through `Bun.serve`'s error hook. Authorization reads only the session — never HTMX metadata.
+- Real defect found by the gate and fixed: `csrfMiddleware` rotated the token after EVERY verified unsafe request, including 422s that change no state — a re-rendered form's retry would 403 forever. Rotation now applies only to state-changing (non-4xx) responses; unit- and workflow-tested.
+- Added `tests/workflow/reference-workflow.test.ts` (15 tests): real-HTTP cookie-jar client driving ordinary (no-JS PRG) and enhanced (HTMX) lanes, CSRF fail-closed matrix, session isolation, generic-401 content safety, and htmx2/htmx4-beta6 dialect composition.
+- Added the fail-closed `ci:m4` battery: 40 ordered steps — every ci:m3 step with the eight individual security audits consolidated into the unified `test:security` runner (step-list diff verified), adding `security:report` and `test:reference-workflow`. Ran end-to-end: 40/40 exit 0; full suite 679/679.
+- Recorded the M4 gate in `delivery/gates/m4.md`: all 13 M4 issues complete with transcripts; the frozen workflow composition contract; residual risks documented (token re-render contract, example-only store settings, htmx 4 experimental — no GA claim).
+- Evidence: `evidence/gh-069/verification-transcript.md`.
+
+GH-069 is complete; **the M4 milestone is closed**. GH-071 and GH-079 are unblocked; the M5 chain proceeds.
