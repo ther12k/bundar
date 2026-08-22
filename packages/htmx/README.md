@@ -79,3 +79,17 @@ responses are `private, no-store` with the negotiation Vary; messages
 render escaped. `validationErrorView(fieldErrors)` + the standard
 `renderValidationErrorFragment` wire GH-059 models straight in.
 
+## Validated form actions (GH-060)
+
+`runFormAction(context, definition)` composes the whole pipeline: bounded
+parsing (GH-057) → Standard Schema validation (GH-058) → invalid-form
+rendering with the GH-059 field-error model and REDACTED retained values →
+the GH-050 action response, or the GH-065 error negotiation. Identical
+business validation runs for normal browsers and enhanced flows — invalid
+submissions are 422 in both worlds (fragment re-render for enhanced, full
+document for ordinary), and no JSON client code is ever required. The
+success fragment builder runs EXACTLY ONCE per request inside optional
+transaction hooks (begin/commit/rollback); a business failure rolls back.
+`InvalidFormRender` carries the field-error model, safe submitted values
+(secrets redacted by policy), and a first-error focus hint.
+

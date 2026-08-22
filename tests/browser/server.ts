@@ -6,7 +6,9 @@ import {
   errorViewResponse,
   validationErrorView,
   renderValidationErrorFragment,
+  runFormAction,
   view,
+  type FormActionDefinition,
 } from "@bundar/htmx";
 import { document, jsx, renderToString } from "@bundar/jsx";
 import {
@@ -232,6 +234,47 @@ export async function handler(
           jsx("section", { id: "leaked-region", children: "secret-fragment" }),
         fragmentTarget: "#error-target",
       },
+    );
+  }
+  if (url.pathname === "/validated-form" && request.method === "POST") {
+    // GH-060: one action, identical validation for both worlds
+    return runFormAction(createContext(request, {} as Record<string, string>), {
+      schema: {
+        "~standard": {
+          version: 1,
+          vendor: "fixture",
+          validate: (value) => {
+            const record = value as Record<string, unknown>;
+            const issues: Array<{ message: string; path: PropertyKey[] }> = [];
+            if (typeof record.name !== "string" || record.name.length < 2) {
+              issues.push({ message: "Name too short", path: ["name"] });
+            }
+            return issues.length > 0 ? { issues } : { value: record as never };
+          },
+        },
+      },
+      action: {
+        fragment: (output: { name: string }) =>
+          jsx("p", { id: "welcome", children: `hi ${output.name}` }),
+        redirectTo: "/page-fragment",
+      },
+      renderForm: (render) =>
+        jsx("form", {
+          id: "register",
+          children: [
+            jsx("input", {
+              name: "name",
+              value: (render.submitted.name as string | undefined) ?? "",
+            }),
+            jsx("p", {
+              id: "field-error",
+              children: render.errors.first[0]?.message ?? "",
+            }),
+          ],
+        }),
+      formTarget: "#register-card",
+    } satisfies FormActionDefinition<{ name: string }>).then(
+      (outcome) => outcome.response,
     );
   }
   if (url.pathname === "/session-whoami" && request.method === "GET") {

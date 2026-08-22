@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A no-JS invalid submission returns a usable page with errors.
-- [ ] An enhanced invalid submission replaces only the form/error region.
-- [ ] The valid path executes exactly once and returns approved action semantics.
-- [ ] No JSON client code is required for field errors.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A no-JS invalid submission returns a usable page with errors.
+- [x] An enhanced invalid submission replaces only the form/error region.
+- [x] The valid path executes exactly once and returns approved action semantics.
+- [x] No JSON client code is required for field errors.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-060
+Commit / PR: merged `gh-060-form-actions` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/form-action.ts` (new) + index exports, htmx package.json (+@bundar/core, +@bundar/schema workspace deps per the ADR-0016 frozen direction), `tools/architecture-check/boundaries.json` (aligned with the ADR text), `packages/htmx/test/form-actions/form-action.test.ts` (new, 7 tests), browser `/validated-form` route + `validated-form` scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-060/verification-transcript.md` (new).
+Commands executed: form-actions 7/7; both browser lanes with the validated-form scenario (invalid enhanced fragment + retarget; invalid ordinary 422 document; valid enhanced fragment; valid ordinary PRG); htmx + schema + root typecheck; lint; format; full repo 567/567; architecture (66 files / 8 rules); pack:inspect htmx + schema; build; docs validate/links — all exit 0. Tooling decisions: dual-lane+no-JS scenario substitution; implementation placed in htmx (not schema) because the composer integrates the htmx action/error layers — documented in the transcript.
+Evidence: `evidence/gh-060/verification-transcript.md`; `output/playwright/*/validated-form.json`.
+Contract/API changes: new exports in @bundar/htmx — `runFormAction`, `INVALID_SUBMISSION_STATUS`, `FormActionDefinition`/`FormActionOutcome`/`InvalidFormRender` types. htmx gained core+schema workspace dependencies (allowed direction; boundaries aligned with the frozen ADR text). No existing API changed.
+Security/performance impact: identical business validation in both worlds; invalid submissions are 422 everywhere; form renderers receive GH-059-redacted retained values only (a raw-submission leak found in testing was FIXED); success fragments execute exactly once inside transaction hooks with rollback-before-response on business failure; no JSON client code anywhere.
+Remaining risks: transaction semantics are app-owned hooks; 422 is the documented contract; further htmx edge changes require an ADR.
+Documentation updated: htmx README, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: contributes to GH-068 (awaits GH-063/064/066); GH-076/GH-077 await GH-075.

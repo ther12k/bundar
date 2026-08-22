@@ -13,7 +13,11 @@
     },
     "@bundar/htmx": {
       "path": "packages/htmx",
-      "allowedBundarPackages": ["@bundar/jsx"],
+      "allowedBundarPackages": [
+        "@bundar/jsx",
+        "@bundar/core",
+        "@bundar/schema"
+      ],
       "allowedExternalImports": []
     },
     "@bundar/schema": {

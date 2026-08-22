@@ -9,7 +9,9 @@
     "bun": ">=1.4.0"
   },
   "dependencies": {
-    "@bundar/jsx": "workspace:*"
+    "@bundar/core": "workspace:*",
+    "@bundar/jsx": "workspace:*",
+    "@bundar/schema": "workspace:*"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
