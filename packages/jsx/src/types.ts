@@ -60,17 +60,26 @@ export type InputAttributes = HTMLAttributes &
 
 export type IntrinsicElements = {
   a: AnchorAttributes;
+  body: HTMLAttributes;
   button: HTMLAttributes & Readonly<{ type?: "button" | "submit" | "reset" }>;
   div: HTMLAttributes;
   form: FormAttributes;
   h1: HTMLAttributes;
   h2: HTMLAttributes;
+  head: HTMLAttributes;
+  html: HTMLAttributes & Readonly<{ lang?: string }>;
   input: InputAttributes;
   label: HTMLAttributes & Readonly<{ htmlFor?: string }>;
   main: HTMLAttributes;
+  meta: HTMLAttributes &
+    Readonly<{ charset?: string; name?: string; content?: string }>;
   p: HTMLAttributes;
+  script: HTMLAttributes &
+    Readonly<{ src?: string; type?: string; nonce?: string }>;
   section: HTMLAttributes;
   span: HTMLAttributes;
+  style: HTMLAttributes & Readonly<{ media?: string; nonce?: string }>;
+  title: HTMLAttributes;
 };
 
 export declare const Fragment: symbol;

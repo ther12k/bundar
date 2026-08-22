@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Document output begins with the approved doctype.
-- [ ] Void elements never receive invalid closing tags.
-- [ ] Script/style/raw-text handling follows documented escaping boundaries.
-- [ ] Nested or duplicate document roots fail clearly.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Document output begins with the approved doctype.
+- [x] Void elements never receive invalid closing tags.
+- [x] Script/style/raw-text handling follows documented escaping boundaries.
+- [x] Nested or duplicate document roots fail clearly.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

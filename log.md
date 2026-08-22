@@ -360,3 +360,11 @@ GH-021 is complete; GH-022, GH-023, GH-033, and GH-045 are unblocked.
 - Verification: terminal-behavior 7/7 + server-lifecycle 5/5, full repo 314/314, typecheck, lint, architecture (42 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-022/verification-transcript.md`.
 
 GH-022 is complete; GH-023 gains its final prerequisite.
+
+## 2026-08-22 — GH-032: document, doctype, head, and void-element helpers
+
+- Landed void-element serialization (13 tags, never closed, children dropped) and raw-text boundaries in the node renderer: script/style text stays unescaped per spec while `</script>`/`</style>` payloads are neutralized with grammar-correct escapes.
+- Added `document()`/`renderDocument()` with explicit lang/charset/title options (no inferred defaults) and single-`<html>`-root enforcement via DuplicateDocumentRootError; doctype is exactly `<!doctype html>`. Intrinsic types extended with html/head/body/meta/title/script/style (nonce-ready for CSP).
+- Verification: document suite 11/11, jsx 86/86, full repo 325/325, consumer TSX compile, typecheck, lint, architecture (44 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-032/verification-transcript.md`.
+
+GH-032 is complete; GH-033 is unblocked.
