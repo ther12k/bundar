@@ -376,3 +376,11 @@ GH-032 is complete; GH-033 is unblocked.
 - Verification: render 6/6 + response 7/7, full repo 338/338, consumer TSX compile, typecheck, lint, architecture (46 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-033/verification-transcript.md`.
 
 GH-033 is complete; GH-034, GH-036, GH-048, GH-050, and GH-059 are unblocked.
+
+## 2026-08-22 — GH-023: HTTP core integration and contract test matrix
+
+- Landed the M1 contract matrix (13 tests on one real Bun server): static fast path, typed params, query adapters, wildcards, grouped+mounted middleware scoping, expected/opaque error flows through the boundary, and the configured 404 — plus 50-request concurrency isolation with per-request identity checks.
+- Added the external type-consumer fixture (imports public types via the workspace package name, typechecks, and serves a live round-trip) and `api:report` rendering the exact 61-export surface to `artifacts/api/core.md`; new scripts `test:integration:core` (42 tests), `test:consumer:core`, `api:report`.
+- Verification: full repo 352/352, all planned commands exit 0, no skips or suppressed failures. Evidence: `evidence/gh-023/verification-transcript.md`.
+
+GH-023 is complete; GH-024 and GH-025 are unblocked.
