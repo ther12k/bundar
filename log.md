@@ -798,3 +798,9 @@ GH-087 is complete; GH-088 (the release gate) is unblocked.
 - Verified: ci:release 24/24, release:verify 4/4, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-088/verification-transcript.md`.
 
 GH-088 is complete; **the M6 milestone is closed**. M7 (htmx 4 GA chain) remains, blocked on GA availability.
+
+## 2026-08-22 — M7 descope: the htmx 4 GA chain (GH-089–GH-096)
+
+- Closed the eight M7 issues as `not planned` (externally blocked — NOT completed): their prerequisite, the official htmx 4 GA release, does not exist upstream (npm dist-tags latest=2.0.10 / next=4.0.0-beta6; zero GA candidates among all published 4.x; the htmx releases page and "The fetch()ening" confirm beta-only with possible slippage to 2027).
+- The shipped alpha scope keeps complete, evidenced beta support: experimental adapter at 4.0.0-beta6 (SHA-256-verified), 19-suite matrix with 6 classified deviations, audit-first migration tooling, one-file rollback — no GA claims anywhere (machine-checked).
+- Record: `delivery/descopes/m7-htmx4-ga.md` (evidence + reopen trigger + the ready GH-089→GH-096 execution plan). Reopen and execute in order when GA ships.
