@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Multiple errors per field are preserved.
-- [ ] Global/form-level errors are distinct from field errors.
-- [ ] Sensitive values never appear in logs or default rendered models.
-- [ ] Error ordering is deterministic and accessible summary links can target fields.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Multiple errors per field are preserved.
+- [x] Global/form-level errors are distinct from field errors.
+- [x] Sensitive values never appear in logs or default rendered models.
+- [x] Error ordering is deterministic and accessible summary links can target fields.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-059
+Commit / PR: merged `gh-059-validation-results` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/schema/src/issues.ts` (new), `packages/schema/src/index.ts`, `packages/jsx/src/forms/error-summary.ts` (new), `packages/jsx/src/index.ts`, `packages/schema/test/issues/issues.test.ts` (new, 11 tests), `packages/jsx/test/forms/error-summary.test.ts` (new, 6 tests), `tools/security/validation-redaction.ts` (new), root `package.json` (`security:validation-redaction`), `docs/guides/validation.md`, `evidence/gh-059/verification-transcript.md` (new).
+Commands executed: schema 26/26 (11 new), jsx forms 6/6, `security:validation-redaction` (19 planted secrets absent, byte content dropped, no direct logging), package×3+root typecheck, lint, format, full suite 434/434, architecture (53 files), pack:inspect schema+jsx, build, docs validate/links — all exit 0.
+Evidence: `evidence/gh-059/verification-transcript.md`; audit output recorded above.
+Contract/API changes: new exports — `toFieldErrors`, `redactSubmitted`, `SENSITIVE_FIELD_KEYS`, `FieldError`/`FieldErrorModel`/`FieldErrorRedactionOptions` (@bundar/schema); `ErrorSummary`, `fieldAnchorId`, `ErrorSummaryErrors`/`ErrorSummaryProps` (@bundar/jsx, structural props — no schema import).
+Security/performance impact: 19-key sensitive-field policy plus caller extensions drop secrets before any rendering or logging; uploaded/byte content never retained; no direct logging calls in schema/jsx sources (audited); all rendered messages escaped.
+Remaining risks: redaction is key-name based (documented; `redactKeys` extends it); retained primitives are stringified for HTML safety; ErrorSummary renders the first error per field by design.
+Documentation updated: `docs/guides/validation.md`, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-060, GH-065.

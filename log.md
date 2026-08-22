@@ -427,3 +427,12 @@ GH-067 is complete; GH-068 is unblocked.
 - Verification: schema 15/15, consumer 5/5 + typecheck, full repo 417/417, package+root typecheck, lint, architecture (51 files; core still has zero schema edge), pack:inspect schema+core, build, docs — all exit 0. Guide at `docs/guides/validation.md`. Evidence: `evidence/gh-058/verification-transcript.md`.
 
 GH-058 is complete; GH-059 is unblocked.
+
+## 2026-08-22 — GH-059: validation results and field-error rendering data
+
+- Added `toFieldErrors()`/`redactSubmitted()` to @bundar/schema: failed validations become stable rendering data — per-field message lists preserving multiple errors in order, form-level globals kept distinct, deterministic ordering, nested paths mapped to addressable ids — with submitted values retained only when safe (19-key sensitive policy + caller `redactKeys`; files/bytes never retained).
+- Added the accessible `ErrorSummary` component to @bundar/jsx (structural props, no schema import — boundary intact): role="alert", heading, anchor links targeting dash-form field ids, globals without links, empty models render nothing, messages escaped.
+- New fail-closed `security:validation-redaction` audit: plants a secret in every sensitive key and proves none survive into the serialized model, drops byte content, and statically forbids direct logging calls in schema/jsx sources.
+- Verification: schema 26/26, jsx forms 6/6, full repo 434/434, typecheck×3, lint, architecture (53 files), pack:inspect×2, build, docs — all exit 0. Evidence: `evidence/gh-059/verification-transcript.md`.
+
+GH-059 is complete; GH-060 and GH-065 are unblocked.

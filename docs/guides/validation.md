@@ -32,6 +32,23 @@ Malformed dialect behavior (a schema without a valid `~standard` object, or
 a `validate` returning a nonconforming result) fails closed with
 `SchemaDialectError` rather than guessing.
 
+## Rendering errors (GH-059)
+
+`toFieldErrors(result, { submitted })` turns a failed result into stable
+rendering data without a JSON round trip: per-field message lists (multiple
+errors preserved in issue order), form-level globals kept separate,
+deterministic first-appearance ordering, nested paths mapped to addressable
+ids (`items.0.name`), and safe submitted values retained for re-rendering.
+Sensitive keys (`SENSITIVE_FIELD_KEYS`: passwords, tokens, secrets, payment
+data, … plus your own `redactKeys`) and all uploaded/byte content are
+dropped by policy — `security:validation-redaction` plants a secret in every
+documented key and proves the serialized model contains none.
+
+In @bundar/jsx, `ErrorSummary({ errors })` renders the accessible summary:
+`role="alert"`, heading, and anchor links targeting each field (`items.0.name`
+→ `#items-0-name`, optional `targetPrefix`), with globals listed without
+links. It renders nothing for an empty model and escapes every message.
+
 ## Consumer proof
 
 `tests/consumer/schema/` validates the same app-shaped fixture against two

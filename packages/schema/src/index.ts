@@ -22,3 +22,9 @@ export {
   validateParams,
   validateQuery,
 } from "./sources";
+export { redactSubmitted, SENSITIVE_FIELD_KEYS, toFieldErrors } from "./issues";
+export type {
+  FieldError,
+  FieldErrorModel,
+  FieldErrorRedactionOptions,
+} from "./issues";
