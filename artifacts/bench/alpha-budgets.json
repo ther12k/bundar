@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-08-22T15:41:44.250Z",
+  "runsPooled": 3,
+  "basis": "same-run ratio + generous absolute startup/rss",
+  "budgets": {
+    "ratio:static-response:bundar": {
+      "p50": 0.7665343915343915,
+      "alert": 0.9987824473562728,
+      "fail": 1.231030503178154
+    },
+    "ratio:dynamic-text:bundar": {
+      "p50": 1.172103487064117,
+      "alert": 2.877770786498889,
+      "fail": 4.583438085933661
+    },
+    "ratio:parameterized-route:bundar": {
+      "p50": 2.0844155844155843,
+      "alert": 5.590138064612251,
+      "fail": 9.095860544808918
+    },
+    "ratio:sync-middleware:bundar": {
+      "p50": 1.255,
+      "alert": 1.8311882043576264,
+      "fail": 2.407376408715253
+    },
+    "ratio:async-middleware:bundar": {
+      "p50": 1.0406024885396201,
+      "alert": 1.5010534896899,
+      "fail": 1.9615044908401797
+    },
+    "ratio:escaped-jsx-fragment:bundar": {
+      "p50": 2.2109548482605477,
+      "alert": 2.888312875786207,
+      "fail": 3.5656709033118665
+    },
+    "ratio:async-jsx-component:bundar": {
+      "p50": 1.7962447844228095,
+      "alert": 2.418524704165622,
+      "fail": 3.0408046239084348
+    },
+    "ratio:page-fragment-negotiation:bundar": {
+      "p50": 1.7376404494382023,
+      "alert": 2.7263400663526216,
+      "fail": 3.715039683267041
+    },
+    "ratio:validated-form:bundar": {
+      "p50": 2.5292329279700656,
+      "alert": 5.8328633501125,
+      "fail": 9.136493772254934
+    },
+    "startup:raw-bun:readyMs": {
+      "p50": 4.07033,
+      "alert": 6.1403880000000015,
+      "fail": 8.210446000000003
+    },
+    "startup:raw-bun:rssBytes": {
+      "p50": 16412672,
+      "alert": 24692736,
+      "fail": 32972800
+    },
+    "startup:bundar:readyMs": {
+      "p50": 18.609975,
+      "alert": 30.165508499999994,
+      "fail": 41.72104199999999
+    },
+    "startup:bundar:rssBytes": {
+      "p50": 30203904,
+      "alert": 45355008,
+      "fail": 60506112
+    }
+  }
+}
