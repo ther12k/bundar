@@ -11,7 +11,9 @@
       "@bundar/jsx": ["./packages/jsx/src/index.ts"],
       "@bundar/schema": ["./packages/schema/src/index.ts"],
       "@bundar/security": ["./packages/security/src/index.ts"]
-    }
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "@bundar/jsx"
   },
   "include": [
     "scripts/**/*.ts",

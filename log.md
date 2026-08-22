@@ -460,3 +460,11 @@ GH-062 is complete; GH-063, GH-068, and GH-077 are unblocked.
 - Verification: 13 streaming tests (non-buffering gate proof, backpressure pause, cancel/abort release, mid-stream commit semantics, Unicode stream-decoding parity, byte-exact agreement with renderToStringAsync), full repo 491/491, bench artifact recorded (streaming p50 1.40 ms vs 0.30 ms buffered for 500 async items — honest overhead accounting), architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-034/verification-transcript.md`.
 
 GH-034 is complete; GH-036 still waits on GH-035.
+
+## 2026-08-22 — GH-035: typed common HTMX attributes
+
+- Added typed hx-* attributes to @bundar/jsx: the stable dialect-common subset (string-literal types for enumerable grammar — swap bases + modifiers, target selector/this/closest/find/next/previous, encoding, boost, validate — and documented open strings for triggers/headers/sync) merged into every intrinsic element via the new types/intrinsic.ts; raw attribute names stay visible and the renderer never rewrites them. Zero runtime coupling to @bundar/htmx (pack:inspect + architecture green).
+- Experimental/dialect-specific attributes are opt-in per app compilation via declaration merging on the deliberately-empty HtmxExperimentalAttributes interface — no global widening to any (unknown attributes rejected with @ts-expect-error proof; the one eslint suppression is justified in source).
+- Type-level proofs live in a TSX fixture compiled by the package + root typecheck (react-jsx + jsxImportSource @bundar/jsx; unused @ts-expect-error is itself an error so the fixture cannot rot); runtime tests assert byte-exact unrewritten output. Full repo 496/496. Evidence: `evidence/gh-035/verification-transcript.md`.
+
+GH-035 is complete; GH-036 (its full dependency set now done), GH-047, and GH-051 are unblocked.

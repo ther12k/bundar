@@ -15,48 +15,29 @@ export type JSXComponent<Props = Record<string, unknown>> = (
   props: Props,
 ) => JSXChild | Promise<JSXChild>;
 
-export type UnsupportedClientEvent =
-  "Bundar server JSX does not support browser event handlers; use an htmx attribute or server action.";
-
-export type HTMLAttributes = Readonly<{
-  id?: string;
-  class?: string;
-  className?: string;
-  style?: string | Readonly<Record<string, string | number>>;
-  title?: string;
-  role?: string;
-  tabIndex?: number;
-  hidden?: boolean;
-  children?: JSXChild;
-  onClick?: UnsupportedClientEvent;
-  onChange?: UnsupportedClientEvent;
-  onInput?: UnsupportedClientEvent;
-  onSubmit?: UnsupportedClientEvent;
-}>;
-
-export type AnchorAttributes = HTMLAttributes &
-  Readonly<{
-    href?: string;
-    target?: string;
-    rel?: string;
-  }>;
-
-export type FormAttributes = HTMLAttributes &
-  Readonly<{
-    action?: string;
-    method?: "get" | "post" | "dialog";
-    enctype?: string;
-  }>;
-
-export type InputAttributes = HTMLAttributes &
-  Readonly<{
-    name?: string;
-    type?: string;
-    value?: string | number;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-  }>;
+import type {
+  AnchorAttributes,
+  FormAttributes,
+  HTMLAttributes,
+  InputAttributes,
+} from "./types/intrinsic";
+export type {
+  AnchorAttributes,
+  FormAttributes,
+  HTMLAttributes,
+  InputAttributes,
+} from "./types/intrinsic";
+export type { UnsupportedClientEvent } from "./types/intrinsic";
+export type {
+  HtmxAttributes,
+  HtmxExperimentalAttributes,
+  HtmxStableAttributes,
+  HxParamsValue,
+  HxPushUrlValue,
+  HxSwapBase,
+  HxSwapValue,
+  HxTargetValue,
+} from "./types/htmx";
 
 export type IntrinsicElements = {
   a: AnchorAttributes;

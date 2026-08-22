@@ -22,6 +22,16 @@ export type {
   SerializedAttribute,
   StyleValue,
 } from "./render/attributes";
+export type {
+  HtmxAttributes,
+  HtmxExperimentalAttributes,
+  HtmxStableAttributes,
+  HxParamsValue,
+  HxPushUrlValue,
+  HxSwapBase,
+  HxSwapValue,
+  HxTargetValue,
+} from "./types";
 export {
   AsyncComponentError,
   ComponentRenderError,

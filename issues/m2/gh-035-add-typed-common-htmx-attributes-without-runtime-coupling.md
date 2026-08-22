@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Common htmx attributes typecheck in normal intrinsic elements.
-- [ ] Unknown experimental attributes can be enabled deliberately without `any` leaking globally.
-- [ ] JSX package has no runtime dependency on `@bundar/htmx` or htmx.
-- [ ] Generated HTML does not rewrite attribute names.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Common htmx attributes typecheck in normal intrinsic elements.
+- [x] Unknown experimental attributes can be enabled deliberately without `any` leaking globally.
+- [x] JSX package has no runtime dependency on `@bundar/htmx` or htmx.
+- [x] Generated HTML does not rewrite attribute names.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-035
+Commit / PR: merged `gh-035-typed-htmx-attrs` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/jsx/src/types/htmx.ts` (new), `packages/jsx/src/types/intrinsic.ts` (new — element maps moved out of types.ts and augmented with HtmxAttributes), `packages/jsx/src/types.ts` (re-exports), `packages/jsx/src/index.ts` (public type exports), `packages/jsx/tsconfig.json` + root `tsconfig.json` (react-jsx + jsxImportSource for TSX fixtures), `packages/jsx/test/types/{htmx-attributes.test-d.tsx,htmx-attributes.test.ts}` (new), `packages/jsx/README.md`, `evidence/gh-035/verification-transcript.md` (new).
+Commands executed: types runtime tests 5/5; package + root typecheck (TSX type fixture with load-bearing @ts-expect-error); architecture (62 files / 8 rules); pack:inspect @bundar/jsx (zero runtime deps); test:consumer:jsx; lint; format; full suite 496/496; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-035/verification-transcript.md`.
+Contract/API changes: new type exports in @bundar/jsx — HtmxAttributes, HtmxStableAttributes, HtmxExperimentalAttributes (augmentation point), HxSwapBase/HxSwapValue, HxTargetValue, HxPushUrlValue, HxParamsValue; every intrinsic element now accepts the stable subset. No runtime code changed.
+Security/performance impact: none at runtime (types only); raw attribute names stay visible and unrewritten; server-only event handlers still fail closed (tested); no protocol-string confinement violation (lowercase attribute names are not HX-* protocol strings).
+Remaining risks: open-string attributes are validated by dialect adapters, not the JSX runtime (documented); app-level declaration merging is compile-time opt-in (misconfiguration is a type error at the app).
+Documentation updated: `packages/jsx/README.md`, this closure record, `issues/m2/index.md`, `log.md`.
+Newly unblocked issues: GH-036, GH-047, GH-051.
