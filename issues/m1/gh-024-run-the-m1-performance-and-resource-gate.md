@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Behavior parity tests pass before benchmark comparison.
-- [ ] Environment and exact dependency versions are recorded.
-- [ ] Static fast path remains near raw Bun within the reviewed tolerance.
-- [ ] No absolute “fastest” claim is made from one machine.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Behavior parity tests pass before benchmark comparison.
+- [x] Environment and exact dependency versions are recorded.
+- [x] Static fast path remains near raw Bun within the reviewed tolerance.
+- [x] No absolute “fastest” claim is made from one machine.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -120,3 +120,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-024
+Commit / PR: merged `gh-024-m1-perf-gate` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/benchmark/{bundar-app.ts,startup-probe.ts,report.ts,adapters.ts,runner.ts,types.ts,parity.ts}`, `tests/benchmark/benchmark.test.ts`, `package.json`, `artifacts/bench/m1.json` (new), `delivery/gates/m1-performance.md` (new), `delivery/index.md`, `evidence/gh-024/verification-transcript.md` (new).
+Commands executed: `bun run bench:parity`; `bun run bench:m1`; `bun run bench:report artifacts/bench/m1.json`; format/lint/typecheck; `bun test` (352/352); `bun run architecture:check`; `bun run docs:validate`; `bun run docs:links`; `bun run issues:graph`; `bun run build` — all exit 0. Exact outputs in the transcript.
+Evidence: `artifacts/bench/m1.json` (schema 2: 27 timed results, 9 parity results, raw samples, startup/RSS probes); `evidence/gh-024/verification-transcript.md`; gate record `delivery/gates/m1-performance.md`.
+Contract/API changes: none (benchmark tooling only). Report schema version moved 1→2 (bundar adapter results + resources section added).
+Security/performance impact: static fast path 0.65×–1.22× raw-bun p50 across runs (reviewed ceiling 2.0× enforced fail-closed by `bench:report`); HTTP-core scenarios 0.58×–1.29×; `parseForm` overhead ~2.5× raw tracked as optimization issue #97; startup +~8ms and RSS +~9MiB one-time per process.
+Remaining risks: single-machine variance; in-process table lookup stands in for Bun's native dispatch (disclosed); `cpuModel` not portable via Bun API (recorded in transcript from `/proc/cpuinfo`).
+Documentation updated: `delivery/gates/m1-performance.md`, `delivery/index.md`, this closure report, `log.md`.
+Newly unblocked issues: GH-025 (M1 HTTP-core gate), feeds GH-083 (M6 final budgets).

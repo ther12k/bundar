@@ -41,6 +41,8 @@
     "bench:smoke": "bun tools/benchmark/smoke.ts",
     "bench:parity": "bun tools/benchmark/parity.ts",
     "bench": "bun tools/benchmark/runner.ts",
+    "bench:m1": "bun tools/benchmark/runner.ts --output artifacts/bench/m1.json",
+    "bench:report": "bun tools/benchmark/report.ts",
     "test:browser:htmx2": "bun tests/browser/run.ts htmx2",
     "test:browser:htmx4": "bun tests/browser/run.ts htmx4",
     "test:browser:report": "bun tests/browser/report.ts",

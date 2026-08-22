@@ -13,5 +13,5 @@
 - [GH-021 — Implement explicit response helpers](gh-021-implement-explicit-response-helpers.md) — P1 / M; depends on GH-017 — **complete 2026-08-21** (closure record and evidence)
 - [GH-022 — Implement not-found, method, and lifecycle terminal behavior](gh-022-implement-not-found-method-and-lifecycle-terminal-behavior.md) — P1 / M; depends on GH-015, GH-020, GH-021 — **complete 2026-08-21** (closure record and evidence)
 - [GH-023 — Close the HTTP core integration and contract test matrix](gh-023-close-the-http-core-integration-and-contract-test-matrix.md) — P0 / L; depends on GH-016, GH-018, GH-019, GH-020, GH-021, GH-022 — **complete 2026-08-22** (closure record and evidence)
-- [GH-024 — Run the M1 performance and resource gate](gh-024-run-the-m1-performance-and-resource-gate.md) — P0 / M; depends on GH-007, GH-023
+- [GH-024 — Run the M1 performance and resource gate](gh-024-run-the-m1-performance-and-resource-gate.md) — P0 / M; depends on GH-007, GH-023 — **complete 2026-08-22** (closure record and evidence)
 - [GH-025 — Run and record the M1 HTTP-core gate](gh-025-run-and-record-the-m1-http-core-gate.md) — P0 / S; depends on GH-023, GH-024

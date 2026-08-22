@@ -1,22 +1,13 @@
 import { Hono } from "hono";
+import {
+  buildBundarApp,
+  FORM_HTML,
+  FRAGMENT_HTML,
+  PAGE_HTML,
+  response,
+  STATIC_HTML,
+} from "./bundar-app";
 import type { Adapter, BenchmarkScenario, ResponseSnapshot } from "./types";
-
-const STATIC_HTML = "<p>static</p>";
-const FRAGMENT_HTML = '<p data-kind="fragment">&lt;benchmark&gt;</p>';
-const PAGE_HTML = "<!doctype html><html><body><p>page</p></body></html>";
-const FORM_HTML = '<p data-valid="true">Bundar</p>';
-
-function response(
-  body: string,
-  status = 200,
-  headers?: Record<string, string>,
-  contentType = "text/html; charset=utf-8",
-): Response {
-  return new Response(body, {
-    status,
-    headers: { "content-type": contentType, ...headers },
-  });
-}
 
 function textResponse(body: string, status = 200): Response {
   return response(body, status, undefined, "text/plain; charset=utf-8");
@@ -106,17 +97,23 @@ async function honoRequest(request: Request): Promise<Response> {
   return honoApp.fetch(request);
 }
 
-async function bundarRequest(): Promise<Response> {
-  return new Response(
-    "Bundar implementation is not available before M1/M2; this adapter is intentionally deferred.",
-    { status: 501, headers: { "content-type": "text/plain; charset=utf-8" } },
-  );
+/**
+ * Bundar adapter (GH-024): a real @bundar/core app compiled through
+ * compileRoutes (see bundar-app.ts). Dispatch is a Map lookup over the
+ * compiled route table — the same lookup Bun.serve performs natively in
+ * C++ in production; the harness methodology is in-process for every
+ * adapter, so this lookup stands in for the (faster) native dispatch.
+ */
+const bundarApp = buildBundarApp();
+
+function bundarRequest(request: Request): Response | Promise<Response> {
+  return bundarApp.serve(request);
 }
 
 export const adapters: readonly Adapter[] = [
   { name: "raw-bun", version: Bun.version, request: rawBunRequest },
   { name: "hono", version: "4.13.3", request: honoRequest },
-  { name: "bundar", version: "deferred-until-m1", request: bundarRequest },
+  { name: "bundar", version: "0.0.0", request: bundarRequest },
 ];
 
 export async function snapshot(
