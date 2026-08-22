@@ -644,3 +644,12 @@ GH-068 is complete; GH-069 (M4 gate) is unblocked.
 - Evidence: `evidence/gh-069/verification-transcript.md`.
 
 GH-069 is complete; **the M4 milestone is closed**. GH-071 and GH-079 are unblocked; the M5 chain proceeds.
+
+## 2026-08-22 — GH-074: in-process test client and request helpers
+
+- Implemented `@bundar/testing`: `createTestClient` matches and dispatches the compiled route table in-process (no socket) with a per-client cookie jar, form/JSON/multipart request builders, dialect-aware enhanced requests, PRG `follow()`, and one-shot `inject()`. `startTestServer` is the real ephemeral-port opt-in with the SAME client interface; `withRealServer`/`stopAllTestServers` guarantee teardown (port release asserted by rebind).
+- Added `buildHtmxRequestHeaders` to @bundar/htmx: dialect-correct request headers with the htmx 4 beta trigger alias carried as adapter metadata (data, not conditionals). Raw protocol strings stay confined to @bundar/htmx — the architecture harness caught a first-draft violation in this branch's tests and it was fixed by asserting through neutral readers and adapter decoders.
+- Documented in-process vs real-server semantics: subset route matcher (exact/`:param`/`*`, 405 mirrors Bun); uncaught handler errors REJECT in-process (tests see failures) while the real transport wires Bun's default opaque 500 explicitly.
+- Verified: packages/testing 43/43, consumer 4/4, htmx header tests 4/4, full suite 730/730, typecheck, lint, format, architecture (82 files), pack:inspect, api:check (core unchanged), build, docs — all exit 0. Tooling decision: `test:leaks` substitution recorded in the transcript. Evidence: `evidence/gh-074/verification-transcript.md`.
+
+GH-074 is complete; GH-075 (minimal starter template) is unblocked.

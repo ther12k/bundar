@@ -10,7 +10,8 @@
       "@bundar/htmx/4": ["./packages/htmx/src/v4.ts"],
       "@bundar/jsx": ["./packages/jsx/src/index.ts"],
       "@bundar/schema": ["./packages/schema/src/index.ts"],
-      "@bundar/security": ["./packages/security/src/index.ts"]
+      "@bundar/security": ["./packages/security/src/index.ts"],
+      "@bundar/testing": ["./packages/testing/src/index.ts"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "@bundar/jsx"

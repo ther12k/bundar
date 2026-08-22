@@ -5,6 +5,7 @@
  * that are common across HTMX versions. Versioned adapters import from this
  * module; @bundar/core and @bundar/jsx must not import from @bundar/htmx.
  */
+import type { HtmxDialectAdapter } from "./dialect";
 
 export type HtmxRequestHeader =
   | "HX-Request"
@@ -104,4 +105,74 @@ export function withHtmxHeaders(
     statusText: response.statusText,
     headers: next,
   });
+}
+
+/**
+ * Options for building a dialect-correct set of HTMX request headers
+ * (GH-074): exactly what a real browser running the dialect would send.
+ * Test clients use this so tests never hand-write protocol strings.
+ */
+export interface HtmxRequestHeaderOptions {
+  /** Target element selector (untrusted metadata, as from a browser). */
+  readonly target?: string;
+  /** id/name of the triggering element. */
+  readonly trigger?: string;
+  /** Name attribute of a form-bound trigger. */
+  readonly triggerName?: string;
+  /** Request came from an hx-boosted region. */
+  readonly boosted?: boolean;
+  /** The page URL the browser believes it is on. */
+  readonly currentUrl?: string;
+  /** hx-prompt answer accompanying the request. */
+  readonly prompt?: string;
+  /** History restore replay (back/forward navigation). */
+  readonly historyRestore?: boolean;
+}
+
+function aliasFor(
+  dialect: HtmxDialectAdapter | undefined,
+  canonical: HtmxRequestHeader,
+): string {
+  const aliases = dialect?.metadata as Record<string, unknown> | undefined;
+  const map = aliases?.["requestHeaderAliases"] as
+    Partial<Record<HtmxRequestHeader, string>> | undefined;
+  return map?.[canonical] ?? canonical;
+}
+
+/**
+ * Builds the request-header map an enhanced (HTMX) request carries, with
+ * dialect aliasing applied from the adapter's metadata (htmx 4 beta sends
+ * the trigger under `HX-Source`; htmx 2 uses the canonical name). The
+ * adapter is data, not a conditional: unversioned callers get canonical
+ * names.
+ */
+export function buildHtmxRequestHeaders(
+  options: HtmxRequestHeaderOptions = {},
+  dialect?: HtmxDialectAdapter,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    [aliasFor(dialect, "HX-Request")]: "true",
+  };
+  if (options.boosted === true) {
+    headers[aliasFor(dialect, "HX-Boosted")] = "true";
+  }
+  if (options.currentUrl !== undefined) {
+    headers[aliasFor(dialect, "HX-Current-URL")] = options.currentUrl;
+  }
+  if (options.historyRestore === true) {
+    headers[aliasFor(dialect, "HX-History-Restore-Request")] = "true";
+  }
+  if (options.prompt !== undefined) {
+    headers[aliasFor(dialect, "HX-Prompt")] = options.prompt;
+  }
+  if (options.target !== undefined) {
+    headers[aliasFor(dialect, "HX-Target")] = options.target;
+  }
+  if (options.trigger !== undefined) {
+    headers[aliasFor(dialect, "HX-Trigger")] = options.trigger;
+  }
+  if (options.triggerName !== undefined) {
+    headers[aliasFor(dialect, "HX-Trigger-Name")] = options.triggerName;
+  }
+  return headers;
 }

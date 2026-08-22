@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A generated app can test normal, htmx2, htmx4, and no-JS requests from one fixture.
-- [ ] Cookies and redirect chains behave predictably.
-- [ ] Tests can opt into a real ephemeral server for Bun integration cases.
-- [ ] Testing package does not modify production app behavior.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A generated app can test normal, htmx2, htmx4, and no-JS requests from one fixture.
+- [x] Cookies and redirect chains behave predictably.
+- [x] Tests can opt into a real ephemeral server for Bun integration cases.
+- [x] Testing package does not modify production app behavior.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -118,3 +118,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-074
+Commit / PR: merged `gh-074-test-client` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/testing/src/{client,match,request,cookies,server,index}.ts` (new) + 43 package tests + rewritten README + workspace deps/tsconfig, `packages/htmx/src/neutral.ts` + v4 adapter metadata + index exports (new `buildHtmxRequestHeaders`), `packages/htmx/test/request-headers.test.ts` (new, 4 tests), `tests/consumer/testing/` (new, 4 tests) + `test:consumer:testing` script, root tsconfig `@bundar/testing` path, `evidence/gh-074/verification-transcript.md`.
+Commands executed: `bun test packages/testing` 43/43; `test:consumer:testing` 4/4; full suite 730/730; typecheck; lint; format; architecture:check (82 files) + architecture tests; pack:inspect @bundar/testing; api:check; build; docs validate/links/check — all exit 0. Tooling decision: planned `test:leaks -- testing` does not exist; leak-safety asserted directly (port release, idempotent stop, teardown-on-failure, afterAll registry) — recorded in the transcript.
+Evidence: `evidence/gh-074/verification-transcript.md`.
+Contract/API changes: new public `@bundar/testing` surface (createTestClient, inject, startTestServer, withRealServer, stopAllTestServers, request builders, CookieJar, matchRoute); new `@bundar/htmx` export `buildHtmxRequestHeaders` with v4 trigger aliasing carried as adapter metadata (data, not conditionals). Core surface unchanged (api:check snapshot match).
+Security/performance impact: none at runtime (test-only package; no production imports). The architecture harness now guards @bundar/testing under the frozen rules — raw protocol strings stay confined to @bundar/htmx (the harness caught and this branch fixed a first-draft violation).
+Remaining risks: in-process matcher covers the framework's route subset (exact/`:param`/`*`) — Bun-native matcher cases use startTestServer; follow() is PRG-only (307/308 replay out of scope). Both documented in the README and transcript.
+Documentation updated: `packages/testing/README.md` (semantics + teardown contract), this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-075 (minimal starter template).

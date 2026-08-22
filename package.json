@@ -29,6 +29,7 @@
     "test:consumer:schema": "bunx tsc --noEmit -p tests/consumer/schema/tsconfig.json && bun test ./tests/consumer/schema",
     "test:integration:core": "bun test ./packages/core/test/integration ./packages/core/test/middleware ./packages/core/test/concurrency",
     "test:consumer:core": "bun test ./tests/consumer/core",
+    "test:consumer:testing": "bun test ./tests/consumer/testing",
     "api:report": "bun tools/api-report.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",

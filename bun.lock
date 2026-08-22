@@ -86,6 +86,12 @@
     "packages/testing": {
       "name": "@bundar/testing",
       "version": "0.0.0",
+      "dependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/htmx": "workspace:*",
+        "@bundar/jsx": "workspace:*",
+        "@bundar/schema": "workspace:*",
+      },
     },
   },
   "packages": {

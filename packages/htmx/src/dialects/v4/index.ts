@@ -157,6 +157,9 @@ export const htmx4Experimental: HtmxDialectAdapter = Object.freeze({
   }),
   metadata: Object.freeze({
     "htmx4:pinnedVersion": HTMX4_TESTED_VERSION,
+    // GH-074: the beta sends the trigger under HX-Source; canonical name
+    // elsewhere. Carried as adapter data so test clients never branch.
+    requestHeaderAliases: { "HX-Trigger": "HX-Source" },
     "htmx4:assetIntegrity": `sha256-${HTMX4_ASSET_SHA256}`,
     "htmx4:gaClaim": HTMX4_PROFILE.gaClaim,
     "htmx4:profile": HTMX4_PROFILE,
