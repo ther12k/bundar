@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Compared outputs are semantically equivalent before timing.
-- [ ] Raw data, environment, and exact package commits are retained.
-- [ ] Escaping cannot be disabled to meet a benchmark.
-- [ ] Regression budgets are reviewed and documented.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Compared outputs are semantically equivalent before timing.
+- [x] Raw data, environment, and exact package commits are retained.
+- [x] Escaping cannot be disabled to meet a benchmark.
+- [x] Regression budgets are reviewed and documented.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -120,3 +120,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-037
+Commit / PR: merged `gh-037-m2-jsx-perf` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/benchmark/m2-jsx.ts` (new) + `bench:m2` script, `tools/benchmark/report.ts` (gate-dispatched reporting), `tools/benchmark/runner.ts` (stats helpers exported), `packages/jsx/src/render/async.ts` (parity defect fixed: async renderer now honors void and raw-text elements exactly like the sync renderer), `delivery/gates/m2-performance.md` (new) + delivery index, `artifacts/bench/m2.json` (committed artifact), `evidence/gh-037/verification-transcript.md` (new).
+Commands executed: `bench:m2` (14 measurements, parity pre-checked); `bench:report` for m2 and m1 artifacts; jsx suite 146/146; full repo 516/516; typechecks; lint; format; architecture; pack:inspect; build; docs — all exit 0. Tooling decision: renderer parity is enforced fail-closed inside the gate before timing (stronger than the planned separate `bench:parity -- jsx`).
+Evidence: `evidence/gh-037/verification-transcript.md`; `artifacts/bench/m2.json`; `delivery/gates/m2-performance.md`.
+Contract/API changes: none public — the async-renderer fix makes output byte-identical to the sync contract (void elements never close; raw-text serialized); `bench:report` gained an artifact-dispatch branch.
+Security/performance impact: escaping presence is asserted in every timed output (cannot be disabled for numbers); recorded baseline p50s: fragment 1.1µs steady, document 5.5µs, 1000-item list ~1.08ms, streaming async list ~3.51ms (documented ~3× streaming overhead); budgets: steady ≤ 1.5× baseline at GH-083, parity and escaping absolute.
+Remaining risks: single-machine baseline with run variance (raw samples retained); memory proxies advisory; nested-components cold/steady inversion retained honestly.
+Documentation updated: gate record + index, this closure record, `issues/m2/index.md`, `log.md`.
+Newly unblocked issues: GH-038 (and the M2 baseline for GH-083).

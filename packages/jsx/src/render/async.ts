@@ -14,6 +14,7 @@ import { Fragment } from "../jsx-runtime";
 import type { JSXNode } from "../types";
 import { renderNode } from "./node";
 import { renderAttributes } from "./attributes";
+import { isRawTextElement, isVoidElement, serializeRawText } from "./elements";
 
 export class AsyncComponentRenderError extends Error {
   public readonly component: string;
@@ -131,16 +132,26 @@ async function renderAsyncInternal(
     return renderAsyncInternal(result, depth + 1, seen, options);
   }
 
-  // element: attributes serialize synchronously; children may contain promises
+  // element: attributes serialize synchronously; children may contain
+  // promises. Void and raw-text semantics mirror the sync renderer exactly
+  // (GH-037 parity gate caught the async path emitting </meta> for void
+  // elements and skipping raw-text serialization).
+  const tag = String(node.type);
   const { children, ...attributes } = node.props as Record<string, unknown>;
   const attributeHtml = renderAttributes(attributes);
+  if (isVoidElement(tag)) {
+    return `<${tag}${attributeHtml}>`;
+  }
+  if (isRawTextElement(tag) && typeof children === "string") {
+    return `<${tag}${attributeHtml}>${serializeRawText(tag, children)}</${tag}>`;
+  }
   const childrenHtml = await renderAsyncInternal(
     children,
     depth,
     seen,
     options,
   );
-  return `<${String(node.type)}${attributeHtml}>${childrenHtml}</${String(node.type)}>`;
+  return `<${tag}${attributeHtml}>${childrenHtml}</${tag}>`;
 }
 
 /**

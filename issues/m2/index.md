@@ -11,5 +11,5 @@
 - [GH-034 — Implement renderToStream with backpressure and abort handling](gh-034-implement-rendertostream-with-backpressure-and-abort-handling.md) — P1 / L; depends on GH-030, GH-033 — **complete 2026-08-22** (closure record and evidence)
 - [GH-035 — Add typed common HTMX attributes without runtime coupling](gh-035-add-typed-common-htmx-attributes-without-runtime-coupling.md) — P1 / M; depends on GH-005, GH-028 — **complete 2026-08-22** (closure record and evidence)
 - [GH-036 — Close JSX conformance, security, and snapshot coverage](gh-036-close-jsx-conformance-security-and-snapshot-coverage.md) — P0 / L; depends on GH-031, GH-033, GH-035 — **complete 2026-08-22** (closure record and evidence)
-- [GH-037 — Run the M2 JSX performance and memory gate](gh-037-run-the-m2-jsx-performance-and-memory-gate.md) — P1 / M; depends on GH-007, GH-036
+- [GH-037 — Run the M2 JSX performance and memory gate](gh-037-run-the-m2-jsx-performance-and-memory-gate.md) — P1 / M; depends on GH-007, GH-036 — **complete 2026-08-22** (closure record and evidence)
 - [GH-038 — Run and record the M2 server-JSX gate](gh-038-run-and-record-the-m2-server-jsx-gate.md) — P0 / S; depends on GH-036, GH-037
