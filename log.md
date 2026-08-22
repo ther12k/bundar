@@ -344,3 +344,11 @@ GH-073 is complete; GH-075 and GH-079 gain their manifest prerequisite.
 - Verification: errors suite 13/13 + production 4/4, full repo 292/292, typecheck, lint, architecture (41 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-020/verification-transcript.md`.
 
 GH-020 is complete; GH-022, GH-023, and GH-065 are unblocked.
+
+## 2026-08-21 — GH-021: explicit response helpers
+
+- Landed `packages/core/src/response.ts`: text/json/html/redirect/seeOther/empty/file helpers (all native Responses, no implicit return conversion) plus `withHeaders` with append semantics for Set-Cookie/Vary and overwrite elsewhere — multi-values never collapse.
+- Type-contract test proves string/object handler returns are compile errors; `Response | Promise<Response>` stays the only contract. Redirect statuses documented (301/308 method-preserving; 303 forces GET).
+- Verification: responses suite 12/12 + type tests, full repo 304/304, typecheck, lint, architecture (42 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-021/verification-transcript.md`.
+
+GH-021 is complete; GH-022, GH-023, GH-033, and GH-045 are unblocked.
