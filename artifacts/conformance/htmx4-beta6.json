@@ -43,10 +43,7 @@
       "lifecycle": {
         "observedAfterRequest": false,
         "eventPhases": "phases renamed/reworked in v4 [provisional]",
-        "emulatedEvents": [
-          "trigger-after-swap",
-          "trigger-after-settle"
-        ]
+        "emulatedEvents": ["trigger-after-swap", "trigger-after-settle"]
       },
       "history": {
         "pushUrlDefault": true,

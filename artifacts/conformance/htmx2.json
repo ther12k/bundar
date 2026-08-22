@@ -36,11 +36,7 @@
       ],
       "lifecycle": {
         "observedAfterRequest": true,
-        "eventOrder": [
-          "beforeSwap",
-          "afterSwap",
-          "afterSettle"
-        ]
+        "eventOrder": ["beforeSwap", "afterSwap", "afterSettle"]
       },
       "history": {
         "pushUrlDefault": true,

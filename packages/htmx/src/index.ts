@@ -45,6 +45,7 @@ export type {
   HtmxResponseDirective,
 } from "./dialect";
 export {
+  buildHtmxRequestHeaders,
   HTMX_REQUEST_HEADERS,
   HTMX_RESPONSE_HEADERS,
   getHtmxTarget,
@@ -53,6 +54,7 @@ export {
   isHtmxRequest,
   withHtmxHeaders,
 } from "./neutral";
+export type { HtmxRequestHeaderOptions } from "./neutral";
 
 export type {
   HtmxDialect,

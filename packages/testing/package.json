@@ -6,7 +6,25 @@
   "description": "Bundar in-process test client and request helpers.",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@bundar/core": "workspace:*",
+    "@bundar/htmx": "workspace:*",
+    "@bundar/jsx": "workspace:*",
+    "@bundar/schema": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
 }
