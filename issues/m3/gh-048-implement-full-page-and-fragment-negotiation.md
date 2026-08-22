@@ -62,13 +62,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] The same handler returns a complete document to a normal browser and fragment to HTMX.
-- [ ] History restore does not accidentally install a fragment as a document.
-- [ ] No handler reads raw HTMX headers.
-- [ ] No-JS navigation remains valid HTML and usable.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] The same handler returns a complete document to a normal browser and fragment to HTMX.
+- [x] History restore does not accidentally install a fragment as a document.
+- [x] No handler reads raw HTMX headers.
+- [x] No-JS navigation remains valid HTML and usable.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -126,3 +126,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-048
+Commit / PR: merged `gh-048-negotiation` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/view.ts` (new), `packages/htmx/src/index.ts`, `packages/htmx/package.json` (+`@bundar/jsx` workspace dependency, allowed by ADR-0016), `packages/htmx/test/render-negotiation/view.test.ts` (new, 18 tests), root `tsconfig.json` (`@bundar/jsx` path), `tests/browser/server.ts` (`/page-fragment` via `view()`), `tests/browser/run.ts` (negotiation + boosted scenarios in both lanes), `fixtures/cross-dialect-app/index.html` (boosted link), `packages/htmx/README.md`, `evidence/gh-048/verification-transcript.md` (new).
+Commands executed: focused negotiation tests 18/18; `test:browser:htmx2` and `test:browser:htmx4` (new scenarios green; tooling decision: dual coverage via both existing lanes instead of the planned `test:browser:dual`, documented in the transcript); pack:inspect htmx+jsx; architecture:check; format/lint/typecheck (root + package); full `bun test` 370/370; build; docs validate/links; bench:parity — all exit 0.
+Evidence: `evidence/gh-048/verification-transcript.md`; browser artifacts `output/playwright/{htmx2,htmx4}/negotiation.json` and `boosted-state.json`; report.json negotiation records.
+Contract/API changes: new public API — `view()`, `negotiateView()`, `VIEW_VARY_HEADERS`, `ViewDefinitionError` and associated types in `@bundar/htmx`; @bundar/htmx gained its first workspace dependency (`@bundar/jsx`, explicitly permitted by the frozen boundary rules).
+Security/performance impact: handlers read no raw client headers (normalized metadata only); every response carries the negotiation `Vary` so caches cannot serve the wrong representation; client values remain untrusted data.
+Remaining risks: htmx 4 beta lane DOM behavior recorded as observation (server-side negotiation is dialect-independent and hard-asserted in both lanes); canonical `Vary` names must be revisited if a future dialect renames the boosting/history headers.
+Documentation updated: `packages/htmx/README.md`, this closure report, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-049, GH-050, GH-053, GH-054, GH-065.

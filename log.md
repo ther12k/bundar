@@ -401,3 +401,12 @@ GH-024 is complete; GH-025 is unblocked and feeds GH-083.
 - Recorded the M1 gate in `delivery/gates/m1.md`: all 14 M1 issues complete with transcripts; reviewed M0 deviations (CLI workspace dependency, bench schema 1→2, new scripts — no public-API exception, no ADR required); authorization of M2/M3 dependent work (GH-034/035 immediately unblocked); no JSX/HTMX release claims. Evidence: `evidence/gh-025/verification-transcript.md`.
 
 GH-025 is complete; the M1 milestone is closed. GH-034, GH-035, GH-045–048 are next in dependency order.
+
+## 2026-08-22 — GH-048: full-page and fragment negotiation
+
+- Added `view()`/`negotiateView()` to @bundar/htmx: one route definition (fragment + layout/page) serves a complete document to normal, boosted, and history-restore navigation and a bare fragment to standard enhanced requests — decided from normalized metadata, never raw headers. Every response carries `Vary: HX-Request, HX-Boosted, HX-History-Restore-Request`; `negotiateView()` exposes the rule for GH-049's cache/history policy.
+- @bundar/htmx gained its first workspace dependency (@bundar/jsx, explicitly allowed by the frozen ADR-0016 rules; architecture check and pack:inspect green).
+- Browser harness: `/page-fragment` fixture route implemented with `view()`; both lanes (htmx 2.0.10 and 4.0.0-beta6) assert the four representations via fetch and exercise a real boosted navigation (document body swap, one html root) — dual-lane coverage substitutes for the planned `test:browser:dual` command until GH-055's fixture (tooling decision in the transcript).
+- Verification: negotiation tests 18/18, full repo 370/370, both browser lanes, pack:inspect, architecture (47 files), typecheck, lint, build, docs — all exit 0. Evidence: `evidence/gh-048/verification-transcript.md`.
+
+GH-048 is complete; GH-049, GH-050, GH-053, GH-054, and GH-065 are unblocked.

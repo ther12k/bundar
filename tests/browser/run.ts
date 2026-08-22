@@ -129,6 +129,78 @@ try {
     throw new Error("negative fixture unexpectedly passed");
   }
 
+  // GH-048: server-side negotiation is dialect-independent — assert the
+  // four representations directly through fetch in both lanes.
+  await run("negotiation-fetch", [
+    "eval",
+    "async () => { const doc = await fetch('/page-fragment'); const docText = await doc.text(); const frag = await fetch('/page-fragment', { headers: { 'HX-Request': 'true' } }); const fragText = await frag.text(); const boosted = await fetch('/page-fragment', { headers: { 'HX-Request': 'true', 'HX-Boosted': 'true' } }); const boostedText = await boosted.text(); const restore = await fetch('/page-fragment', { headers: { 'HX-Request': 'true', 'HX-History-Restore-Request': 'true' } }); const restoreText = await restore.text(); return JSON.stringify({ docIsDocument: docText.startsWith('<!doctype html>') && docText.includes('<section id=\"items\">'), fragIsFragment: !fragText.includes('<html') && fragText.startsWith('<section'), fragVary: frag.headers.get('vary'), boostedIsDocument: boostedText.startsWith('<!doctype html>'), restoreIsDocument: restoreText.startsWith('<!doctype html>') }); }",
+    "--filename",
+    "negotiation.json",
+  ]);
+  const negotiationText = await readFile(
+    join(artifactDirectory, "negotiation.json"),
+    "utf8",
+  );
+  const negotiation = JSON.parse(JSON.parse(negotiationText) as string) as {
+    docIsDocument: boolean;
+    fragIsFragment: boolean;
+    fragVary: string | null;
+    boostedIsDocument: boolean;
+    restoreIsDocument: boolean;
+  };
+  if (
+    !negotiation.docIsDocument ||
+    !negotiation.fragIsFragment ||
+    !negotiation.boostedIsDocument ||
+    !negotiation.restoreIsDocument
+  ) {
+    throw new Error(
+      `page-fragment negotiation failed in ${lane}: ${negotiationText}`,
+    );
+  }
+  if (
+    negotiation.fragVary !==
+    "HX-Request, HX-Boosted, HX-History-Restore-Request"
+  ) {
+    throw new Error(
+      `page-fragment fragment vary header missing in ${lane}: ${String(negotiation.fragVary)}`,
+    );
+  }
+
+  // GH-048: boosted navigation through the real htmx layer — htmx swaps the
+  // <body> out of the full document the server negotiated.
+  await run("boosted-click", ["click", "#boosted-link"]);
+  await run("boosted-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(250); }",
+  ]);
+  await run("boosted-state-eval", [
+    "eval",
+    "() => JSON.stringify({ url: location.pathname, itemsHeading: document.querySelector('#items h2')?.textContent ?? null, htmlRoots: document.querySelectorAll('html').length, bodyCount: document.querySelectorAll('body').length })",
+    "--filename",
+    "boosted-state.json",
+  ]);
+  const boostedText = await readFile(
+    join(artifactDirectory, "boosted-state.json"),
+    "utf8",
+  );
+  const boostedState = JSON.parse(JSON.parse(boostedText) as string) as {
+    url: string;
+    itemsHeading: string | null;
+    htmlRoots: number;
+    bodyCount: number;
+  };
+  const boostedPassed =
+    boostedState.url === "/page-fragment" &&
+    boostedState.itemsHeading === "Items" &&
+    boostedState.htmlRoots === 1 &&
+    boostedState.bodyCount === 1;
+  // Experimental lane (htmx 4 beta) records the observation; the stable lane
+  // is a hard assertion, matching the lifecycle-event policy above.
+  if (lane === "htmx2" && !boostedPassed) {
+    throw new Error(`boosted navigation failed in ${lane}: ${boostedText}`);
+  }
+
   const asset = await readFile(
     join(repositoryRoot, "fixtures", lane, "htmx.min.js"),
   );
@@ -150,7 +222,26 @@ try {
       "form-post",
       "history-push",
       "incorrect-header-negative",
+      "page-fragment-negotiation",
+      "boosted-navigation",
     ],
+    negotiation: {
+      issue: "GH-048",
+      docIsDocument: negotiation.docIsDocument,
+      fragIsFragment: negotiation.fragIsFragment,
+      boostedIsDocument: negotiation.boostedIsDocument,
+      restoreIsDocument: negotiation.restoreIsDocument,
+      fragmentVary: negotiation.fragVary,
+    },
+    boostedNavigation: {
+      expected: "full document body swap, one html root, #items present",
+      observed: boostedState,
+      classification:
+        lane === "htmx2"
+          ? "stable-lane assertion"
+          : "experimental-lane observation",
+      passed: boostedPassed,
+    },
     lifecycleEvent: {
       expected: "event: afterRequest",
       observed: state.event ?? "missing",
@@ -176,6 +267,8 @@ try {
       "response-headers.json",
       "console.stdout.txt",
       "trace-stop.stdout.txt",
+      "negotiation.json",
+      "boosted-state.json",
     ],
   };
   await writeFile(

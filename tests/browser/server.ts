@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { view } from "@bundar/htmx";
+import { document, jsx } from "@bundar/jsx";
 
 const repositoryRoot = join(import.meta.dir, "..", "..");
 const fixtureRoot = join(repositoryRoot, "fixtures", "cross-dialect-app");
@@ -53,6 +55,26 @@ export async function handler(
   }
   if (url.pathname === "/history-target") {
     return fragment('<strong id="history">history-loaded</strong>');
+  }
+  if (url.pathname === "/page-fragment") {
+    // GH-048: one route, two representations, negotiated from normalized
+    // metadata — the handler never reads a raw HTMX header.
+    return view(request, {
+      fragment: () =>
+        jsx("section", {
+          id: "items",
+          children: [
+            jsx("h2", { children: "Items" }),
+            jsx("p", { children: "42 items available" }),
+          ],
+        }),
+      layout: (content) =>
+        document({
+          lang: "en",
+          title: "Items",
+          children: jsx("body", { children: content }),
+        }),
+    });
   }
   if (url.pathname === "/incorrect-header") {
     return new Response("wrong-header", {
