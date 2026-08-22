@@ -75,3 +75,16 @@ export type {
   ViewOptions,
   ViewRepresentation,
 } from "./view";
+export {
+  applyCachePolicy,
+  CACHE_VARY_HEADERS,
+  CachePolicyError,
+  cachePolicyFor,
+  historyPolicyFor,
+  mergeVary,
+} from "./cache-policy";
+export type {
+  CachePolicy,
+  CachePolicyOptions,
+  HistoryPolicy,
+} from "./cache-policy";

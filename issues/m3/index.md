@@ -10,7 +10,7 @@
 - [GH-046 — Normalize HTMX lifecycle and application events](gh-046-normalize-htmx-lifecycle-and-application-events.md) — P1 / L; depends on GH-040, GH-043, GH-044
 - [GH-047 — Add inheritance and extension compatibility helpers](gh-047-add-inheritance-and-extension-compatibility-helpers.md) — P1 / L; depends on GH-035, GH-040, GH-043, GH-044
 - [GH-048 — Implement full-page and fragment negotiation](gh-048-implement-full-page-and-fragment-negotiation.md) — P0 / L; depends on GH-033, GH-041 — **complete 2026-08-22** (closure record and evidence)
-- [GH-049 — Implement cache variation and history safety policy](gh-049-implement-cache-variation-and-history-safety-policy.md) — P0 / M; depends on GH-043, GH-044, GH-048
+- [GH-049 — Implement cache variation and history safety policy](gh-049-implement-cache-variation-and-history-safety-policy.md) — P0 / M; depends on GH-043, GH-044, GH-048 — **complete 2026-08-22** (closure record and evidence)
 - [GH-050 — Implement the progressive action response composer](gh-050-implement-the-progressive-action-response-composer.md) — P0 / L; depends on GH-033, GH-042, GH-048
 - [GH-051 — Implement version-neutral out-of-band and partial update intents](gh-051-implement-version-neutral-out-of-band-and-partial-update-intents.md) — P0 / L; depends on GH-035, GH-043, GH-044, GH-050
 - [GH-052 — Implement redirect, location, and history helpers](gh-052-implement-redirect-location-and-history-helpers.md) — P1 / M; depends on GH-042, GH-043, GH-044, GH-050

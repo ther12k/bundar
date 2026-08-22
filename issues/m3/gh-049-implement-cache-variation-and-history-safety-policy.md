@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Page and fragment variants never overwrite each other in the test cache.
-- [ ] Existing Vary values are merged without loss.
-- [ ] Authenticated/private responses remain private unless explicitly overridden.
-- [ ] History restore scenarios pass in both lanes or are capability-gated.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Page and fragment variants never overwrite each other in the test cache.
+- [x] Existing Vary values are merged without loss.
+- [x] Authenticated/private responses remain private unless explicitly overridden.
+- [x] History restore scenarios pass in both lanes or are capability-gated.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -120,3 +120,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-049
+Commit / PR: merged `gh-049-cache-history` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/cache-policy.ts` (new) + index exports, `packages/htmx/test/cache/cache-policy.test.ts` (new, 10 tests), `tests/proxy-cache/{simulated-proxy.ts,poisoning.test.ts}` (new, 5 fixtures), `tools/security/cache-audit.ts` + `security:cache` script, browser lane Vary assertions + history-restore scenario (both lanes), `packages/htmx/README.md`, `evidence/gh-049/{verification-transcript.md,cache-audit.json}` (new).
+Commands executed: cache+proxy tests 15/15; `security:cache` audit; both browser lanes with the history-restore scenario and exact-Vary assertions; htmx package + root typecheck; lint; format; full repo 531/531; architecture (63 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0. Tooling decision: dual-lane browser substitution for the planned `test:browser:dual -- history`.
+Evidence: `evidence/gh-049/verification-transcript.md`; `evidence/gh-049/cache-audit.json`; `output/playwright/*/history-restore.json`.
+Contract/API changes: new exports in @bundar/htmx — `cachePolicyFor`, `applyCachePolicy`, `mergeVary`, `historyPolicyFor`, `CachePolicyError`, `CACHE_VARY_HEADERS` + option/result types. No existing API changed.
+Security/performance impact: representation poisoning is structurally prevented under the policy (all four negotiation variants distinct; missing Vary poisoning reproduced as documentation); private/no-store never stored; unsafe opt-in combinations rejected at policy build; handler Cache-Control overrides survive; per-dialect history facts are pinned data.
+Remaining risks: partial handler-supplied Vary keeps a residual window (documented with fixture); the simulated proxy is minimal by design; htmx 4 beta history internals provisional until GA revalidation.
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: none directly (strengthens GH-050+ consumers).
