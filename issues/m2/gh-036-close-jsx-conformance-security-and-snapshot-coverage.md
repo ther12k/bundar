@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every public renderer primitive has positive and negative tests.
-- [ ] Security payload corpus passes with expected escaping.
-- [ ] Snapshots are deterministic across supported platforms.
-- [ ] Browser DOM interpretation matches intended structure for selected edge cases.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every public renderer primitive has positive and negative tests.
+- [x] Security payload corpus passes with expected escaping.
+- [x] Snapshots are deterministic across supported platforms.
+- [x] Browser DOM interpretation matches intended structure for selected edge cases.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-036
+Commit / PR: merged `gh-036-jsx-conformance` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/jsx/test/conformance/{matrix.test.ts,snapshots.test.ts,snapshot-cases.ts,snapshots.json}` (new), `packages/jsx/test/fuzz/property.test.ts` (new), `tools/jsx-snapshots.ts` + `tools/security/jsx-corpus.ts` (new), `tests/browser/jsx/{server,run}.ts` (new), `packages/jsx/src/render/elements.ts` (RCDATA escaping defect fixed), `packages/jsx/src/types.ts` + `types/htmx.ts` (intrinsic set completed; hx-target accepts selectors), `tests/consumer/jsx/fixture.tsx` (extended), root `package.json` (`snapshots:jsx`, `security:jsx`, `test:browser:jsx`), `evidence/gh-036/{verification-transcript.md,security-corpus.json}` (new).
+Commands executed: jsx suite 146/146 (conformance 13, property ~6,000 assertions); consumer TSX compile; browser DOM comparison (6 edge cases, Chrome for Testing); security corpus (13 payloads); snapshot review-gate refusal check; package + root typecheck; lint; format; full repo 516/516; architecture; pack:inspect; build; docs — all exit 0.
+Evidence: `evidence/gh-036/verification-transcript.md`; `evidence/gh-036/security-corpus.json`; `output/playwright/jsx/*`; `packages/jsx/test/conformance/snapshots.json`.
+Contract/API changes: intrinsic element map completed (common HTML tags now typed); HxTargetValue accepts arbitrary selectors (literals kept for completions); serializeRawText now entity-escapes RCDATA hosts (textarea/title) instead of script-style grammar escapes — a fidelity fix: browser .value/text now round-trips exactly. No public signature changed.
+Security/performance impact: raw-text breakouts (`</title>`, `</textarea>`, `</style>`, `</script>`) proven neutralized in-process and in a real browser; RCDATA content can no longer display escape artifacts; corpus asserts exact escaped attribute values; snapshot regeneration requires an attributable review trail.
+Remaining risks: snapshot byte-stability verified on the single available platform (Bun/Linux) with platform-independent corpus content by construction; hx-target grammar validation delegated to dialect adapters; exotic tags fall back to loose jsx() typing.
+Documentation updated: this closure record, `issues/m2/index.md`, `log.md`, transcript, corpus artifact.
+Newly unblocked issues: GH-037, GH-038 (all M2 implementation issues complete).

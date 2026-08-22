@@ -42,17 +42,27 @@ export function isRawTextElement(tag: string): boolean {
 
 /**
  * Neutralizes element-close sequences inside raw-text content so payload
- * data can never terminate the host element early. `<` is escaped as
- * `\u003c` in script contexts and `\3c` in CSS (both valid in their
- * respective grammars and invisible to the rendered text).
+ * data can never terminate the host element early.
+ *
+ * - script/style are RAW text (browsers do NOT decode entities there), so
+ *   the escape must live in the host grammar: `<\/` for script and `\3c `
+ *   for CSS.
+ * - textarea/title are RCDATA (browsers DO decode character references), so
+ *   entity-escaping is both safe and lossless — the browser's .value/text
+ *   round-trips the original text exactly (GH-036 browser comparison).
  */
 export function serializeRawText(tag: string, text: string): string {
-  if (tag.toLowerCase() === "style") {
+  const kind = tag.toLowerCase();
+  if (kind === "style") {
     // CSS: escape `<` and `</` safely without affecting rules
     return text.replace(/<\//g, "\\3c /");
   }
-  // script/textarea/title: escape the sequence that could close the tag
-  return text.replace(/<\//g, "<\\/");
+  if (kind === "script") {
+    // script: escape the sequence that could close the tag
+    return text.replace(/<\//g, "<\\/");
+  }
+  // textarea/title (RCDATA): entity-escaped text decodes back losslessly
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 }
 
 export const DOCTYPE = "<!doctype html>";

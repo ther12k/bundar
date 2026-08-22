@@ -26,7 +26,12 @@ export type HxSwapBase =
 /** Swap strategies may carry timing/scroll/view modifiers after the base. */
 export type HxSwapValue = HxSwapBase | `${HxSwapBase} ${string}`;
 
-/** hx-target values: a CSS selector or one of the `this`/modifier forms. */
+/**
+ * hx-target values: primarily a CSS selector (`#list`, `.card`), or one of
+ * the modifier forms. `string & {}` keeps the literal completions while
+ * accepting any selector — grammar validation belongs to the dialect
+ * adapters, not the type.
+ */
 export type HxTargetValue =
   | "this"
   | "next"
@@ -34,7 +39,8 @@ export type HxTargetValue =
   | `closest ${string}`
   | `find ${string}`
   | `next ${string}`
-  | `previous ${string}`;
+  | `previous ${string}`
+  | (string & {});
 
 /** hx-push-url accepts the boolean forms plus an explicit URL. */
 export type HxPushUrlValue = boolean | "true" | "false" | `${string}`;
