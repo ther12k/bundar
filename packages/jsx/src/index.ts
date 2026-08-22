@@ -35,6 +35,20 @@ export {
   renderNodeAsync,
   renderNodeAuto,
 } from "./render/async";
+export {
+  DOCTYPE,
+  document,
+  DuplicateDocumentRootError,
+  renderDocument,
+} from "./document";
+export type { DocumentOptions } from "./document";
+export {
+  isRawTextElement,
+  isVoidElement,
+  RAW_TEXT_ELEMENTS,
+  serializeRawText,
+  VOID_ELEMENTS,
+} from "./render/elements";
 export type {
   AnchorAttributes,
   FormAttributes,

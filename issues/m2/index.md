@@ -6,7 +6,7 @@
 - [GH-029 — Implement fragments, arrays, iterables, and functional components](gh-029-implement-fragments-arrays-iterables-and-functional-components.md) — P0 / L; depends on GH-027 — **complete 2026-08-21** (closure record and evidence)
 - [GH-030 — Implement async components and promised children](gh-030-implement-async-components-and-promised-children.md) — P0 / L; depends on GH-029 — **complete 2026-08-21** (closure record and evidence)
 - [GH-031 — Implement explicit raw HTML and trust-boundary controls](gh-031-implement-explicit-raw-html-and-trust-boundary-controls.md) — P0 / M; depends on GH-027 — **complete 2026-08-21** (closure record and evidence)
-- [GH-032 — Implement document, doctype, head, and void-element helpers](gh-032-implement-document-doctype-head-and-void-element-helpers.md) — P1 / M; depends on GH-028, GH-029
+- [GH-032 — Implement document, doctype, head, and void-element helpers](gh-032-implement-document-doctype-head-and-void-element-helpers.md) — P1 / M; depends on GH-028, GH-029 — **complete 2026-08-22** (closure record and evidence)
 - [GH-033 — Implement renderToString and JSX Response integration](gh-033-implement-rendertostring-and-jsx-response-integration.md) — P0 / M; depends on GH-021, GH-030, GH-032
 - [GH-034 — Implement renderToStream with backpressure and abort handling](gh-034-implement-rendertostream-with-backpressure-and-abort-handling.md) — P1 / L; depends on GH-030, GH-033
 - [GH-035 — Add typed common HTMX attributes without runtime coupling](gh-035-add-typed-common-htmx-attributes-without-runtime-coupling.md) — P1 / M; depends on GH-005, GH-028

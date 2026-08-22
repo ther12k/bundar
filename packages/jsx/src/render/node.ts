@@ -10,6 +10,7 @@
 import { renderPrimitive } from "../escape";
 import { renderAttributes } from "./attributes";
 import { Fragment } from "../jsx-runtime";
+import { isRawTextElement, isVoidElement, serializeRawText } from "./elements";
 import type { JSXChild, JSXNode } from "../types";
 
 /** Maximum component-invocation depth before runaway recursion fails. */
@@ -134,9 +135,29 @@ function renderNodeInternal(
     return renderNodeInternal(result, depth + 1, seen);
   }
 
+  const tag = String(node.type);
+
+  // GH-032: void elements never receive closing tags.
+  if (isVoidElement(tag)) {
+    const attributes = renderAttributes(node.props as Record<string, unknown>);
+    return `<${tag}${attributes}>`;
+  }
+
+  // GH-032: raw-text elements keep text children unescaped, with close-tag
+  // sequences neutralized so content cannot break out of the element.
+  if (isRawTextElement(tag)) {
+    const attributes = renderAttributes(node.props as Record<string, unknown>);
+    const text = node.props.children;
+    const body =
+      typeof text === "string"
+        ? serializeRawText(tag, text)
+        : renderNodeInternal(text, depth, seen);
+    return `<${tag}${attributes}>${body}</${tag}>`;
+  }
+
   const attributes = renderAttributes(node.props as Record<string, unknown>);
   const children = renderNodeInternal(node.props.children, depth, seen);
-  return `<${String(node.type)}${attributes}>${children}</${String(node.type)}>`;
+  return `<${tag}${attributes}>${children}</${tag}>`;
 }
 
 /** Renders any JSX child tree to its HTML string form. */
