@@ -501,3 +501,11 @@ GH-038 is complete; **the M2 milestone is closed**. GH-071 and GH-079 are unbloc
 - Verification: cache+proxy 15/15, audit green, both lanes green, full repo 531/531, typechecks, lint, architecture (63 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-049/verification-transcript.md`.
 
 GH-049 is complete.
+
+## 2026-08-22 — GH-050: progressive action response composer
+
+- Added action()/actionResponse() to @bundar/htmx: one explicit action result serves enhanced submissions (rendered fragment + GH-042 directives + GH-048 Vary + GH-049 fail-safe cache policy) and ordinary submissions (PRG redirect, 303 default, approved set 301/302/307/308). Validation fires in action() before any response commits — missing fallback redirect throws unless the route explicitly opts out; conflicting fields are diagnosed; body statuses restricted (204 excluded). String fragments escape as text; markup needs a tree or explicit raw(). Boosted/restore requests follow the document path (redirect like ordinary navigations).
+- Browser fixture /action-save + an action-fallback scenario in both lanes: ordinary POST proven a redirect (opaque-redirect type + followed fetch landing on the PRG target document), enhanced POST returns the fragment HTML with trigger header and Vary.
+- Verification: actions 15/15, both lanes green, full repo 546/546, typechecks, lint, architecture (64 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-050/verification-transcript.md`.
+
+GH-050 is complete; GH-051, GH-052, GH-053, GH-054, and GH-060 are unblocked.

@@ -63,13 +63,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Ordinary form submission receives an approved redirect status and location.
-- [ ] Enhanced submission receives HTML/directives without requiring a JSON API.
-- [ ] A missing fallback redirect fails validation unless route explicitly opts out.
-- [ ] Conflicting action fields produce a compile/runtime diagnostic before response commit.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Ordinary form submission receives an approved redirect status and location.
+- [x] Enhanced submission receives HTML/directives without requiring a JSON API.
+- [x] A missing fallback redirect fails validation unless route explicitly opts out.
+- [x] Conflicting action fields produce a compile/runtime diagnostic before response commit.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -127,3 +127,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-050
+Commit / PR: merged `gh-050-action-composer` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/action.ts` (new) + index exports, `packages/htmx/test/actions/action.test.ts` (new, 15 tests), browser fixture `/action-save` route + `action-fallback` scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-050/verification-transcript.md` (new).
+Commands executed: actions 15/15; both browser lanes with the action-fallback scenario (opaque-redirect proof + followed PRG target + enhanced fragment/trigger assertions); htmx + root typecheck; lint; format; full repo 546/546; architecture (64 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0. Tooling decision: dual-lane browser substitution for the planned `test:browser:dual -- action-fallback` (exact 303/Location asserted at unit level since browsers hide manual redirects).
+Evidence: `evidence/gh-050/verification-transcript.md`; `output/playwright/*/action-fallback.json`.
+Contract/API changes: new exports in @bundar/htmx — `action`, `actionResponse`, `composeAction`, `ActionDefinitionError`, `ACTION_VARY_HEADERS` + option/result types (approved redirect + body status sets). No existing API changed.
+Security/performance impact: validation fires at handler time before any response commit; string fragments escape as text (markup requires a tree or the explicit raw() boundary); enhanced responses carry the negotiation Vary and fail-safe cache policy (private option); the composer owns only response composition.
+Remaining risks: raw-header parsing must follow GH-042's JSON event encoding; experimental-lane DOM swaps remain observations per policy (server-side composition hard-asserted in both lanes).
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-051, GH-052, GH-053, GH-054, GH-060.
