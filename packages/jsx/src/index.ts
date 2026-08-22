@@ -70,3 +70,8 @@ export type {
   JSXPrimitive,
   UnsupportedClientEvent,
 } from "./types";
+export { ErrorSummary, fieldAnchorId } from "./forms/error-summary";
+export type {
+  ErrorSummaryErrors,
+  ErrorSummaryProps,
+} from "./forms/error-summary";

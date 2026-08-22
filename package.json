@@ -51,7 +51,8 @@
     "pack:inspect": "bun scripts/pack-inspect.ts",
     "clean": "bun run scripts/clean.ts",
     "api:check": "bun tools/api-check.ts",
-    "ci:m1": "bun scripts/m1-gate.ts"
+    "ci:m1": "bun scripts/m1-gate.ts",
+    "security:validation-redaction": "bun tools/security/validation-redaction.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
