@@ -104,3 +104,15 @@ mechanism and returns diagnostics for compatibility auditing
 and never silently altered. Unsupported dialect modes fail closed with
 `UpdateIntentError`.
 
+## Lifecycle & application events (GH-046)
+
+Bundar normalizes HTMX client lifecycle events (`before-request`,
+`after-request`, `before-swap`, `after-swap`, `after-settle`, `response-error`,
+`send-error`, `history-restore`, `oob-before-swap`, `oob-after-swap`, `timeout`)
+via `resolveDialectEvent(event, dialect)`. The mapping table identifies exact,
+approximate, and unsupported mappings across dialect versions
+(`getEventMappingTable`). Server-triggered application events
+(`createApplicationEvent`) ensure JSON-safe, injection-tested event names and
+payloads. An explicit `rawDialectEvent(name)` escape hatch allows opting into
+unmapped version-specific events with audit tracking.
+

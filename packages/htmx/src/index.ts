@@ -145,3 +145,17 @@ export {
 export type { CreateHtmxAssetHandlerOptions, HtmxAsset } from "./assets";
 export { HtmxScript } from "./script";
 export type { HtmxScriptProps } from "./script";
+export {
+  createApplicationEvent,
+  getEventMappingTable,
+  rawDialectEvent,
+  resolveDialectEvent,
+  EventDefinitionError,
+} from "./events";
+export type {
+  BundarLifecycleEvent,
+  EventMapping,
+  EventMappingKind,
+  HtmxApplicationEvent,
+  RawDialectEvent,
+} from "./events";
