@@ -6,7 +6,7 @@
 - [GH-060 — Implement progressive validated form actions](gh-060-implement-progressive-validated-form-actions.md) — P0 / L; depends on GH-050, GH-059 — **complete 2026-08-22** (closure record and evidence)
 - [GH-061 — Implement CSRF primitives and form middleware](gh-061-implement-csrf-primitives-and-form-middleware.md) — P0 / L; depends on GH-018, GH-057 — **complete 2026-08-22** (closure record and evidence)
 - [GH-062 — Define secure cookie and session integration interfaces](gh-062-define-secure-cookie-and-session-integration-interfaces.md) — P0 / L; depends on GH-018, GH-019 — **complete 2026-08-22** (closure record and evidence)
-- [GH-063 — Implement flash messages and out-of-band flash regions](gh-063-implement-flash-messages-and-out-of-band-flash-regions.md) — P1 / M; depends on GH-051, GH-062
+- [GH-063 — Implement flash messages and out-of-band flash regions](gh-063-implement-flash-messages-and-out-of-band-flash-regions.md) — P1 / M; depends on GH-051, GH-062 — **complete 2026-08-22** (closure record and evidence)
 - [GH-064 — Implement multipart upload policy and safe temporary-file handling](gh-064-implement-multipart-upload-policy-and-safe-temporary-file-handling.md) — P0 / L; depends on GH-057, GH-061 — **complete 2026-08-22** (closure record and evidence)
 - [GH-065 — Implement page-versus-fragment error negotiation](gh-065-implement-page-versus-fragment-error-negotiation.md) — P0 / L; depends on GH-020, GH-048, GH-059 — **complete 2026-08-22** (closure record and evidence)
 - [GH-066 — Implement security headers, CSP, and nonce propagation](gh-066-implement-security-headers-csp-and-nonce-propagation.md) — P0 / L; depends on GH-018, GH-032, GH-045

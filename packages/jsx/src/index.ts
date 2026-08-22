@@ -99,3 +99,5 @@ export type {
   StreamingResponse,
   StreamResponseOptions,
 } from "./render-to-stream";
+export { FlashRegion } from "./forms/flash-region";
+export type { FlashMessage, FlashRegionProps } from "./forms/flash-region";

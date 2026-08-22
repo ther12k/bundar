@@ -608,3 +608,11 @@ GH-055 is complete; GH-056 is unblocked.
 - Evidence: `evidence/gh-056/verification-transcript.md`.
 
 GH-056 is complete; **the M3 milestone is closed**. GH-071 and GH-079 (also awaiting M4's GH-069) are authorized.
+
+## 2026-08-22 — GH-063: flash messages and OOB flash regions
+
+- Added session-backed flash primitives to @bundar/security: `addFlash` (500-char limit, 10-count bound with oldest-dropped, plain text only), `consumeFlash` (single-consumption with FIFO ordering), `peekFlash`. Requires sessionMiddleware.
+- Added `FlashRegion` JSX component: accessible with `aria-live="polite"`, severity-mapped ARIA roles (status/alert), data-severity attributes, empty-state placeholder for OOB targetability. Structural props — no jsx→security import (boundary preserved).
+- Verified: flash 6/6, flash-region 4/4, full repo 645/645, typechecks, lint, architecture (76 files), pack:inspect ×2, build, docs — all exit 0. Evidence: `evidence/gh-063/verification-transcript.md`.
+
+GH-063 is complete; GH-068 now awaits only GH-066.

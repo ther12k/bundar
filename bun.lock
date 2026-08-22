@@ -26,6 +26,10 @@
       "name": "@bundar/example-admin-crud",
       "version": "0.0.0",
     },
+    "examples/dual-dialect-fixture": {
+      "name": "@bundar/example-dual-dialect-fixture",
+      "version": "0.0.0",
+    },
     "examples/minimal": {
       "name": "@bundar/example-minimal",
       "version": "0.0.0",
@@ -86,6 +90,8 @@
     "@bundar/core": ["@bundar/core@workspace:packages/core"],
 
     "@bundar/example-admin-crud": ["@bundar/example-admin-crud@workspace:examples/admin-crud"],
+
+    "@bundar/example-dual-dialect-fixture": ["@bundar/example-dual-dialect-fixture@workspace:examples/dual-dialect-fixture"],
 
     "@bundar/example-minimal": ["@bundar/example-minimal@workspace:examples/minimal"],
 
