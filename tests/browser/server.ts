@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   action,
   actionResponse,
+  createHtmxAssetHandler,
   errorViewResponse,
   validationErrorView,
   renderValidationErrorFragment,
@@ -126,12 +127,10 @@ export async function handler(
     return html(source.replace("/assets/htmx.min.js", "/assets/htmx.min.js"));
   }
   if (url.pathname === "/assets/htmx.min.js") {
-    const asset = await readFile(
-      join(repositoryRoot, "fixtures", lane, "htmx.min.js"),
-    );
-    return new Response(asset, {
-      headers: { "content-type": "application/javascript" },
+    const assetHandler = createHtmxAssetHandler({
+      dialect: lane === "htmx4" ? htmx4Experimental : htmx2,
     });
+    return assetHandler(request);
   }
   if (url.pathname === "/fragment") {
     return fragment('<strong id="fragment">fragment-loaded</strong>');

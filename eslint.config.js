@@ -11,6 +11,7 @@ export default tseslint.config(
       "node_modules/**",
       "fixtures/htmx2/htmx.min.js",
       "fixtures/htmx4/htmx.min.js",
+      "**/*.min.js",
     ],
   },
   eslint.configs.recommended,

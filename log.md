@@ -542,3 +542,12 @@ GH-064 is complete; GH-068 now awaits only GH-063 and GH-066.
 - Full repo 590/590, typechecks, lint, architecture (68 files), pack:inspect, build, docs all green. Evidence: `evidence/gh-051/verification-transcript.md`.
 
 GH-051 is complete; GH-055 and GH-063 are unblocked.
+
+## 2026-08-22 — GH-045: HTMX asset registry and local serving contract
+
+- Implemented asset registry and local serving in @bundar/htmx: `getBundledAsset()` loads verified SHA-256-pinned assets offline (htmx 2.0.10 and htmx 4.0.0-beta6), `createHtmxAssetHandler()` serves local assets with `application/javascript`, ETag matching SHA-256 with 304 Not Modified, `Cache-Control: public, max-age=31536000, immutable`, and `x-htmx-version` header.
+- Added `<HtmxScript>` helper in @bundar/htmx: emits secure script tag referencing local asset with `data-htmx-version`, SRI integrity hash (`integrity`), `crossorigin="anonymous"`, and CSP `nonce` support.
+- Added `validateAssetDialectMatch()` and `AssetDialectMismatchError` detecting asset/dialect version mismatches.
+- Verified via unit tests (14/14), browser asset-serving scenario in both `htmx2` and `htmx4` lanes, pack:inspect, and full repository tests (604/604). Evidence: `evidence/gh-045/verification-transcript.md`.
+
+GH-045 is complete; GH-053, GH-054, and GH-066 are unblocked.

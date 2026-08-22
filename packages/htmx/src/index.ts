@@ -135,3 +135,13 @@ export type {
   UpdateOperation,
   UpdateTarget,
 } from "./updates";
+export {
+  createHtmxAssetHandler,
+  getBundledAsset,
+  validateAssetDialectMatch,
+  AssetDialectMismatchError,
+  AssetRegistryError,
+} from "./assets";
+export type { CreateHtmxAssetHandlerOptions, HtmxAsset } from "./assets";
+export { HtmxScript } from "./script";
+export type { HtmxScriptProps } from "./script";

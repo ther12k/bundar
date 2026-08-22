@@ -459,6 +459,36 @@ try {
     );
   }
 
+  // GH-045: asset serving — local asset handler with ETag and 304 support
+  await run("asset-eval", [
+    "eval",
+    "async () => { const assetRes = await fetch('/assets/htmx.min.js'); const etag = assetRes.headers.get('etag'); const version = assetRes.headers.get('x-htmx-version'); const cacheControl = assetRes.headers.get('cache-control'); const notModified = await fetch('/assets/htmx.min.js', { headers: { 'if-none-match': etag } }); return JSON.stringify({ status: assetRes.status, notModifiedStatus: notModified.status, hasEtag: etag !== null, version, isImmutable: cacheControl?.includes('immutable') ?? false }); }",
+    "--filename",
+    "asset.json",
+  ]);
+  const assetText = await readFile(
+    join(artifactDirectory, "asset.json"),
+    "utf8",
+  );
+  const assetState = JSON.parse(JSON.parse(assetText) as string) as {
+    status: number;
+    notModifiedStatus: number;
+    hasEtag: boolean;
+    version: string;
+    isImmutable: boolean;
+  };
+  if (
+    assetState.status !== 200 ||
+    assetState.notModifiedStatus !== 304 ||
+    !assetState.hasEtag ||
+    assetState.version !== fixtureVersion(lane) ||
+    !assetState.isImmutable
+  ) {
+    throw new Error(
+      `asset serving verification failed in ${lane}: ${assetText}`,
+    );
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -541,6 +571,7 @@ try {
       "error-negotiation",
       "validated-form",
       "multi-region",
+      "asset-serving",
     ],
     csrf: {
       issue: "GH-061",
@@ -601,6 +632,7 @@ try {
       "errors.json",
       "validated-form.json",
       "multi-region.json",
+      "asset.json",
     ],
   };
   await writeFile(
