@@ -4,6 +4,7 @@
  */
 import { routesCommand } from "./commands/routes";
 import { devCommand } from "./commands/dev";
+import { htmxAuditCommand } from "./commands/htmx-audit";
 
 export const BUNDAR_VERSION = "0.0.0";
 
@@ -73,6 +74,7 @@ Options:
 
 Commands:
   dev              Run the app with hot reload (development only)
+  htmx-audit       Audit source for htmx 2→4 migration-sensitive patterns
   info             Show environment diagnostics (Bun, platform, versions)`);
 }
 
@@ -108,6 +110,9 @@ registerCommand(routesCommand);
 
 // GH-072: development command and reload loop
 registerCommand(devCommand);
+
+// GH-078: htmx 2→4 migration audit
+registerCommand(htmxAuditCommand);
 
 export async function runCli(rawArgs: string[]): Promise<number> {
   const { commandName, args, flags } = parseArgs(rawArgs);

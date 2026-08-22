@@ -74,6 +74,7 @@
       },
       "dependencies": {
         "@bundar/core": "workspace:*",
+        "@bundar/htmx": "workspace:*",
       },
     },
     "packages/core": {
