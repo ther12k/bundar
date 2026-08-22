@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A 422 form error updates the intended region in both lanes.
-- [ ] A 401/403 flow cannot expose protected fragment content.
-- [ ] An unexpected 500 returns a safe full-page or fragment response and logs correlation data.
-- [ ] Normal browser behavior remains usable.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A 422 form error updates the intended region in both lanes.
+- [x] A 401/403 flow cannot expose protected fragment content.
+- [x] An unexpected 500 returns a safe full-page or fragment response and logs correlation data.
+- [x] Normal browser behavior remains usable.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-065
+Commit / PR: merged `gh-065-error-negotiation` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/error-view.ts` (new) + index exports, `packages/htmx/test/error-negotiation/error-view.test.ts` (new, 14 tests), browser `/error-validation` + `/error-forbidden` routes and the `error-negotiation` scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-065/verification-transcript.md` (new).
+Commands executed: error-negotiation 14/14; both browser lanes with the error scenario (enhanced 422 fragment + server-known retarget with hostile client target ignored; ordinary 422 full document; enhanced 403 document path with the deliberately-secret fragment never served; ordinary 403 document); htmx + root typecheck; lint; format; full repo 560/560; architecture (65 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0. Tooling decisions: dual-lane + no-JS-in-one substitution for the planned `test:browser:dual/no-js -- errors`.
+Evidence: `evidence/gh-065/verification-transcript.md`; `output/playwright/*/errors.json`.
+Contract/API changes: new exports in @bundar/htmx — `errorViewResponse`, `errorSwapMode`, `validationErrorView`, `renderValidationErrorFragment`, `ErrorPresentationError` + policy/view/mode types. No existing API changed.
+Security/performance impact: 401/403 take the document path unless the app explicitly opts in via renderAuthFragment (protected fragments cannot leak to enhanced requests — browser-proven); retarget hints come only from server policy (client HX-Target is never authorization); error responses are private/no-store with the negotiation Vary; messages escaped; correlation ids stay out of bodies; the v4 no-swap default is compensated with an explicit reswap so error fragments render.
+Remaining risks: renderAuthFragment opt-in apps own their fragment exposure (documented); v4 swap compensation pending GA revalidation; branded designs out of scope.
+Documentation updated: htmx README, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: contributes to GH-068 (awaits GH-060/063/064/066).

@@ -347,6 +347,46 @@ try {
     );
   }
 
+  // GH-065: error negotiation — a 422 updates the region for enhanced
+  // requests; 403 NEVER serves protected fragment content (document path);
+  // ordinary browsers get a usable full-page error.
+  await run("errors-eval", [
+    "eval",
+    "async () => { const validationEnhanced = await fetch('/error-validation', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'HX-Request': 'true', 'HX-Target': '#hostile-client-target' }, body: 'name=' }); const validationEnhancedBody = await validationEnhanced.text(); const validationOrdinary = await fetch('/error-validation', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=' }); const validationOrdinaryBody = await validationOrdinary.text(); const forbiddenEnhanced = await fetch('/error-forbidden', { headers: { 'HX-Request': 'true' } }); const forbiddenEnhancedBody = await forbiddenEnhanced.text(); const forbiddenOrdinary = await fetch('/error-forbidden'); const forbiddenOrdinaryBody = await forbiddenOrdinary.text(); return JSON.stringify({ validationEnhancedStatus: validationEnhanced.status, validationEnhancedBody, validationRetarget: validationEnhanced.headers.get('hx-retarget'), validationOrdinaryStatus: validationOrdinary.status, validationOrdinaryIsDocument: validationOrdinaryBody.startsWith('<!doctype html>'), forbiddenEnhancedStatus: forbiddenEnhanced.status, forbiddenEnhancedBody, forbiddenEnhancedIsDocument: forbiddenEnhancedBody.startsWith('<!doctype html>'), forbiddenOrdinaryStatus: forbiddenOrdinary.status, forbiddenOrdinaryIsDocument: forbiddenOrdinaryBody.startsWith('<!doctype html>') }); }",
+    "--filename",
+    "errors.json",
+  ]);
+  const errorsText = await readFile(
+    join(artifactDirectory, "errors.json"),
+    "utf8",
+  );
+  const errorsState = JSON.parse(JSON.parse(errorsText) as string) as {
+    validationEnhancedStatus: number;
+    validationEnhancedBody: string;
+    validationRetarget: string | null;
+    validationOrdinaryStatus: number;
+    validationOrdinaryIsDocument: boolean;
+    forbiddenEnhancedStatus: number;
+    forbiddenEnhancedBody: string;
+    forbiddenEnhancedIsDocument: boolean;
+    forbiddenOrdinaryStatus: number;
+    forbiddenOrdinaryIsDocument: boolean;
+  };
+  if (
+    errorsState.validationEnhancedStatus !== 422 ||
+    !errorsState.validationEnhancedBody.includes("Name is required") ||
+    errorsState.validationRetarget !== "#error-target" ||
+    errorsState.validationOrdinaryStatus !== 422 ||
+    !errorsState.validationOrdinaryIsDocument ||
+    errorsState.forbiddenEnhancedStatus !== 403 ||
+    !errorsState.forbiddenEnhancedIsDocument ||
+    errorsState.forbiddenEnhancedBody.includes("secret-fragment") ||
+    errorsState.forbiddenOrdinaryStatus !== 403 ||
+    !errorsState.forbiddenOrdinaryIsDocument
+  ) {
+    throw new Error(`error negotiation failed in ${lane}: ${errorsText}`);
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -426,6 +466,7 @@ try {
       "session-lifecycle",
       "history-restore",
       "action-fallback",
+      "error-negotiation",
     ],
     csrf: {
       issue: "GH-061",
@@ -483,6 +524,7 @@ try {
       "session.json",
       "history-restore.json",
       "action-fallback.json",
+      "errors.json",
     ],
   };
   await writeFile(

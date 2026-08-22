@@ -63,3 +63,19 @@ fragments escape as text; use a JSX tree or the explicit `raw()` boundary
 for markup. Business/transaction logic stays in the handler — the composer
 owns only the response.
 
+## Error negotiation (GH-065)
+
+`errorViewResponse(request, view, policy)` renders error states per
+request: ordinary navigations get the full error document (through jsx's
+`page()`, doctype enforced); enhanced requests get the local fragment
+(form region / modal region / empty body) with server-known retarget hints
+only — client `HX-Target` is display context, never authorization. 401/403
+failures render the document path unless the app EXPLICITLY opts in via
+`renderAuthFragment`, so protected fragment content cannot leak to
+enhanced requests. The htmx 2 vs 4 error-swap difference is pinned adapter
+data (`errorSwapMode`): under v4's no-swap default the composer adds an
+explicit reswap so fragments actually reach their region. All error
+responses are `private, no-store` with the negotiation Vary; messages
+render escaped. `validationErrorView(fieldErrors)` + the standard
+`renderValidationErrorFragment` wire GH-059 models straight in.
+

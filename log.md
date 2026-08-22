@@ -509,3 +509,11 @@ GH-049 is complete.
 - Verification: actions 15/15, both lanes green, full repo 546/546, typechecks, lint, architecture (64 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-050/verification-transcript.md`.
 
 GH-050 is complete; GH-051, GH-052, GH-053, GH-054, and GH-060 are unblocked.
+
+## 2026-08-22 — GH-065: page-versus-fragment error negotiation
+
+- Added error-view negotiation to @bundar/htmx: presentation is separated from classification — full error documents for ordinary navigation (via jsx page(), doctype enforced), local fragments/modal regions/empty bodies for enhanced requests, retarget hints from the server policy only (client HX-Target is never authorization), and 401/403 on the document path unless the app explicitly opts in via renderAuthFragment. The htmx 2 vs 4 error-swap difference is pinned adapter data; under v4's no-swap default the composer adds an explicit reswap. validationErrorView() + renderValidationErrorFragment() wire GH-059 models into the standard summary region. All error responses: private/no-store, negotiation Vary, escaped.
+- Browser-proven in both lanes: enhanced 422 serves the field-error fragment retargeted to the server-known region (hostile client target ignored); ordinary 422 and both 403 flows receive full-page documents — the deliberately-secret fragment never leaks.
+- Verification: error-negotiation 14/14, both lanes green, full repo 560/560, typechecks, lint, architecture (65 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-065/verification-transcript.md`.
+
+GH-065 is complete; GH-068 awaits GH-060/063/064/066.

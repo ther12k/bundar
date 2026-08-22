@@ -103,3 +103,17 @@ export type {
   ActionRedirectStatus,
   ActionResult,
 } from "./action";
+export {
+  errorSwapMode,
+  errorViewResponse,
+  ErrorPresentationError,
+  renderValidationErrorFragment,
+  validationErrorView,
+} from "./error-view";
+export type {
+  ErrorPresentationMode,
+  ErrorPresentationPolicy,
+  ErrorSwapMode,
+  ErrorViewOptions,
+  PublicErrorView,
+} from "./error-view";
