@@ -6,10 +6,13 @@
  * native `Bun.serve` route tables. GH-016 guards the static fast path.
  * GH-017 adds the per-request context. GH-018 adds startup-composed
  * middleware. GH-019 adds params/query/cookie adapters. GH-057 adds bounded
- * body parsing. Error handling lands with GH-020–GH-022.
+ * body parsing. GH-020 adds HttpError and the global error boundary.
+ * Terminal behaviors land with GH-022.
  */
 export * from "./app";
 export * from "./context";
+export * from "./error-boundary";
+export * from "./errors";
 export * from "./manifest";
 export * from "./middleware";
 export * from "./module";

@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Expected 4xx errors produce deterministic public envelopes or HTML-neutral responses.
-- [ ] Unexpected errors produce 500 without stack traces in production.
-- [ ] Abort and client-disconnect errors are classified separately.
-- [ ] The boundary itself has a safe fallback if custom error rendering throws.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Expected 4xx errors produce deterministic public envelopes or HTML-neutral responses.
+- [x] Unexpected errors produce 500 without stack traces in production.
+- [x] Abort and client-disconnect errors are classified separately.
+- [x] The boundary itself has a safe fallback if custom error rendering throws.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

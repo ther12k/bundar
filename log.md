@@ -336,3 +336,11 @@ GH-057 is complete; GH-058, GH-061, GH-064, and GH-067 are unblocked.
 - Verification: cli routes suite 6/6, consumer 6/6, full repo 275/275, typecheck, lint, architecture (39 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-073/verification-transcript.md`.
 
 GH-073 is complete; GH-075 and GH-079 gain their manifest prerequisite.
+
+## 2026-08-21 — GH-020: HttpError and the global error boundary
+
+- Landed `packages/core/src/errors.ts` (11-code HttpError with canonical statuses, deterministic public envelopes, details/headers/cause, httpErrors constructors, ClientDisconnectError + abort classification) and `packages/core/src/error-boundary.ts` (one boundary: envelopes for expected failures, opaque 500s in production with message-only-in-development, 499 for client disconnects, thrown-Response preservation, structured logging hook, and a static safe fallback when custom renderers throw).
+- Live-server tests prove sync and async handler failures convert end-to-end with no internal leakage; NODE_ENV=production suite asserts no message/stack/path fragments.
+- Verification: errors suite 13/13 + production 4/4, full repo 292/292, typecheck, lint, architecture (41 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-020/verification-transcript.md`.
+
+GH-020 is complete; GH-022, GH-023, and GH-065 are unblocked.
