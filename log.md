@@ -600,3 +600,11 @@ GH-054 is complete; GH-055 is unblocked.
 - Verification: `htmx:source-diff` green, `test:dual-app` both lanes identical, full repo 635/635, typecheck, lint, architecture (74 files), build, docs — all exit 0. Evidence: `evidence/gh-055/verification-transcript.md`.
 
 GH-055 is complete; GH-056 is unblocked.
+
+## 2026-08-22 — GH-056: M3 zero-handler-change dialect-switch gate
+
+- Added the fail-closed `ci:m3` battery: 45 ordered steps, a strict superset of `ci:m2`, adding `htmx:source-diff` (dialect-conditional guard), `test:dual-app` (both-lane browser parity from the unchanged source), `conformance:report` for htmx2 and htmx4-beta6, and the cache/uploads/redirects security audits. Ran end-to-end: 45/45 exit 0.
+- Recorded the M3 gate in `delivery/gates/m3.md`: all 17 M3 issues complete with transcripts; the frozen migration contract for later reference apps; no GA claim for htmx 4. Published `docs/compatibility/matrix.md` (side-by-side htmx 2 vs 4 with provisional annotations).
+- Evidence: `evidence/gh-056/verification-transcript.md`.
+
+GH-056 is complete; **the M3 milestone is closed**. GH-071 and GH-079 (also awaiting M4's GH-069) are authorized.

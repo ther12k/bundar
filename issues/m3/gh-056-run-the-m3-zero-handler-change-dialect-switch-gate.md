@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Shared application source passes both stable-subset lanes.
-- [ ] No raw header parsing exists outside adapters.
-- [ ] No core/JSX dependency on htmx exists.
-- [ ] Documentation never labels beta support as GA.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Shared application source passes both stable-subset lanes.
+- [x] No raw header parsing exists outside adapters.
+- [x] No core/JSX dependency on htmx exists.
+- [x] Documentation never labels beta support as GA.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-056
+Commit / PR: merged `gh-056-m3-gate` into `main` (merge commit recorded in `log.md`).
+Files changed: `scripts/m3-gate.ts` (new) + `ci:m3` script, `examples/dual-dialect-fixture/package.json` (new), `delivery/gates/m3.md` (new) + delivery index, `docs/compatibility/matrix.md` (new), `evidence/gh-056/verification-transcript.md` (new).
+Commands executed: `bun run ci:m3` — all 45 ordered fail-closed steps exit 0 (strict superset of ci:m2: +htmx:source-diff, +test:dual-app, +conformance:report ×2, +security:cache/uploads/redirects); standalone `htmx:source-diff` and `architecture:check` — exit 0; docs validate (214 documents) + links (1,143 links) after the record — exit 0.
+Evidence: `evidence/gh-056/verification-transcript.md`; gate record `delivery/gates/m3.md`; compatibility matrix `docs/compatibility/matrix.md`; conformance artifacts for both dialects.
+Contract/API changes: none — recording gate only. The frozen migration contract (neutral-API-only application code, bootstrap-only dialect selection) is documented for later reference apps.
+Security/performance impact: raw header strings confined to @bundar/htmx (8-rule architecture check); core/JSX zero-dependency (pack:inspect); source-diff guard prevents dialect conditionals in application code; documentation explicitly marks beta as provisional with mandatory M7 GA revalidation; dual-browser parity proven from unchanged source.
+Remaining risks: htmx 4 beta error-swap difference (documented); GA revalidation mandatory (M7); raw(oobHtml) trust boundary documented.
+Documentation updated: gate record + index, compatibility matrix, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-071, GH-079 (both also await M4's GH-069). **The M3 milestone is closed.**
