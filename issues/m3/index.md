@@ -13,7 +13,7 @@
 - [GH-049 — Implement cache variation and history safety policy](gh-049-implement-cache-variation-and-history-safety-policy.md) — P0 / M; depends on GH-043, GH-044, GH-048 — **complete 2026-08-22** (closure record and evidence)
 - [GH-050 — Implement the progressive action response composer](gh-050-implement-the-progressive-action-response-composer.md) — P0 / L; depends on GH-033, GH-042, GH-048 — **complete 2026-08-22** (closure record and evidence)
 - [GH-051 — Implement version-neutral out-of-band and partial update intents](gh-051-implement-version-neutral-out-of-band-and-partial-update-intents.md) — P0 / L; depends on GH-035, GH-043, GH-044, GH-050 — **complete 2026-08-22** (closure record and evidence)
-- [GH-052 — Implement redirect, location, and history helpers](gh-052-implement-redirect-location-and-history-helpers.md) — P1 / M; depends on GH-042, GH-043, GH-044, GH-050
+- [GH-052 — Implement redirect, location, and history helpers](gh-052-implement-redirect-location-and-history-helpers.md) — P1 / M; depends on GH-042, GH-043, GH-044, GH-050 — **complete 2026-08-22** (closure record and evidence)
 - [GH-053 — Close the HTMX 2 browser conformance profile](gh-053-close-the-htmx-2-browser-conformance-profile.md) — P0 / L; depends on GH-008, GH-043, GH-045, GH-048, GH-050
 - [GH-054 — Close the HTMX 4 beta browser conformance profile](gh-054-close-the-htmx-4-beta-browser-conformance-profile.md) — P0 / L; depends on GH-008, GH-044, GH-045, GH-048, GH-050
 - [GH-055 — Build the unchanged-source dual-dialect reference fixture](gh-055-build-the-unchanged-source-dual-dialect-reference-fixture.md) — P0 / L; depends on GH-051, GH-052, GH-053, GH-054

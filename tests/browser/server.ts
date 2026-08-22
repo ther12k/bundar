@@ -5,6 +5,7 @@ import {
   actionResponse,
   createHtmxAssetHandler,
   errorViewResponse,
+  htmxRedirect,
   validationErrorView,
   renderValidationErrorFragment,
   runFormAction,
@@ -299,6 +300,9 @@ export async function handler(
     } satisfies FormActionDefinition<{ name: string }>).then(
       (outcome) => outcome.response,
     );
+  }
+  if (url.pathname === "/nav-redirect" && request.method === "POST") {
+    return htmxRedirect(request, "/page-fragment");
   }
   if (url.pathname === "/session-whoami" && request.method === "GET") {
     return composeMiddleware([withSession], (context) =>

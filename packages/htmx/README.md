@@ -129,3 +129,15 @@ and diagnose migration notes/compatibility (`diagnoseExtension`). The official
 `HTMX_2_COMPAT_EXTENSION` descriptor provides a migration reference for
 htmx 4 beta testing, while `rawExtension(name)` provides an audited escape hatch.
 
+## Navigation & redirect helpers (GH-052)
+
+`composeNavigation(request, url, options)`, `htmxRedirect(request, url, options)`,
+and `htmxLocation(request, config, options)` provide safe, adaptive navigation
+responses:
+- Normal requests receive standards-compliant `303 Location` redirects (configurable).
+- Enhanced HTMX requests receive `HX-Redirect` or `HX-Location` headers with `200 OK`.
+- `validateRedirectUrl(url, options)` enforces open-redirect defense: protocol-relative
+  URLs (`//evil.com`), JavaScript/data URI schemes, and unlisted external origins are
+  denied by default and fail closed with `InvalidRedirectUrlError`.
+- `htmxRefresh()` emits `HX-Refresh: true` for full client reload.
+
