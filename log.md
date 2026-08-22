@@ -710,3 +710,12 @@ GH-077 is complete; GH-080 and (with M7) GH-093 are unblocked.
 - Verified: 19/19 audit tests, full suite 807/807, typecheck, lint, format, architecture (89 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-078/verification-transcript.md`.
 
 GH-078 is complete; GH-080 is unblocked.
+
+## 2026-08-22 — GH-079: generated API reference and compatibility documentation
+
+- Added `docs:generate`: extracts every public package surface (runtime exports via live import, type exports via source scan) into docs/api/** (7 packages + navigation index, 383 exports each listed exactly once) and regenerates docs/compatibility/versions.md (exact Bun/TS/ESLint/htmx versions from versioned source + the adapter asset registry, with the freshness-owner contract). Experimental markers derive from the beta adapter's own maturity data — idempotent (second run changes nothing; committed state = generated state).
+- Added `docs:snippets`: six RUNNABLE documentation modules (lifecycle events, error-boundary opacity, cache policy, validated forms both worlds, CSRF fail-closed, streaming with backpressure) executed by tests/docs/snippets.test.ts — documentation examples cannot rot.
+- A snippet's first draft crashed on `cachePolicyFor("fragment")` — an API misuse (it takes a NegotiatedView) now documented correctly in the committed snippet; ergonomics observation recorded.
+- Verified: docs:generate idempotent, docs:snippets 7/7, docs:check/api:check/docs:validate/docs:links, full suite 814/814, typecheck, lint, format, architecture, pack:inspect, build — all exit 0. Evidence: `evidence/gh-079/verification-transcript.md`.
+
+GH-079 is complete; GH-080 is unblocked.

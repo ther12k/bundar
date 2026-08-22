@@ -12,7 +12,8 @@
       "@bundar/schema": ["./packages/schema/src/index.ts"],
       "@bundar/security": ["./packages/security/src/index.ts"],
       "@bundar/testing": ["./packages/testing/src/index.ts"],
-      "create-bundar": ["./create-bundar/src/index.ts"]
+      "create-bundar": ["./create-bundar/src/index.ts"],
+      "@bundar/cli": ["./packages/cli/src/index.ts"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "@bundar/jsx"
