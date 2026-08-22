@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every package tarball has a checksum and provenance link.
-- [ ] SBOM includes direct and transitive runtime/build dependencies.
-- [ ] Build does not require undocumented network resources beyond package install.
-- [ ] Reproducibility deviations are understood and documented.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every package tarball has a checksum and provenance link.
+- [x] SBOM includes direct and transitive runtime/build dependencies.
+- [x] Build does not require undocumented network resources beyond package install.
+- [x] Reproducibility deviations are understood and documented.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-085
+Commit / PR: merged `gh-085-sbom-provenance` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/release/{sbom,provenance,reproduce}.ts` (new) + `release:sbom`/`release:provenance`/`release:reproduce` scripts, `artifacts/sbom/sbom.json`, `artifacts/provenance/{provenance,reproducibility}.json`, `artifacts/packages/{checksums.txt,*.tgz}` (committed), `evidence/gh-085/verification-transcript.md`.
+Commands executed: `release:sbom` exit 0 (118 components); `release:provenance` exit 0 (8 subjects, commit-bound); `release:reproduce` exit 0 (8/8 reproducible); `sha256sum -c artifacts/packages/checksums.txt` 8/8 OK; full suite 827/827; typecheck; lint; format; docs — all exit 0.
+Evidence: `evidence/gh-085/verification-transcript.md`; `artifacts/sbom/sbom.json`; `artifacts/provenance/**`.
+Contract/API changes: none to packages (release tooling + artifacts).
+Security/performance impact: supply-chain verifiability — checksummed artifacts, commit/toolchain/lockfile-bound provenance, full dependency SBOM; documented gzip-mtime nondeterminism; no assurance level claimed beyond evidence.
+Remaining risks: unsigned attestations at current repo capability (signing wraps the existing statement shape); local-builder identity this run (CI fields auto-populate).
+Documentation updated: this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-086, GH-087.

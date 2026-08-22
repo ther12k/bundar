@@ -1,0 +1,99 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "bundar-core-0.0.0.tgz",
+      "digest": {
+        "sha256": "f3e6bd3b8b6a79685ebc5b5f6d6f86382cd4360a1946d34fdc9ccfcb320f2522"
+      }
+    },
+    {
+      "name": "bundar-jsx-0.0.0.tgz",
+      "digest": {
+        "sha256": "c74a72e94e54a84007d2f9aa6c6935a581516db17e8e4c55e179ed56482671a1"
+      }
+    },
+    {
+      "name": "bundar-schema-0.0.0.tgz",
+      "digest": {
+        "sha256": "ee06e8b193a627933cfe07e2c6de7e7f371459dace2be4dd5ea8ca419efb91dc"
+      }
+    },
+    {
+      "name": "bundar-security-0.0.0.tgz",
+      "digest": {
+        "sha256": "885466162c396e50d4903315ab99f60b6df242989dbb46b68d66a386219ea3f8"
+      }
+    },
+    {
+      "name": "bundar-htmx-0.0.0.tgz",
+      "digest": {
+        "sha256": "6d9c5bfec7623955c24c7304be5d2f482c8f69dfa2e963b55e05c5ea44cb4818"
+      }
+    },
+    {
+      "name": "bundar-testing-0.0.0.tgz",
+      "digest": {
+        "sha256": "fd121434e99aa8224dcd318f1e343e103453f691ad7da92af72121b59513f70b"
+      }
+    },
+    {
+      "name": "bundar-cli-0.0.0.tgz",
+      "digest": {
+        "sha256": "98f8a36ba2c2e7eed07bc746dd36cb1ac652493edbfb9c7d7d4ed220e51f033c"
+      }
+    },
+    {
+      "name": "create-bundar-0.0.0.tgz",
+      "digest": {
+        "sha256": "676f717f5aafc7fb8c884ca12ced71c6569dfb851ac0f3d48bda946695075098"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v0.2",
+  "predicate": {
+    "buildType": "bundar/pm-pack@v1",
+    "builder": {
+      "id": "local"
+    },
+    "invocation": {
+      "configSource": {
+        "uri": "git+https://github.com/ther12k/bundar",
+        "digest": {
+          "sha1": "96b4b576db8eeadb76c236e35ae58277ac2bab1b"
+        },
+        "branch": "gh-085-sbom-provenance"
+      },
+      "environment": {
+        "bun": "1.4.0",
+        "ci": {
+          "system": "local",
+          "operator": "Rizky Zulkarnaen"
+        }
+      }
+    },
+    "buildConfig": {
+      "command": "bun pm pack (per package)",
+      "lockfileSha256": "c10b445ac0ed8234382c5be4ab6525112119eb22b8755785a0a76db6d118cf7b",
+      "typescript": "6.0.3"
+    },
+    "metadata": {
+      "buildInvocationId": "local-1787413799722",
+      "buildStartedOn": "2026-08-22T15:49:59.722Z",
+      "reproducible": true,
+      "completeness": {
+        "parameters": true,
+        "environment": true,
+        "materials": true
+      }
+    },
+    "materials": [
+      {
+        "uri": "git+https://github.com/ther12k/bundar",
+        "digest": {
+          "sha1": "96b4b576db8eeadb76c236e35ae58277ac2bab1b"
+        }
+      }
+    ]
+  }
+}
