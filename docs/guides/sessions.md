@@ -1,0 +1,56 @@
+# Sessions guide
+
+Bundar sessions attach through a narrow, storage-agnostic interface with
+secure cookie defaults — and no built-in database coupling (GH-062).
+
+## The store contract
+
+```ts
+import { createMemorySessionStore, sessionMiddleware, getSession } from "@bundar/security";
+
+app.use(sessionMiddleware({ store: myStore }));
+```
+
+`SessionStore` is three methods — `load(id)`, `commit(record)`,
+`destroy(id)` — over opaque records. Attach Redis, PostgreSQL, or any durable
+backend behind them; Bundar never queries storage directly.
+
+> **Production requirement:** the bundled `createMemorySessionStore()` is for
+> tests and single-process demos ONLY — it loses everything on restart, does
+> not share across processes, and is explicitly unsuitable for production.
+> Production deployments MUST provide a durable session store and manage its
+> key material (rotation, access control, at-rest encryption) according to
+> the store's own security documentation. Session cookies carry only an
+> opaque 256-bit server-generated id; all state stays behind the store, so
+> store compromise — not cookie theft — is the boundary that matters.
+
+## Cookie policy (defaults)
+
+`HttpOnly; SameSite=Lax; Path=/; Secure` with an `Expires` aligned to the
+idle timeout and no `Domain` (host-only). `SameSite=Lax` is deliberate:
+`Strict` breaks top-level login redirects, and strict cross-site protection
+belongs to the CSRF middleware (GH-061), which binds its tokens to this
+session cookie. `Secure` can only be disabled explicitly for local
+development.
+
+## Lifecycle and security properties
+
+- **Isolation**: unknown, expired, or malformed cookie ids get a brand-new
+  empty session — authentication state can never leak across requests or be
+  resurrected after expiry.
+- **Rotation** (`session.rotate()`): issues a fresh id, preserves data, and
+  destroys the old record on commit. Call it on login and every privilege
+  change — this is the session-fixation policy. Rotation also invalidates
+  outstanding CSRF tokens bound to the previous session value (fail closed).
+- **Logout** (`session.destroy()`): invalidates the backing record AND clears
+  the browser cookie; a stale cookie can never load anything.
+- **Timeouts**: idle timeout (default 30 min) refreshes on activity, bounded
+  by an absolute ceiling (default 12 h) inherited from the record — activity
+  can never extend a session past its hard limit.
+
+## Why no signed/encrypted cookie payloads
+
+Reviewed and deemed unnecessary (GH-062): all session state lives behind the
+store, so the cookie has nothing to sign or encrypt — only an opaque id
+generated from `crypto.getRandomValues`. If a stateless id scheme is ever
+added, it requires a superseding review under the same acceptance criteria.

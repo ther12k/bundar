@@ -444,3 +444,11 @@ GH-059 is complete; GH-060 and GH-065 are unblocked.
 - Verification: security 22/22, jsx forms 9/9, security:csrf audit (all failure modes reject; tokens absent from envelopes), both browser lanes with real no-JS form navigation, header submission, and token-less 403 flows (hard-asserted in htmx2 and htmx4), full repo 459/459, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-061/verification-transcript.md`.
 
 GH-061 is complete; GH-064 and GH-068 are unblocked.
+
+## 2026-08-22 — GH-062: secure cookie and session interfaces
+
+- Added the session layer to @bundar/security: narrow SessionStore contract (load/commit/destroy, zero database coupling), 256-bit canonical session ids (malformed cookie values never become lookup keys), and sessionMiddleware with secure cookie defaults (HttpOnly, SameSite=Lax, Path=/, Secure-unless-explicitly-local, no Domain, expiry aligned to an idle timeout bounded by an absolute ceiling). Untouched sessions write no cookie.
+- Security properties machine-checked: store returns copies so mutation never leaks; unknown/expired/malformed ids get brand-new empty sessions; rotate() (fixation policy — call on login) issues a fresh id and destroys the old record; destroy() invalidates record + cookie. Memory store is tests/demos-only with fail-closed capacity; docs/guides/sessions.md states the production durable-store + key-management requirement and the reviewed decision to skip signed/encrypted cookie payloads (state lives behind the store).
+- Verification: 19 new session tests (41/41 security suite), security:cookies audit (cookie policy + lifecycle + docs requirement), both browser lanes run a real-cookie session lifecycle (login-rotate → whoami → logout → anonymous), full repo 478/478, typechecks, lint, architecture (59 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-062/verification-transcript.md`.
+
+GH-062 is complete; GH-063, GH-068, and GH-077 are unblocked.

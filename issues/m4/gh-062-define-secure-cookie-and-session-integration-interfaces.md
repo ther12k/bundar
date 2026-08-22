@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Authentication state cannot leak across requests.
-- [ ] Login/privilege change rotates identifiers in fixtures.
-- [ ] Logout invalidates both browser cookie and backing session.
-- [ ] Production documentation requires a durable store and key management.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Authentication state cannot leak across requests.
+- [x] Login/privilege change rotates identifiers in fixtures.
+- [x] Logout invalidates both browser cookie and backing session.
+- [x] Production documentation requires a durable store and key management.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-062
+Commit / PR: merged `gh-062-cookies-sessions` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/security/src/session/{id,store,middleware}.ts` (new), `packages/security/src/index.ts`, `packages/security/README.md`, `packages/security/test/session/{session,middleware}.test.ts` (new, 19 tests), `tools/security/cookies-audit.ts` (new), root `package.json` (`security:cookies`), `docs/guides/sessions.md` (new), browser fixture session routes + both-lane `session-lifecycle` scenario, `evidence/gh-062/verification-transcript.md` (new).
+Commands executed: security suite 41/41 (19 new); `security:cookies` audit; both browser lanes with the session scenario; root + package typecheck; lint; format; full suite 478/478; architecture (59 files / 8 rules); pack:inspect @bundar/security; build; docs validate/links; `security:csrf` regression — all exit 0. Tooling decision: dual-lane browser coverage substitutes for the planned `test:browser:session` runner (documented).
+Evidence: `evidence/gh-062/verification-transcript.md`; `output/playwright/{htmx2,htmx4}/session.json`.
+Contract/API changes: new exports in @bundar/security — `sessionMiddleware`, `getSession`, `SESSION`, `SessionError`, `generateSessionId`, `isCanonicalSessionId`, `createMemorySessionStore`, `SessionStore`/`SessionData`/`SessionHandle`/`SessionMiddlewareOptions` types. No existing API changed.
+Security/performance impact: cookies carry only an opaque 256-bit id with HttpOnly/SameSite=Lax/Path=/(/Secure)/expiry defaults and no Domain; unknown/expired/malformed ids never resurrect state (store copies + shape gate); rotation destroys old ids on commit (fixation policy; also invalidates session-bound CSRF tokens, fail closed); logout destroys record + cookie; memory store fails closed at capacity and is documented unsuitable for production; production docs require a durable store with managed keys (audit-enforced).
+Remaining risks: SameSite=Lax default (rationale documented; CSRF middleware owns strict protection); signed/encrypted cookie payloads reviewed and skipped (guide records the decision); single-process memory store by design; absolute ceiling resets long-lived tabs (documented, fail closed).
+Documentation updated: `docs/guides/sessions.md`, `packages/security/README.md`, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-063, GH-068, GH-077.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-22T03:37:10.713Z",
+  "generatedAt": "2026-08-22T04:53:42.709Z",
   "disclaimer": "Local browser conformance evidence only. htmx4 is beta/experimental and this report makes no htmx4 GA compatibility claim.",
   "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
   "lanes": [
@@ -14,14 +14,45 @@
         "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:39265",
+      "baseUrl": "http://127.0.0.1:34641",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
         "form-post",
         "history-push",
-        "incorrect-header-negative"
+        "incorrect-header-negative",
+        "page-fragment-negotiation",
+        "boosted-navigation",
+        "csrf-form-flow",
+        "csrf-header-flow",
+        "csrf-rejection",
+        "session-lifecycle"
       ],
+      "csrf": {
+        "issue": "GH-061",
+        "formFlow": "csrf-ok:Bundar",
+        "headerFlow": "csrf-ok:ViaHeader",
+        "rejection": 403
+      },
+      "negotiation": {
+        "issue": "GH-048",
+        "docIsDocument": true,
+        "fragIsFragment": true,
+        "boostedIsDocument": true,
+        "restoreIsDocument": true,
+        "fragmentVary": "HX-Request, HX-Boosted, HX-History-Restore-Request"
+      },
+      "boostedNavigation": {
+        "expected": "full document body swap, one html root, #items present",
+        "observed": {
+          "url": "/page-fragment",
+          "itemsHeading": "Items",
+          "htmlRoots": 1,
+          "bodyCount": 1
+        },
+        "classification": "stable-lane assertion",
+        "passed": true
+      },
       "lifecycleEvent": {
         "expected": "event: afterRequest",
         "observed": "event: afterRequest",
@@ -42,7 +73,13 @@
         "requests.stdout.txt",
         "response-headers.json",
         "console.stdout.txt",
-        "trace-stop.stdout.txt"
+        "trace-stop.stdout.txt",
+        "negotiation.json",
+        "boosted-state.json",
+        "csrf-result.txt",
+        "csrf-header.json",
+        "csrf-bad-result.txt",
+        "session.json"
       ]
     },
     {
@@ -55,14 +92,45 @@
         "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:44055",
+      "baseUrl": "http://127.0.0.1:37063",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
         "form-post",
         "history-push",
-        "incorrect-header-negative"
+        "incorrect-header-negative",
+        "page-fragment-negotiation",
+        "boosted-navigation",
+        "csrf-form-flow",
+        "csrf-header-flow",
+        "csrf-rejection",
+        "session-lifecycle"
       ],
+      "csrf": {
+        "issue": "GH-061",
+        "formFlow": "csrf-ok:Bundar",
+        "headerFlow": "csrf-ok:ViaHeader",
+        "rejection": 403
+      },
+      "negotiation": {
+        "issue": "GH-048",
+        "docIsDocument": true,
+        "fragIsFragment": true,
+        "boostedIsDocument": true,
+        "restoreIsDocument": true,
+        "fragmentVary": "HX-Request, HX-Boosted, HX-History-Restore-Request"
+      },
+      "boostedNavigation": {
+        "expected": "full document body swap, one html root, #items present",
+        "observed": {
+          "url": "/page-fragment",
+          "itemsHeading": "Items",
+          "htmlRoots": 1,
+          "bodyCount": 1
+        },
+        "classification": "experimental-lane observation",
+        "passed": true
+      },
       "lifecycleEvent": {
         "expected": "event: afterRequest",
         "observed": "event: none",
@@ -83,7 +151,13 @@
         "requests.stdout.txt",
         "response-headers.json",
         "console.stdout.txt",
-        "trace-stop.stdout.txt"
+        "trace-stop.stdout.txt",
+        "negotiation.json",
+        "boosted-state.json",
+        "csrf-result.txt",
+        "csrf-header.json",
+        "csrf-bad-result.txt",
+        "session.json"
       ]
     }
   ]

@@ -11,8 +11,11 @@ import {
 } from "@bundar/core";
 import {
   createCsrfSecret,
+  createMemorySessionStore,
   csrfMiddleware,
+  getSession,
   issueCsrfToken,
+  sessionMiddleware,
 } from "@bundar/security";
 
 const repositoryRoot = join(import.meta.dir, "..", "..");
@@ -24,6 +27,14 @@ const versions: Record<BrowserLane, string> = {
   htmx2: "2.0.10",
   htmx4: "4.0.0-beta6",
 };
+
+// GH-062 browser session fixture: one in-memory store per server run
+// (explicitly unsuitable for production — tests only).
+const sessionStore = createMemorySessionStore();
+const withSession = sessionMiddleware({
+  store: sessionStore,
+  secure: false, // fixture serves plain http on 127.0.0.1
+});
 
 // GH-061 browser CSRF fixture: one secret per server run; the fixture has
 // no session cookie, so tokens bind to the anonymous binding ("").
@@ -155,6 +166,26 @@ export async function handler(
   }
   if (url.pathname === "/csrf-protected" && request.method === "POST") {
     return csrfProtected(createContext(request, {}));
+  }
+  if (url.pathname === "/session-whoami" && request.method === "GET") {
+    return composeMiddleware([withSession], (context) =>
+      text(String(getSession(context)?.get("user") ?? "anonymous")),
+    )(createContext(request, {}));
+  }
+  if (url.pathname === "/session-login" && request.method === "POST") {
+    return composeMiddleware([withSession], async (context) => {
+      const form = await parseForm(context);
+      const session = getSession(context)!;
+      session.set("user", form.get("user") ?? "anonymous");
+      session.rotate();
+      return text(`logged-in:${String(session.get("user"))}`);
+    })(createContext(request, {}));
+  }
+  if (url.pathname === "/session-logout" && request.method === "POST") {
+    return composeMiddleware([withSession], (context) => {
+      getSession(context)!.destroy();
+      return text("logged-out");
+    })(createContext(request, {}));
   }
   if (url.pathname === "/favicon.ico") {
     return new Response(null, { status: 204 });

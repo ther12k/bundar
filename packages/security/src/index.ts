@@ -26,3 +26,16 @@ export type {
   OriginVerdict,
   TokenStore,
 } from "./csrf";
+export { generateSessionId, isCanonicalSessionId } from "./session/id";
+export { createMemorySessionStore } from "./session/store";
+export type { SessionData, SessionStore } from "./session/store";
+export {
+  getSession,
+  SESSION,
+  SessionError,
+  sessionMiddleware,
+} from "./session/middleware";
+export type {
+  SessionHandle,
+  SessionMiddlewareOptions,
+} from "./session/middleware";

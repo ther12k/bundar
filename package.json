@@ -53,7 +53,8 @@
     "api:check": "bun tools/api-check.ts",
     "ci:m1": "bun scripts/m1-gate.ts",
     "security:validation-redaction": "bun tools/security/validation-redaction.ts",
-    "security:csrf": "bun tools/security/csrf-audit.ts"
+    "security:csrf": "bun tools/security/csrf-audit.ts",
+    "security:cookies": "bun tools/security/cookies-audit.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -255,6 +255,36 @@ try {
     );
   }
 
+  // GH-062: session lifecycle through real browser cookies (same-origin
+  // fetch sends them automatically): login rotates, whoami reads the store,
+  // logout invalidates both the cookie and the backing record. Cookie
+  // attribute policy is proven by security:cookies + unit tests — the Fetch
+  // API hides Set-Cookie from page scripts, so this check stays behavioral.
+  await run("session-eval", [
+    "eval",
+    "async () => { const anonymous = await (await fetch('/session-whoami')).text(); const login = await fetch('/session-login', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'user=bundar' }); const loginText = await login.text(); const whoami = await (await fetch('/session-whoami')).text(); const logout = await fetch('/session-logout', { method: 'POST' }); await logout.text(); const after = await (await fetch('/session-whoami')).text(); return JSON.stringify({ anonymous, loginText, whoami, after }); }",
+    "--filename",
+    "session.json",
+  ]);
+  const sessionText = await readFile(
+    join(artifactDirectory, "session.json"),
+    "utf8",
+  );
+  const sessionState = JSON.parse(JSON.parse(sessionText) as string) as {
+    anonymous: string;
+    loginText: string;
+    whoami: string;
+    after: string;
+  };
+  if (
+    sessionState.anonymous !== "anonymous" ||
+    sessionState.loginText !== "logged-in:bundar" ||
+    sessionState.whoami !== "bundar" ||
+    sessionState.after !== "anonymous"
+  ) {
+    throw new Error(`session lifecycle failed in ${lane}: ${sessionText}`);
+  }
+
   await run("csrf-bad-open", ["open", `${baseUrl}/csrf-form-bad`]);
   await run("csrf-bad-submit", ["click", "#csrf-form button[type=submit]"]);
   await run("csrf-bad-wait", [
@@ -301,6 +331,7 @@ try {
       "csrf-form-flow",
       "csrf-header-flow",
       "csrf-rejection",
+      "session-lifecycle",
     ],
     csrf: {
       issue: "GH-061",
@@ -355,6 +386,7 @@ try {
       "csrf-result.txt",
       "csrf-header.json",
       "csrf-bad-result.txt",
+      "session.json",
     ],
   };
   await writeFile(
