@@ -575,3 +575,11 @@ GH-047 is complete; GH-078 is unblocked.
 - Verified in unit tests (11/11), `security:redirects` audit script, browser lanes in `htmx2` and `htmx4`, full repository tests (635/635), architecture (74 files), pack:inspect, build, and docs. Evidence: `evidence/gh-052/verification-transcript.md`.
 
 GH-052 is complete.
+
+## 2026-08-22 — GH-053: close the HTMX 2 browser conformance profile
+
+- Closed stable-lane browser conformance profile under htmx 2.0.10 across 19 browser scenarios (request normalization, response directives, page/fragment negotiation, boosted navigation, action fallback, error negotiation, CSRF, sessions, OOB updates, history restore, adaptive navigation, and offline asset serving).
+- Published machine-readable conformance report to `artifacts/conformance/htmx2.json` via `conformance:report`.
+- Published `docs/compatibility/htmx2.md` compatibility guide detailing verified capabilities and explicitly unsupported upstream features (`hx-vals js:`). Evidence: `evidence/gh-053/verification-transcript.md`.
+
+GH-053 is complete.

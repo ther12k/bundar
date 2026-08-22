@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every mandatory htmx 2 profile capability has a passing scenario.
-- [ ] No test uses CDN-latest assets.
-- [ ] No-JS fallback scenarios pass independently.
-- [ ] The exact browser and htmx versions are recorded.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every mandatory htmx 2 profile capability has a passing scenario.
+- [x] No test uses CDN-latest assets.
+- [x] No-JS fallback scenarios pass independently.
+- [x] The exact browser and htmx versions are recorded.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-053
+Commit / PR: merged `gh-053-htmx2-conformance` into `main` (merge commit recorded in `log.md`).
+Files changed: `tests/browser/conformance-report.ts` (new) + `conformance:report` script, `artifacts/conformance/htmx2.json` (new), `docs/compatibility/htmx2.md` (new), `evidence/gh-053/verification-transcript.md` (new).
+Commands executed: `bun run test:browser:htmx2` (19 scenarios verified); `bun run conformance:report -- htmx2`; htmx + root typecheck; lint; format; full repo 635/635; architecture (74 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-053/verification-transcript.md`; `artifacts/conformance/htmx2.json`; `docs/compatibility/htmx2.md`.
+Contract/API changes: none.
+Security/performance impact: htmx 2.0.10 stable profile is verified across 19 browser scenarios including CSRF, session, error negotiation, OOB, history restore, adaptive navigation, and offline asset serving with SHA-256 integrity.
+Remaining risks: none.
+Documentation updated: `docs/compatibility/htmx2.md`, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: contributes to GH-055 (awaits GH-054).

@@ -63,7 +63,8 @@
     "ci:m2": "bun scripts/m2-gate.ts",
     "security:cache": "bun tools/security/cache-audit.ts",
     "security:uploads": "bun tools/security/uploads-audit.ts",
-    "security:redirects": "bun tools/security/redirects-audit.ts"
+    "security:redirects": "bun tools/security/redirects-audit.ts",
+    "conformance:report": "bun tests/browser/conformance-report.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
