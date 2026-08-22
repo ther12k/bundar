@@ -763,3 +763,13 @@ GH-083 is complete; GH-087 is unblocked.
 - Verified: audit + all modes exit 0, full suite 827/827, typecheck, lint, format, build, docs — all exit 0. Evidence: `evidence/gh-084/verification-transcript.md`.
 
 GH-084 is complete; GH-085 and GH-087 are unblocked.
+
+## 2026-08-22 — GH-085: SBOM, provenance, checksums, reproducible builds
+
+- Added `release:sbom`: CycloneDX 1.5 SBOM (artifacts/sbom/sbom.json) — 8 release packages (SHA-256 + licenses from the audited BOM) + all 110 lock-resolved externals with a dependency graph and the lockfile digest; bun.lock's JSONC normalized before parsing.
+- Added `release:provenance`: an in-toto/SLSA-shaped statement binding all 8 tarballs (fresh SHA-256s) to source commit, branch, Bun/TS versions, lockfile digest, build command, and builder identity (GitHub Actions fields in CI; local recorded here). Tarballs + sha256sum-compatible checksums.txt archived under artifacts/packages/.
+- Added `release:reproduce`: clean-rebuild comparison — every package packed twice, unpacked trees compared file-by-file: 8/8 reproducible. Documented nondeterminism: tarball gzip bytes embed mtimes (content trees are and must be identical).
+- Unsigned attestations at current repo capability — no supply-chain assurance level claimed; the statement shape wraps a future signing workflow.
+- Verified: all three scripts + `sha256sum -c` 8/8 OK, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-085/verification-transcript.md`.
+
+GH-085 is complete; GH-086 and GH-087 are unblocked.
