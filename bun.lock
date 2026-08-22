@@ -38,6 +38,10 @@
       "name": "@bundar/example-todo",
       "version": "0.0.0",
     },
+    "examples/workflow-gate": {
+      "name": "@bundar/example-workflow-gate",
+      "version": "0.0.0",
+    },
     "packages/cli": {
       "name": "@bundar/cli",
       "version": "0.0.0",
@@ -96,6 +100,8 @@
     "@bundar/example-minimal": ["@bundar/example-minimal@workspace:examples/minimal"],
 
     "@bundar/example-todo": ["@bundar/example-todo@workspace:examples/todo"],
+
+    "@bundar/example-workflow-gate": ["@bundar/example-workflow-gate@workspace:examples/workflow-gate"],
 
     "@bundar/htmx": ["@bundar/htmx@workspace:packages/htmx"],
 
