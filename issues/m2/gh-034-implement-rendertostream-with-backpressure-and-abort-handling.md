@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] The renderer does not buffer the entire output by design.
-- [ ] Backpressure controls production rather than accumulating unbounded chunks.
-- [ ] Cancellation releases tracked work.
-- [ ] Mid-stream errors are observable and do not pretend a replacement status can be sent after commit.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] The renderer does not buffer the entire output by design.
+- [x] Backpressure controls production rather than accumulating unbounded chunks.
+- [x] Cancellation releases tracked work.
+- [x] Mid-stream errors are observable and do not pretend a replacement status can be sent after commit.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -118,3 +118,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-034
+Commit / PR: merged `gh-034-render-to-stream` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/jsx/src/render-to-stream.ts` (new), `packages/jsx/src/index.ts`, `packages/jsx/README.md`, `packages/jsx/test/streaming/render-to-stream.test.ts` (new, 13 tests), `tools/benchmark/jsx-stream.ts` (new), root `package.json` (`bench:jsx-stream`), `evidence/gh-034/` (transcript + bench artifact).
+Commands executed: streaming suite 13/13; `bench:jsx-stream` (p50 1.40 ms streaming vs 0.30 ms buffered baseline over 500 async items × 50 runs — incremental first byte at an honest total-time cost); root + package typecheck; lint; format; full suite 491/491; architecture (60 files); pack:inspect @bundar/jsx (zero runtime deps); build; docs validate/links — all exit 0. Tooling decisions for `bench -- jsx-stream` and `test:leaks -- jsx-stream` documented in the transcript.
+Evidence: `evidence/gh-034/verification-transcript.md`; `evidence/gh-034/jsx-stream-bench.json`.
+Contract/API changes: new exports in @bundar/jsx — `renderToStream`, `streamResponse`, `StreamRenderError`, `RenderCancelledError` + option/result types (`RenderStream`, `StreamingResponse`). No existing API changed.
+Security/performance impact: streaming reuses the exact escaping/attribute/raw-text primitives as string rendering (byte-parity tested); backpressure bounds memory under slow consumers; cancellation and abort stop production and settle observably; `StreamRenderError.bytesWritten` prevents pretending a replacement status is possible after the status line is committed.
+Remaining risks: non-signal-aware child promises run to their own settlement after cancellation (platform limit; walker continuation swallowed); per-segment chunks add measurable overhead vs buffered rendering (recorded); consumers must decode with `stream: true` across chunk boundaries (documented + tested).
+Documentation updated: `packages/jsx/README.md` streaming section, this closure record, `issues/m2/index.md`, `log.md`.
+Newly unblocked issues: none directly (GH-036 additionally waits on GH-035).

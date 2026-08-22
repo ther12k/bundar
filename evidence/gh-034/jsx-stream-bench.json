@@ -1,0 +1,17 @@
+{
+  "issue": "GH-034",
+  "scenario": "jsx-stream-500-async-items",
+  "bunVersion": "1.4.0",
+  "os": "linux x64",
+  "iterations": 50,
+  "items": 500,
+  "streaming": {
+    "p50Ms": 1.2872509999999977,
+    "meanMs": 1.4085013399999997
+  },
+  "stringBaseline": {
+    "p50Ms": 0.28740999999999417,
+    "meanMs": 0.3905537799999999
+  },
+  "note": "Streaming consumes incrementally (first byte before the last child resolves); renderToStringAsync buffers the full document. Backpressure (ByteLengthQueuingStrategy high-water mark) and cancellation behavior are asserted by the GH-034 test suite, not timed here."
+}
