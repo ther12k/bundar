@@ -452,3 +452,11 @@ GH-061 is complete; GH-064 and GH-068 are unblocked.
 - Verification: 19 new session tests (41/41 security suite), security:cookies audit (cookie policy + lifecycle + docs requirement), both browser lanes run a real-cookie session lifecycle (login-rotate → whoami → logout → anonymous), full repo 478/478, typechecks, lint, architecture (59 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-062/verification-transcript.md`.
 
 GH-062 is complete; GH-063, GH-068, and GH-077 are unblocked.
+
+## 2026-08-22 — GH-034: renderToStream with backpressure and abort
+
+- Implemented streaming JSX rendering in @bundar/jsx: an async-generator walker mirroring renderNode semantics segment-by-segment while awaiting promised children/direct children/array entries/async components in document order; renderToStream enqueues one segment per pull (awaited children are the flush points — nothing is held while they resolve) with a ByteLengthQueuingStrategy watermark for real backpressure.
+- Cancellation (reader cancel / AbortSignal) stops the walk, swallows abandoned settlements, and settles the finished promise observably (RenderCancelledError / abort); mid-stream failures wrap as StreamRenderError with bytesWritten — after the first flush the status line is committed and no replacement status is pretended. streamResponse() carries finished on the text/html Response.
+- Verification: 13 streaming tests (non-buffering gate proof, backpressure pause, cancel/abort release, mid-stream commit semantics, Unicode stream-decoding parity, byte-exact agreement with renderToStringAsync), full repo 491/491, bench artifact recorded (streaming p50 1.40 ms vs 0.30 ms buffered for 500 async items — honest overhead accounting), architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-034/verification-transcript.md`.
+
+GH-034 is complete; GH-036 still waits on GH-035.
