@@ -484,3 +484,11 @@ GH-036 is complete; GH-037 and GH-038 are unblocked (all M2 implementation issue
 - Baseline recorded (steady p50): fragment 1.1µs, document 5.5µs, 1000-item list 1.08ms, streaming async list 3.51ms (~3× documented overhead); budgets reviewed in delivery/gates/m2-performance.md (steady ≤ 1.5× at GH-083; parity/escaping absolute). Full repo 516/516. Evidence: `evidence/gh-037/verification-transcript.md`.
 
 GH-037 is complete; GH-038 is unblocked.
+
+## 2026-08-22 — GH-038: M2 server-JSX gate
+
+- Added the fail-closed `ci:m2` battery: 37 ordered steps, a strict superset of `ci:m1`, adding the schema type consumer, all five security audits (raw-HTML, validation redaction, JSX corpus, CSRF, cookies), the browser DOM comparison lane, and read-only verification of the committed M2 performance artifact (review-gated, never silently regenerated in CI). Ran end-to-end: 37/37 exit 0.
+- Recorded the M2 gate in `delivery/gates/m2.md`: all 13 M2 issues complete with transcripts; reviewed raw-HTML call-site policy (branded `raw()` only, enumerable via audit) and streaming limitations (~3× overhead documented; no replacement status after the first flush; cancellation platform limit); the approved public surface; authorization of GH-071/GH-079. Dependency direction machine-enforced (core/jsx zero-dep; 8 rules). No React/hydration anywhere.
+- Evidence: `evidence/gh-038/verification-transcript.md`.
+
+GH-038 is complete; **the M2 milestone is closed**. GH-071 and GH-079 are unblocked.

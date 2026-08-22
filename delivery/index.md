@@ -8,6 +8,7 @@
 - [M0 Contract-Freeze Gate](gates/m0.md) — Evidence-backed contract authorization and accepted residual risks for M1–M3 foundations.
 - [M1 Performance and Resource Gate](gates/m1-performance.md) — Measured M1 HTTP-core overhead against raw Bun and pinned Hono baselines with reviewed tolerances, trade-offs, and tracked optimization follow-ups.
 - [M1 HTTP-Core Gate](gates/m1.md) — Maintainer acceptance of the Bun-native HTTP core foundation, reviewed M0 deviations, and authorization of M2/M3 dependent work.
+- [M2 Server-JSX Gate](gates/m2.md) — Maintainer acceptance of the server-only JSX renderer as the stable rendering foundation, with reviewed raw-HTML policy, streaming limitations, and the approved public surface.
 - [M2 JSX Performance and Memory Gate](gates/m2-performance.md) — Renderer-level measurements across seven JSX scenarios with parity pre-checks, enforced escaping, cold/steady separation, memory proxies, and reviewed regression budgets.
 - [Release and Rollback Plan](release-plan.md) — Pre-release sequence, artifacts, publication checks, rollback, advisories, and compatibility communication.
 - [Bundar Risk Register](risk-register.md) — Product, technical, compatibility, security, performance, naming, ecosystem, and delivery risks with mitigations.

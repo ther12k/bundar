@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No React/hydration dependency or browser lifecycle exists.
-- [ ] Escaping/security suites pass.
-- [ ] Core/JSX dependency direction remains valid.
-- [ ] Performance evidence and known limitations are recorded.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No React/hydration dependency or browser lifecycle exists.
+- [x] Escaping/security suites pass.
+- [x] Core/JSX dependency direction remains valid.
+- [x] Performance evidence and known limitations are recorded.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-038
+Commit / PR: merged `gh-038-m2-gate` into `main` (merge commit recorded in `log.md`).
+Files changed: `scripts/m2-gate.ts` (new) + `ci:m2` script, `delivery/gates/m2.md` (new) + delivery index, `evidence/gh-038/verification-transcript.md` (new), this closure record, `issues/m2/index.md`, `log.md`.
+Commands executed: `bun run ci:m2` — all 37 ordered fail-closed steps exit 0 (strict superset of ci:m1: schema consumer, five security audits, browser DOM lane, committed m2 artifact verification); standalone `architecture:check`, `pack:inspect @bundar/jsx`, `api:check` — exit 0; docs validate/links after the record — exit 0.
+Evidence: `evidence/gh-038/verification-transcript.md`; gate record `delivery/gates/m2.md`; performance half `delivery/gates/m2-performance.md`; `artifacts/bench/m2.json`; per-issue transcripts GH-026–GH-037.
+Contract/API changes: none — recording gate only; the approved M2 public surface is enumerated in the gate record (jsx streaming + typed htmx attributes + forms helpers; core unchanged since M1 except M4-era additions already merged and snapshot-checked).
+Security/performance impact: raw-HTML policy reviewed (branded raw() only, call sites enumerable via audit); renderer parity absolute across sync/async/streaming; performance baseline and budgets recorded with the documented ~3× streaming trade-off; dependency direction machine-enforced (8 rules).
+Remaining risks: single-machine baselines; streaming overhead and cancellation platform limit (documented); exotic tags loosely typed; open-string hx grammar validation deferred to M3 adapters.
+Documentation updated: gate record + index, this closure record, `issues/m2/index.md`, `log.md`.
+Newly unblocked issues: GH-071, GH-079. **The M2 milestone is closed.**
