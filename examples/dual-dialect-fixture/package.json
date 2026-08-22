@@ -1,0 +1,8 @@
+{
+  "name": "@bundar/example-dual-dialect-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Unchanged-source dual-dialect reference fixture proving zero handler code changes between htmx 2 and htmx 4 beta.",
+  "license": "MIT"
+}
