@@ -9,7 +9,7 @@
 - [GH-017 — Implement the request context contract](gh-017-implement-the-request-context-contract.md) — P0 / M; depends on GH-015 — **complete 2026-08-21** (closure record and evidence)
 - [GH-018 — Implement startup-composed sync and async middleware](gh-018-implement-startup-composed-sync-and-async-middleware.md) — P0 / L; depends on GH-017 — **complete 2026-08-21** (closure record and evidence)
 - [GH-019 — Implement params, query, and cookie access adapters](gh-019-implement-params-query-and-cookie-access-adapters.md) — P1 / M; depends on GH-017 — **complete 2026-08-21** (closure record and evidence)
-- [GH-020 — Implement HttpError and the global error boundary](gh-020-implement-httperror-and-the-global-error-boundary.md) — P0 / M; depends on GH-017, GH-018
+- [GH-020 — Implement HttpError and the global error boundary](gh-020-implement-httperror-and-the-global-error-boundary.md) — P0 / M; depends on GH-017, GH-018 — **complete 2026-08-21** (closure record and evidence)
 - [GH-021 — Implement explicit response helpers](gh-021-implement-explicit-response-helpers.md) — P1 / M; depends on GH-017
 - [GH-022 — Implement not-found, method, and lifecycle terminal behavior](gh-022-implement-not-found-method-and-lifecycle-terminal-behavior.md) — P1 / M; depends on GH-015, GH-020, GH-021
 - [GH-023 — Close the HTTP core integration and contract test matrix](gh-023-close-the-http-core-integration-and-contract-test-matrix.md) — P0 / L; depends on GH-016, GH-018, GH-019, GH-020, GH-021, GH-022
