@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-08-22T15:41:46.505Z",
+  "commit": "de1accb7c6d7a1420b03536665ab693d28214b20",
+  "runtime": {
+    "bun": "1.4.0",
+    "platform": "linux",
+    "arch": "x64",
+    "kernel": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "cores": 12,
+    "totalMemMb": 15692
+  },
+  "packages": {
+    "typescript": "6.0.3",
+    "honoParityFixture": "4.13.3"
+  },
+  "dialectPins": {
+    "htmx2": {
+      "version": "2.0.10",
+      "integrity": "sha256-71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
+    },
+    "htmx4": {
+      "version": "4.0.0-beta6",
+      "integrity": "sha256-28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25",
+      "maturity": "experimental"
+    }
+  },
+  "notes": [
+    "All numbers are measurements on THIS environment (see docs/performance/alpha.md).",
+    "Parity checks run as part of the suite; unsafe shortcuts fail the run."
+  ]
+}

@@ -746,3 +746,12 @@ GH-081 is complete; **the M5 milestone is closed**. M6 begins with GH-082 and GH
 - Verified: matrix 19/19, source-diff, full suite 827/827, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-082/verification-transcript.md`.
 
 GH-082 is complete; GH-083 and GH-087 are unblocked.
+
+## 2026-08-22 — GH-083: final alpha performance and regression budgets
+
+- Built `bench:release`: the full suite (27 measurements, 9 parity checks) into artifacts/bench/alpha.json behind a PACKED-CANDIDATE guard (pack-consumers 8/8), with artifacts/bench/environment.json binding every number to Bun/hardware/pins/commit. Headlines on this environment: startup 5.3→16.1ms, RSS 15.7→29.1MB; Bundar tracks raw Bun within low-single-digit µs on routing paths (static 1.2µs, parameterized 1.7µs) and prices the full progressive pipeline at 8.4µs (validated form).
+- Built `bench:regression`: fail-closed ratio budgets — same-run Bundar÷raw-Bun ratios pooled over three runs cancel machine load (absolute budgets falsely breached the UNCHANGING raw-Bun/Hono fixtures under load); parity is re-verified from archived snapshots before any budget logic; missing budgets fail; only Bundar-owned ratios are gated (Hono is context, not our regression surface). Stable across three independent probes.
+- Published docs/performance/alpha.md: environment-bound results with explicit no-leadership-claims framing.
+- Verified: bench chain green ×3 probes, full suite 827/827, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-083/verification-transcript.md`.
+
+GH-083 is complete; GH-087 is unblocked.

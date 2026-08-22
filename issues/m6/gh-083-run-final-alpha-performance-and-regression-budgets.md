@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] All compared scenarios pass behavior parity.
-- [ ] Raw data and environment manifest are archived.
-- [ ] Thresholds account for noise and do not reward unsafe disabled checks.
-- [ ] Release notes describe results as measured on a specific environment, not universal claims.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] All compared scenarios pass behavior parity.
+- [x] Raw data and environment manifest are archived.
+- [x] Thresholds account for noise and do not reward unsafe disabled checks.
+- [x] Release notes describe results as measured on a specific environment, not universal claims.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-083
+Commit / PR: merged `gh-083-perf-budgets` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/benchmark/{release,regression}.ts` (new) + `bench:release`/`bench:regression` scripts, `artifacts/bench/{alpha.json,environment.json,alpha-budgets.json}` (committed), `docs/performance/alpha.md` (new), `evidence/gh-083/verification-transcript.md`.
+Commands executed: `bench:release` exit 0 (packed-candidate guard + 27 measurements + 9 parity); `bench:parity` 9/9; `bench:regression --generate` (13 budgets from 3 pooled runs); `bench:regression` exit 0 — stable across three independent probes; full suite 827/827; typecheck; lint; format; architecture; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-083/verification-transcript.md`; `docs/performance/alpha.md`; `artifacts/bench/**`.
+Contract/API changes: none to packages (benchmark tooling + artifacts).
+Security/performance impact: none at runtime. Budgets gate only Bundar-owned ratios; parity failures void budgets; no unsafe shortcut is rewarded.
+Remaining risks: budgets calibrated per machine class (regeneration documented); packed-candidate substitution recorded above.
+Documentation updated: `docs/performance/alpha.md`, this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-087 (release notes).
