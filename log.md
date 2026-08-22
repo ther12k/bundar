@@ -719,3 +719,12 @@ GH-078 is complete; GH-080 is unblocked.
 - Verified: docs:generate idempotent, docs:snippets 7/7, docs:check/api:check/docs:validate/docs:links, full suite 814/814, typecheck, lint, format, architecture, pack:inspect, build — all exit 0. Evidence: `evidence/gh-079/verification-transcript.md`.
 
 GH-079 is complete; GH-080 is unblocked.
+
+## 2026-08-22 — GH-080: getting-started, architecture, security, and HTMX migration guides
+
+- Wrote the four guides: getting-started (no-JS fallback and security as ordered MAIN-PATH sections before deployment, troubleshooting table), architecture (frozen boundaries, pipeline, server-only JSX, honest comparisons incl. an explicit "when NOT to use Bundar" list), security (the GH-069 composition contract's three tested rules, redaction, error opacity, metadata-never-trusted authorization, CSP), and htmx-migration (audit-first procedure with enforced dual-lane verification, bootstrap-only switch, one-file rollback; beta-never-GA throughout).
+- Every getting-started TS block is marker-linked to a runnable module under docs/snippets/guides (executed in CI); `test:guides` verifies snippet↔module correspondence, that every documented `bun run` command exists across ALL documented manifests, a no-GA-claim phrase scan, and the main-path section ordering.
+- Real defect caught by the new checker: `Set.add(...keys)` silently added one key per manifest (fixed with a loop; the checker now proves its 68+-script collection).
+- Verified: test:guides 10/10, full suite 824/824, typecheck, lint, format, architecture, api:check, docs:check/snippets/validate/links, build — all exit 0. Evidence: `evidence/gh-080/verification-transcript.md`.
+
+GH-080 is complete; GH-081 (the M5 usability gate) is unblocked.
