@@ -93,3 +93,14 @@ transaction hooks (begin/commit/rollback); a business failure rolls back.
 `InvalidFormRender` carries the field-error model, safe submitted values
 (secrets redacted by policy), and a first-error focus hint.
 
+## Out-of-band & partial update intents (GH-051)
+
+`serializeUpdates(intents, adapter)` serializes multi-region update intents
+(`replace-content`, `replace-element`, `append`, `prepend`, `remove`) into
+dialect-appropriate markup (`hx-swap-oob`). Applications describe the
+update once by target element ID and operation; the adapter chooses the
+mechanism and returns diagnostics for compatibility auditing
+(`auditUpdateMechanisms`). Destructive versus additive meaning is explicit
+and never silently altered. Unsupported dialect modes fail closed with
+`UpdateIntentError`.
+
