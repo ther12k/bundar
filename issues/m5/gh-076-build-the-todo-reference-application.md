@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Same app source passes htmx2, htmx4 experimental, and no-JS E2E suites.
-- [ ] Every mutation has authorization/CSRF posture appropriate to the fixture.
-- [ ] OOB/partial count update uses normalized update intents.
-- [ ] No version-specific HTMX condition exists outside bootstrap.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Same app source passes htmx2, htmx4 experimental, and no-JS E2E suites.
+- [x] Every mutation has authorization/CSRF posture appropriate to the fixture.
+- [x] OOB/partial count update uses normalized update intents.
+- [x] No version-specific HTMX condition exists outside bootstrap.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-076
+Commit / PR: merged `gh-076-todo-app` into `main` (merge commit recorded in `log.md`).
+Files changed: `examples/todo/src/{domain,app,layout,dialect,main,app.test}.ts*` (new), `examples/todo/{package.json,tsconfig}` (workspace member with deps), `tools/test-example.ts` (new) + `test:example` script, `tools/source-diff.ts` (guards examples/todo), `docs/examples/todo.md` (architecture walkthrough), `packages/testing/src/request.ts` + `client.ts` (origin-by-default on unsafe form builders; enhanced methods apply headers without explicit options — flaws found by this app's tests), `evidence/gh-076/verification-transcript.md`.
+Commands executed: `test:example -- todo:htmx2 | todo:htmx4 | todo:no-js` all exit 0 (htmx4 delta = src/dialect.ts only, enforced); `bun test examples/todo` 11/11; standalone strict typecheck of the example; htmx:source-diff (13 files); full suite 772/772; typecheck; lint; format; architecture; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-076/verification-transcript.md`.
+Contract/API changes: `@bundar/testing` behavioral fix — form builders send `origin` by default (overridable) and enhanced methods are enhanced without explicit options. No framework core changes (api:check match).
+Security/performance impact: mutations CSRF-verified with session-bound synchronizer tokens; tokenless/foreign-origin fail closed 403 (unit + live per lane); 422 re-render token retry preserved; OOB as explicit intents (destructive ops visible in code).
+Remaining risks: fixture-only persistence (documented); real-browser DOM runs for reference apps land with the M6 matrix (GH-082).
+Documentation updated: `docs/examples/todo.md`, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-080 (guides), GH-093 (M7, with its milestone).

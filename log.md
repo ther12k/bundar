@@ -681,3 +681,13 @@ GH-071 is complete; GH-075 (minimal starter template) is unblocked.
 - Verified: both template variants, source-diff, routes:check, full suite 761/761, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-075/verification-transcript.md`.
 
 GH-075 is complete; GH-076 and GH-077 are unblocked.
+
+## 2026-08-22 — GH-076: Todo reference application
+
+- Built `examples/todo`: deterministic TodoRepository + in-memory impl; validated create/edit (`runFormAction`, 2–200 titles), toggle/delete with 404 negotiation, filters, counts, flash-once, and a view-negotiated list — one handler set for every browser mode under the GH-069 CSRF/session composition contract.
+- Enhanced mutations compose the primary item markup + NORMALIZED OOB intents via `serializeUpdates` (counts replace-element; row removals explicit) — zero hand-written OOB markup.
+- `test:example` runs three real-HTTP lanes from one source tree: todo:htmx2, todo:htmx4 (temp mount whose ONLY delta is src/dialect.ts — enforced by recursive diff), and todo:no-js (zero HTMX headers, pure PRG). All exit 0; htmx:source-diff now guards the todo tree (13 files total).
+- Real @bundar/testing flaws found by this app's tests and fixed: form builders now send `origin` by default (browsers always do; CSRF origin checks fail closed without it) and enhanced methods apply dialect-correct headers without explicit options.
+- Verified: example unit 11/11 + standalone strict typecheck, three E2E lanes, full suite 772/772, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-076/verification-transcript.md`.
+
+GH-076 is complete; GH-080 and (with M7) GH-093 are unblocked.

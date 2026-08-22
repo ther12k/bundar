@@ -6,7 +6,7 @@
 - [GH-073 — Generate route manifests and typed URL builders](gh-073-generate-route-manifests-and-typed-url-builders.md) — P0 / L; depends on GH-012, GH-015, GH-070 — **complete 2026-08-21** (closure record and evidence)
 - [GH-074 — Implement the in-process test client and request helpers](gh-074-implement-the-in-process-test-client-and-request-helpers.md) — P0 / L; depends on GH-023, GH-070 — **complete 2026-08-22** (closure record and evidence)
 - [GH-075 — Create and verify the minimal starter template](gh-075-create-and-verify-the-minimal-starter-template.md) — P0 / M; depends on GH-071, GH-073, GH-074 — **complete 2026-08-22** (closure record and evidence)
-- [GH-076 — Build the Todo reference application](gh-076-build-the-todo-reference-application.md) — P1 / L; depends on GH-060, GH-063, GH-075
+- [GH-076 — Build the Todo reference application](gh-076-build-the-todo-reference-application.md) — P1 / L; depends on GH-060, GH-063, GH-075 — **complete 2026-08-22** (closure record and evidence)
 - [GH-077 — Build the Admin CRUD reference application](gh-077-build-the-admin-crud-reference-application.md) — P1 / L; depends on GH-060, GH-062, GH-063, GH-075
 - [GH-078 — Implement the HTMX 2-to-4 audit and migration linter](gh-078-implement-the-htmx-2-to-4-audit-and-migration-linter.md) — P0 / L; depends on GH-046, GH-047, GH-070
 - [GH-079 — Publish generated API reference and compatibility documentation source](gh-079-publish-generated-api-reference-and-compatibility-documentation-source.md) — P0 / L; depends on GH-038, GH-056, GH-069, GH-073
