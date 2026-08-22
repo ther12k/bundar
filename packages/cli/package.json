@@ -31,5 +31,10 @@
   "dependencies": {
     "@bundar/core": "workspace:*",
     "@bundar/htmx": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ther12k/bundar.git",
+    "directory": "packages/cli"
   }
 }

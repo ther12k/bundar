@@ -24,5 +24,10 @@
     "src",
     "templates",
     "README.md"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ther12k/bundar.git",
+    "directory": "create-bundar"
+  }
 }

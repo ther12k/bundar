@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-22T15:45:20.702Z",
+  "generatedAt": "2026-08-22T15:55:14.968Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -30,7 +30,7 @@
       "name": "@bundar/core",
       "version": "0.0.0",
       "tarball": "bundar-core-0.0.0.tgz",
-      "sha256": "f3e6bd3b8b6a79685ebc5b5f6d6f86382cd4360a1946d34fdc9ccfcb320f2522",
+      "sha256": "c82adbfb70b2196185a06615661ae1e3dd0eea4e9fd0a037cd84444a4d7fe112",
       "fileCount": 19,
       "files": [
         "src/app.ts",
@@ -53,8 +53,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 100180,
-      "packedBytes": 28651,
+      "unpackedBytes": 100311,
+      "packedBytes": 28711,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -64,7 +64,7 @@
       "name": "@bundar/jsx",
       "version": "0.0.0",
       "tarball": "bundar-jsx-0.0.0.tgz",
-      "sha256": "c74a72e94e54a84007d2f9aa6c6935a581516db17e8e4c55e179ed56482671a1",
+      "sha256": "47b69a332285c6ea647de14ce4d55eb1a9dbfc1ba5940dbc061073fbccaf16e0",
       "fileCount": 22,
       "files": [
         "src/jsx-dev-runtime.ts",
@@ -90,8 +90,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 65551,
-      "packedBytes": 19336,
+      "unpackedBytes": 65681,
+      "packedBytes": 19388,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -101,7 +101,7 @@
       "name": "@bundar/schema",
       "version": "0.0.0",
       "tarball": "bundar-schema-0.0.0.tgz",
-      "sha256": "ee06e8b193a627933cfe07e2c6de7e7f371459dace2be4dd5ea8ca419efb91dc",
+      "sha256": "d3abf4cf2ded805414a77bb45b516aa0fb0d87916638053fafe57a43e13c1739",
       "fileCount": 7,
       "files": [
         "src/index.ts",
@@ -112,8 +112,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 19361,
-      "packedBytes": 6288,
+      "unpackedBytes": 19494,
+      "packedBytes": 6343,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -125,7 +125,7 @@
       "name": "@bundar/security",
       "version": "0.0.0",
       "tarball": "bundar-security-0.0.0.tgz",
-      "sha256": "885466162c396e50d4903315ab99f60b6df242989dbb46b68d66a386219ea3f8",
+      "sha256": "81ed50d31a539c3bcc051a2b5c89a6061c6738b49472b6e8fb4036844b076da6",
       "fileCount": 9,
       "files": [
         "src/index.ts",
@@ -138,8 +138,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 40087,
-      "packedBytes": 12712,
+      "unpackedBytes": 40222,
+      "packedBytes": 12770,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -151,7 +151,7 @@
       "name": "@bundar/htmx",
       "version": "0.0.0",
       "tarball": "bundar-htmx-0.0.0.tgz",
-      "sha256": "6d9c5bfec7623955c24c7304be5d2f482c8f69dfa2e963b55e05c5ea44cb4818",
+      "sha256": "150194a9fe5e8839a7fabde3b1825cf179e65ce9b76a8a45dd6c6195c900fab8",
       "fileCount": 26,
       "files": [
         "src/script.ts",
@@ -181,8 +181,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 207162,
-      "packedBytes": 62678,
+      "unpackedBytes": 207293,
+      "packedBytes": 62747,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -196,7 +196,7 @@
       "name": "@bundar/testing",
       "version": "0.0.0",
       "tarball": "bundar-testing-0.0.0.tgz",
-      "sha256": "fd121434e99aa8224dcd318f1e343e103453f691ad7da92af72121b59513f70b",
+      "sha256": "a02347c5454678cfc4d962fd52ee83472d3fe10137012c97b10048d88b992003",
       "fileCount": 8,
       "files": [
         "src/match.ts",
@@ -208,8 +208,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 30582,
-      "packedBytes": 8998,
+      "unpackedBytes": 30716,
+      "packedBytes": 9054,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -224,7 +224,7 @@
       "name": "@bundar/cli",
       "version": "0.0.0",
       "tarball": "bundar-cli-0.0.0.tgz",
-      "sha256": "98f8a36ba2c2e7eed07bc746dd36cb1ac652493edbfb9c7d7d4ed220e51f033c",
+      "sha256": "b6bd6a3f1ad00ab5e4eef49067ffa878eabd593d66a121e69ffe0dee9edb58a6",
       "fileCount": 11,
       "files": [
         "src/index.ts",
@@ -239,8 +239,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 31820,
-      "packedBytes": 10857,
+      "unpackedBytes": 31950,
+      "packedBytes": 10920,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -253,7 +253,7 @@
       "name": "create-bundar",
       "version": "0.0.0",
       "tarball": "create-bundar-0.0.0.tgz",
-      "sha256": "676f717f5aafc7fb8c884ca12ced71c6569dfb851ac0f3d48bda946695075098",
+      "sha256": "6ab43500831533bcf5a15f8932cbc78fbeebfd8b158cc9ed287305442377a8b5",
       "fileCount": 6,
       "files": [
         "src/index.ts",
@@ -263,8 +263,8 @@
         "templates/minimal.ts",
         "package.json"
       ],
-      "unpackedBytes": 18382,
-      "packedBytes": 6420,
+      "unpackedBytes": 18513,
+      "packedBytes": 6473,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -273,8 +273,8 @@
   ],
   "summary": {
     "packages": 8,
-    "totalUnpackedBytes": 513125,
-    "totalPackedBytes": 155940,
+    "totalUnpackedBytes": 514180,
+    "totalPackedBytes": 156406,
     "findings": 0
   }
 }

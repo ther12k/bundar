@@ -1,0 +1,214 @@
+{
+  "generatedAt": "2026-08-22T15:56:30.017Z",
+  "plan": {
+    "simulatedVersion": "0.1.0-alpha.1",
+    "distTag": "alpha",
+    "publishOrder": [
+      "@bundar/core",
+      "@bundar/jsx",
+      "@bundar/schema",
+      "@bundar/security",
+      "@bundar/htmx",
+      "@bundar/testing",
+      "@bundar/cli",
+      "create-bundar"
+    ],
+    "notes": [
+      "Dependency-first publish order; inter-package deps synchronized to the simulated version (the form npm publish emits).",
+      "No registry publish executed (out of scope); this dry run proves tarball installability, entry points, CLI, and metadata.",
+      "Planned command shape: npm publish --tag alpha per package, in order."
+    ]
+  },
+  "checks": [
+    {
+      "check": "pack+version-sync",
+      "status": "pass",
+      "detail": "8/8 tarballs at 0.1.0-alpha.1"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/core",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/core",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/core",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/core",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/jsx",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/jsx",
+      "status": "pass",
+      "detail": "3 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/jsx",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/jsx",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/schema",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/schema",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/schema",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/schema",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/security",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/security",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/security",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/security",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/htmx",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/htmx",
+      "status": "pass",
+      "detail": "3 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/htmx",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/htmx",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/testing",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/testing",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/testing",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/testing",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths @bundar/cli",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports @bundar/cli",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata @bundar/cli",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme @bundar/cli",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "no-unpublished-paths create-bundar",
+      "status": "pass",
+      "detail": "inter-deps synchronized"
+    },
+    {
+      "check": "exports create-bundar",
+      "status": "pass",
+      "detail": "1 entry points resolve in-tarball"
+    },
+    {
+      "check": "metadata create-bundar",
+      "status": "pass",
+      "detail": "license/description/repository present"
+    },
+    {
+      "check": "readme create-bundar",
+      "status": "pass",
+      "detail": "README ships"
+    },
+    {
+      "check": "clean-install",
+      "status": "pass",
+      "detail": "tarballs install as file: deps"
+    },
+    {
+      "check": "entry-points-import",
+      "status": "pass",
+      "detail": "@bundar/core,@bundar/jsx,@bundar/schema,@bundar/security,@bundar/htmx,@bundar/htmx/2,@bundar/htmx/4,@bundar/testing"
+    },
+    {
+      "check": "jsx-runtime",
+      "status": "pass",
+      "detail": "default JSX runtime resolves through the installed @bundar/jsx"
+    },
+    {
+      "check": "tsx-typecheck",
+      "status": "pass",
+      "detail": "TSX typechecks with jsxImportSource @bundar/jsx"
+    },
+    {
+      "check": "cli-from-tarball",
+      "status": "pass",
+      "detail": "`bundar info` executed from the installed tarball"
+    }
+  ]
+}
