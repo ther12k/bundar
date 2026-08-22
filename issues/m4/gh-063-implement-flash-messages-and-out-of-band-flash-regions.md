@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A flash appears once after ordinary redirect.
-- [ ] The equivalent enhanced action updates the flash region without full navigation.
-- [ ] Concurrent flashes have deterministic ordering.
-- [ ] Message content is escaped and size-limited.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A flash appears once after ordinary redirect.
+- [x] The equivalent enhanced action updates the flash region without full navigation.
+- [x] Concurrent flashes have deterministic ordering.
+- [x] Message content is escaped and size-limited.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-063
+Commit / PR: merged `gh-063-flash-messages` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/security/src/flash.ts` (new) + index exports, `packages/jsx/src/forms/flash-region.ts` (new) + index exports, `packages/security/test/flash.test.ts` (new, 6 tests), `packages/jsx/test/forms/flash-region.test.ts` (new, 4 tests), `evidence/gh-063/verification-transcript.md` (new).
+Commands executed: flash 6/6; flash-region 4/4; security + jsx + root typecheck; lint; format; full repo 645/645; architecture (76 files); pack:inspect security + jsx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-063/verification-transcript.md`.
+Contract/API changes: new exports in @bundar/security — `addFlash`, `consumeFlash`, `peekFlash`, `FlashError`, `FLASH_KEY`, `MAX_FLASH_COUNT`, `MAX_FLASH_MESSAGE_LENGTH`, `FlashRecord`/`FlashSeverity` types. New exports in @bundar/jsx — `FlashRegion`, `FlashMessage`/`FlashRegionProps` types. No existing API changed.
+Security/performance impact: flash messages are stored as plain text (never HTML), size-limited to 500 chars, count-bounded to 10 with oldest-dropped (no unbounded session growth); render-time XSS-escaping tested; single-consumption semantics tested; the JSX component uses structural props preserving the zero-dependency boundary.
+Remaining risks: flash content is escaped at render time by JSX — apps rendering outside JSX must escape independently; bounds are compile-time constants.
+Documentation updated: this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-068 (now awaits only GH-066), GH-076/GH-077 (await GH-075).

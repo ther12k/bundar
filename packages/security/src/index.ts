@@ -39,3 +39,13 @@ export type {
   SessionHandle,
   SessionMiddlewareOptions,
 } from "./session/middleware";
+export {
+  addFlash,
+  consumeFlash,
+  FLASH_KEY,
+  FlashError,
+  MAX_FLASH_COUNT,
+  MAX_FLASH_MESSAGE_LENGTH,
+  peekFlash,
+} from "./flash";
+export type { FlashRecord, FlashSeverity } from "./flash";
