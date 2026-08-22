@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "lane": "htmx2",
+  "status": "stable-conformance-verified",
+  "generatedAt": "2026-08-22T07:48:38.803Z",
+  "profile": {
+    "testedVersion": "2.0.10",
+    "assetSha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de",
+    "maturity": "stable",
+    "capabilities": {
+      "testedVersion": "2.0.10",
+      "assetSha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de",
+      "requestHeaders": [
+        "HX-Request",
+        "HX-Boosted",
+        "HX-Current-URL",
+        "HX-History-Restore-Request",
+        "HX-Prompt",
+        "HX-Target",
+        "HX-Trigger",
+        "HX-Trigger-Name"
+      ],
+      "responseHeaders": [
+        "HX-Location",
+        "HX-Push-URL",
+        "HX-Redirect",
+        "HX-Refresh",
+        "HX-Replace-URL",
+        "HX-Reselect",
+        "HX-Reswap",
+        "HX-Retarget",
+        "HX-Trigger",
+        "HX-Trigger-After-Settle",
+        "HX-Trigger-After-Swap"
+      ],
+      "lifecycle": {
+        "observedAfterRequest": true,
+        "eventOrder": ["beforeSwap", "afterSwap", "afterSettle"]
+      },
+      "history": {
+        "pushUrlDefault": true,
+        "replaceUrlSupported": true,
+        "historyRestoreRequestHeader": true
+      },
+      "errorBehavior": {
+        "defaultErrorSwap": "target",
+        "configuredErrorSwapTargets": true
+      },
+      "inheritance": {
+        "attributeInheritance": true,
+        "inheritAttrsExtension": "bundled (ext/inherit-attrs.js is core in v2)"
+      },
+      "extensions": {
+        "supported": [
+          "json-enc",
+          "morphdom-swap",
+          "client-side-templates",
+          "path-deps",
+          "class-tools",
+          "boosted-form"
+        ],
+        "notes": "v2 bundles inherit-attrs behavior in core; remaining extensions are opt-in scripts."
+      },
+      "unimplemented": [
+        "hx-vals js: prefix (arbitrary JS evaluation — deliberately not modeled)",
+        "sse/websocket extensions (streaming transports out of neutral scope until GH-034/GH-051)"
+      ]
+    }
+  },
+  "environment": {
+    "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+    "bun": "1.4.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "browserRun": {
+    "lane": "htmx2",
+    "stability": "stable",
+    "htmxVersion": "2.0.10",
+    "asset": {
+      "path": "fixtures/htmx2/htmx.min.js",
+      "bytes": 51238,
+      "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
+    },
+    "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+    "baseUrl": "http://127.0.0.1:43619",
+    "scenarios": [
+      "smoke-page",
+      "fragment-swap",
+      "form-post",
+      "history-push",
+      "incorrect-header-negative",
+      "page-fragment-negotiation",
+      "boosted-navigation",
+      "csrf-form-flow",
+      "csrf-header-flow",
+      "csrf-rejection",
+      "session-lifecycle",
+      "history-restore",
+      "action-fallback",
+      "error-negotiation",
+      "validated-form",
+      "multi-region",
+      "asset-serving",
+      "inheritance-disinherit",
+      "navigation-adaptive"
+    ],
+    "csrf": {
+      "issue": "GH-061",
+      "formFlow": "csrf-ok:Bundar",
+      "headerFlow": "csrf-ok:ViaHeader",
+      "rejection": 403
+    },
+    "negotiation": {
+      "issue": "GH-048",
+      "docIsDocument": true,
+      "fragIsFragment": true,
+      "boostedIsDocument": true,
+      "restoreIsDocument": true,
+      "fragmentVary": "HX-Request, HX-Boosted, HX-History-Restore-Request"
+    },
+    "boostedNavigation": {
+      "expected": "full document body swap, one html root, #items present",
+      "observed": {
+        "url": "/page-fragment",
+        "itemsHeading": "Items",
+        "htmlRoots": 1,
+        "bodyCount": 1
+      },
+      "classification": "stable-lane assertion",
+      "passed": true
+    },
+    "lifecycleEvent": {
+      "expected": "event: afterRequest",
+      "observed": "event: afterRequest",
+      "classification": "stable-lane assertion",
+      "passed": true
+    },
+    "negativeFixture": {
+      "expected": "failure",
+      "observedExitCode": 1,
+      "reason": "HX-Trigger-After-Swap is intentionally absent; fixture must not be reported as a pass."
+    },
+    "artifacts": [
+      "baseline-snapshot.stdout.txt",
+      "fragment-snapshot.stdout.txt",
+      "dom.html",
+      "state.json",
+      "page.png",
+      "requests.stdout.txt",
+      "response-headers.json",
+      "console.stdout.txt",
+      "trace-stop.stdout.txt",
+      "negotiation.json",
+      "boosted-state.json",
+      "csrf-result.txt",
+      "csrf-header.json",
+      "csrf-bad-result.txt",
+      "session.json",
+      "history-restore.json",
+      "action-fallback.json",
+      "errors.json",
+      "validated-form.json",
+      "multi-region.json",
+      "asset.json",
+      "inheritance.json",
+      "navigation.json"
+    ]
+  }
+}
