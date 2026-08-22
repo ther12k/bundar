@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No second router or forbidden package edge exists.
-- [ ] All core tests and package inspections pass.
-- [ ] Performance evidence is reviewed.
-- [ ] Any public API exception has an ADR and migration note.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No second router or forbidden package edge exists.
+- [x] All core tests and package inspections pass.
+- [x] Performance evidence is reviewed.
+- [x] Any public API exception has an ADR and migration note.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -118,3 +118,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-025
+Commit / PR: merged `gh-025-m1-http-core-gate` into `main` (merge commit recorded in `log.md`).
+Files changed: `scripts/m1-gate.ts` (new), `tools/api-check.ts` (new), `tools/api-report.ts` (renderer extracted), `package.json` (`ci:m1`, `api:check`), `delivery/gates/m1.md` (new), `delivery/index.md`, `evidence/gh-025/verification-transcript.md` (new), this closure record.
+Commands executed: `bun run ci:m1` (28/28 steps exit 0 — superset of ci:m0 covering CI, API, architecture, package, and performance gates); `bun run api:check`; `bun run docs:validate`; `bun run docs:links`; `bun run format:check` — all exit 0.
+Evidence: `evidence/gh-025/verification-transcript.md`; gate record `delivery/gates/m1.md`; `artifacts/bench/m1.json` (tolerance re-checked inside the battery); `artifacts/api/core.md` (byte-checked by `api:check`); per-issue transcripts GH-011–GH-024.
+Contract/API changes: none to public APIs. Tooling additions: `ci:m1` and `api:check` scripts. Reviewed M0 deviations (CLI workspace dependency, benchmark schema 1→2, new scripts) recorded in the gate record with no ADR required.
+Security/performance impact: package boundaries machine-enforced (architecture check 46 files / 7 rules; zero runtime deps for core/jsx via pack:inspect); raw-HTML audit green; static fast-path tolerance 0.65× ≤ 2.0× verified inside the battery.
+Remaining risks: single-machine benchmark variance; `request.params` tied to Bun's documented contract (detected by the matrix, not prevented); production error opacity depends on deploy-time `NODE_ENV`; browser lanes are harness smokes, not HTMX/JSX release claims.
+Documentation updated: `delivery/gates/m1.md`, `delivery/index.md`, `issues/m1/index.md`, `log.md`, this closure report.
+Newly unblocked issues: GH-034, GH-035 (immediately); GH-036–038 and GH-045–056 authorized on this foundation. M1 milestone complete.
