@@ -61,7 +61,8 @@
     "test:browser:jsx": "bun tests/browser/jsx/run.ts",
     "bench:m2": "bun tools/benchmark/m2-jsx.ts",
     "ci:m2": "bun scripts/m2-gate.ts",
-    "security:cache": "bun tools/security/cache-audit.ts"
+    "security:cache": "bun tools/security/cache-audit.ts",
+    "security:uploads": "bun tools/security/uploads-audit.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
