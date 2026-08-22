@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Default templates can run offline after install.
-- [ ] Exact asset version is visible in generated HTML or manifest.
-- [ ] User-supplied asset mode does not download at runtime.
-- [ ] An asset/dialect mismatch is detected in development and conformance tests.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Default templates can run offline after install.
+- [x] Exact asset version is visible in generated HTML or manifest.
+- [x] User-supplied asset mode does not download at runtime.
+- [x] An asset/dialect mismatch is detected in development and conformance tests.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -125,3 +125,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-045
+Commit / PR: merged `gh-045-asset-registry` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/assets.ts` (new), `packages/htmx/src/script.ts` (new), `packages/htmx/src/vendor/{htmx2.min.js,htmx4.min.js}` (bundled assets), `packages/htmx/test/assets/assets.test.ts` (new, 14 tests), `tests/browser/server.ts` + `tests/browser/run.ts` (`asset-serving` scenario in both lanes), `.prettierignore`, `eslint.config.js`, `evidence/gh-045/verification-transcript.md` (new).
+Commands executed: assets 14/14; both browser lanes with `asset-serving` (200 with immutable cache, ETag, and 304 on If-None-Match); htmx + root typecheck; lint; format; full repo 604/604; architecture (70 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-045/verification-transcript.md`; `output/playwright/*/asset.json`.
+Contract/API changes: new exports in @bundar/htmx — `createHtmxAssetHandler`, `getBundledAsset`, `validateAssetDialectMatch`, `HtmxScript`, `AssetRegistryError`, `AssetDialectMismatchError`, `CreateHtmxAssetHandlerOptions`, `HtmxAsset`, `HtmxScriptProps`. No existing API changed.
+Security/performance impact: assets are served completely offline without unreviewed third-party CDN dependencies; SHA-256 integrity verified; `<HtmxScript>` emits `data-htmx-version`, SRI hashes, and CSP `nonce`; dialect/asset mismatches fail closed with `AssetDialectMismatchError`.
+Remaining risks: none.
+Documentation updated: this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-053, GH-054, GH-066.
