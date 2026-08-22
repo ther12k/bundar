@@ -539,6 +539,34 @@ try {
     throw new Error(`navigation verification failed in ${lane}: ${navText}`);
   }
 
+  // GH-066: security headers + CSP — htmx loads and functions under
+  // nonce-based CSP (no unsafe-inline for scripts)
+  await run("csp-eval", [
+    "eval",
+    "async () => { const page = await fetch('/'); const csp = page.headers.get('content-security-policy') ?? ''; const hsts = page.headers.get('strict-transport-security'); const nosniff = page.headers.get('x-content-type-options'); return JSON.stringify({ hasCsp: csp.length > 0, hasNonce: csp.includes('nonce-'), noUnsafeInlineScript: !csp.split(';').some(d => d.trim().startsWith('script-src') && d.includes('unsafe-inline')), htmxLoaded: typeof htmx !== 'undefined', nosniff: nosniff }); }",
+    "--filename",
+    "csp.json",
+  ]);
+  const cspText = await readFile(join(artifactDirectory, "csp.json"), "utf8");
+  const cspState = JSON.parse(JSON.parse(cspText) as string) as {
+    hasCsp: boolean;
+    hasNonce: boolean;
+    noUnsafeInlineScript: boolean;
+    htmxLoaded: boolean;
+    nosniff: string | null;
+  };
+  if (
+    !cspState.hasCsp ||
+    !cspState.hasNonce ||
+    !cspState.noUnsafeInlineScript ||
+    !cspState.htmxLoaded ||
+    cspState.nosniff !== "nosniff"
+  ) {
+    throw new Error(
+      `CSP/security-header verification failed in ${lane}: ${cspText}`,
+    );
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -624,6 +652,7 @@ try {
       "asset-serving",
       "inheritance-disinherit",
       "navigation-adaptive",
+      "csp-headers",
     ],
     csrf: {
       issue: "GH-061",
@@ -687,6 +716,7 @@ try {
       "asset.json",
       "inheritance.json",
       "navigation.json",
+      "csp.json",
     ],
   };
   await writeFile(

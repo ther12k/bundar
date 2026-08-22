@@ -27,6 +27,7 @@ import {
   csrfMiddleware,
   getSession,
   issueCsrfToken,
+  securityHeaders,
   sessionMiddleware,
 } from "@bundar/security";
 import { htmx2 } from "@bundar/htmx/2";
@@ -331,13 +332,29 @@ export async function handler(
 }
 
 const boundary = new ErrorBoundary({ development: false });
+// GH-066: security headers with nonce-based CSP. The fixture uses the
+// development profile (inline styles allowed) because htmx injects inline
+// <style> elements for hx-indicator — documented as a known htmx
+// interaction; scripts stay nonce-based (no unsafe-inline for script-src).
+const headersPolicy = securityHeaders({ development: true });
 
 export async function startFixtureServer(
   lane: BrowserLane,
 ): Promise<ReturnType<typeof Bun.serve>> {
   return Bun.serve({
     port: 0,
-    fetch: (request) => handler(request, lane),
+    fetch: async (request) => {
+      const response = await handler(request, lane);
+      // skip the security-header middleware for asset responses: static
+      // JavaScript files need no CSP/HSTS (the document carries the policy)
+      if (new URL(request.url).pathname.startsWith("/assets/")) {
+        return response;
+      }
+      const context = createContext(request, {});
+      return Promise.resolve(
+        composeMiddleware([headersPolicy], () => response)(context),
+      );
+    },
     // thrown HttpErrors (e.g. CsrfError 403) keep their public envelope
     error: (error) => boundary.capture(error),
   });

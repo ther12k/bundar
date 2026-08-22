@@ -67,7 +67,8 @@
     "conformance:report": "bun tests/browser/conformance-report.ts",
     "htmx:source-diff": "bun tools/source-diff.ts",
     "test:dual-app": "bun tests/browser/dual/run.ts",
-    "ci:m3": "bun scripts/m3-gate.ts"
+    "ci:m3": "bun scripts/m3-gate.ts",
+    "security:headers": "bun tools/security/headers-audit.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

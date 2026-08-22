@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Production fixture runs with a restrictive policy and no unexpected browser CSP errors.
-- [ ] Nonce values are unpredictable, request-scoped, and not reused.
-- [ ] Header merge cannot remove mandatory policy silently.
-- [ ] HTMX local asset works without `unsafe-inline` script by default.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Production fixture runs with a restrictive policy and no unexpected browser CSP errors.
+- [x] Nonce values are unpredictable, request-scoped, and not reused.
+- [x] Header merge cannot remove mandatory policy silently.
+- [x] HTMX local asset works without `unsafe-inline` script by default.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-066
+Commit / PR: merged `gh-066-security-headers` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/security/src/headers.ts` (new) + index exports, `packages/security/test/headers/security-headers.test.ts` (new, 10 tests), `tools/security/headers-audit.ts` (new) + `security:headers` script, browser fixture security-headers middleware + `csp-headers` scenario in both lanes, `evidence/gh-066/verification-transcript.md` (new).
+Commands executed: headers 10/10; `security:headers` audit; both browser lanes with the `csp-headers` scenario (CSP present with nonce, no unsafe-inline for scripts, htmx loaded, nosniff); security + root typecheck; lint; format; full repo 655/655; architecture (77 files); pack:inspect @bundar/security; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-066/verification-transcript.md`; `output/playwright/*/csp.json`.
+Contract/API changes: new exports in @bundar/security — `securityHeaders`, `buildCspHeader`, `getNonce`, `SecurityHeaderError`, `NonceContext`, `SecurityHeaderPolicy` types. No existing API changed.
+Security/performance impact: nonce-based CSP (crypto.getRandomValues per request, 100-request uniqueness proven); mandatory CSP directives (default-src, object-src, base-uri, frame-ancestors) cannot be overridden or silently removed by handler-set headers; development mode is an explicit opt-in with documented relaxations; full header set (nosniff, frame DENY, referrer, permissions, HSTS, COOP); htmx loads without unsafe-inline for scripts. Real finding: htmx's runtime inline-style injection for hx-indicator requires either the development profile or disabling includeIndicatorStyles (documented).
+Remaining risks: htmx hx-indicator inline styles; inline scripts require nonce attributes; development relaxations are opt-in.
+Documentation updated: this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-068 (all dependencies complete!).

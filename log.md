@@ -616,3 +616,12 @@ GH-056 is complete; **the M3 milestone is closed**. GH-071 and GH-079 (also awai
 - Verified: flash 6/6, flash-region 4/4, full repo 645/645, typechecks, lint, architecture (76 files), pack:inspect ×2, build, docs — all exit 0. Evidence: `evidence/gh-063/verification-transcript.md`.
 
 GH-063 is complete; GH-068 now awaits only GH-066.
+
+## 2026-08-22 — GH-066: security headers, CSP, and nonce propagation
+
+- Added `securityHeaders()` middleware to @bundar/security: per-request nonce via crypto.getRandomValues (unpredictable, request-scoped, never reused); nonce-based CSP with frozen mandatory baseline (default-src 'self', script-src nonce, object-src 'none', base-uri 'self', frame-ancestors 'none'); full header set (nosniff, DENY, referrer, permissions, HSTS, COOP); handler-set CSP appended never replacing mandatory policy; development mode with explicit relaxations.
+- `buildCspHeader()` composes the CSP with deterministic ordering; mandatory-directive overrides throw SecurityHeaderError. `getNonce()` provides the request-scoped nonce for script/style helpers.
+- Real finding: htmx injects inline `<style>` for `hx-indicator` at runtime — documented; production apps can disable `includeIndicatorStyles` or use the development profile. The local htmx asset loads without `unsafe-inline` for script-src (browser-verified in both lanes).
+- Verification: headers 10/10, security:headers audit green, both browser lanes with `csp-headers` scenario, full repo 655/655, typechecks, lint, architecture (77 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-066/verification-transcript.md`.
+
+GH-066 is complete; **GH-068 (forms and security matrix) is unblocked — all dependencies complete.**
