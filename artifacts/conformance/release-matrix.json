@@ -1,0 +1,179 @@
+{
+  "generated": "2026-08-22T15:24:22.179Z",
+  "pinned": {
+    "htmx2": "2.0.10 (stable)",
+    "htmx4": "4.0.0-beta6 (experimental — no GA claim)"
+  },
+  "suites": [
+    {
+      "suite": "template/minimal",
+      "lane": "htmx2",
+      "status": "pass",
+      "ms": 1505,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "template/minimal",
+      "lane": "htmx4",
+      "status": "pass",
+      "ms": 1654,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/todo",
+      "lane": "htmx2",
+      "status": "pass",
+      "ms": 353,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/todo",
+      "lane": "htmx4",
+      "status": "pass",
+      "ms": 418,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/todo",
+      "lane": "no-js",
+      "status": "pass",
+      "ms": 379,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/admin-crud",
+      "lane": "htmx2",
+      "status": "pass",
+      "ms": 445,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/admin-crud",
+      "lane": "htmx4",
+      "status": "pass",
+      "ms": 466,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/admin-crud",
+      "lane": "no-js",
+      "status": "pass",
+      "ms": 399,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "examples/workflow-gate",
+      "lane": "all",
+      "status": "pass",
+      "ms": 127,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "scaffold",
+      "lane": "htmx2",
+      "status": "pass",
+      "ms": 1474,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "scaffold",
+      "lane": "htmx4",
+      "status": "pass",
+      "ms": 1588,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "browser-lanes",
+      "lane": "htmx2",
+      "status": "pass",
+      "ms": 103976,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "browser-lanes",
+      "lane": "htmx4",
+      "status": "pass",
+      "ms": 104241,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "browser-lanes",
+      "lane": "dual-parity",
+      "status": "pass",
+      "ms": 39396,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "security",
+      "lane": "matrix",
+      "status": "pass",
+      "ms": 304,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "security",
+      "lane": "workflow",
+      "status": "pass",
+      "ms": 122,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "security",
+      "lane": "example-admin",
+      "status": "pass",
+      "ms": 82,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "shared-source",
+      "lane": "guard",
+      "status": "pass",
+      "ms": 17,
+      "detail": "exit 0"
+    },
+    {
+      "suite": "accessibility",
+      "lane": "smoke",
+      "status": "pass",
+      "ms": 82,
+      "detail": "exit 0"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0
+  },
+  "experimentalDeviations": [
+    {
+      "topic": "lifecycle events",
+      "difference": "phases reworked; v2 event strings not fired",
+      "status": "fixture: GH-054 lane"
+    },
+    {
+      "topic": "error swap default",
+      "difference": "none-by-default vs v2 target swap",
+      "status": "documented record"
+    },
+    {
+      "topic": "attribute inheritance",
+      "difference": "removed from core; explicit helpers needed",
+      "status": "explicit unsupported record (GH-047)"
+    },
+    {
+      "topic": "extensions API",
+      "difference": "reworked",
+      "status": "explicit unsupported record"
+    },
+    {
+      "topic": "cache-control",
+      "difference": "no beta6 surface",
+      "status": "explicit unsupported record"
+    },
+    {
+      "topic": "cache-control policy (no beta6 surface observed — unsupported until GA)",
+      "difference": "unsupported in the beta profile",
+      "status": "explicit unsupported record"
+    }
+  ]
+}

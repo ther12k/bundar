@@ -738,3 +738,11 @@ GH-080 is complete; GH-081 (the M5 usability gate) is unblocked.
 - Verified: cleanroom journey, pack-consumers 8/8, docs:snippets, full suite 824/824, typecheck, lint, format, architecture, build, docs — all exit 0. Evidence: `evidence/gh-081/verification-transcript.md`.
 
 GH-081 is complete; **the M5 milestone is closed**. M6 begins with GH-082 and GH-084 unblocked.
+
+## 2026-08-22 — GH-082: complete dual-dialect end-to-end matrix
+
+- Built `test:e2e:release`: the fail-closed 19-suite matrix — template/minimal ×2 lanes, todo ×3, admin-crud ×3, workflow-gate, scaffold ×2 (packed tarballs), real-browser lanes ×3 (normal/boosted/history/forms/errors/OOB/uploads), security suites ×3, the shared-source guard, and a new in-process accessibility smoke (aria-live flash, labeled controls, alert-role errors). **19/19 passed**, exit 0.
+- `artifacts/conformance/release-matrix.json`: machine-readable per-suite results with the pinned-asset manifest and the 6 classified htmx4-beta deviations derived from the pinned profile's own migrationDifferences/unsupported records — explicit, never counted as stable-pass.
+- Verified: matrix 19/19, source-diff, full suite 827/827, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-082/verification-transcript.md`.
+
+GH-082 is complete; GH-083 and GH-087 are unblocked.

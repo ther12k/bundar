@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Stable HTMX 2 and no-JS mandatory scenarios pass.
-- [ ] Shared app source guard passes.
-- [ ] HTMX 4 beta deviations are explicit and not counted as stable pass.
-- [ ] Tests use packed artifacts and exact pinned upstream assets.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Stable HTMX 2 and no-JS mandatory scenarios pass.
+- [x] Shared app source guard passes.
+- [x] HTMX 4 beta deviations are explicit and not counted as stable pass.
+- [x] Tests use packed artifacts and exact pinned upstream assets.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -125,3 +125,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-082
+Commit / PR: merged `gh-082-dual-matrix` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/e2e-release.ts` (new) + `test:e2e:release`/`conformance:release-report` scripts, `tests/e2e/accessibility-smoke.test.ts` (new, 3 tests), `artifacts/conformance/release-matrix.json` (new, machine-readable), `evidence/gh-082/verification-transcript.md`.
+Commands executed: `test:e2e:release` exit 0 — 19/19 suites (template×2, todo×3, admin×3, workflow, scaffold×2, browser lanes×3, security×3, source guard, a11y smoke); 6 experimental deviations classified from the pinned profile; htmx:source-diff green; full suite 827/827; typecheck; lint; format; architecture; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-082/verification-transcript.md`; `artifacts/conformance/release-matrix.json`.
+Contract/API changes: none to packages (orchestration + tests only).
+Security/performance impact: none new; the matrix re-verifies the full security battery inside the release gate.
+Remaining risks: Chrome-for-Testing only until GA evidence (M7); beta DOM error-swap divergence remains classified (M7 revalidation).
+Documentation updated: this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-083, GH-087, and (M7) GH-092.

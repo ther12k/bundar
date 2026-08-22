@@ -42,6 +42,8 @@
     "test:guides": "bun test tests/docs/guides.test.ts tests/docs/snippets-guide.test.ts",
     "test:dx-cleanroom": "bun tools/dx-cleanroom.ts",
     "test:pack-consumers": "bun tools/pack-consumers.ts",
+    "test:e2e:release": "bun tools/e2e-release.ts",
+    "conformance:release-report": "bun tools/e2e-release.ts",
     "api:report": "bun tools/api-report.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
