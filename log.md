@@ -591,3 +591,12 @@ GH-053 is complete.
 - Published `docs/compatibility/htmx4-beta6.md` compatibility guide detailing provisional findings, differences from v2, and mandatory M7 GA revalidation. Evidence: `evidence/gh-054/verification-transcript.md`.
 
 GH-054 is complete; GH-055 is unblocked.
+
+## 2026-08-22 — GH-055: unchanged-source dual-dialect reference fixture
+
+- Created `examples/dual-dialect-fixture/` — a 100% dialect-agnostic application using only @bundar/htmx neutral APIs (view, action, actionResponse, serializeUpdates, htmxRedirect, errorViewResponse, HtmxScript, createHtmxAssetHandler). Dialect adapter injected solely at bootstrap in `server.ts`.
+- Added `htmx:source-diff` static guard verifying zero dialect conditionals (`htmxVersion`, `dialect.id ===`, `isHtmx4`) and zero raw `HX-*` strings in application code.
+- Added `test:dual-app` browser runner proving 100% behavioral parity across both dialects (OOB counter update, list append, adaptive navigation, error negotiation) from the exact same source. Three real issues were found and fixed during development (JSX-to-Response rendering, SRI integrity blocking same-origin scripts, htmx error-swap divergence).
+- Verification: `htmx:source-diff` green, `test:dual-app` both lanes identical, full repo 635/635, typecheck, lint, architecture (74 files), build, docs — all exit 0. Evidence: `evidence/gh-055/verification-transcript.md`.
+
+GH-055 is complete; GH-056 is unblocked.

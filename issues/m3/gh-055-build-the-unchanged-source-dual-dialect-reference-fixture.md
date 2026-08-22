@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Switching dialect changes only approved bootstrap/config and lockfile/asset selection.
-- [ ] Route handlers and components contain no `if (htmxVersion)` logic.
-- [ ] Both lanes satisfy the stable-subset expectations.
-- [ ] Dialect-specific optional scenarios are isolated outside the shared app layer.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Switching dialect changes only approved bootstrap/config and lockfile/asset selection.
+- [x] Route handlers and components contain no `if (htmxVersion)` logic.
+- [x] Both lanes satisfy the stable-subset expectations.
+- [x] Dialect-specific optional scenarios are isolated outside the shared app layer.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-055
+Commit / PR: merged `gh-055-dual-dialect` into `main` (merge commit recorded in `log.md`).
+Files changed: `examples/dual-dialect-fixture/{app.ts,server.ts,tsconfig.json}` (new), `tools/source-diff.ts` (new) + `htmx:source-diff` script, `tests/browser/dual/run.ts` (new) + `test:dual-app` script, `evidence/gh-055/verification-transcript.md` (new).
+Commands executed: `htmx:source-diff` (zero dialect conditionals verified); `test:dual-app` (100% identical behavior in both browser lanes: counter=1 item, listItems=1, nav=/items, error=Field is required); root typecheck; lint; format; full repo 635/635; architecture (74 files); build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-055/verification-transcript.md`; `output/playwright/dual/dual-summary.json`.
+Contract/API changes: none (example fixture and test tooling only).
+Security/performance impact: application code verified free of dialect conditionals and raw protocol strings via static guard; dialect selection isolated to approved bootstrap; real browser parity proven across both dialect lanes.
+Remaining risks: raw() trust boundary for OOB composition documented; htmx error-swap dialect difference covered by main browser lanes.
+Documentation updated: this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-056.
