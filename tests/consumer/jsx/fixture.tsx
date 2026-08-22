@@ -1,4 +1,31 @@
-import type { JSXChild } from "@bundar/jsx";
+import { streamResponse, type JSXChild } from "@bundar/jsx";
+
+/** GH-036: typed hx-* attributes compile in an external consumer. */
+export function HtmxList(): JSXChild {
+  return (
+    <div>
+      <button
+        hx-get="/items"
+        hx-target="#list"
+        hx-swap="outerHTML swap:50ms"
+        hx-trigger="click delay:100ms"
+      >
+        Load
+      </button>
+      <ul id="list" hx-boost={true} />
+    </div>
+  );
+}
+
+/** GH-036: streaming responses compile and carry `finished`. */
+export function streamed(
+  tree: JSXChild,
+): Response & { finished: Promise<void> } {
+  return streamResponse(tree, {
+    status: 200,
+    headers: { "x-app": "consumer" },
+  });
+}
 
 export function Page(props: { title: string }): JSXChild {
   return (

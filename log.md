@@ -468,3 +468,11 @@ GH-034 is complete; GH-036 still waits on GH-035.
 - Type-level proofs live in a TSX fixture compiled by the package + root typecheck (react-jsx + jsxImportSource @bundar/jsx; unused @ts-expect-error is itself an error so the fixture cannot rot); runtime tests assert byte-exact unrewritten output. Full repo 496/496. Evidence: `evidence/gh-035/verification-transcript.md`.
 
 GH-035 is complete; GH-036 (its full dependency set now done), GH-047, and GH-051 are unblocked.
+
+## 2026-08-22 — GH-036: JSX conformance, security, and snapshot coverage
+
+- Closed M2 renderer coverage: a primitive-by-primitive conformance matrix (positive+negative for every public API), a 13-case byte-exact snapshot corpus with review-gated regeneration (--reviewed-by required; version bumped; blind updates structurally impossible), seeded property tests (~6,000 assertions: escaping closure, injection impossibility, sync/async/stream byte parity, determinism), a 13-payload security corpus audit (incl. raw-text breakouts) with committed artifact, and a real-browser DOM comparison runner for six edge cases (test:browser:jsx).
+- The browser comparison exposed a real defect: textarea/title are RCDATA (entities decode), but the serializer applied script-style `<\/` escapes — browsers displayed literal backslashes and textarea values did not round-trip. Fixed by entity-escaping RCDATA hosts (lossless there); script/style keep their grammar escapes. Also completed the intrinsic element type map (ul/li/table/media/…) and widened hx-target to its primary form (any CSS selector, literals kept for completions).
+- Verification: jsx 146/146, full repo 516/516, consumer compile, browser DOM comparison, security corpus, snapshot-gate refusal, typechecks, lint, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-036/verification-transcript.md`.
+
+GH-036 is complete; GH-037 and GH-038 are unblocked (all M2 implementation issues done).

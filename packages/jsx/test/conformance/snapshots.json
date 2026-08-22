@@ -1,0 +1,20 @@
+{
+  "snapshotVersion": 1,
+  "reviewedBy": "GH-036 initial corpus",
+  "regeneratedAt": "2026-08-22T05:26:21.142Z",
+  "cases": {
+    "async-tree": "<ul><li>one</li><li>two</li></ul>",
+    "attributes-sorted-escaped": "<div class=\"a b\" data-q=\"say &quot;hi&quot;\" id=\"x\"></div>",
+    "component": "<p>hi bundar</p>",
+    "document": "<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Snap</title></head><body><body>x</body></body></html>",
+    "elements-nesting": "<section><p><strong>hi</strong>!</p></section>",
+    "elements-void": "<input disabled name=\"q\" type=\"text\">",
+    "fragment": "<p>1</p><p>2</p>",
+    "htmx-attributes": "<button hx-get=\"/items\" hx-swap=\"outerHTML\" hx-target=\"#list\" hx-trigger=\"click delay:100ms\"></button>",
+    "page-response": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Page</title></head><body><body>body-text</body></body></html>",
+    "raw-boundary": "<div><em>trusted</em></div>",
+    "raw-text-script": "<script>if (a<b) f('<\\/script>')</script>",
+    "stream-response": "<p>streamed</p>",
+    "text-escaping": "<p>&lt;b&gt;&amp;\"'&lt;/b&gt; &amp;amp; café 🎉</p>"
+  }
+}

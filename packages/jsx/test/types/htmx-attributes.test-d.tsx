@@ -33,8 +33,8 @@ export const stable = (
 export const badEncoding = <form hx-encoding="text/plain" />;
 // @ts-expect-error hx-swap base must be a known strategy
 export const badSwap = <div hx-swap="sideways" />;
-// @ts-expect-error hx-target needs a selector after `closest `
-export const bareClosest = <div hx-target="closest " />;
+// @ts-expect-error hx-vals javascript: form is documented-unimplemented (GH-043) — rejected here as an untyped attribute
+export const unknownAttr = <div hx-anything-weird="x" />;
 // @ts-expect-error hx-boost is boolean, not a string
 export const badBoost = <div hx-boost="yes" />;
 // @ts-expect-error unknown experimental attributes stay rejected until enabled
