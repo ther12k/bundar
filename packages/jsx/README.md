@@ -21,3 +21,16 @@ flushed committed the status line — after that point no replacement status
 can be sent; errors are observable, never faked. `streamResponse(tree)`
 builds the `text/html; charset=utf-8` Response carrying `finished`.
 
+## Typed htmx attributes (GH-035)
+
+The stable, dialect-common `hx-*` subset typechecks on every intrinsic
+element with string-literal types where the grammar is enumerable (`hx-swap`
+bases + modifiers, `hx-target` selector/`this`/`closest x`/`find x`/`next`/
+`previous`, `hx-encoding`, `hx-boost`, `hx-validate`) and documented open
+strings where it is not (`hx-trigger`, `hx-headers`, `hx-sync`). Raw
+attribute names stay visible — no wrapper components — and the renderer
+never rewrites them. Experimental or dialect-specific attributes are opt-in
+per app compilation via declaration merging on the deliberately-empty
+`HtmxExperimentalAttributes` interface; nothing global widens to `any`.
+The JSX package keeps zero runtime coupling to @bundar/htmx or htmx itself.
+
