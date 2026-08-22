@@ -29,6 +29,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@bundar/core": "workspace:*"
+    "@bundar/core": "workspace:*",
+    "@bundar/htmx": "workspace:*"
   }
 }

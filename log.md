@@ -700,3 +700,13 @@ GH-076 is complete; GH-080 and (with M7) GH-093 are unblocked.
 - Verified: example 16/16 + security 7/7 + standalone strict typecheck, six E2E lanes, full suite 788/788, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-077/verification-transcript.md`.
 
 GH-077 is complete; GH-080 and (with M7) GH-093 are unblocked.
+
+## 2026-08-22 — GH-078: HTMX 2-to-4 audit and migration linter
+
+- Implemented `bundar htmx-audit` (`htmx:audit`): static scan of TS/TSX/HTML/JSON for version-sensitive patterns with blocking/review/informational classification, human + JSON reports (file:line evidence, what changed, guidance), CI exit codes (0/1/2; `--fail-on` tunes the threshold), and NO source rewriting (v0.1 contract).
+- Rules DERIVE from the pinned dialect profiles (adapter header-alias metadata, approximate event mappings, the v2 inherited-attribute set, official-extension dialectSupport) — the frozen raw-htmx-surface rule enforced this twice during development; both hardcoded-literal slips were refactored to derived data.
+- Suppression is explicit and auditable: `bundar-audit-ignore` comments (exact id or family prefix) keep suppressed findings in the report with the suppression's own location; a wrong-rule ignore never silences.
+- Fixtures cover every acceptance case; 19 tests incl. end-to-end gates: the sensitive fixture fails (exit 1), the neutral-API todo/admin apps pass with zero blocking findings (honest review advisories), usage errors exit 2.
+- Verified: 19/19 audit tests, full suite 807/807, typecheck, lint, format, architecture (89 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-078/verification-transcript.md`.
+
+GH-078 is complete; GH-080 is unblocked.

@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Fixtures cover header rename, event rename, implicit inheritance, `hx-ext`, history assumptions, error-response swap assumptions, asset pins, and raw adapter checks.
-- [ ] Tool avoids rewriting source automatically in v0.1.
-- [ ] False-positive suppression is explicit and auditable.
-- [ ] Exit codes support CI migration gates.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Fixtures cover header rename, event rename, implicit inheritance, `hx-ext`, history assumptions, error-response swap assumptions, asset pins, and raw adapter checks.
+- [x] Tool avoids rewriting source automatically in v0.1.
+- [x] False-positive suppression is explicit and auditable.
+- [x] Exit codes support CI migration gates.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-078
+Commit / PR: merged `gh-078-migration-linter` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/cli/src/audit/{rules,scan}.ts` (new), `packages/cli/src/commands/htmx-audit.ts` (new) + registration + `htmx:audit` script, `fixtures/migration/v2-sensitive/{app,suppressed,clean}.ts` (new), `packages/cli/test/htmx-audit/audit.test.ts` (new, 19 tests), `packages/cli/package.json` (+@bundar/htmx dep), `evidence/gh-078/verification-transcript.md`.
+Commands executed: `bun test packages/cli/test/htmx-audit` 19/19; `htmx:audit -- fixtures/migration/v2-sensitive` exit 1 (blocking gate); `htmx:audit -- --format=json examples/todo` exit 0 (0 blocking, 6 honest reviews); admin-crud exit 0; full suite 807/807; typecheck; lint; format; architecture (89 files, raw-htmx-surface clean via derived rule data); pack:inspect; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-078/verification-transcript.md`.
+Contract/API changes: new `bundar htmx-audit` command (human/JSON, --fail-on, exit codes 0/1/2); no framework core changes (api:check match). No source rewriting (v0.1 contract).
+Security/performance impact: read-only static analysis. Rule data derives from the pinned adapter profiles — no hardcoded protocol assumptions; raw protocol strings stay confined to @bundar/htmx (frozen rule enforced).
+Remaining risks: error-swap detection is a conservative heuristic (review severity, explicitly suppressible); arbitrary custom-JS semantic migration out of scope per the issue.
+Documentation updated: this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-080 (guides).
