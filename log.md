@@ -476,3 +476,11 @@ GH-035 is complete; GH-036 (its full dependency set now done), GH-047, and GH-05
 - Verification: jsx 146/146, full repo 516/516, consumer compile, browser DOM comparison, security corpus, snapshot-gate refusal, typechecks, lint, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-036/verification-transcript.md`.
 
 GH-036 is complete; GH-037 and GH-038 are unblocked (all M2 implementation issues done).
+
+## 2026-08-22 — GH-037: M2 JSX performance and memory gate
+
+- Added the renderer-level M2 gate (`bench:m2` → artifacts/bench/m2.json): seven JSX scenarios measured cold (tree construction + first render) and steady, with renderer parity asserted fail-closed BEFORE timing (async ≡ streaming; sync ≡ both wherever it accepts the tree) and escaped markers required in every timed output — benchmarks cannot be met by disabling escaping. Memory proxies (rss/heap deltas) recorded per block; raw samples retained. bench:report now dispatches on the artifact's gate field (m1 regression-checked).
+- The parity pre-check caught a real defect: renderNodeAsync emitted `</meta>` for void elements and skipped raw-text serialization, disagreeing with the sync renderer. Fixed to mirror sync semantics exactly; all three renderers are now byte-pinned per gate run.
+- Baseline recorded (steady p50): fragment 1.1µs, document 5.5µs, 1000-item list 1.08ms, streaming async list 3.51ms (~3× documented overhead); budgets reviewed in delivery/gates/m2-performance.md (steady ≤ 1.5× at GH-083; parity/escaping absolute). Full repo 516/516. Evidence: `evidence/gh-037/verification-transcript.md`.
+
+GH-037 is complete; GH-038 is unblocked.

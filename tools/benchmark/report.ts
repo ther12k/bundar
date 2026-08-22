@@ -14,7 +14,59 @@ import type { BenchmarkReport, BenchmarkResult } from "./types";
 const STATIC_TOLERANCE_RATIO = 2.0;
 
 const input = process.argv[2] ?? "artifacts/bench/m1.json";
-const report = JSON.parse(await Bun.file(input).text()) as BenchmarkReport;
+const rawReport: Record<string, unknown> = JSON.parse(
+  await Bun.file(input).text(),
+);
+
+// M2 JSX gate artifacts carry their own shape; dispatch before m1 logic.
+if (rawReport.gate === "m2-jsx") {
+  const m2 = rawReport as unknown as {
+    environment: { bun: string; platform: string; arch: string };
+    parity: Record<string, { equal: boolean }>;
+    results: ReadonlyArray<{
+      scenario: string;
+      mode: string;
+      distribution: {
+        p50Ns: number;
+        p95Ns: number;
+        meanNs: number;
+        relativeStandardDeviation: number;
+      };
+    }>;
+    memoryProxies: {
+      blocks: ReadonlyArray<{
+        scenario: string;
+        rssDeltaBytes: number;
+        heapUsedBytes: number;
+      }>;
+    };
+  };
+  console.log(`bench:report: ${input} (m2-jsx gate)`);
+  console.log(
+    `  bun ${m2.environment.bun} · ${m2.environment.platform}/${m2.environment.arch} · parity ${Object.keys(m2.parity).length} scenarios (all pre-timing)`,
+  );
+  for (const result of m2.results) {
+    const d = result.distribution;
+    console.log(
+      `  ${result.scenario.padEnd(22)} ${result.mode.padEnd(6)} p50 ${(d.p50Ns / 1_000).toFixed(1).padStart(8)}µs  p95 ${(d.p95Ns / 1_000).toFixed(1).padStart(8)}µs  mean ${(d.meanNs / 1_000).toFixed(1).padStart(8)}µs  rSD ${(d.relativeStandardDeviation * 100).toFixed(0)}%`,
+    );
+  }
+  for (const block of m2.memoryProxies.blocks) {
+    console.log(
+      `  mem ${block.scenario.padEnd(22)} rssΔ ${(block.rssDeltaBytes / 1_048_576).toFixed(1)}MiB  heapΔ ${(block.heapUsedBytes / 1_048_576).toFixed(1)}MiB (advisory)`,
+    );
+  }
+  if (!Object.values(m2.parity).every((entry) => entry.equal)) {
+    console.error("bench:report: m2 parity pre-check data shows a failure");
+    process.exit(1);
+  }
+  console.log(
+    "bench:report: m2 gate recorded — parity held before timing and escaping markers were present in every timed output; budgets are documented in delivery/gates/m2-performance.md",
+  );
+  process.exit(0);
+}
+
+const report = rawReport as unknown as BenchmarkReport;
 
 function microseconds(ns: number): string {
   return `${(ns / 1_000).toFixed(2)}µs`;

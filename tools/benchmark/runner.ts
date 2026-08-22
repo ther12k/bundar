@@ -58,7 +58,10 @@ function assertParity(
   }
 }
 
-function percentile(sorted: readonly number[], fraction: number): number {
+export function percentile(
+  sorted: readonly number[],
+  fraction: number,
+): number {
   const index = Math.min(
     sorted.length - 1,
     Math.ceil(sorted.length * fraction) - 1,
@@ -66,7 +69,7 @@ function percentile(sorted: readonly number[], fraction: number): number {
   return sorted[index] ?? 0;
 }
 
-function distribution(samplesNs: number[]): Distribution {
+export function distribution(samplesNs: number[]): Distribution {
   const sorted = [...samplesNs].sort((a, b) => a - b);
   const count = sorted.length;
   const meanNs = sorted.reduce((sum, value) => sum + value, 0) / count;
