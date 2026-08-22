@@ -352,3 +352,11 @@ GH-020 is complete; GH-022, GH-023, and GH-065 are unblocked.
 - Verification: responses suite 12/12 + type tests, full repo 304/304, typecheck, lint, architecture (42 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-021/verification-transcript.md`.
 
 GH-021 is complete; GH-022, GH-023, GH-033, and GH-045 are unblocked.
+
+## 2026-08-21 — GH-022: not-found, method, and lifecycle terminal behavior
+
+- Added the application not-found fallback (`compile`/`serve` `notFound` option) over Bun's fetch fallthrough; wrong-method behavior stays whatever Bun natively exposes (no invented 405 negotiation, per scope); explicit HEAD/GET/POST registrations never shadowed (HEAD parity with header-only responses).
+- Lifecycle verified: ephemeral-port ownership, stop(true) force-close vs graceful stop() waiting for in-flight requests, and a 10× start/stop cycle leaving zero listeners.
+- Verification: terminal-behavior 7/7 + server-lifecycle 5/5, full repo 314/314, typecheck, lint, architecture (42 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-022/verification-transcript.md`.
+
+GH-022 is complete; GH-023 gains its final prerequisite.

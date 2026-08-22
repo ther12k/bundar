@@ -38,6 +38,14 @@ export type BunRouteEntry =
 export interface CompiledServerOptions extends ContextServicesOptions {
   routes: Record<string, BunRouteEntry>;
   fetch: (request: Request) => Response | Promise<Response>;
+  /** Terminal behavior hooks (GH-022). */
+  error?: (error: Error) => Response | Promise<Response>;
+}
+
+/** Configuration for terminal behaviors (GH-022). */
+export interface TerminalOptions {
+  /** Replaces the application 404 (unknown paths reaching fetch). */
+  notFound?: (request: Request) => Response | Promise<Response>;
 }
 
 export function defaultNotFound(): Response {
@@ -86,7 +94,7 @@ export class StaticRouteMetadataError extends Error {
  */
 export function compileRoutes(
   routes: readonly RouteDescriptor[],
-  options: CompileOptions = {},
+  options: CompileOptions & TerminalOptions = {},
 ): CompiledServerOptions {
   const declarations: RouteDeclaration[] = routes.map((route, index) => ({
     route,
@@ -151,8 +159,10 @@ export function compileRoutes(
   return {
     routes: routeTable,
     fetch(request: Request): Response {
-      void request;
-      return defaultNotFound();
+      // GH-022: unknown paths land here; the application 404 is configurable.
+      return options.notFound
+        ? (options.notFound(request) as Response)
+        : defaultNotFound();
     },
   };
 }

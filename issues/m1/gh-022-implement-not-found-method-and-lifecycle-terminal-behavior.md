@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Unknown path returns configured 404.
-- [ ] Explicit method handlers are not shadowed by defaults.
-- [ ] HEAD behavior has parity tests with GET where applicable.
-- [ ] Server ownership and stop behavior do not leave resources open in tests.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Unknown path returns configured 404.
+- [x] Explicit method handlers are not shadowed by defaults.
+- [x] HEAD behavior has parity tests with GET where applicable.
+- [x] Server ownership and stop behavior do not leave resources open in tests.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

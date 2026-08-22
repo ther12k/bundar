@@ -221,13 +221,24 @@ export class App {
    * service map exposed on every request context.
    */
   public serve(
-    options: { port?: number; hostname?: string; services?: ServiceMap } = {},
+    options: {
+      port?: number;
+      hostname?: string;
+      services?: ServiceMap;
+      notFound?: (request: Request) => Response | Promise<Response>;
+      idleTimeout?: number;
+      maxRequestBodySize?: number;
+    } = {},
   ): ReturnType<typeof Bun.serve> {
-    const { port, hostname, services } = options;
+    const { port, hostname, services, notFound, ...rest } = options;
     return Bun.serve({
-      ...this.compile(services ? { services } : {}),
+      ...this.compile({
+        ...(services ? { services } : {}),
+        ...(notFound ? { notFound } : {}),
+      }),
       port: port ?? 0,
       ...(hostname ? { hostname } : {}),
+      ...rest,
     });
   }
 
