@@ -1,0 +1,41 @@
+{
+  "decision": "go",
+  "version": "0.1.0-alpha.1",
+  "distTag": "alpha",
+  "releaseCommitBase": "8b5ef3575126052d40cb140d0937fda6aca8d899",
+  "tag": "v0.1.0-alpha.1",
+  "decidedAt": "2026-08-22T16:24:54Z",
+  "battery": {
+    "command": "bun run ci:release",
+    "steps": 24,
+    "result": "all 24 release-candidate steps passed (exit 0)",
+    "log": "artifacts/release/ci-release.log"
+  },
+  "preconditions": {
+    "command": "bun run release:verify",
+    "checks": [
+      "artifact-hashes: 8/8 committed checksums match",
+      "package-clearance: @bundar namespace + installability proven",
+      "stable-and-nojs-lanes: 19/19 suites green",
+      "htmx4-experimental-nondefault: maturity experimental, templates bind htmx2, notes pin the beta"
+    ]
+  },
+  "publish": {
+    "status": "pending maintainer credentials",
+    "procedure": "maintainer sets BUNDAR_RELEASE_TOKEN, authenticates npm, runs bun run publish:approved",
+    "order": [
+      "@bundar/core",
+      "@bundar/jsx",
+      "@bundar/schema",
+      "@bundar/security",
+      "@bundar/htmx",
+      "@bundar/testing",
+      "@bundar/cli",
+      "create-bundar"
+    ]
+  },
+  "approvalIdentity": {
+    "batteriesAndPreconditions": "delivery automation (evidence above, reproducible from the tagged commit)",
+    "registryPublish": "requires human maintainer token — the guarded tool refuses without it and makes no partial claims"
+  }
+}

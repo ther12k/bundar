@@ -789,3 +789,12 @@ GH-086 is complete; GH-087 is unblocked.
 - Verified: notes-check, docs:check/validate/links, full suite 827/827, typecheck, lint, format — all exit 0. Evidence: `evidence/gh-087/verification-transcript.md`.
 
 GH-087 is complete; GH-088 (the release gate) is unblocked.
+
+## 2026-08-22 — GH-088: the v0.1.0-alpha.1 release gate (M6 closed)
+
+- Built `ci:release` (24 fail-closed steps from the release commit: ci:m4's 40 steps + every M5/M6 gate — docs drift, guides/snippets, template/scaffold journeys, six reference lanes, the 19-suite E2E matrix, packed cleanroom, perf budgets, package audit, SBOM/provenance/reproducibility, the 38-check publish dry run, notes checks) — **all 24 passed**, log archived at artifacts/release/ci-release.log.
+- Built `release:verify` (go/no-go preconditions: 8/8 artifact hashes vs provenance; package clearance; 19/19 matrix incl. stable/no-JS lanes; htmx4 experimental AND non-default) and `publish:approved` (guarded: refuses registry access without BUNDAR_RELEASE_TOKEN + npm identity; exact dependency-first plan otherwise; no partial claims).
+- Decision: **GO** — recorded in artifacts/release/go-no-go.json; gate record at delivery/gates/alpha.md; immutable tag v0.1.0-alpha.1 + GitHub release created. npm publish listed as pending maintainer credentials (everything publish-adjacent verified from packed tarballs).
+- Verified: ci:release 24/24, release:verify 4/4, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-088/verification-transcript.md`.
+
+GH-088 is complete; **the M6 milestone is closed**. M7 (htmx 4 GA chain) remains, blocked on GA availability.
