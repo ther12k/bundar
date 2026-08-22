@@ -42,10 +42,17 @@ export interface CompiledServerOptions extends ContextServicesOptions {
   error?: (error: Error) => Response | Promise<Response>;
 }
 
-/** Configuration for terminal behaviors (GH-022). */
+/** Configuration for terminal behaviors (GH-022, GH-067). */
 export interface TerminalOptions {
   /** Replaces the application 404 (unknown paths reaching fetch). */
   notFound?: (request: Request) => Response | Promise<Response>;
+  /**
+   * Receives every error thrown from route handlers (including budget
+   * timeouts) and must return the error Response. Wired straight through to
+   * Bun.serve so the application boundary — not Bun's default opaque 500 —
+   * classifies failures.
+   */
+  error?: (error: Error) => Response | Promise<Response>;
 }
 
 export function defaultNotFound(): Response {
@@ -164,5 +171,8 @@ export function compileRoutes(
         ? (options.notFound(request) as Response)
         : defaultNotFound();
     },
+    // GH-067: forward the error hook so handler/timeout failures reach the
+    // application boundary instead of Bun's default opaque 500.
+    ...(options.error ? { error: options.error } : {}),
   };
 }

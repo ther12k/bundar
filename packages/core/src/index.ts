@@ -8,8 +8,10 @@
  * middleware. GH-019 adds params/query/cookie adapters. GH-057 adds bounded
  * body parsing. GH-020 adds HttpError and the global error boundary.
  * GH-021 adds explicit response helpers. Terminal behaviors land with GH-022.
+ * GH-067 adds request budgets, timeouts, and abort propagation.
  */
 export * from "./app";
+export * from "./budget";
 export * from "./context";
 export * from "./error-boundary";
 export * from "./errors";

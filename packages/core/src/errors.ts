@@ -17,7 +17,9 @@ export type HttpErrorCode =
   | "payload_too_large"
   | "unsupported_media_type"
   | "too_many_requests"
-  | "internal";
+  | "request_timeout"
+  | "internal"
+  | "service_unavailable";
 
 const STATUS_BY_CODE: Record<HttpErrorCode, number> = {
   bad_request: 400,
@@ -30,7 +32,9 @@ const STATUS_BY_CODE: Record<HttpErrorCode, number> = {
   payload_too_large: 413,
   unsupported_media_type: 415,
   too_many_requests: 429,
+  request_timeout: 408,
   internal: 500,
+  service_unavailable: 503,
 };
 
 /** Public, deterministic error envelope. */
@@ -132,5 +136,10 @@ export function isAbortLike(error: unknown): boolean {
   if (error instanceof ClientDisconnectError) return true;
   if (error instanceof DOMException && error.name === "AbortError") return true;
   if (error instanceof Error && error.name === "AbortError") return true;
+  // @bundar/jsx's documented abort contract (GH-030): the renderer throws
+  // AbortedRenderError when its signal fired. Matched by name so core keeps
+  // zero package imports; renderer aborts are aborts, never 500s.
+  if (error instanceof Error && error.name === "AbortedRenderError")
+    return true;
   return false;
 }
