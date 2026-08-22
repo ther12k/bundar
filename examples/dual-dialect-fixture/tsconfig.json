@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@bundar/core": ["../../packages/core/src/index.ts"],
+      "@bundar/jsx": ["../../packages/jsx/src/index.ts"],
+      "@bundar/htmx": ["../../packages/htmx/src/index.ts"],
+      "@bundar/htmx/2": ["../../packages/htmx/src/v2.ts"],
+      "@bundar/htmx/4": ["../../packages/htmx/src/v4.ts"],
+      "@bundar/schema": ["../../packages/schema/src/index.ts"],
+      "@bundar/security": ["../../packages/security/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts"]
+}
