@@ -114,10 +114,13 @@ async function readBoundedBytes(
   const reader = request.body?.getReader();
   if (!reader) return new Uint8Array(0);
 
+  // Slowloris guard: cancel() makes pending reads resolve done, so a flag
+  // (not the cancel reason) carries the timeout into a hard failure — a
+  // dribbling body can never be accepted as a complete partial read.
+  let timedOut = false;
   const timeout = setTimeout(() => {
-    void reader.cancel(
-      new BodyLimitError("timeoutMs", `${limits.timeoutMs}ms elapsed`),
-    );
+    timedOut = true;
+    void reader.cancel();
   }, limits.timeoutMs);
 
   try {
@@ -128,18 +131,19 @@ async function readBoundedBytes(
       if (done) break;
       total += value!.byteLength;
       if (total > limits.maxBytes) {
-        void reader.cancel(
-          new BodyLimitError(
-            "maxBytes",
-            `streamed ${total} bytes exceeds ${limits.maxBytes}`,
-          ),
-        );
+        void reader.cancel();
         throw new BodyLimitError(
           "maxBytes",
           `streamed ${total} bytes exceeds ${limits.maxBytes}`,
         );
       }
       chunks.push(value!);
+    }
+    if (timedOut) {
+      throw new BodyLimitError(
+        "timeoutMs",
+        `${limits.timeoutMs}ms elapsed with an incomplete body`,
+      );
     }
     const combined = new Uint8Array(total);
     let offset = 0;

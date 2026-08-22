@@ -1,12 +1,14 @@
 # @bundar/core API report
 
-Runtime exports (61):
+Runtime exports (71):
 - `App`
 - `BodyConsumedError`
 - `BodyLimitError`
+- `BudgetPolicyError`
 - `ClientDisconnectError`
 - `CookieMutations`
 - `DEFAULT_BODY_LIMITS`
+- `DEFAULT_BUDGET_MAXIMUMS`
 - `DoubleNextError`
 - `ErrorBoundary`
 - `HTTP_METHODS`
@@ -14,6 +16,8 @@ Runtime exports (61):
 - `InvalidCookieNameError`
 - `MalformedBodyError`
 - `MissingResponseError`
+- `REQUEST_BUDGET`
+- `RequestTimeoutError`
 - `RouteConflictError`
 - `RoutePathValidationError`
 - `RouteValidationError`
@@ -21,11 +25,14 @@ Runtime exports (61):
 - `StaticRouteMetadataError`
 - `UnsupportedMediaTypeError`
 - `assertRouteConflictsFree`
+- `bodyLimitToHttpError`
 - `buildRouteManifest`
+- `classifyRequestOutcome`
 - `cloneRouteDescriptor`
 - `compileRoutes`
 - `composeMiddleware`
 - `createContext`
+- `createRequestBudget`
 - `defaultNotFound`
 - `defineModule`
 - `empty`
@@ -33,6 +40,7 @@ Runtime exports (61):
 - `file`
 - `freezeManifest`
 - `generateRoutesModule`
+- `getRequestBudget`
 - `html`
 - `httpErrors`
 - `intParam`
@@ -55,7 +63,9 @@ Runtime exports (61):
 - `pathParams`
 - `queryAdapter`
 - `redirect`
+- `requestBudget`
 - `requiredParam`
+- `resolveBudget`
 - `routeConflictKey`
 - `seeOther`
 - `text`
@@ -65,4 +75,4 @@ Runtime exports (61):
 
 Type-only exports (0):
 
-Total public surface: 61
+Total public surface: 71

@@ -9,7 +9,11 @@ import {
 import type { ServiceMap } from "./context";
 import type { ContextServicesOptions } from "./context";
 import type { Middleware } from "./middleware";
-import { compileRoutes, type CompiledServerOptions } from "./routing/compiler";
+import {
+  compileRoutes,
+  type CompiledServerOptions,
+  type TerminalOptions,
+} from "./routing/compiler";
 import type {
   HttpMethod,
   RouteDescriptor,
@@ -208,7 +212,9 @@ export class App {
     return defineModule(this.manifest().routes);
   }
 
-  public compile(options: ContextServicesOptions = {}): CompiledServerOptions {
+  public compile(
+    options: ContextServicesOptions & TerminalOptions = {},
+  ): CompiledServerOptions {
     // Middleware travels per-route under meta.middleware (stamped at
     // registration by the owning scope); no app-level duplication here.
     return compileRoutes(this.manifest().routes, options);

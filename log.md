@@ -410,3 +410,12 @@ GH-025 is complete; the M1 milestone is closed. GH-034, GH-035, GH-045–048 are
 - Verification: negotiation tests 18/18, full repo 370/370, both browser lanes, pack:inspect, architecture (47 files), typecheck, lint, build, docs — all exit 0. Evidence: `evidence/gh-048/verification-transcript.md`.
 
 GH-048 is complete; GH-049, GH-050, GH-053, GH-054, and GH-065 are unblocked.
+
+## 2026-08-22 — GH-067: request budgets, timeouts, and abort propagation
+
+- Added `requestBudget()` middleware and the budget model to @bundar/core: composite AbortSignal firing on the first of client disconnect / deadline / server shutdown with source tracking, startup-validated per-route overrides (tighten-only against frozen maximums), deadline race answering 503+Retry-After envelopes, body-limit failures mapped to 408/413, and source-based abort classification (client→499, deadline→503) so aborts never surface as opaque 500s.
+- Fixed two latent defects the new fixtures exposed: (1) the body-parser slowloris guard cancelled the reader with a reason that never reached `read()` — dribbled bodies were silently accepted as complete partial reads; (2) `compileRoutes` never forwarded the `error` hook, so handler failures got Bun's default 500 instead of the application boundary.
+- Public surface grew deliberately to 71 exports (two new HttpError codes 408/503; snapshot regenerated, api:check green). Cleanup is verified per request (`disposed`, `attachedSources === 0`); non-cooperative handlers answer at the deadline while cooperative ones stop on the signal (platform limit documented).
+- Verification: budgets 27/27 (real-server slowloris 408, slow-handler 503 with recorded work stop, mid-request disconnect with zero unexpected-failure classifications), body 13/13, full repo 397/397, typecheck, lint, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-067/verification-transcript.md`.
+
+GH-067 is complete; GH-068 is unblocked.

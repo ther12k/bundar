@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Timed-out work does not continue indefinitely in controlled fixtures.
-- [ ] Abort does not become a generic 500 when the response is no longer writable.
-- [ ] Limits can be overridden per route only within server maximums.
-- [ ] Resource cleanup is verified.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Timed-out work does not continue indefinitely in controlled fixtures.
+- [x] Abort does not become a generic 500 when the response is no longer writable.
+- [x] Limits can be overridden per route only within server maximums.
+- [x] Resource cleanup is verified.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-067
+Commit / PR: merged `gh-067-csp-nonce` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/core/src/budget.ts` (new), `packages/core/src/errors.ts` (+`request_timeout` 408, +`service_unavailable` 503, `isAbortLike` recognizes the `AbortedRenderError` name contract), `packages/core/src/request/body.ts` (slowloris guard defect fixed: cancel reasons never reached `read()`, so dribbled bodies were silently accepted as complete partial reads), `packages/core/src/routing/compiler.ts` + `app.ts` (TerminalOptions `error` hook now forwarded to Bun.serve), `packages/core/test/budgets/**` (new, 27 tests incl. real-server slowloris/disconnect fixtures), `packages/core/test/import.test.ts` (71-export snapshot), `artifacts/api/core.md` (regenerated deliberately), `evidence/gh-067/verification-transcript.md` (new).
+Commands executed: budgets suite 27/27; body suite 13/13; full repo 397/397; package + root typecheck; lint; format; architecture:check (48 files); api:report + api:check (71 exports); pack:inspect @bundar/core; build; docs validate/links; bench:parity — all exit 0. Tooling decisions for the planned `test:browser:abort` and `test:leaks` commands are documented in the transcript (stronger raw-socket + direct cleanup-verification fixtures).
+Evidence: `evidence/gh-067/verification-transcript.md`; `artifacts/api/core.md`.
+Contract/API changes: new public API — `requestBudget`, `createRequestBudget`, `resolveBudget`, `classifyRequestOutcome`, `bodyLimitToHttpError`, `getRequestBudget`, `REQUEST_BUDGET`, `DEFAULT_BUDGET_MAXIMUMS`, `RequestTimeoutError`, `BudgetPolicyError` and associated types; two new HttpError codes (408/503); `TerminalOptions.error` hook now forwarded. Surface snapshot regenerated 61→71 exports.
+Security/performance impact: dribbled bodies now hard-fail 408 instead of being accepted partially; per-route limits are capped by frozen server maximums at composition time; abort outcomes are classified by source (client→499, deadline→503, shutdown) and never leak as opaque 500s; budget installation trades the GH-018 sync fast path for deadline enforcement on budgeted routes only.
+Remaining risks: non-cooperative handlers cannot be force-stopped (platform limit — the race answers at the deadline and the signal gives cooperative work a stop path); `AbortedRenderError` matched by documented name contract; setTimeout/Date.now scheduling jitter of a few ms.
+Documentation updated: this closure record, `issues/m4/index.md`, `log.md`, regenerated API snapshot, evidence transcript.
+Newly unblocked issues: GH-068.
