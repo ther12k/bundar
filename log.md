@@ -525,3 +525,11 @@ GH-065 is complete; GH-068 awaits GH-060/063/064/066.
 - Verification: form-actions 7/7, both browser lanes with the validated-form scenario (invalid enhanced fragment + retarget; invalid ordinary document; valid enhanced fragment; valid ordinary PRG), full repo 567/567, typechecks, lint, architecture, pack:inspect ×2, build, docs — all exit 0. Evidence: `evidence/gh-060/verification-transcript.md`.
 
 GH-060 is complete; GH-068 awaits GH-063/064/066.
+
+## 2026-08-22 — GH-064: multipart upload policy and safe temp files
+
+- Added the upload pipeline to @bundar/core: worst-case-envelope Content-Length pre-check before reading, per-part byte/file/field caps enforced during iteration, server-generated <uuid>.part temp names (client filenames can never select paths), sanitized basename-only display names, claimed MIME types recorded as untrusted, verifier + quarantine hooks as the malware-scan/sniff integration points, temp files removed on success/error/rejection/cancellation plus a teardown registry (cleanupAllUploads). Core surface 71→77 exports (snapshot regenerated deliberately).
+- 14 tests (sanitization matrix, during-read limits, lifecycle on every path, quarantine, truncation fail-closed, duplicates) + the fail-closed security:uploads audit + docs/guides/uploads.md with the production mandate (sniffing vs claimed type, risk-appropriate scanning, separate origin, nosniff serving).
+- Verification: uploads 14/14, audit green, full repo 581/581, typechecks, lint, architecture (67 files), pack:inspect, api:check (77 exports), build, docs — all exit 0. Evidence: `evidence/gh-064/verification-transcript.md`.
+
+GH-064 is complete; GH-068 now awaits only GH-063 and GH-066.

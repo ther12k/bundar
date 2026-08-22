@@ -1,6 +1,6 @@
 # @bundar/core API report
 
-Runtime exports (71):
+Runtime exports (77):
 - `App`
 - `BodyConsumedError`
 - `BodyLimitError`
@@ -9,6 +9,7 @@ Runtime exports (71):
 - `CookieMutations`
 - `DEFAULT_BODY_LIMITS`
 - `DEFAULT_BUDGET_MAXIMUMS`
+- `DEFAULT_UPLOAD_POLICY`
 - `DoubleNextError`
 - `ErrorBoundary`
 - `HTTP_METHODS`
@@ -24,10 +25,12 @@ Runtime exports (71):
 - `STATIC_ROUTE_FORBIDDEN_META_KEYS`
 - `StaticRouteMetadataError`
 - `UnsupportedMediaTypeError`
+- `UploadPolicyError`
 - `assertRouteConflictsFree`
 - `bodyLimitToHttpError`
 - `buildRouteManifest`
 - `classifyRequestOutcome`
+- `cleanupAllUploads`
 - `cloneRouteDescriptor`
 - `compileRoutes`
 - `composeMiddleware`
@@ -41,6 +44,7 @@ Runtime exports (71):
 - `freezeManifest`
 - `generateRoutesModule`
 - `getRequestBudget`
+- `handleUploads`
 - `html`
 - `httpErrors`
 - `intParam`
@@ -67,12 +71,14 @@ Runtime exports (71):
 - `requiredParam`
 - `resolveBudget`
 - `routeConflictKey`
+- `sanitizeClientName`
 - `seeOther`
 - `text`
+- `uploadFileExists`
 - `validateRouteConflicts`
 - `withCookies`
 - `withHeaders`
 
 Type-only exports (0):
 
-Total public surface: 71
+Total public surface: 77

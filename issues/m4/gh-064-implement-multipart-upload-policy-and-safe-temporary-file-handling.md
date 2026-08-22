@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Limits are enforced during read rather than after full buffering.
-- [ ] Temporary files are removed on success, error, cancellation, and process-test teardown.
-- [ ] Paths cannot be selected by client filenames.
-- [ ] Production guide requires content validation and scanning appropriate to risk.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Limits are enforced during read rather than after full buffering.
+- [x] Temporary files are removed on success, error, cancellation, and process-test teardown.
+- [x] Paths cannot be selected by client filenames.
+- [x] Production guide requires content validation and scanning appropriate to risk.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-064
+Commit / PR: merged `gh-064-uploads` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/core/src/request/upload.ts` (new, exported via index), `packages/core/test/uploads/upload.test.ts` (new, 14 tests), `tools/security/uploads-audit.ts` + `security:uploads` script, `docs/guides/uploads.md` (new), core export snapshot 71→77 (import test + `artifacts/api/core.md` regenerated deliberately), `evidence/gh-064/verification-transcript.md` (new).
+Commands executed: uploads 14/14; `security:uploads` audit; core + root typecheck; lint; format; full repo 581/581; architecture (67 files); pack:inspect @bundar/core (zero runtime deps); api:report + api:check (77 exports); build; docs validate/links — all exit 0. Tooling decision: leak coverage via deterministic lifecycle tests + teardown registry (substitutes the planned `test:leaks -- uploads`).
+Evidence: `evidence/gh-064/verification-transcript.md`.
+Contract/API changes: new exports in @bundar/core — `handleUploads`, `UploadPolicy`/`DEFAULT_UPLOAD_POLICY`, `StoredUpload`/`UploadMetadata`/`UploadVerifier` types, `sanitizeClientName`, `cleanupAllUploads`, `uploadFileExists`, `UploadPolicyError`. No existing API changed.
+Security/performance impact: limits enforced during read (envelope pre-check + per-part caps, never buffer-then-check); client filenames can never select paths (uuid temp names, sanitized display basenames); MIME/filenames treated as untrusted claims; verifier + quarantine hooks are the malware-scan/sniffing integration points; temp files removed on every path plus a teardown registry; production guide mandates content validation and risk-appropriate scanning.
+Remaining risks: platform formData materializes each bounded part in memory before persistence (documented; no streaming multipart API in Bun today); claimed types may be platform-normalized (guide mandates sniffing); storage/engines stay app territory.
+Documentation updated: `docs/guides/uploads.md`, this closure record, `issues/m4/index.md`, `log.md`, API snapshot.
+Newly unblocked issues: contributes to GH-068 (now awaits GH-063 + GH-066 only).
