@@ -7,7 +7,7 @@
  * GH-017 adds the per-request context. GH-018 adds startup-composed
  * middleware. GH-019 adds params/query/cookie adapters. GH-057 adds bounded
  * body parsing. GH-020 adds HttpError and the global error boundary.
- * Terminal behaviors land with GH-022.
+ * GH-021 adds explicit response helpers. Terminal behaviors land with GH-022.
  */
 export * from "./app";
 export * from "./context";
@@ -18,6 +18,7 @@ export * from "./middleware";
 export * from "./module";
 export * from "./request/adapters";
 export * from "./request/body";
+export * from "./response";
 export * from "./routing/compiler";
 export * from "./routing/conflicts";
 export * from "./routing/path";

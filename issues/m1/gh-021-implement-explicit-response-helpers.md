@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every helper has status/header/body tests.
-- [ ] Redirect defaults use documented status semantics.
-- [ ] Set-Cookie and Vary composition do not collapse values incorrectly.
-- [ ] Type tests reject unsupported convenience return types.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every helper has status/header/body tests.
+- [x] Redirect defaults use documented status semantics.
+- [x] Set-Cookie and Vary composition do not collapse values incorrectly.
+- [x] Type tests reject unsupported convenience return types.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
