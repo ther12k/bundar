@@ -5,10 +5,11 @@
     "baseUrl": ".",
     "paths": {
       "@bundar/core": ["./packages/core/src/index.ts"],
-      "@bundar/jsx": ["./packages/jsx/src/index.ts"],
       "@bundar/htmx": ["./packages/htmx/src/index.ts"],
       "@bundar/htmx/2": ["./packages/htmx/src/v2.ts"],
-      "@bundar/htmx/4": ["./packages/htmx/src/v4.ts"]
+      "@bundar/htmx/4": ["./packages/htmx/src/v4.ts"],
+      "@bundar/jsx": ["./packages/jsx/src/index.ts"],
+      "@bundar/schema": ["./packages/schema/src/index.ts"]
     }
   },
   "include": [

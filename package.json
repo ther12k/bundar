@@ -26,6 +26,7 @@
     "test": "bun test",
     "test:consumer:jsx": "bunx tsc --noEmit -p tests/consumer/jsx/tsconfig.json",
     "test:consumer:routes": "bun test ./tests/consumer/routes",
+    "test:consumer:schema": "bunx tsc --noEmit -p tests/consumer/schema/tsconfig.json && bun test ./tests/consumer/schema",
     "test:integration:core": "bun test ./packages/core/test/integration ./packages/core/test/middleware ./packages/core/test/concurrency",
     "test:consumer:core": "bun test ./tests/consumer/core",
     "api:report": "bun tools/api-report.ts",
@@ -61,6 +62,8 @@
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "typescript-eslint": "8.67.0",
-    "yaml": "2.9.0"
+    "valibot": "1.4.2",
+    "yaml": "2.9.0",
+    "zod": "4.4.3"
   }
 }

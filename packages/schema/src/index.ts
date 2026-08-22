@@ -1,3 +1,24 @@
-// @bundar/schema skeleton (GH-001). Framework behavior is intentionally absent;
-// the Standard Schema adapter lands with M4 (GH-058–GH-059).
-export {};
+/**
+ * @bundar/schema public surface (GH-058).
+ *
+ * Standard Schema v1 types plus the validation adapter and request-source
+ * mappers. Any conforming validator works; Bundar ships none and requires
+ * none — @bundar/core keeps zero runtime dependencies on this package.
+ */
+export type {
+  StandardSchema,
+  StandardSchemaIssue,
+  StandardSchemaPath,
+  StandardSchemaPathSegment,
+  StandardSchemaProps,
+  StandardSchemaResult,
+} from "./standard";
+export { SchemaDialectError, validateSchema } from "./validate";
+export type { ValidationIssue, ValidationResult } from "./validate";
+export {
+  validateForm,
+  validateHeaders,
+  validateJson,
+  validateParams,
+  validateQuery,
+} from "./sources";

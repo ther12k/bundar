@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@bundar/core": ["../../../packages/core/src/index.ts"],
+      "@bundar/schema": ["../../../packages/schema/src/index.ts"]
+    }
+  },
+  "include": ["fixture.ts", "consumer.test.ts"]
+}

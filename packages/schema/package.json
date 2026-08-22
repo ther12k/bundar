@@ -5,8 +5,27 @@
   "type": "module",
   "description": "Bundar Standard Schema validation adapter for forms and actions.",
   "main": "./src/index.ts",
-  "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target=bun"
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   },
-  "license": "MIT"
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@bundar/core": "workspace:*"
+  }
 }
