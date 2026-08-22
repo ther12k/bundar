@@ -327,3 +327,12 @@ GH-044 is complete; GH-045, GH-046, GH-047, GH-049, GH-051, GH-052, and GH-054 a
 - Verification: body suite 13/13, full repo 263/263, typecheck, lint, architecture (37 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-057/verification-transcript.md`.
 
 GH-057 is complete; GH-058, GH-061, GH-064, and GH-067 are unblocked.
+
+## 2026-08-21 — GH-073: route manifests and typed URL builders
+
+- Landed `packages/core/src/manifest.ts` (deterministic manifest from named routes with duplicate-name detection; typed URL-builder codegen with per-route param types, optional query objects with repeated array values, percent-encoding) and the `bundar routes generate|check` CLI command with byte-exact stale detection (exit 1 on drift) — handlers never execute; the entry's manifest prints from a child process.
+- `@bundar/cli` gained its first intentional dependency (`@bundar/core` workspace) per the package-API map; CLI tests import via package name after a boundary violation was caught and fixed.
+- Consumer fixture generates, imports, and fetches through a live server: encoded params resolve, repeated query values serialize, missing-param runtime throws mirror the type contract; generated output compiles under real `tsc --strict`.
+- Verification: cli routes suite 6/6, consumer 6/6, full repo 275/275, typecheck, lint, architecture (39 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-073/verification-transcript.md`.
+
+GH-073 is complete; GH-075 and GH-079 gain their manifest prerequisite.

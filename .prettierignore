@@ -10,3 +10,5 @@ evidence/
 fixtures/htmx2/htmx.min.js
 fixtures/htmx4/htmx.min.js
 output/
+# Generated code is byte-compared by routes:check; never reformat it.
+*.gen.ts

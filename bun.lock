@@ -35,6 +35,12 @@
     "packages/cli": {
       "name": "@bundar/cli",
       "version": "0.0.0",
+      "bin": {
+        "bundar": "./src/bin.ts",
+      },
+      "dependencies": {
+        "@bundar/core": "workspace:*",
+      },
     },
     "packages/core": {
       "name": "@bundar/core",

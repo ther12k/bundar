@@ -28,3 +28,5 @@ output/playwright/
 # Editors
 .idea/
 .vscode/
+tests/consumer/routes/routes.gen.*.ts
+!tests/consumer/routes/entry.ts

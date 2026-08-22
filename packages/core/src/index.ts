@@ -10,6 +10,7 @@
  */
 export * from "./app";
 export * from "./context";
+export * from "./manifest";
 export * from "./middleware";
 export * from "./module";
 export * from "./request/adapters";
