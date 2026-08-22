@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Every public export appears exactly once in reference navigation.
-- [ ] Examples compile against packed packages.
-- [ ] Current-version claims have a freshness/update owner.
-- [ ] Experimental features are visually and textually distinguished.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Every public export appears exactly once in reference navigation.
+- [x] Examples compile against packed packages.
+- [x] Current-version claims have a freshness/update owner.
+- [x] Experimental features are visually and textually distinguished.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-079
+Commit / PR: merged `gh-079-api-reference` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/docs/{generate-api,generate-compat}.ts` (new), `docs/api/{README,core,jsx,schema,security,htmx,testing,cli}.md` (new, generated — 383 exports indexed), `docs/compatibility/versions.md` (new, generated), `docs/snippets/{lifecycle-events,errors,cache-policy,forms,security,streaming}.ts` (new, runnable), `tests/docs/snippets.test.ts` (new, 7 tests) + `docs:generate`/`docs:snippets` scripts, root tsconfig `@bundar/cli` path, `evidence/gh-079/verification-transcript.md`.
+Commands executed: `docs:generate` exit 0 (idempotent — second run clean); `docs:snippets` 7/7; `docs:check`/`api:check`/`docs:validate`/`docs:links` exit 0; full suite 814/814; typecheck; lint; format; architecture; pack:inspect spot check; build — all exit 0.
+Evidence: `evidence/gh-079/verification-transcript.md`.
+Contract/API changes: none to package surfaces (api:check core snapshot match). Two new doc scripts.
+Security/performance impact: none (documentation tooling). A snippet draft's crash surfaced an API-misuse ergonomics observation on applyCachePolicy (recorded); the public contract is sound.
+Remaining risks: type-export extraction assumes block-style `export type {…}` (true for all current packages); hosted docs vendor out of scope per the issue.
+Documentation updated: generated docs/api/** + versions.md, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-080 (guides).
