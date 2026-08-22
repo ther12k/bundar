@@ -33,3 +33,19 @@ full page); history restore → document (a restored cache entry must be
 installable as a page). Every response carries
 `Vary: HX-Request, HX-Boosted, HX-History-Restore-Request`; `negotiateView()`
 exposes the chosen representation and those inputs for cache/history policy.
+
+## Cache variation and history safety (GH-049)
+
+`cachePolicyFor(negotiated, options)` builds the fail-safe policy:
+`Vary` names every negotiation input (GH-048's headers) and Cache-Control
+defaults to `no-store`. Shared caching (`sMaxage`) and client caching
+(`maxAge`) are explicit opt-ins; private/authenticated content can never
+combine with `public`, and `max-age` may never exceed `s-maxage`. Both
+violations throw `CachePolicyError`. `applyCachePolicy(response, policy)`
+merges Vary losslessly and sets Cache-Control only when the handler did
+not. `historyPolicyFor(adapter)` surfaces the pinned per-dialect history
+facts (restore header, push-url default, the htmx 4 beta's provisional
+cache-rework note) so restore behavior is data, never guesses. A simulated
+proxy cache (`tests/proxy-cache/`) proves variants stay distinct and
+reproduces the missing-Vary poisoning risk as documentation.
+

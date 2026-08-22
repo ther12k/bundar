@@ -492,3 +492,12 @@ GH-037 is complete; GH-038 is unblocked.
 - Evidence: `evidence/gh-038/verification-transcript.md`.
 
 GH-038 is complete; **the M2 milestone is closed**. GH-071 and GH-079 are unblocked.
+
+## 2026-08-22 — GH-049: cache variation and history safety policy
+
+- Added the cache/history policy to @bundar/htmx: fail-safe defaults (full negotiation Vary + no-store), validated opt-ins (sMaxage/maxAge; private never public; max-age ≤ s-maxage), lossless Vary merging, applyCachePolicy that never clobbers handler cache-control, and historyPolicyFor surfacing the pinned per-dialect history facts (incl. the htmx 4 beta's provisional cache-rework note).
+- Built the simulated proxy cache (tests/proxy-cache) proving all four negotiation variants coexist under the policy Vary, reproducing the missing-Vary poisoning risk as documentation, and never storing private/no-store responses. security:cache audit runs all property groups fail-closed.
+- Browser lanes gained exact-Vary assertions and a real history-restore scenario (back to the pushing page, forward through htmx's restore — document installed, one html root); hard-asserted on htmx 2, observed-and-passed on the htmx 4 beta.
+- Verification: cache+proxy 15/15, audit green, both lanes green, full repo 531/531, typechecks, lint, architecture (63 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-049/verification-transcript.md`.
+
+GH-049 is complete.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-22T05:59:30.464Z",
+  "generatedAt": "2026-08-22T06:16:02.621Z",
   "disclaimer": "Local browser conformance evidence only. htmx4 is beta/experimental and this report makes no htmx4 GA compatibility claim.",
   "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
   "lanes": [
@@ -14,7 +14,7 @@
         "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:33499",
+      "baseUrl": "http://127.0.0.1:33727",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
@@ -26,7 +26,8 @@
         "csrf-form-flow",
         "csrf-header-flow",
         "csrf-rejection",
-        "session-lifecycle"
+        "session-lifecycle",
+        "history-restore"
       ],
       "csrf": {
         "issue": "GH-061",
@@ -79,7 +80,8 @@
         "csrf-result.txt",
         "csrf-header.json",
         "csrf-bad-result.txt",
-        "session.json"
+        "session.json",
+        "history-restore.json"
       ]
     },
     {
@@ -92,7 +94,7 @@
         "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
       },
       "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-      "baseUrl": "http://127.0.0.1:40309",
+      "baseUrl": "http://127.0.0.1:40031",
       "scenarios": [
         "smoke-page",
         "fragment-swap",
@@ -104,7 +106,8 @@
         "csrf-form-flow",
         "csrf-header-flow",
         "csrf-rejection",
-        "session-lifecycle"
+        "session-lifecycle",
+        "history-restore"
       ],
       "csrf": {
         "issue": "GH-061",
@@ -157,7 +160,8 @@
         "csrf-result.txt",
         "csrf-header.json",
         "csrf-bad-result.txt",
-        "session.json"
+        "session.json",
+        "history-restore.json"
       ]
     }
   ]

@@ -145,6 +145,7 @@ try {
     docIsDocument: boolean;
     fragIsFragment: boolean;
     fragVary: string | null;
+    docVary: string | null;
     boostedIsDocument: boolean;
     restoreIsDocument: boolean;
   };
@@ -199,6 +200,61 @@ try {
   // is a hard assertion, matching the lifecycle-event policy above.
   if (lane === "htmx2" && !boostedPassed) {
     throw new Error(`boosted navigation failed in ${lane}: ${boostedText}`);
+  }
+
+  // GH-049: the real htmx history-restore path — back to the page that
+  // pushed /page-fragment, then forward: htmx restores the entry (cache or
+  // refetch with HX-History-Restore-Request) and must install the DOCUMENT,
+  // never a fragment.
+  await run(
+    "history-back",
+    [
+      "run-code",
+      "async page => { await page.evaluate(() => history.back()); }",
+    ],
+    false, // context destruction is expected during navigation
+  );
+  await run("history-back-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(500); }",
+  ]);
+  await run(
+    "history-forward",
+    [
+      "run-code",
+      "async page => { await page.evaluate(() => history.forward()); }",
+    ],
+    false,
+  );
+  await run("history-forward-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(600); }",
+  ]);
+  await run("history-restore-state", [
+    "eval",
+    "() => JSON.stringify({ url: location.pathname, htmlRoots: document.querySelectorAll('html').length, bodyCount: document.querySelectorAll('body').length, items: document.querySelector('#items h2')?.textContent ?? null })",
+    "--filename",
+    "history-restore.json",
+  ]);
+  const historyText = await readFile(
+    join(artifactDirectory, "history-restore.json"),
+    "utf8",
+  );
+  const historyState = JSON.parse(JSON.parse(historyText) as string) as {
+    url: string;
+    htmlRoots: number;
+    bodyCount: number;
+    items: string | null;
+  };
+  const historyPassed =
+    historyState.url === "/page-fragment" &&
+    historyState.htmlRoots === 1 &&
+    historyState.bodyCount === 1 &&
+    historyState.items === "Items";
+  // the stable lane is a hard assertion; the experimental lane records the
+  // observation (the htmx 4 beta reworks history internals, per its profile)
+  if (lane === "htmx2" && !historyPassed) {
+    throw new Error(`history restore failed in ${lane}: ${historyText}`);
   }
 
   // GH-061: CSRF no-JS form flow (hidden field), header flow, and the
@@ -332,6 +388,7 @@ try {
       "csrf-header-flow",
       "csrf-rejection",
       "session-lifecycle",
+      "history-restore",
     ],
     csrf: {
       issue: "GH-061",
@@ -387,6 +444,7 @@ try {
       "csrf-header.json",
       "csrf-bad-result.txt",
       "session.json",
+      "history-restore.json",
     ],
   };
   await writeFile(
