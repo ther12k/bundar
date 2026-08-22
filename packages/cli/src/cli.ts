@@ -3,6 +3,7 @@
  * Lightweight, dependency-free command parser with diagnostic reporting.
  */
 import { routesCommand } from "./commands/routes";
+import { devCommand } from "./commands/dev";
 
 export const BUNDAR_VERSION = "0.0.0";
 
@@ -71,6 +72,7 @@ Options:
   --version, -v    Show version
 
 Commands:
+  dev              Run the app with hot reload (development only)
   info             Show environment diagnostics (Bun, platform, versions)`);
 }
 
@@ -103,6 +105,9 @@ registerCommand({
 
 // GH-073: routes generate/check
 registerCommand(routesCommand);
+
+// GH-072: development command and reload loop
+registerCommand(devCommand);
 
 export async function runCli(rawArgs: string[]): Promise<number> {
   const { commandName, args, flags } = parseArgs(rawArgs);

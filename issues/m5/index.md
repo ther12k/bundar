@@ -2,7 +2,7 @@
 
 - [GH-070 — Create the Bundar CLI package and command framework](gh-070-create-the-bundar-cli-package-and-command-framework.md) — P1 / M; depends on GH-010 — **complete 2026-08-21** (closure record and evidence)
 - [GH-071 — Implement create-bundar scaffolding](gh-071-implement-create-bundar-scaffolding.md) — P0 / L; depends on GH-038, GH-056, GH-069, GH-070
-- [GH-072 — Implement the Bundar development command and reload loop](gh-072-implement-the-bundar-development-command-and-reload-loop.md) — P1 / L; depends on GH-015, GH-070
+- [GH-072 — Implement the Bundar development command and reload loop](gh-072-implement-the-bundar-development-command-and-reload-loop.md) — P1 / L; depends on GH-015, GH-070 — **complete 2026-08-22** (closure record and evidence)
 - [GH-073 — Generate route manifests and typed URL builders](gh-073-generate-route-manifests-and-typed-url-builders.md) — P0 / L; depends on GH-012, GH-015, GH-070 — **complete 2026-08-21** (closure record and evidence)
 - [GH-074 — Implement the in-process test client and request helpers](gh-074-implement-the-in-process-test-client-and-request-helpers.md) — P0 / L; depends on GH-023, GH-070 — **complete 2026-08-22** (closure record and evidence)
 - [GH-075 — Create and verify the minimal starter template](gh-075-create-and-verify-the-minimal-starter-template.md) — P0 / M; depends on GH-071, GH-073, GH-074

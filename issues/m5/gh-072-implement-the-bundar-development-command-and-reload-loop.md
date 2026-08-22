@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Editing route/component files triggers the documented reload behavior.
-- [ ] Syntax or compile failures are visible and do not leave duplicate listeners.
-- [ ] SIGINT/SIGTERM clean up child processes.
-- [ ] Production command remains separate from development behavior.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Editing route/component files triggers the documented reload behavior.
+- [x] Syntax or compile failures are visible and do not leave duplicate listeners.
+- [x] SIGINT/SIGTERM clean up child processes.
+- [x] Production command remains separate from development behavior.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -117,3 +117,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-072
+Commit / PR: merged `gh-072-dev-command` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/cli/src/commands/dev.ts` (new), `packages/cli/src/process/child.ts` (new, supervised child), `packages/cli/src/cli.ts` (registration + help), `packages/cli/test/dev/{entry,child,loop}.test.ts` (new, 13 tests), `test:dev-loop` script, `packages/cli/README.md` dev section, `evidence/gh-072/verification-transcript.md`.
+Commands executed: `bun test packages/cli` 25/25; `test:dev-loop` 13/13 (real-binary integration loop); full suite 743/743; typecheck; lint; format; architecture (84 files); pack:inspect @bundar/cli; api:check; build; docs — all exit 0. Tooling decision: `bun test packages/cli/test/dev/**` realized as the directory form, wired as `test:dev-loop`.
+Evidence: `evidence/gh-072/verification-transcript.md`.
+Contract/API changes: new `bundar dev [--entry][--port]` command; new CLI-internal `superviseChild` process helper (not exported publicly).
+Security/performance impact: none at runtime (dev-only command; production unaffected). The dev child runs with NODE_ENV=development; spawn failures and signal deaths propagate codes — nothing silent.
+Remaining risks: Bun hot-reload module-state semantics inherited by design (documented); a broken INITIAL start exits visibly rather than looping. Both documented in the README and transcript.
+Documentation updated: `packages/cli/README.md`, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: none directly (GH-072 blocks none).
