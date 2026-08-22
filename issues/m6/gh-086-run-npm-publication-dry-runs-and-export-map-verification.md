@@ -57,13 +57,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] All documented imports resolve in clean consumers.
-- [ ] No workspace protocol or unpublished internal path leaks into tarballs.
-- [ ] The CLI executes from the tarball.
-- [ ] No real registry publish occurs in this issue.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] All documented imports resolve in clean consumers.
+- [x] No workspace protocol or unpublished internal path leaks into tarballs.
+- [x] The CLI executes from the tarball.
+- [x] No real registry publish occurs in this issue.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -117,3 +117,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-086
+Commit / PR: merged `gh-086-publish-dry-run` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/release/publish-dry-run.ts` (new) + `publish:dry-run`/`exports:check` scripts, `artifacts/publish-dry-run.{md,json}`, repository metadata added to all 8 package manifests (gap caught by the dry run), `evidence/gh-086/verification-transcript.md`.
+Commands executed: `publish:dry-run` exit 0 — 38/38 checks (plan simulation 0.1.0-alpha.1@alpha, export maps in-tarball, no workspace/unpublished leaks, clean-consumer install + 8 entry-point imports incl. htmx /2 /4, TSX through the installed JSX runtime, CLI from tarball); `exports:check` exit 0; `test:pack-consumers` 8/8; `pack:audit` exit 0; full suite 827/827; typecheck; lint; format; docs — all exit 0. No registry publish executed.
+Evidence: `evidence/gh-086/verification-transcript.md`; `artifacts/publish-dry-run.{md,json}`.
+Contract/API changes: none to code surfaces; publish metadata completed (repository fields).
+Security/performance impact: none at runtime; the dry run hardens the publish path (no protocol leaks, synchronized inter-deps, namespace-confirmed entry points).
+Remaining risks: file:-registry stands in for real registry resolution until GH-088's release gate performs the actual publish.
+Documentation updated: this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-087.

@@ -773,3 +773,11 @@ GH-084 is complete; GH-085 and GH-087 are unblocked.
 - Verified: all three scripts + `sha256sum -c` 8/8 OK, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-085/verification-transcript.md`.
 
 GH-085 is complete; GH-086 and GH-087 are unblocked.
+
+## 2026-08-22 — GH-086: npm publication dry runs and export-map verification
+
+- Built `publish:dry-run` (+ `exports:check` mode): 38 fail-closed checks — pre-release plan simulation (0.1.0-alpha.1 @ alpha, dependency-first order, inter-deps synchronized to the publish form), export-map verification in-tarball (no workspace:/unpublished leaks, metadata + README), clean-consumer install from a file:-linked registry where NESTED manifests may never point at the registry, all 8 entry-point imports (incl. htmx /2 + /4), TSX executing AND typechecking through the installed @bundar/jsx runtime, and the CLI running from its tarball. No registry publish executed.
+- Real gap caught: 8 package manifests lacked `repository` publish metadata — added.
+- Verified: 38/38 checks, exports:check, pack-consumers 8/8, pack:audit, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-086/verification-transcript.md`.
+
+GH-086 is complete; GH-087 is unblocked.

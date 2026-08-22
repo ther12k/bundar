@@ -32,5 +32,10 @@
     "build": "bun build ./src/index.ts --outdir ./dist --target=bun",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "bun test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ther12k/bundar.git",
+    "directory": "packages/jsx"
   }
 }
