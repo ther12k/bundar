@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Bundar does not assume implicit inheritance in neutral components.
-- [ ] The v2 adapter can preserve v2 behavior while the v4 adapter emits explicit configuration where approved.
-- [ ] Unsupported extension patterns produce migration diagnostics.
-- [ ] Compatibility extension use is optional and visible, never silently injected.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Bundar does not assume implicit inheritance in neutral components.
+- [x] The v2 adapter can preserve v2 behavior while the v4 adapter emits explicit configuration where approved.
+- [x] Unsupported extension patterns produce migration diagnostics.
+- [x] Compatibility extension use is optional and visible, never silently injected.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-047
+Commit / PR: merged `gh-047-inheritance` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/inheritance.ts` (new), `packages/htmx/src/extensions.ts` (new), `packages/htmx/test/inheritance/inheritance.test.ts` (new, 6 tests), `packages/htmx/test/extensions/extensions.test.ts` (new, 6 tests), browser lane `inheritance-disinherit` scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-047/verification-transcript.md` (new).
+Commands executed: inheritance + extensions 12/12; both browser lanes; htmx + root typecheck; lint; format; full repo 624/624; architecture (73 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-047/verification-transcript.md`.
+Contract/API changes: new exports in @bundar/htmx — `formatDisinherit`, `diagnoseInheritance`, `HTMX2_INHERITED_ATTRIBUTES`, `InheritancePolicyError`, `formatExtensionAttribute`, `diagnoseExtension`, `rawExtension`, `HTMX_2_COMPAT_EXTENSION`, `OFFICIAL_EXTENSIONS`, `ExtensionPolicyError`, `InheritanceDiagnostic`, `ExtensionDiagnostic`, `HtmxExtensionDescriptor`, `RawExtension` types. No existing API changed.
+Security/performance impact: explicit inheritance prevents silent reliance on implicit upstream defaults; extension diagnostics provide early migration warnings for deprecated extensions (e.g. json-enc in v4); raw extension names are cleanly audited.
+Remaining risks: third-party extension compatibility unverified by design.
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-078 (HTMX 2-to-4 migration linter).

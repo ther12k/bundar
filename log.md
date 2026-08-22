@@ -559,3 +559,11 @@ GH-045 is complete; GH-053, GH-054, and GH-066 are unblocked.
 - Verified in unit tests (8/8), browser lanes, full repo suite (612/612), typechecks, architecture (71 files), and docs validation. Evidence: `evidence/gh-046/verification-transcript.md`.
 
 GH-046 is complete.
+
+## 2026-08-22 — GH-047: inheritance and extension compatibility helpers
+
+- Added inheritance helpers in @bundar/htmx: `formatDisinherit()`, `diagnoseInheritance()`, `HTMX2_INHERITED_ATTRIBUTES`, modeling v2 default-inheriting vs v4 explicit-by-default behavior.
+- Added extension helpers in @bundar/htmx: `OFFICIAL_EXTENSIONS`, `HTMX_2_COMPAT_EXTENSION` migration reference, `formatExtensionAttribute()`, `diagnoseExtension()`, and `rawExtension()` escape hatch.
+- Verified in unit tests (12/12), browser lanes in `htmx2` and `htmx4`, full repository tests (624/624), architecture (73 files), pack:inspect, build, and docs. Evidence: `evidence/gh-047/verification-transcript.md`.
+
+GH-047 is complete; GH-078 is unblocked.

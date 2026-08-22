@@ -159,3 +159,23 @@ export type {
   HtmxApplicationEvent,
   RawDialectEvent,
 } from "./events";
+export {
+  diagnoseInheritance,
+  formatDisinherit,
+  HTMX2_INHERITED_ATTRIBUTES,
+  InheritancePolicyError,
+} from "./inheritance";
+export type { InheritanceDiagnostic } from "./inheritance";
+export {
+  diagnoseExtension,
+  formatExtensionAttribute,
+  rawExtension,
+  ExtensionPolicyError,
+  HTMX_2_COMPAT_EXTENSION,
+  OFFICIAL_EXTENSIONS,
+} from "./extensions";
+export type {
+  ExtensionDiagnostic,
+  HtmxExtensionDescriptor,
+  RawExtension,
+} from "./extensions";

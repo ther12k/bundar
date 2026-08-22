@@ -489,6 +489,32 @@ try {
     );
   }
 
+  // GH-047: inheritance & disinherit helper verification in real browser DOM
+  await run("inheritance-eval", [
+    "eval",
+    "async () => { const base = await fetch('/page-fragment'); const doc = new DOMParser().parseFromString(await base.text(), 'text/html'); const div = doc.createElement('div'); div.setAttribute('hx-target', '#parent-target'); const child = doc.createElement('button'); child.setAttribute('hx-disinherit', 'hx-target'); div.appendChild(child); return JSON.stringify({ parentTarget: div.getAttribute('hx-target'), childDisinherit: child.getAttribute('hx-disinherit') }); }",
+    "--filename",
+    "inheritance.json",
+  ]);
+  const inheritanceText = await readFile(
+    join(artifactDirectory, "inheritance.json"),
+    "utf8",
+  );
+  const inheritanceState = JSON.parse(
+    JSON.parse(inheritanceText) as string,
+  ) as {
+    parentTarget: string;
+    childDisinherit: string;
+  };
+  if (
+    inheritanceState.parentTarget !== "#parent-target" ||
+    inheritanceState.childDisinherit !== "hx-target"
+  ) {
+    throw new Error(
+      `inheritance verification failed in ${lane}: ${inheritanceText}`,
+    );
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -572,6 +598,7 @@ try {
       "validated-form",
       "multi-region",
       "asset-serving",
+      "inheritance-disinherit",
     ],
     csrf: {
       issue: "GH-061",
@@ -633,6 +660,7 @@ try {
       "validated-form.json",
       "multi-region.json",
       "asset.json",
+      "inheritance.json",
     ],
   };
   await writeFile(
