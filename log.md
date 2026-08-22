@@ -583,3 +583,11 @@ GH-052 is complete.
 - Published `docs/compatibility/htmx2.md` compatibility guide detailing verified capabilities and explicitly unsupported upstream features (`hx-vals js:`). Evidence: `evidence/gh-053/verification-transcript.md`.
 
 GH-053 is complete.
+
+## 2026-08-22 — GH-054: close the HTMX 4 beta browser conformance profile
+
+- Closed experimental-lane browser conformance profile under htmx 4.0.0-beta6 across 19 browser scenarios (request normalization with HX-Source aliases, response directives, page/fragment negotiation, boosted navigation, action fallback, error negotiation with explicit reswap, CSRF, sessions, OOB updates, history restore, adaptive navigation, and offline asset serving).
+- Published machine-readable conformance report to `artifacts/conformance/htmx4-beta6.json` via `conformance:report -- htmx4-beta6`.
+- Published `docs/compatibility/htmx4-beta6.md` compatibility guide detailing provisional findings, differences from v2, and mandatory M7 GA revalidation. Evidence: `evidence/gh-054/verification-transcript.md`.
+
+GH-054 is complete; GH-055 is unblocked.
