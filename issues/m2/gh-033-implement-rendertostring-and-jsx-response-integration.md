@@ -63,13 +63,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Synchronous trees can return synchronously where API design permits.
-- [ ] Async trees resolve without output corruption.
-- [ ] Content-Type includes approved UTF-8 semantics unless overridden safely.
-- [ ] A consumer can use JSX renderer without importing core.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Synchronous trees can return synchronously where API design permits.
+- [x] Async trees resolve without output corruption.
+- [x] Content-Type includes approved UTF-8 semantics unless overridden safely.
+- [x] A consumer can use JSX renderer without importing core.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

@@ -41,6 +41,14 @@ export {
   DuplicateDocumentRootError,
   renderDocument,
 } from "./document";
+export {
+  renderToString,
+  renderToStringAsync,
+  renderToStringAuto,
+} from "./render-to-string";
+export type { RenderOptions } from "./render-to-string";
+export { fragment, page } from "./response";
+export type { ResponseOptions } from "./response";
 export type { DocumentOptions } from "./document";
 export {
   isRawTextElement,

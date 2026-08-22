@@ -368,3 +368,11 @@ GH-022 is complete; GH-023 gains its final prerequisite.
 - Verification: document suite 11/11, jsx 86/86, full repo 325/325, consumer TSX compile, typecheck, lint, architecture (44 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-032/verification-transcript.md`.
 
 GH-032 is complete; GH-033 is unblocked.
+
+## 2026-08-22 — GH-033: renderToString and JSX Response integration
+
+- Landed `renderToString`/`renderToStringAsync`/`renderToStringAuto` (sync trees return plain strings with zero Promise involvement; async trees resolve in document order with abort propagation) and `page()`/`fragment()` Response helpers inside @bundar/jsx with no core import — content type `text/html; charset=utf-8` default, safe override, full-document doctype + single-html-root enforcement rejecting identically on sync and async paths.
+- Consumer independence proven by the architecture check (jsx→core imports forbidden and absent).
+- Verification: render 6/6 + response 7/7, full repo 338/338, consumer TSX compile, typecheck, lint, architecture (46 files), pack inspect, build, format — all exit 0. Evidence: `evidence/gh-033/verification-transcript.md`.
+
+GH-033 is complete; GH-034, GH-036, GH-048, GH-050, and GH-059 are unblocked.
