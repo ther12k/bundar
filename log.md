@@ -728,3 +728,13 @@ GH-079 is complete; GH-080 is unblocked.
 - Verified: test:guides 10/10, full suite 824/824, typecheck, lint, format, architecture, api:check, docs:check/snippets/validate/links, build — all exit 0. Evidence: `evidence/gh-080/verification-transcript.md`.
 
 GH-080 is complete; GH-081 (the M5 usability gate) is unblocked.
+
+## 2026-08-22 — GH-081: M5 developer-experience usability gate
+
+- Built `test:dx-cleanroom`: a scripted fresh-user journey consuming PACKED tarballs — all 7 @bundar packages packed into a local registry (workspace specs rewritten to file: links, covering both workspace:* and bun-pack's bare-0.0.0 forms), a create-bundar app generated against them, then install → typecheck → test → build → routes:generate/check → live HTTP (no-JS PRG, enhanced fragment, 422 with the exact message), and a deliberate route-drift error that must fail with a diagnostic naming the stale artifact. 17 measured steps, exit 0; report at artifacts/dx/m5-report.md.
+- Added `test:pack-consumers`: 8/8 publishable manifests verified through pack:inspect.
+- Real defects found BY the gate and fixed: the scaffolded app lacked a default App export (route generation failed) and named routes (drift detection impossible) — create-bundar template fixed; scaffold/template/guide batteries re-verified.
+- Recorded `delivery/gates/m5.md`: all 11 M5 issues complete with transcripts; **the M5 milestone is closed**; GH-082/GH-084 (M6) unblocked.
+- Verified: cleanroom journey, pack-consumers 8/8, docs:snippets, full suite 824/824, typecheck, lint, format, architecture, build, docs — all exit 0. Evidence: `evidence/gh-081/verification-transcript.md`.
+
+GH-081 is complete; **the M5 milestone is closed**. M6 begins with GH-082 and GH-084 unblocked.

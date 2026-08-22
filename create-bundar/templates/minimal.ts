@@ -159,8 +159,10 @@ export function createApp(): App {
   // Local htmx asset from the framework's pinned vendor file (no CDN).
   app.get("/assets/htmx.js", (context) => assets(context.request));
 
-  app.get("/healthz", () =>
-    text("ok", { headers: { "cache-control": "no-store" } }),
+  app.get(
+    "/healthz",
+    () => text("ok", { headers: { "cache-control": "no-store" } }),
+    { name: "health" },
   );
 
   app.get("/", (context) =>
@@ -203,6 +205,8 @@ export function createApp(): App {
 
   return app;
 }
+
+export default createApp();
 
 function homeContent(): unknown {
   return [

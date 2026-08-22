@@ -40,6 +40,8 @@
     "docs:generate": "bun tools/docs/generate-api.ts && bun tools/docs/generate-compat.ts",
     "docs:snippets": "bun test tests/docs/snippets.test.ts",
     "test:guides": "bun test tests/docs/guides.test.ts tests/docs/snippets-guide.test.ts",
+    "test:dx-cleanroom": "bun tools/dx-cleanroom.ts",
+    "test:pack-consumers": "bun tools/pack-consumers.ts",
     "api:report": "bun tools/api-report.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
