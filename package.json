@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Bundar — a Bun-native, HTML-first TypeScript framework with server-only JSX and official htmx.",
+  "description": "Bundar \u2014 a Bun-native, HTML-first TypeScript framework with server-only JSX and official htmx.",
   "license": "MIT",
   "packageManager": "bun@1.4.0",
   "engines": {
@@ -48,7 +48,9 @@
     "test:browser:report": "bun tests/browser/report.ts",
     "ci:m0": "bun scripts/m0-gate.ts",
     "pack:inspect": "bun scripts/pack-inspect.ts",
-    "clean": "bun run scripts/clean.ts"
+    "clean": "bun run scripts/clean.ts",
+    "api:check": "bun tools/api-check.ts",
+    "ci:m1": "bun scripts/m1-gate.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

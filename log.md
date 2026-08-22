@@ -393,3 +393,11 @@ GH-023 is complete; GH-024 and GH-025 are unblocked.
 - Verification: parity 9/9, full repo 352/352, typecheck, lint, architecture (46 files), docs validate/links, build — all exit 0; GH-007's two deferred-adapter assertions updated to assert the real adapter (nothing skipped). Evidence: `evidence/gh-024/verification-transcript.md`.
 
 GH-024 is complete; GH-025 is unblocked and feeds GH-083.
+
+## 2026-08-22 — GH-025: M1 HTTP-core gate
+
+- Added the fail-closed `ci:m1` battery (28 ordered steps, strict superset of `ci:m0`: type-level tests, 42-test core contract matrix, three external type consumers, routes + API snapshot checks, pack:inspect for core and jsx, raw-HTML audit, committed M1 perf artifact tolerance check, both browser lanes, full suite, build) and `api:check`, which byte-compares the committed `artifacts/api/core.md` snapshot against the live surface.
+- Ran the full gate end-to-end: 28/28 exit 0 (one honest mid-run stop at format:check for the unformatted gate script; fixed and re-run from step 1 — nothing skipped).
+- Recorded the M1 gate in `delivery/gates/m1.md`: all 14 M1 issues complete with transcripts; reviewed M0 deviations (CLI workspace dependency, bench schema 1→2, new scripts — no public-API exception, no ADR required); authorization of M2/M3 dependent work (GH-034/035 immediately unblocked); no JSX/HTMX release claims. Evidence: `evidence/gh-025/verification-transcript.md`.
+
+GH-025 is complete; the M1 milestone is closed. GH-034, GH-035, GH-045–048 are next in dependency order.
