@@ -662,3 +662,13 @@ GH-074 is complete; GH-075 (minimal starter template) is unblocked.
 - Verified: packages/cli 25/25, full suite 743/743, typecheck, lint, format, architecture (84 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-072/verification-transcript.md`.
 
 GH-072 is complete (blocks none; M5 tooling progresses).
+
+## 2026-08-22 — GH-071: create-bundar scaffolding
+
+- Implemented `create-bundar`: templates as code (dialect-correct by construction), fail-closed safety (never overwrites; empty-or-nonexistent targets; npm-safe names), interactive TTY flow + non-interactive flags, and the prominent EXPERIMENTAL notice with the exact htmx 4.0.0-beta6 pin.
+- Generated minimal app: pinned Bun engine, TSX config, layout with a LOCAL pinned htmx asset (no CDN), health route, and a progressive subscribe form — the same handlers serve no-JS Post/Redirect/Get and htmx fragments, with 422 invalid-input handling and the app-owned ErrorBoundary.
+- `test:scaffold` verifies per dialect end to end: generate → install → typecheck → test → build → RUN → live HTTP assertions (health, home document, asset, PRG 303, enhanced 200 fragment, 422), restoring bun.lock byte-for-byte. Both htmx2 and htmx4-experimental pass.
+- The architecture boundary harness caught the planned test location (`packages/cli/test/create`) violating the frozen relative-escape rule; tests relocated to `create-bundar/test/create` (documented substitution). Also caught: template backtick-nesting errors before they could ship.
+- Verified: create-bundar 13/13, both scaffold runs, full suite 756/756, typecheck, lint, format, architecture (86 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-071/verification-transcript.md`.
+
+GH-071 is complete; GH-075 (minimal starter template) is unblocked.

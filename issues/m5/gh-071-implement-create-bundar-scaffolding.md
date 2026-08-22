@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Generated project installs, typechecks, tests, builds, and runs in a clean temporary directory.
-- [ ] Default project works with JavaScript disabled for core navigation/form flow.
-- [ ] Generated source contains no React/hydration runtime.
-- [ ] Experimental option emits a prominent maturity notice and exact pin.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Generated project installs, typechecks, tests, builds, and runs in a clean temporary directory.
+- [x] Default project works with JavaScript disabled for core navigation/form flow.
+- [x] Generated source contains no React/hydration runtime.
+- [x] Experimental option emits a prominent maturity notice and exact pin.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-071
+Commit / PR: merged `gh-071-create-bundar` into `main` (merge commit recorded in `log.md`).
+Files changed: `create-bundar/templates/minimal.ts` (new), `create-bundar/src/{index,cli,bin}.ts` (new), `create-bundar/test/create/{generator,cli}.test.ts` (new, 13 tests), `tools/test-scaffold.ts` (new) + `test:scaffold` script, manifest/tsconfig/README updates, root tsconfig path, `evidence/gh-071/verification-transcript.md`.
+Commands executed: `bun test create-bundar` 13/13; `test:scaffold -- htmx2` and `-- htmx4-experimental` both exit 0 (generate→install→typecheck→test 4/4→build→run with live no-JS PRG + enhanced fragment + 422 assertions, lockfile restored); full suite 756/756; typecheck; lint; format; architecture (86 files); pack:inspect create-bundar; api:check; build; docs — all exit 0. Tooling decisions: (1) workspace-mounted verification pre-npm with byte-identical lockfile restore; (2) tests relocated from the planned packages/cli path per the frozen relative-escape rule (caught by the boundary harness). Both recorded in the transcript.
+Evidence: `evidence/gh-071/verification-transcript.md`.
+Contract/API changes: new `create-bundar` package surface (createProject, ScaffoldDialect, ScaffoldError, notice text) + `bin`. No framework-package API changes (api:check match).
+Security/performance impact: none at runtime (scaffolding tool). Generated apps are secure-by-default: app-owned ErrorBoundary with production opacity, bounded parsing via parseForm, PRG fallback, local pinned htmx asset (no CDN), no React.
+Remaining risks: pre-npm `workspace:*` deps until M6 publication tooling; interactive prompts verified via injected prompt (no CI TTY). Documented.
+Documentation updated: `create-bundar/README.md`, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-075 (minimal starter template).
