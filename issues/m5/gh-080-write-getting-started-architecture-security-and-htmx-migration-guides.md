@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] All commands/snippets are tested in CI.
-- [ ] Guide does not imply beta is GA.
-- [ ] No-JS fallback and security are shown in the main path, not an appendix.
-- [ ] Migration guide requires audit and dual-lane tests before changing defaults.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] All commands/snippets are tested in CI.
+- [x] Guide does not imply beta is GA.
+- [x] No-JS fallback and security are shown in the main path, not an appendix.
+- [x] Migration guide requires audit and dual-lane tests before changing defaults.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -123,3 +123,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-080
+Commit / PR: merged `gh-080-guides` into `main` (merge commit recorded in `log.md`).
+Files changed: `docs/getting-started.md` (new), `docs/guides/{architecture,security,htmx-migration}.md` (new), `docs/snippets/guides/*.ts` (new, 5 runnable modules), `tests/docs/{guides.test.ts,snippets-guide.test.ts}` (new, 15 tests) + `test:guides` script, `evidence/gh-080/verification-transcript.md`.
+Commands executed: `test:guides` 10/10 (+ snippet modules execute); docs:check/docs:snippets/api:check/docs:validate/docs:links exit 0; typecheck; lint; format; architecture; build; full suite 824/824 — all exit 0.
+Evidence: `evidence/gh-080/verification-transcript.md`.
+Contract/API changes: none (documentation + verification tooling).
+Security/performance impact: none directly; the security guide documents the tested composition contract and metadata-never-trusted authorization as the main path.
+Remaining risks: comparison guidance avoids benchmark claims (M6 owns budgets); guide↔reference links are drift-guarded by GH-079 generation.
+Documentation updated: the four new guides + getting-started, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-081 (M5 usability gate).

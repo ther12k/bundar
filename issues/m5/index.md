@@ -10,5 +10,5 @@
 - [GH-077 — Build the Admin CRUD reference application](gh-077-build-the-admin-crud-reference-application.md) — P1 / L; depends on GH-060, GH-062, GH-063, GH-075 — **complete 2026-08-22** (closure record and evidence)
 - [GH-078 — Implement the HTMX 2-to-4 audit and migration linter](gh-078-implement-the-htmx-2-to-4-audit-and-migration-linter.md) — P0 / L; depends on GH-046, GH-047, GH-070 — **complete 2026-08-22** (closure record and evidence)
 - [GH-079 — Publish generated API reference and compatibility documentation source](gh-079-publish-generated-api-reference-and-compatibility-documentation-source.md) — P0 / L; depends on GH-038, GH-056, GH-069, GH-073 — **complete 2026-08-22** (closure record and evidence)
-- [GH-080 — Write getting-started, architecture, security, and HTMX migration guides](gh-080-write-getting-started-architecture-security-and-htmx-migration-guides.md) — P0 / L; depends on GH-076, GH-077, GH-078, GH-079
+- [GH-080 — Write getting-started, architecture, security, and HTMX migration guides](gh-080-write-getting-started-architecture-security-and-htmx-migration-guides.md) — P0 / L; depends on GH-076, GH-077, GH-078, GH-079 — **complete 2026-08-22** (closure record and evidence)
 - [GH-081 — Run the M5 developer-experience usability gate](gh-081-run-the-m5-developer-experience-usability-gate.md) — P0 / M; depends on GH-080
