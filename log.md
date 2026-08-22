@@ -653,3 +653,12 @@ GH-069 is complete; **the M4 milestone is closed**. GH-071 and GH-079 are unbloc
 - Verified: packages/testing 43/43, consumer 4/4, htmx header tests 4/4, full suite 730/730, typecheck, lint, format, architecture (82 files), pack:inspect, api:check (core unchanged), build, docs — all exit 0. Tooling decision: `test:leaks` substitution recorded in the transcript. Evidence: `evidence/gh-074/verification-transcript.md`.
 
 GH-074 is complete; GH-075 (minimal starter template) is unblocked.
+
+## 2026-08-22 — GH-072: development command and reload loop
+
+- Implemented `bundar dev [--entry][--port]`: spawns ONE child (`bun --hot <entry>`, NODE_ENV=development). Bun's hot mode re-evaluates changed modules in the same process and swaps the Bun.serve server on the same port — verified empirically before implementation (same PID, same port, new response; syntax errors print diagnostics while the last-good code keeps serving).
+- Added `superviseChild` (packages/cli/src/process/child.ts): inherited stdio, SIGINT/SIGTERM forwarding with SIGKILL escalation after a grace period, exit-code propagation (128+signal; 127 on spawn failure; the promise never rejects), and the intentional-stop marker so Ctrl-C exits 0.
+- 13 dev tests including a real-binary integration loop through `bin.ts`: edit → same-port hot swap; broken file → old version serving + process alive; fix applied; SIGINT → clean exit 0. `test:dev-loop` script wired.
+- Verified: packages/cli 25/25, full suite 743/743, typecheck, lint, format, architecture (84 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-072/verification-transcript.md`.
+
+GH-072 is complete (blocks none; M5 tooling progresses).
