@@ -123,3 +123,15 @@ export type {
   FormActionOutcome,
   InvalidFormRender,
 } from "./form-action";
+export {
+  auditUpdateMechanisms,
+  serializeUpdates,
+  UpdateIntentError,
+} from "./updates";
+export type {
+  SerializedUpdates,
+  UpdateDiagnostic,
+  UpdateIntent,
+  UpdateOperation,
+  UpdateTarget,
+} from "./updates";

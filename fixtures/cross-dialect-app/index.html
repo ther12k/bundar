@@ -39,6 +39,21 @@
       <div id="boosted-zone" hx-boost="true">
         <a id="boosted-link" href="/page-fragment">Boosted items page</a>
       </div>
+      <div id="multi-region-zone">
+        <span id="mr-counter">0 items</span>
+        <ul id="mr-list">
+          <li>seed row</li>
+        </ul>
+        <button
+          id="mr-trigger"
+          hx-post="/multi-region"
+          hx-target="#mr-target"
+          hx-swap="innerHTML"
+        >
+          Update multi-region
+        </button>
+        <div id="mr-target"></div>
+      </div>
       <p id="event-state">event: none</p>
     </main>
     <script>

@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] A counter and list row update uses identical application source in both lanes.
-- [ ] Generated HTML is valid and target IDs/selectors are explicit.
-- [ ] Adapter does not silently change destructive versus additive swap meaning.
-- [ ] Raw dialect markup is reported by compatibility audit.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] A counter and list row update uses identical application source in both lanes.
+- [x] Generated HTML is valid and target IDs/selectors are explicit.
+- [x] Adapter does not silently change destructive versus additive swap meaning.
+- [x] Raw dialect markup is reported by compatibility audit.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-051
+Commit / PR: merged `gh-051-oob-intents` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/updates.ts` (new) + index exports, `packages/htmx/test/updates/updates.test.ts` (new, 9 tests), browser `/multi-region` endpoint + `multi-region` browser scenario in both lanes, `packages/htmx/README.md`, `evidence/gh-051/verification-transcript.md` (new).
+Commands executed: updates 9/9; both browser lanes with the multi-region scenario (replaces counter to 42 items and appends row out-of-band); htmx + root typecheck; lint; format; full repo 590/590; architecture (68 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0. Tooling decision: dual-lane browser substitution for the planned `test:browser:dual -- multi-region`.
+Evidence: `evidence/gh-051/verification-transcript.md`; `output/playwright/*/multi-region.json`.
+Contract/API changes: new exports in @bundar/htmx — `serializeUpdates`, `auditUpdateMechanisms`, `UpdateIntentError`, `UpdateTarget`, `UpdateOperation`, `UpdateIntent`, `SerializedUpdates`, `UpdateDiagnostic` types. No existing API changed.
+Security/performance impact: multi-region update intents are validated before serialization (unsupported dialect modes fail closed, duplicate target IDs rejected, remove intents with content rejected); destructive vs additive swap operations are explicitly preserved; prebuilt strings ride the raw() boundary; raw dialect markup is reportable for audit.
+Remaining risks: htmx 4 beta OOB semantics pinned to 4.0.0-beta6; GA revalidation happens in M7.
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-055 (dual-dialect reference fixture) and GH-063 (flash messages and OOB flash regions).

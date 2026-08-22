@@ -533,3 +533,12 @@ GH-060 is complete; GH-068 awaits GH-063/064/066.
 - Verification: uploads 14/14, audit green, full repo 581/581, typechecks, lint, architecture (67 files), pack:inspect, api:check (77 exports), build, docs — all exit 0. Evidence: `evidence/gh-064/verification-transcript.md`.
 
 GH-064 is complete; GH-068 now awaits only GH-063 and GH-066.
+
+## 2026-08-22 — GH-051: version-neutral out-of-band and partial update intents
+
+- Added `serializeUpdates()` and `auditUpdateMechanisms()` to @bundar/htmx: applications describe multi-region updates once as stable `UpdateIntent` records (target ID + explicit operation: `replace-content`, `replace-element`, `append`, `prepend`, `remove`). The adapter chooses the OOB swap directive (`hx-swap-oob`) without altering destructive vs additive meaning.
+- Intent validation fails closed on duplicate target IDs, missing target IDs, missing content on additions/replacements, content on remove operations, or unsupported dialect capabilities. Prebuilt HTML strings ride the branded `raw()` trust boundary.
+- Verified in unit tests (9/9) and real browser lanes (`test:browser:htmx2` / `htmx4`) where counter replacement and list append execute out-of-band across both dialect lanes from identical intent definitions.
+- Full repo 590/590, typechecks, lint, architecture (68 files), pack:inspect, build, docs all green. Evidence: `evidence/gh-051/verification-transcript.md`.
+
+GH-051 is complete; GH-055 and GH-063 are unblocked.

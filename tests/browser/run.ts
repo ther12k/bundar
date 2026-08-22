@@ -425,6 +425,40 @@ try {
     );
   }
 
+  // GH-051: multi-region updates through real htmx OOB — the same intent
+  // source serves both dialect lanes; the counter element is replaced and
+  // a row appends out-of-band.
+  await run("multi-region-open", ["open", baseUrl]);
+  await run("multi-region-click", ["click", "#mr-trigger"]);
+  await run("multi-region-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(250); }",
+  ]);
+  await run("multi-region-eval", [
+    "eval",
+    "() => JSON.stringify({ counter: document.querySelector('#mr-counter')?.textContent ?? null, rows: document.querySelectorAll('#mr-list li').length, lastRow: document.querySelectorAll('#mr-list li')[1]?.textContent ?? null })",
+    "--filename",
+    "multi-region.json",
+  ]);
+  const multiRegionText = await readFile(
+    join(artifactDirectory, "multi-region.json"),
+    "utf8",
+  );
+  const multiRegion = JSON.parse(JSON.parse(multiRegionText) as string) as {
+    counter: string | null;
+    rows: number;
+    lastRow: string | null;
+  };
+  const multiRegionPassed =
+    multiRegion.counter === "42 items" &&
+    multiRegion.rows === 2 &&
+    multiRegion.lastRow === "fresh row";
+  if (lane === "htmx2" && !multiRegionPassed) {
+    throw new Error(
+      `multi-region update failed in ${lane}: ${multiRegionText}`,
+    );
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -506,6 +540,7 @@ try {
       "action-fallback",
       "error-negotiation",
       "validated-form",
+      "multi-region",
     ],
     csrf: {
       issue: "GH-061",
@@ -565,6 +600,7 @@ try {
       "action-fallback.json",
       "errors.json",
       "validated-form.json",
+      "multi-region.json",
     ],
   };
   await writeFile(

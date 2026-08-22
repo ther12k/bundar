@@ -7,6 +7,7 @@ import {
   validationErrorView,
   renderValidationErrorFragment,
   runFormAction,
+  serializeUpdates,
   view,
   type FormActionDefinition,
 } from "@bundar/htmx";
@@ -26,6 +27,8 @@ import {
   issueCsrfToken,
   sessionMiddleware,
 } from "@bundar/security";
+import { htmx2 } from "@bundar/htmx/2";
+import { htmx4Experimental } from "@bundar/htmx/4";
 
 const repositoryRoot = join(import.meta.dir, "..", "..");
 const fixtureRoot = join(repositoryRoot, "fixtures", "cross-dialect-app");
@@ -235,6 +238,27 @@ export async function handler(
         fragmentTarget: "#error-target",
       },
     );
+  }
+  if (url.pathname === "/multi-region" && request.method === "POST") {
+    // GH-051: identical intent source for both dialect lanes — the counter
+    // element is replaced and a row appends, all out-of-band
+    const { html } = serializeUpdates(
+      [
+        {
+          target: { id: "mr-counter" },
+          operation: { kind: "replace-element" },
+          content: jsx("span", { id: "mr-counter", children: "42 items" }),
+        },
+        {
+          target: { id: "mr-list" },
+          operation: { kind: "append" },
+          content: jsx("li", { children: "fresh row" }),
+        },
+      ],
+      // dialect parity is asserted in unit tests; the fixture pins one
+      lane === "htmx4" ? htmx4Experimental : htmx2,
+    );
+    return fragment(html);
   }
   if (url.pathname === "/validated-form" && request.method === "POST") {
     // GH-060: one action, identical validation for both worlds
