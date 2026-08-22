@@ -64,13 +64,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Mandatory security tests pass in the stable lane and no-JS lane.
-- [ ] Experimental-lane deviations are explicit and do not weaken stable behavior.
-- [ ] No credentials/tokens appear in artifacts.
-- [ ] All residual high risks have blocking issues.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Mandatory security tests pass in the stable lane and no-JS lane.
+- [x] Experimental-lane deviations are explicit and do not weaken stable behavior.
+- [x] No credentials/tokens appear in artifacts.
+- [x] All residual high risks have blocking issues.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -132,3 +132,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-068
+Commit / PR: merged `gh-068-security-matrix` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/security/test-matrix.ts` (new) + `test:security` script, `tools/security/security-report.ts` (new) + `security:report` script, `tests/security/matrix.test.ts` (new, 8 tests), `artifacts/security/{test-matrix.json,report.json}` (new), `evidence/gh-068/verification-transcript.md` (new).
+Commands executed: `test:security` 9/9; `security:report` posture=pass; `tests/security` 8/8; full repo 663/663; root typecheck; lint; format; architecture (77 files); build; docs validate/links — all exit 0. Tooling decision: browser-lane + no-JS flows covered by existing dual-lane scenarios (established substitution).
+Evidence: `evidence/gh-068/verification-transcript.md`; `artifacts/security/{test-matrix.json,report.json}`.
+Contract/API changes: none (test tooling only). Two new scripts: `test:security` and `security:report`.
+Security/performance impact: 9/9 security audits green; credential-pattern scanner verified zero violations across all artifacts; cross-cutting middleware composition verified (CSRF+session+headers, error-negotiation production-safety, action composer secret hygiene); 4 residual risks documented with mitigations — none unmitigated high.
+Remaining risks: external penetration-test certification out of scope; all residuals documented.
+Documentation updated: this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-069 (M4 gate).

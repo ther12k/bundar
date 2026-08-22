@@ -625,3 +625,11 @@ GH-063 is complete; GH-068 now awaits only GH-066.
 - Verification: headers 10/10, security:headers audit green, both browser lanes with `csp-headers` scenario, full repo 655/655, typechecks, lint, architecture (77 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-066/verification-transcript.md`.
 
 GH-066 is complete; **GH-068 (forms and security matrix) is unblocked — all dependencies complete.**
+
+## 2026-08-22 — GH-068: forms and security test matrix
+
+- Added `test:security` (unified 9-audit fail-closed runner) and `security:report` (machine-readable posture report with credential-pattern scanner and residual-risk registry). All 9 security audits green (raw-HTML, validation-redaction, jsx, csrf, cookies, uploads, cache, redirects, headers).
+- Added 8 cross-cutting security matrix tests: middleware composition (CSRF+session+headers), nonce propagation, error-negotiation production-safety, action-secret hygiene, and no-credentials-in-artifacts guards. Published `artifacts/security/{test-matrix.json,report.json}`.
+- Verification: 9/9 audits, 8/8 matrix tests, full repo 663/663, typecheck, lint, architecture (77 files), build, docs — all exit 0. Evidence: `evidence/gh-068/verification-transcript.md`.
+
+GH-068 is complete; GH-069 (M4 gate) is unblocked.
