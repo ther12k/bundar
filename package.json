@@ -55,6 +55,8 @@
     "release:reproduce": "bun tools/release/reproduce.ts",
     "publish:dry-run": "bun tools/release/publish-dry-run.ts",
     "exports:check": "bun tools/release/publish-dry-run.ts",
+    "release:notes-check": "bun tools/release/notes-check.ts",
+    "links:artifacts": "bun tools/release/notes-check.ts",
     "api:report": "bun tools/api-report.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",

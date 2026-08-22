@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No beta feature is described as stable or GA.
-- [ ] Every compatibility claim links to executed evidence.
-- [ ] Breaking-change expectations for pre-1.0 are explicit.
-- [ ] Upgrade and rollback instructions are present.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No beta feature is described as stable or GA.
+- [x] Every compatibility claim links to executed evidence.
+- [x] Breaking-change expectations for pre-1.0 are explicit.
+- [x] Upgrade and rollback instructions are present.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -125,3 +125,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-087
+Commit / PR: merged `gh-087-release-notes` into `main` (merge commit recorded in `log.md`).
+Files changed: `docs/release-notes/alpha.md` (new), `tools/release/notes-check.ts` (new) + `release:notes-check`/`links:artifacts` scripts, `evidence/gh-087/verification-transcript.md`.
+Commands executed: `release:notes-check` exit 0 (all claims checks + 12 links); `links:artifacts` exit 0; docs:check/docs:validate/docs:links exit 0; full suite 827/827; typecheck; lint; format — all exit 0.
+Evidence: `evidence/gh-087/verification-transcript.md`; `docs/release-notes/alpha.md`.
+Contract/API changes: none (documentation + checker).
+Security/performance impact: none directly; benchmark claims constrained to the environment-bound doc with no leadership language (checked).
+Remaining risks: notes reference the simulated publish plan until GH-088 executes the real gate.
+Documentation updated: `docs/release-notes/alpha.md`, this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-088.
