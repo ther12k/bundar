@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Direct URL access enforces the same authorization as enhanced requests.
-- [ ] Table/filter/forms are usable with JavaScript disabled.
-- [ ] HTMX metadata is never trusted for authorization or record identity beyond ordinary input validation.
-- [ ] Both adapters run from unchanged domain/routes/components.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Direct URL access enforces the same authorization as enhanced requests.
+- [x] Table/filter/forms are usable with JavaScript disabled.
+- [x] HTMX metadata is never trusted for authorization or record identity beyond ordinary input validation.
+- [x] Both adapters run from unchanged domain/routes/components.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -125,3 +125,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-077
+Commit / PR: merged `gh-077-admin-crud` into `main` (merge commit recorded in `log.md`).
+Files changed: `examples/admin-crud/src/{domain,app,layout,dialect,main,app.test,security.test}.ts` (new), `examples/admin-crud/{package.json,tsconfig.json}` (workspace member with deps), `tools/test-example.ts` (generalized to six lanes across both reference apps), `tools/source-diff.ts` (guards examples/admin-crud), `docs/examples/admin.md` (walkthrough + production seams), `security:example-admin` script, `evidence/gh-077/verification-transcript.md`.
+Commands executed: admin example 16/16; `security:example-admin` 7/7; `test:example -- admin:htmx2|admin:htmx4|admin:no-js` all exit 0 (htmx4 delta = dialect.ts only); all three todo lanes re-verified; htmx:source-diff (20 files); full suite 788/788; standalone strict typecheck; typecheck; lint; format; architecture; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-077/verification-transcript.md`.
+Contract/API changes: none to framework packages (api:check match); `tools/test-example.ts` generalized (todo lanes unchanged in behavior).
+Security/performance impact: server-side role gates on every mutation (viewer/editor/admin); authorization parity across request modes proven; HTMX metadata never used for permission or identity (dedicated tests); CSRF fail-closed on all four mutations; 401/403 never leak protected content; optimistic concurrency prevents lost updates (409 negotiation).
+Remaining risks: fixture auth/store are documented seams (real authentication + durable store + SQL plug in behind the same interfaces); real-browser DOM runs land with GH-082.
+Documentation updated: `docs/examples/admin.md`, this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-080 (guides), GH-093 (M7, with its milestone).

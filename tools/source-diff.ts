@@ -15,6 +15,7 @@ const TARGET_DIRS = [
   join(REPOSITORY_ROOT, "examples", "dual-dialect-fixture"),
   join(REPOSITORY_ROOT, "templates", "minimal"),
   join(REPOSITORY_ROOT, "examples", "todo"),
+  join(REPOSITORY_ROOT, "examples", "admin-crud"),
 ];
 
 const FORBIDDEN_PATTERNS: ReadonlyArray<{
