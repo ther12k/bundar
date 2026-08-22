@@ -48,6 +48,9 @@ export function formRequest(
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded",
+      // browsers always send Origin on form submissions; CSRF origin
+      // checks fail closed without it (overridable via init.headers)
+      origin: TEST_ORIGIN,
       ...(init.headers as Record<string, string> | undefined),
     },
     body: new URLSearchParams(fields).toString(),

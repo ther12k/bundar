@@ -14,6 +14,7 @@ const REPOSITORY_ROOT = join(import.meta.dir, "..");
 const TARGET_DIRS = [
   join(REPOSITORY_ROOT, "examples", "dual-dialect-fixture"),
   join(REPOSITORY_ROOT, "templates", "minimal"),
+  join(REPOSITORY_ROOT, "examples", "todo"),
 ];
 
 const FORBIDDEN_PATTERNS: ReadonlyArray<{

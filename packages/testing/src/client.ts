@@ -211,8 +211,7 @@ export function createTestClient(
 
   const enhancedHeadersOf = (
     htmx: HtmxRequestHeaderOptions | undefined,
-  ): Record<string, string> | undefined =>
-    htmx === undefined ? undefined : buildHtmxRequestHeaders(htmx, dialect);
+  ): Record<string, string> => buildHtmxRequestHeaders(htmx ?? {}, dialect);
 
   const client: TestClient = {
     mode: "in-process",
@@ -243,8 +242,8 @@ export function createTestClient(
         enhancedRequest(path, {
           ...init,
           method: "GET",
-          ...(dialect !== undefined ? { dialect } : {}),
-          ...(htmx !== undefined ? { htmx } : {}),
+          dialect,
+          htmx: htmx ?? {},
         }),
       ),
     enhancedSubmitForm: (path, fields, htmx, init = {}) =>
@@ -253,7 +252,7 @@ export function createTestClient(
           ...init,
           headers: {
             ...((init.headers as Record<string, string> | undefined) ?? {}),
-            ...(enhancedHeadersOf(htmx) ?? {}),
+            ...enhancedHeadersOf(htmx),
           },
         }),
       ),
