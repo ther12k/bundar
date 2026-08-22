@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Missing required params fail typecheck.
-- [ ] Generated URLs are standards-compliant and match server routes.
-- [ ] Changing a named route causes a deterministic generated diff.
-- [ ] Generator never executes application handlers or untrusted startup side effects.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Missing required params fail typecheck.
+- [x] Generated URLs are standards-compliant and match server routes.
+- [x] Changing a named route causes a deterministic generated diff.
+- [x] Generator never executes application handlers or untrusted startup side effects.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 

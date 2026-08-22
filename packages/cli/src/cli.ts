@@ -2,6 +2,7 @@
  * Bundar CLI command framework.
  * Lightweight, dependency-free command parser with diagnostic reporting.
  */
+import { routesCommand } from "./commands/routes";
 
 export const BUNDAR_VERSION = "0.0.0";
 
@@ -99,6 +100,9 @@ registerCommand({
   description: "Show environment diagnostics without leaking secrets",
   handler: runInfo,
 });
+
+// GH-073: routes generate/check
+registerCommand(routesCommand);
 
 export async function runCli(rawArgs: string[]): Promise<number> {
   const { commandName, args, flags } = parseArgs(rawArgs);
