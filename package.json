@@ -35,6 +35,7 @@
     "test:scaffold": "bun tools/test-scaffold.ts",
     "test:template": "bun tools/test-template.ts",
     "test:example": "bun tools/test-example.ts",
+    "security:example-admin": "bun test examples/admin-crud/src/security.test.ts",
     "api:report": "bun tools/api-report.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",

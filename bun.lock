@@ -25,6 +25,18 @@
     "examples/admin-crud": {
       "name": "@bundar/example-admin-crud",
       "version": "0.0.0",
+      "dependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/htmx": "workspace:*",
+        "@bundar/jsx": "workspace:*",
+        "@bundar/schema": "workspace:*",
+        "@bundar/security": "workspace:*",
+      },
+      "devDependencies": {
+        "@bundar/testing": "workspace:*",
+        "@types/bun": "1.3.14",
+        "typescript": "6.0.3",
+      },
     },
     "examples/dual-dialect-fixture": {
       "name": "@bundar/example-dual-dialect-fixture",

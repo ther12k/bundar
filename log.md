@@ -691,3 +691,12 @@ GH-075 is complete; GH-076 and GH-077 are unblocked.
 - Verified: example unit 11/11 + standalone strict typecheck, three E2E lanes, full suite 772/772, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-076/verification-transcript.md`.
 
 GH-076 is complete; GH-080 and (with M7) GH-093 are unblocked.
+
+## 2026-08-22 — GH-077: Admin CRUD reference application
+
+- Built `examples/admin-crud`: versioned ArticleRepository with an append-only audit log; fixture login with server-side role gates (viewer/editor/admin) reading ONLY the session; searchable/filterable/paginated table (plain GET controls — zero-JS usable); inline create/edit with validation and optimistic-concurrency 409 negotiation; admin-only delete; audit feed refreshed as a normalized OOB intent after every mutation; 401/403/404/409 error negotiation without protected-content leakage.
+- `security:example-admin` suite (7 tests): direct-URL ↔ enhanced authorization parity, HTMX headers never grant identity, record identity from route params (never hx-target), CSRF fail-closed on all mutations, no internals in any error body.
+- `tools/test-example.ts` generalized to six lanes: todo/admin × htmx2/htmx4/no-js — all exit 0; the htmx4 lanes enforce the dialect.ts-only delta by recursive diff. htmx:source-diff now guards the admin tree (20 files total).
+- Verified: example 16/16 + security 7/7 + standalone strict typecheck, six E2E lanes, full suite 788/788, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-077/verification-transcript.md`.
+
+GH-077 is complete; GH-080 and (with M7) GH-093 are unblocked.

@@ -23,15 +23,27 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const variant = process.argv[2];
-const VARIANTS = ["todo:htmx2", "todo:htmx4", "todo:no-js"] as const;
+const VARIANTS = [
+  "todo:htmx2",
+  "todo:htmx4",
+  "todo:no-js",
+  "admin:htmx2",
+  "admin:htmx4",
+  "admin:no-js",
+] as const;
 if (!VARIANTS.includes(variant as (typeof VARIANTS)[number])) {
   console.error(`test:example: pass one of ${VARIANTS.join(" | ")}`);
   process.exit(2);
 }
 
+const APP = (variant ?? "").split(":")[0] as "todo" | "admin";
 const REPO = join(import.meta.dir, "..");
-const TODO = join(REPO, "examples", "todo");
-const TEMP_MOUNT = join(REPO, "examples", "todo-verify-tmp");
+const APP_DIRS = {
+  todo: "examples/todo",
+  admin: "examples/admin-crud",
+} as const;
+const TODO = join(REPO, APP_DIRS[APP]);
+const TEMP_MOUNT = join(REPO, "examples", `${APP}-verify-tmp`);
 const LOCKFILE = join(REPO, "bun.lock");
 const LOCK_BACKUP = join(tmpdir(), `bun-lock-backup-${Date.now()}`);
 
@@ -74,9 +86,10 @@ copyFileSync(LOCKFILE, LOCK_BACKUP);
 
 try {
   let target = TODO;
-  let port = 3811;
+  const basePort = APP === "todo" ? 3811 : 3821;
+  let port = basePort;
 
-  if (variant === "todo:htmx4") {
+  if ((variant ?? "").endsWith("htmx4")) {
     if (existsSync(TEMP_MOUNT)) throw new Error(`${TEMP_MOUNT} already exists`);
     cpSync(TODO, TEMP_MOUNT, { recursive: true });
     writeFileSync(join(TEMP_MOUNT, "src", "dialect.ts"), HTMX4_DIALECT);
@@ -89,7 +102,7 @@ try {
       JSON.stringify(pkg, null, 2) + "\n",
     );
     target = TEMP_MOUNT;
-    port = 3812;
+    port = basePort + 1;
     // the ONLY difference between variants is dialect.ts
     const diff = spawnSync(
       "diff",
@@ -155,7 +168,8 @@ try {
     return response;
   };
   const tokenOf = async (): Promise<string> => {
-    const html = await (await call("/")).text();
+    const path = APP === "todo" ? "/" : "/articles";
+    const html = await (await call(path)).text();
     return html.match(/name="_csrf"[^>]*value="([^"]*)"/)?.[1] ?? "";
   };
   const post = (
@@ -175,10 +189,229 @@ try {
       body: new URLSearchParams(fields).toString(),
     });
 
+  async function todoScenario(): Promise<void> {
+    // 1. list renders seed + counts
+    const home = await (await call("/")).text();
+    expect(
+      home.includes('id="todo-counts"') && home.includes("2 total"),
+      "counts region",
+    );
+    expect(home.includes('id="filters"'), "filter links");
+
+    // 2. create (PRG in no-JS lane; fragment+OOB in enhanced lanes)
+    const token = await tokenOf();
+    const created = await post(
+      "/todos",
+      { _csrf: token, title: "E2E task" },
+      !noJs,
+    );
+    if (noJs) {
+      expect(
+        created.status === 303,
+        `no-JS create is PRG (got ${created.status})`,
+      );
+    } else {
+      expect(
+        created.status === 200,
+        `enhanced create is 200 (got ${created.status})`,
+      );
+      const body = await created.text();
+      expect(body.includes('id="todo-3"'), "enhanced create item");
+      expect(
+        body.includes('id="todo-counts"') && body.includes("3 total"),
+        "OOB counts intent",
+      );
+      expect(!body.includes("<html"), "enhanced response is a fragment");
+    }
+
+    // 3. toggle (fresh token — success rotated the last one)
+    const toggleToken = await tokenOf();
+    const toggled = await post(
+      "/todos/3/toggle",
+      { _csrf: toggleToken },
+      !noJs,
+    );
+    expect([200, 303].includes(toggled.status), "toggle accepted");
+    const doneList = await (await call("/?filter=done")).text();
+    expect(
+      doneList.includes('id="todo-3"'),
+      "filter=done shows the toggled item",
+    );
+
+    // 4. edit via PRG
+    const editToken = await tokenOf();
+    const edited = await post(
+      "/todos/3/edit",
+      { _csrf: editToken, title: "E2E renamed" },
+      !noJs,
+    );
+    expect([200, 303].includes(edited.status), "edit accepted");
+    expect(
+      (await (await call("/")).text()).includes("E2E renamed"),
+      "renamed title visible",
+    );
+
+    // 5. delete (fresh token) + flash + counts arithmetic
+    const deleteToken = await tokenOf();
+    const deleted = await post(
+      "/todos/3/delete",
+      { _csrf: deleteToken },
+      !noJs,
+    );
+    expect([200, 303].includes(deleted.status), "delete accepted");
+    const after = await (await call("/")).text();
+    expect(!after.includes('id="todo-3"'), "row gone");
+    expect(after.includes("2 total"), "counts back to 2");
+    expect(after.includes("Deleted"), "flash rendered");
+
+    // 6. validation + unknown id fail safe
+    const invalidToken = await tokenOf();
+    const invalid = await post("/todos", { _csrf: invalidToken, title: "x" });
+    expect(
+      invalid.status === 422,
+      `invalid title is 422 (got ${invalid.status})`,
+    );
+    const missingToken = await tokenOf();
+    const missing = await post("/todos/999/delete", { _csrf: missingToken });
+    expect(missing.status === 404, `unknown id is 404 (got ${missing.status})`);
+
+    // 7. CSRF fail-closed: tokenless mutation
+    const tokenless = await post("/todos", { title: "Nope" });
+    expect(
+      tokenless.status === 403,
+      `tokenless mutation is 403 (got ${tokenless.status})`,
+    );
+  }
+
+  async function adminScenario(): Promise<void> {
+    // login page → admin fixture session (PRG)
+    const loginHtml = await (await call("/login")).text();
+    const loginToken =
+      loginHtml.match(/name="_csrf"[^>]*value="([^"]*)"/)?.[1] ?? "";
+    const login = await call("/login", {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        origin: base,
+      },
+      body: new URLSearchParams({
+        _csrf: loginToken,
+        user: "admin",
+      }).toString(),
+    });
+    expect(login.status === 303, `login PRG (got ${login.status})`);
+
+    // table + pagination + search + filter with zero JS
+    const list = await (await call("/articles")).text();
+    expect(
+      list.includes("Page 1 of 2") && list.includes("7 total"),
+      "paginated table",
+    );
+    const search = await (await call("/articles?q=beta")).text();
+    expect(
+      search.includes("Beta notes") && !search.includes("Alpha"),
+      "search narrows",
+    );
+    const drafts = await (await call("/articles?status=draft")).text();
+    expect(
+      drafts.includes("Beta notes") && !drafts.includes("Alpha announcement"),
+      "status filter",
+    );
+
+    // create via the inline form
+    const createToken = await tokenOf();
+    const created = await post(
+      "/articles",
+      {
+        _csrf: createToken,
+        title: "E2E article",
+        slug: "e2e-article",
+        status: "published",
+      },
+      !noJs,
+    );
+    if (noJs) {
+      expect(
+        created.status === 303,
+        `no-JS create PRG (got ${created.status})`,
+      );
+    } else {
+      expect(
+        created.status === 200,
+        `enhanced create 200 (got ${created.status})`,
+      );
+      const body = await created.text();
+      expect(
+        body.includes("E2E article") && body.includes('id="audit-region"'),
+        "row + OOB audit",
+      );
+      expect(!body.includes("<html"), "fragment response");
+    }
+
+    // optimistic concurrency: stale version → 409; fresh succeeds
+    const conflictToken = await tokenOf();
+    const stale = await post("/articles/2/edit", {
+      _csrf: conflictToken,
+      title: "Stale edit",
+      status: "draft",
+      version: "0",
+    });
+    expect(stale.status === 409, `stale version 409 (got ${stale.status})`);
+    const freshToken = await tokenOf();
+    const fresh = await post(
+      "/articles/2/edit",
+      {
+        _csrf: freshToken,
+        title: "Fresh edit",
+        status: "published",
+        version: "1",
+      },
+      !noJs,
+    );
+    expect([200, 303].includes(fresh.status), "fresh edit accepted");
+    const detail = await (await call("/articles/2")).text();
+    expect(detail.includes("v2"), "version incremented");
+
+    // roles: viewer denied mutations
+    await call("/login", {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        origin: base,
+      },
+      body: new URLSearchParams({
+        _csrf: await tokenOf(),
+        user: "viewer",
+      }).toString(),
+    });
+    const viewerAttempt = await post("/articles", {
+      _csrf: await tokenOf(),
+      title: "Nope title",
+      slug: "nope",
+      status: "draft",
+    });
+    expect(
+      viewerAttempt.status === 403,
+      `viewer create 403 (got ${viewerAttempt.status})`,
+    );
+
+    // audit feed reflects mutations
+    const audit = await (await call("/articles")).text();
+    expect(audit.includes("create · article:8"), "audit create entry");
+    expect(audit.includes("update · article:2"), "audit update entry");
+
+    // anonymous reads leak nothing
+    jar.clear();
+    const anon = await call("/articles");
+    expect(anon.status === 401, `anonymous 401 (got ${anon.status})`);
+    expect(!(await anon.text()).includes("Alpha"), "no article data leaked");
+  }
+
   let up = false;
   for (let attempt = 0; attempt < 50 && !up; attempt += 1) {
     try {
-      up = (await call("/")).ok;
+      // any answer (including redirects/401s) means the server is up
+      up = (await call("/")).status < 500;
     } catch {
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
@@ -197,89 +430,11 @@ try {
 
   const noJs = variant === "todo:no-js";
 
-  // 1. list renders seed + counts
-  const home = await (await call("/")).text();
-  expect(
-    home.includes('id="todo-counts"') && home.includes("2 total"),
-    "counts region",
-  );
-  expect(home.includes('id="filters"'), "filter links");
-
-  // 2. create (PRG in no-JS lane; fragment+OOB in enhanced lanes)
-  const token = await tokenOf();
-  const created = await post(
-    "/todos",
-    { _csrf: token, title: "E2E task" },
-    !noJs,
-  );
-  if (noJs) {
-    expect(
-      created.status === 303,
-      `no-JS create is PRG (got ${created.status})`,
-    );
+  if (APP === "todo") {
+    await todoScenario();
   } else {
-    expect(
-      created.status === 200,
-      `enhanced create is 200 (got ${created.status})`,
-    );
-    const body = await created.text();
-    expect(body.includes('id="todo-3"'), "enhanced create item");
-    expect(
-      body.includes('id="todo-counts"') && body.includes("3 total"),
-      "OOB counts intent",
-    );
-    expect(!body.includes("<html"), "enhanced response is a fragment");
+    await adminScenario();
   }
-
-  // 3. toggle (fresh token — success rotated the last one)
-  const toggleToken = await tokenOf();
-  const toggled = await post("/todos/3/toggle", { _csrf: toggleToken }, !noJs);
-  expect([200, 303].includes(toggled.status), "toggle accepted");
-  const doneList = await (await call("/?filter=done")).text();
-  expect(
-    doneList.includes('id="todo-3"'),
-    "filter=done shows the toggled item",
-  );
-
-  // 4. edit via PRG
-  const editToken = await tokenOf();
-  const edited = await post(
-    "/todos/3/edit",
-    { _csrf: editToken, title: "E2E renamed" },
-    !noJs,
-  );
-  expect([200, 303].includes(edited.status), "edit accepted");
-  expect(
-    (await (await call("/")).text()).includes("E2E renamed"),
-    "renamed title visible",
-  );
-
-  // 5. delete (fresh token) + flash + counts arithmetic
-  const deleteToken = await tokenOf();
-  const deleted = await post("/todos/3/delete", { _csrf: deleteToken }, !noJs);
-  expect([200, 303].includes(deleted.status), "delete accepted");
-  const after = await (await call("/")).text();
-  expect(!after.includes('id="todo-3"'), "row gone");
-  expect(after.includes("2 total"), "counts back to 2");
-  expect(after.includes("Deleted"), "flash rendered");
-
-  // 6. validation + unknown id fail safe
-  const invalidToken = await tokenOf();
-  const invalid = await post("/todos", { _csrf: invalidToken, title: "x" });
-  expect(
-    invalid.status === 422,
-    `invalid title is 422 (got ${invalid.status})`,
-  );
-  const missingToken = await tokenOf();
-  const missing = await post("/todos/999/delete", { _csrf: missingToken });
-  expect(missing.status === 404, `unknown id is 404 (got ${missing.status})`);
-
-  // 7. CSRF fail-closed: tokenless mutation
-  const tokenless = await post("/todos", { title: "Nope" });
-  expect(
-    tokenless.status === 403,
-    `tokenless mutation is 403 (got ${tokenless.status})`,
-  );
 
   child.kill();
   await child.exited;
