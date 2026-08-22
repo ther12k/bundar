@@ -781,3 +781,11 @@ GH-085 is complete; GH-086 and GH-087 are unblocked.
 - Verified: 38/38 checks, exports:check, pack-consumers 8/8, pack:audit, full suite 827/827, typecheck, lint, format, docs — all exit 0. Evidence: `evidence/gh-086/verification-transcript.md`.
 
 GH-086 is complete; GH-087 is unblocked.
+
+## 2026-08-22 — GH-087: alpha release notes, compatibility statement, known limitations
+
+- Wrote docs/release-notes/alpha.md for v0.1.0-alpha.1: implemented-and-evidenced summary (every claim linked to its gate/artifact), the compatibility statement (Bun >= 1.4.0, htmx 2.0.10 stable/default, htmx 4.0.0-beta6 EXPERIMENTAL with 6 classified deviations and no GA claim, no-JS tested in every lane, Chrome-for-Testing scope, Bun-only runtime), known limitations (pre-1.0 breaking changes, beta-only htmx 4, extension/streaming scope, fixture seams, deployment targets), and upgrade/rollback instructions (alpha dist-tag plan, audit-before-upgrade, one-file dialect rollback, checksum verification).
+- Added release:notes-check (+ links:artifacts mode): claims are checked, not trusted — required sections, exact version pins with experimental wording, forbidden beta-as-stable/GA phrasings, link resolution (12 checked), explicit pre-1.0 expectations, rollback presence.
+- Verified: notes-check, docs:check/validate/links, full suite 827/827, typecheck, lint, format — all exit 0. Evidence: `evidence/gh-087/verification-transcript.md`.
+
+GH-087 is complete; GH-088 (the release gate) is unblocked.
