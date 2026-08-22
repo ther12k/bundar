@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Core reference apps contain no raw version-specific lifecycle event names.
-- [ ] Event mapping table identifies exact, approximate, and unsupported mappings.
-- [ ] Application event payloads are JSON-safe and injection-tested.
-- [ ] Users can opt into raw dialect events through an explicit escape hatch reported by the audit tool.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Core reference apps contain no raw version-specific lifecycle event names.
+- [x] Event mapping table identifies exact, approximate, and unsupported mappings.
+- [x] Application event payloads are JSON-safe and injection-tested.
+- [x] Users can opt into raw dialect events through an explicit escape hatch reported by the audit tool.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-046
+Commit / PR: merged `gh-046-events` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/htmx/src/events.ts` (new), `packages/htmx/test/events/events.test.ts` (new, 8 tests), `packages/htmx/README.md`, `evidence/gh-046/verification-transcript.md` (new).
+Commands executed: events 8/8; both browser lanes; htmx + root typecheck; lint; format; full repo 612/612; architecture (71 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-046/verification-transcript.md`.
+Contract/API changes: new exports in @bundar/htmx — `resolveDialectEvent`, `getEventMappingTable`, `createApplicationEvent`, `rawDialectEvent`, `EventDefinitionError`, `BundarLifecycleEvent`, `EventMapping`, `EventMappingKind`, `HtmxApplicationEvent`, `RawDialectEvent` types. No existing API changed.
+Security/performance impact: application event payloads are validated for JSON-serializability and injection prevention; lifecycle events are mapped across dialects with exact/approximate/unsupported fidelity indicators; raw dialect events are audited.
+Remaining risks: none.
+Documentation updated: htmx README, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-078 (when GH-047 is completed).

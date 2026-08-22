@@ -551,3 +551,11 @@ GH-051 is complete; GH-055 and GH-063 are unblocked.
 - Verified via unit tests (14/14), browser asset-serving scenario in both `htmx2` and `htmx4` lanes, pack:inspect, and full repository tests (604/604). Evidence: `evidence/gh-045/verification-transcript.md`.
 
 GH-045 is complete; GH-053, GH-054, and GH-066 are unblocked.
+
+## 2026-08-22 — GH-046: normalize HTMX lifecycle and application events
+
+- Added normalized lifecycle events (`BundarLifecycleEvent`), dialect mapping (`resolveDialectEvent`, `getEventMappingTable`), server-triggered application events (`createApplicationEvent` with injection and JSON safety checks), and raw event escape hatch (`rawDialectEvent`) in @bundar/htmx.
+- Mappings explicitly distinguish exact, approximate (e.g. htmx 4 provisional history cache rework), and unsupported mappings.
+- Verified in unit tests (8/8), browser lanes, full repo suite (612/612), typechecks, architecture (71 files), and docs validation. Evidence: `evidence/gh-046/verification-transcript.md`.
+
+GH-046 is complete.
