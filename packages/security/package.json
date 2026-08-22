@@ -1,0 +1,31 @@
+{
+  "name": "@bundar/security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bundar security primitives: CSRF tokens, origin verification, and unsafe-method form middleware.",
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "dependencies": {
+    "@bundar/core": "workspace:*"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target=bun",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
+  }
+}

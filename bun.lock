@@ -66,6 +66,13 @@
         "@bundar/core": "workspace:*",
       },
     },
+    "packages/security": {
+      "name": "@bundar/security",
+      "version": "0.0.0",
+      "dependencies": {
+        "@bundar/core": "workspace:*",
+      },
+    },
     "packages/testing": {
       "name": "@bundar/testing",
       "version": "0.0.0",
@@ -87,6 +94,8 @@
     "@bundar/jsx": ["@bundar/jsx@workspace:packages/jsx"],
 
     "@bundar/schema": ["@bundar/schema@workspace:packages/schema"],
+
+    "@bundar/security": ["@bundar/security@workspace:packages/security"],
 
     "@bundar/testing": ["@bundar/testing@workspace:packages/testing"],
 

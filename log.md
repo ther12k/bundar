@@ -436,3 +436,11 @@ GH-058 is complete; GH-059 is unblocked.
 - Verification: schema 26/26, jsx forms 6/6, full repo 434/434, typecheck×3, lint, architecture (53 files), pack:inspect×2, build, docs — all exit 0. Evidence: `evidence/gh-059/verification-transcript.md`.
 
 GH-059 is complete; GH-060 and GH-065 are unblocked.
+
+## 2026-08-22 — GH-061: CSRF primitives and form middleware
+
+- Created @bundar/security under new ADR-0017 (supersedes ADR-0016's package map by adding exactly this package; boundaries now enforce 8 rules). Synchronizer-token CSRF: HMAC-SHA-256 tokens bound to the session cookie, constant-time MAC comparison, expiry + rotation on verified state changes, optional pluggable single-use replay store, and a fail-closed Origin/Sec-Fetch-Site chain (missing evidence rejected).
+- csrfMiddleware: safe methods issue-only (never rotate/consume); unsafe methods verify origin AND submitted token — header first (HTMX), then hidden field read from a request clone so handler parseForm still sees the body; generic 403 envelope with reasons server-side only. CsrfInput hidden-field helper in @bundar/jsx (structural, escaped).
+- Verification: security 22/22, jsx forms 9/9, security:csrf audit (all failure modes reject; tokens absent from envelopes), both browser lanes with real no-JS form navigation, header submission, and token-less 403 flows (hard-asserted in htmx2 and htmx4), full repo 459/459, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-061/verification-transcript.md`.
+
+GH-061 is complete; GH-064 and GH-068 are unblocked.

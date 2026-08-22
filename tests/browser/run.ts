@@ -201,6 +201,80 @@ try {
     throw new Error(`boosted navigation failed in ${lane}: ${boostedText}`);
   }
 
+  // GH-061: CSRF no-JS form flow (hidden field), header flow, and the
+  // token-less failure — server-side protection, hard-asserted in both lanes.
+  await run("csrf-open", ["open", `${baseUrl}/csrf-form`]);
+  await run("csrf-submit", ["click", "#csrf-form button[type=submit]"]);
+  await run("csrf-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(250); }",
+  ]);
+  await run("csrf-result", [
+    "eval",
+    "() => document.body.textContent",
+    "--filename",
+    "csrf-result.txt",
+  ]);
+  const csrfResult = await readFile(
+    join(artifactDirectory, "csrf-result.txt"),
+    "utf8",
+  );
+  if (!csrfResult.includes("csrf-ok:Bundar")) {
+    throw new Error(
+      `CSRF-protected form submit failed in ${lane}: ${csrfResult}`,
+    );
+  }
+
+  await run("csrf-header-open", ["open", `${baseUrl}/csrf-form`]);
+  await run("csrf-header-eval", [
+    "eval",
+    "async () => { const token = document.querySelector('input[name=\"_csrf\"]').value; const ok = await fetch('/csrf-protected', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'x-csrf-token': token }, body: 'name=ViaHeader' }); const okText = await ok.text(); const noToken = await fetch('/csrf-protected', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=x' }); return JSON.stringify({ okStatus: ok.status, okText, noTokenStatus: noToken.status }); }",
+    "--filename",
+    "csrf-header.json",
+  ]);
+  const csrfHeaderText = await readFile(
+    join(artifactDirectory, "csrf-header.json"),
+    "utf8",
+  );
+  const csrfHeader = JSON.parse(JSON.parse(csrfHeaderText) as string) as {
+    okStatus: number;
+    okText: string;
+    noTokenStatus: number;
+  };
+  if (
+    csrfHeader.okStatus !== 200 ||
+    !csrfHeader.okText.includes("csrf-ok:ViaHeader")
+  ) {
+    throw new Error(
+      `CSRF header submission failed in ${lane}: ${csrfHeaderText}`,
+    );
+  }
+  if (csrfHeader.noTokenStatus !== 403) {
+    throw new Error(
+      `CSRF token-less submission was not rejected in ${lane}: ${csrfHeaderText}`,
+    );
+  }
+
+  await run("csrf-bad-open", ["open", `${baseUrl}/csrf-form-bad`]);
+  await run("csrf-bad-submit", ["click", "#csrf-form button[type=submit]"]);
+  await run("csrf-bad-wait", [
+    "run-code",
+    "async page => { await page.waitForTimeout(250); }",
+  ]);
+  await run("csrf-bad-result", [
+    "eval",
+    "() => document.body.textContent",
+    "--filename",
+    "csrf-bad-result.txt",
+  ]);
+  const csrfBad = await readFile(
+    join(artifactDirectory, "csrf-bad-result.txt"),
+    "utf8",
+  );
+  if (!csrfBad.includes("request verification failed")) {
+    throw new Error(`token-less form was not rejected in ${lane}: ${csrfBad}`);
+  }
+
   const asset = await readFile(
     join(repositoryRoot, "fixtures", lane, "htmx.min.js"),
   );
@@ -224,7 +298,16 @@ try {
       "incorrect-header-negative",
       "page-fragment-negotiation",
       "boosted-navigation",
+      "csrf-form-flow",
+      "csrf-header-flow",
+      "csrf-rejection",
     ],
+    csrf: {
+      issue: "GH-061",
+      formFlow: "csrf-ok:Bundar",
+      headerFlow: "csrf-ok:ViaHeader",
+      rejection: 403,
+    },
     negotiation: {
       issue: "GH-048",
       docIsDocument: negotiation.docIsDocument,
@@ -269,6 +352,9 @@ try {
       "trace-stop.stdout.txt",
       "negotiation.json",
       "boosted-state.json",
+      "csrf-result.txt",
+      "csrf-header.json",
+      "csrf-bad-result.txt",
     ],
   };
   await writeFile(
