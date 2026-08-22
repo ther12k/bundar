@@ -99,6 +99,9 @@ function contentTypeOf(request: Request): string {
     .toLowerCase();
 }
 
+/** Shared, stateless decoder for whole-buffer decodes (no stream mode). */
+const FORM_TEXT_DECODER = new TextDecoder();
+
 async function readBoundedBytes(
   request: Request,
   limits: BodyLimits,
@@ -145,6 +148,9 @@ async function readBoundedBytes(
         `${limits.timeoutMs}ms elapsed with an incomplete body`,
       );
     }
+    // small bodies (the common form post) arrive as one chunk — return
+    // it directly instead of copying into a combined buffer
+    if (chunks.length === 1) return chunks[0]!;
     const combined = new Uint8Array(total);
     let offset = 0;
     for (const chunk of chunks) {
@@ -201,7 +207,10 @@ export async function parseForm(
   context: Context,
   limits: Partial<BodyLimits> = {},
 ): Promise<ParsedForm> {
-  const effective: BodyLimits = { ...DEFAULT_BODY_LIMITS, ...limits };
+  const effective: BodyLimits =
+    limits === undefined || Object.keys(limits).length === 0
+      ? DEFAULT_BODY_LIMITS
+      : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
   if (request.bodyUsed) throw new BodyConsumedError("parseForm");
 
@@ -216,7 +225,8 @@ export async function parseForm(
   }
 
   const bytes = await readBoundedBytes(request, effective);
-  const text = new TextDecoder().decode(bytes);
+  // stateless decode: one shared decoder, no per-call allocation
+  const text = FORM_TEXT_DECODER.decode(bytes);
 
   if (type === "application/x-www-form-urlencoded") {
     const params = new URLSearchParams(text);
@@ -226,12 +236,30 @@ export async function parseForm(
         `${params.size} fields exceeds ${effective.maxFields}`,
       );
     }
-    const entries: [string, string][] = [];
+    // single pass: field order = first appearance, values keep submission
+    // order — identical semantics to buildForm without the second scan
+    const byName = new Map<string, string[]>();
+    const order: string[] = [];
     for (const [name, value] of params.entries()) {
-      // URLSearchParams iterates repeated keys per value: order preserved
-      entries.push([name, value]);
+      let values = byName.get(name);
+      if (values === undefined) {
+        values = [];
+        byName.set(name, values);
+        order.push(name);
+      }
+      values.push(value);
     }
-    return buildForm(entries, []);
+    const fields: FormField[] = order.map((name) => ({
+      name,
+      values: Object.freeze(byName.get(name)!),
+    }));
+    return Object.freeze({
+      fields: Object.freeze(fields),
+      files: Object.freeze([]),
+      get: (name: string) => byName.get(name)?.[0] ?? null,
+      getAll: (name: string) => Object.freeze([...(byName.get(name) ?? [])]),
+      has: (name: string) => byName.has(name),
+    }) as ParsedForm;
   }
 
   // multipart/form-data via the FormData constructor on a rebuilt request
@@ -287,7 +315,10 @@ export async function parseJson<T = unknown>(
   context: Context,
   limits: Partial<BodyLimits> = {},
 ): Promise<T> {
-  const effective: BodyLimits = { ...DEFAULT_BODY_LIMITS, ...limits };
+  const effective: BodyLimits =
+    limits === undefined || Object.keys(limits).length === 0
+      ? DEFAULT_BODY_LIMITS
+      : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
   if (request.bodyUsed) throw new BodyConsumedError("parseJson");
 
@@ -340,7 +371,10 @@ export async function parseText(
   context: Context,
   limits: Partial<BodyLimits> = {},
 ): Promise<string> {
-  const effective: BodyLimits = { ...DEFAULT_BODY_LIMITS, ...limits };
+  const effective: BodyLimits =
+    limits === undefined || Object.keys(limits).length === 0
+      ? DEFAULT_BODY_LIMITS
+      : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
   if (request.bodyUsed) throw new BodyConsumedError("parseText");
 
