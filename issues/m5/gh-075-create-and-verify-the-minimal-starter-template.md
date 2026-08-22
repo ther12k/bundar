@@ -60,13 +60,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Template passes install/typecheck/test/build/start in isolation.
-- [ ] Core page and form work without JavaScript.
-- [ ] Switching adapter changes only bootstrap/configuration.
-- [ ] No demo credentials, random production-looking data, or external CDN dependency exists.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Template passes install/typecheck/test/build/start in isolation.
+- [x] Core page and form work without JavaScript.
+- [x] Switching adapter changes only bootstrap/configuration.
+- [x] No demo credentials, random production-looking data, or external CDN dependency exists.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-075
+Commit / PR: merged `gh-075-starter-template` into `main` (merge commit recorded in `log.md`).
+Files changed: `templates/minimal/**` (new canonical starter: dialect.ts, app.ts, layout.tsx, main.ts, routes.gen.ts generated, app.test.ts, README with exact file purposes, package/tsconfig), `tools/test-template.ts` (new) + `test:template` script, `tools/source-diff.ts` (guards templates/minimal), workspaces + lockfile for the template member, `evidence/gh-075/verification-transcript.md`.
+Commands executed: `test:template -- minimal-htmx2` and `-- minimal-htmx4` both exit 0 (install→typecheck→test 5/5→build→START with six live HTTP assertions; htmx4 variant delta enforced = src/dialect.ts only; lockfile restored); `htmx:source-diff` exit 0 (7 files); routes:check up-to-date; full suite 761/761; typecheck; lint; format; architecture; api:check; build; docs — all exit 0.
+Evidence: `evidence/gh-075/verification-transcript.md`.
+Contract/API changes: none to framework packages (api:check match); new repo-level template + verification script.
+Security/performance impact: none beyond the template's own secure defaults (app-owned ErrorBoundary, bounded parsing via runFormAction, local pinned htmx asset, no CDN/credentials/fake data).
+Remaining risks: pre-npm workspace:* deps (M6 publication tooling will finalize external install); documented in the transcript and template README.
+Documentation updated: `templates/minimal/README.md` (exact file purposes), this closure record, `issues/m5/index.md`, `log.md`.
+Newly unblocked issues: GH-076 (Todo reference app), GH-077 (Admin CRUD reference app).

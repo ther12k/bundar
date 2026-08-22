@@ -9,7 +9,12 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const REPOSITORY_ROOT = join(import.meta.dir, "..");
-const TARGET_DIR = join(REPOSITORY_ROOT, "examples", "dual-dialect-fixture");
+// GH-075: the canonical minimal starter is guarded alongside the
+// dual-dialect fixture — application source stays dialect-neutral.
+const TARGET_DIRS = [
+  join(REPOSITORY_ROOT, "examples", "dual-dialect-fixture"),
+  join(REPOSITORY_ROOT, "templates", "minimal"),
+];
 
 const FORBIDDEN_PATTERNS: ReadonlyArray<{
   readonly pattern: RegExp;
@@ -36,7 +41,10 @@ function listFiles(dir: string): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
-      result.push(...listFiles(full));
+      // dist/ holds built bundles of the framework's own htmx internals
+      if (entry.name !== "dist" && entry.name !== "node_modules") {
+        result.push(...listFiles(full));
+      }
     } else if (/\.(ts|tsx|js|jsx)$/.test(entry.name)) {
       // Exclude server.ts which is the approved bootstrap / config point
       if (entry.name !== "server.ts") {
@@ -48,7 +56,7 @@ function listFiles(dir: string): string[] {
 }
 
 const failures: string[] = [];
-const files = listFiles(TARGET_DIR);
+const files = TARGET_DIRS.flatMap((dir) => listFiles(dir));
 
 for (const filePath of files) {
   const rawContent = readFileSync(filePath, "utf8");
