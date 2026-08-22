@@ -88,3 +88,18 @@ export type {
   CachePolicyOptions,
   HistoryPolicy,
 } from "./cache-policy";
+export {
+  action,
+  actionResponse,
+  ACTION_VARY_HEADERS,
+  ActionDefinitionError,
+  composeAction,
+} from "./action";
+export type {
+  ActionBodyStatus,
+  ActionOptOut,
+  ActionOptions,
+  ActionRedirect,
+  ActionRedirectStatus,
+  ActionResult,
+} from "./action";

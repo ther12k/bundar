@@ -49,3 +49,17 @@ cache-rework note) so restore behavior is data, never guesses. A simulated
 proxy cache (`tests/proxy-cache/`) proves variants stay distinct and
 reproduces the missing-Vary poisoning risk as documentation.
 
+## Progressive actions (GH-050)
+
+`action({ fragment, redirectTo, directives?, status? })` defines one
+mutation result; `actionResponse(request, result)` composes it: enhanced
+submissions receive the rendered fragment with directives applied, the
+negotiation Vary, and the fail-safe cache policy; ordinary submissions
+receive the Post/Redirect/Get fallback (303 default; 301/302/307/308
+approved). Validation happens in `action()` BEFORE any response commits —
+a missing fallback redirect throws unless the route passes
+`noFallbackRedirect: true`, and conflicting fields are diagnosed. String
+fragments escape as text; use a JSX tree or the explicit `raw()` boundary
+for markup. Business/transaction logic stays in the handler — the composer
+owns only the response.
+

@@ -202,6 +202,42 @@ try {
     throw new Error(`boosted navigation failed in ${lane}: ${boostedText}`);
   }
 
+  // GH-050: action fallback — ordinary POST gets the PRG redirect, the
+  // same action serves the fragment + trigger to enhanced submissions.
+  await run("action-fallback-eval", [
+    "eval",
+    "async () => { const manual = await fetch('/action-save', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=x', redirect: 'manual' }); const followed = await fetch('/action-save', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=x', redirect: 'follow' }); const followedText = await followed.text(); const enhanced = await fetch('/action-save', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'HX-Request': 'true' }, body: 'name=x' }); const enhancedBody = await enhanced.text(); return JSON.stringify({ manualType: manual.type, followedUrl: followed.url, followedIsDocument: followedText.startsWith('<!doctype html>'), enhancedStatus: enhanced.status, enhancedBody, enhancedTrigger: enhanced.headers.get('hx-trigger'), enhancedVary: enhanced.headers.get('vary') }); }",
+    "--filename",
+    "action-fallback.json",
+  ]);
+  const actionText = await readFile(
+    join(artifactDirectory, "action-fallback.json"),
+    "utf8",
+  );
+  const actionState = JSON.parse(JSON.parse(actionText) as string) as {
+    manualType: string;
+    followedUrl: string;
+    followedIsDocument: boolean;
+    enhancedStatus: number;
+    enhancedBody: string;
+    enhancedTrigger: string | null;
+    enhancedVary: string | null;
+  };
+  // browsers hide manual-redirect details (opaque) — the opaque redirect
+  // type plus the followed navigation landing on the PRG target document
+  // proves the ordinary path
+  if (
+    actionState.manualType !== "opaqueredirect" ||
+    !actionState.followedUrl.endsWith("/page-fragment") ||
+    !actionState.followedIsDocument ||
+    actionState.enhancedStatus !== 200 ||
+    !actionState.enhancedBody.includes("saved-via-action") ||
+    actionState.enhancedTrigger === null ||
+    actionState.enhancedVary === null
+  ) {
+    throw new Error(`action fallback failed in ${lane}: ${actionText}`);
+  }
+
   // GH-049: the real htmx history-restore path — back to the page that
   // pushed /page-fragment, then forward: htmx restores the entry (cache or
   // refetch with HX-History-Restore-Request) and must install the DOCUMENT,
@@ -389,6 +425,7 @@ try {
       "csrf-rejection",
       "session-lifecycle",
       "history-restore",
+      "action-fallback",
     ],
     csrf: {
       issue: "GH-061",
@@ -445,6 +482,7 @@ try {
       "csrf-bad-result.txt",
       "session.json",
       "history-restore.json",
+      "action-fallback.json",
     ],
   };
   await writeFile(

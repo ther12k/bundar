@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { view } from "@bundar/htmx";
+import { action, actionResponse, view } from "@bundar/htmx";
 import { document, jsx, renderToString } from "@bundar/jsx";
 import {
   composeMiddleware,
@@ -166,6 +166,18 @@ export async function handler(
   }
   if (url.pathname === "/csrf-protected" && request.method === "POST") {
     return csrfProtected(createContext(request, {}));
+  }
+  if (url.pathname === "/action-save" && request.method === "POST") {
+    // GH-050: one action result — fragment + trigger for enhanced
+    // submissions, PRG redirect for ordinary ones
+    return actionResponse(
+      request,
+      action({
+        fragment: jsx("p", { id: "saved", children: "saved-via-action" }),
+        redirectTo: "/page-fragment",
+        directives: [{ kind: "trigger", events: [{ name: "saved" }] }],
+      }),
+    );
   }
   if (url.pathname === "/session-whoami" && request.method === "GET") {
     return composeMiddleware([withSession], (context) =>
