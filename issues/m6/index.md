@@ -6,4 +6,4 @@
 - [GH-085 — Generate SBOM, provenance, checksums, and reproducible build evidence](gh-085-generate-sbom-provenance-checksums-and-reproducible-build-evidence.md) — P0 / L; depends on GH-002, GH-084 — **complete 2026-08-22** (closure record and evidence)
 - [GH-086 — Run npm publication dry runs and export-map verification](gh-086-run-npm-publication-dry-runs-and-export-map-verification.md) — P0 / M; depends on GH-085 — **complete 2026-08-22** (closure record and evidence)
 - [GH-087 — Write alpha release notes, compatibility statement, and known limitations](gh-087-write-alpha-release-notes-compatibility-statement-and-known-limitations.md) — P0 / M; depends on GH-082, GH-083, GH-084, GH-085, GH-086 — **complete 2026-08-22** (closure record and evidence)
-- [GH-088 — Run the v0.1.0-alpha.1 release gate](gh-088-run-the-v0-1-0-alpha-1-release-gate.md) — P0 / L; depends on GH-087
+- [GH-088 — Run the v0.1.0-alpha.1 release gate](gh-088-run-the-v0-1-0-alpha-1-release-gate.md) — P0 / L; depends on GH-087 — **complete 2026-08-22** (closure record and evidence; M6 milestone closed by `delivery/gates/alpha.md`)

@@ -1,8 +1,8 @@
-f3e6bd3b8b6a79685ebc5b5f6d6f86382cd4360a1946d34fdc9ccfcb320f2522  artifacts/packages/bundar-core-0.0.0.tgz
-c74a72e94e54a84007d2f9aa6c6935a581516db17e8e4c55e179ed56482671a1  artifacts/packages/bundar-jsx-0.0.0.tgz
-ee06e8b193a627933cfe07e2c6de7e7f371459dace2be4dd5ea8ca419efb91dc  artifacts/packages/bundar-schema-0.0.0.tgz
-885466162c396e50d4903315ab99f60b6df242989dbb46b68d66a386219ea3f8  artifacts/packages/bundar-security-0.0.0.tgz
-6d9c5bfec7623955c24c7304be5d2f482c8f69dfa2e963b55e05c5ea44cb4818  artifacts/packages/bundar-htmx-0.0.0.tgz
-fd121434e99aa8224dcd318f1e343e103453f691ad7da92af72121b59513f70b  artifacts/packages/bundar-testing-0.0.0.tgz
-98f8a36ba2c2e7eed07bc746dd36cb1ac652493edbfb9c7d7d4ed220e51f033c  artifacts/packages/bundar-cli-0.0.0.tgz
-676f717f5aafc7fb8c884ca12ced71c6569dfb851ac0f3d48bda946695075098  artifacts/packages/create-bundar-0.0.0.tgz
+c82adbfb70b2196185a06615661ae1e3dd0eea4e9fd0a037cd84444a4d7fe112  artifacts/packages/bundar-core-0.0.0.tgz
+47b69a332285c6ea647de14ce4d55eb1a9dbfc1ba5940dbc061073fbccaf16e0  artifacts/packages/bundar-jsx-0.0.0.tgz
+d3abf4cf2ded805414a77bb45b516aa0fb0d87916638053fafe57a43e13c1739  artifacts/packages/bundar-schema-0.0.0.tgz
+81ed50d31a539c3bcc051a2b5c89a6061c6738b49472b6e8fb4036844b076da6  artifacts/packages/bundar-security-0.0.0.tgz
+150194a9fe5e8839a7fabde3b1825cf179e65ce9b76a8a45dd6c6195c900fab8  artifacts/packages/bundar-htmx-0.0.0.tgz
+a02347c5454678cfc4d962fd52ee83472d3fe10137012c97b10048d88b992003  artifacts/packages/bundar-testing-0.0.0.tgz
+b6bd6a3f1ad00ab5e4eef49067ffa878eabd593d66a121e69ffe0dee9edb58a6  artifacts/packages/bundar-cli-0.0.0.tgz
+6ab43500831533bcf5a15f8932cbc78fbeebfd8b158cc9ed287305442377a8b5  artifacts/packages/create-bundar-0.0.0.tgz
