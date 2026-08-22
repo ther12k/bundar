@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Core functions without schema package installed.
-- [ ] Validation errors remain normalized without losing library-specific details behind an explicit escape hatch.
-- [ ] A schema cannot cause double body consumption.
-- [ ] Type inference is tested in an external consumer.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Core functions without schema package installed.
+- [x] Validation errors remain normalized without losing library-specific details behind an explicit escape hatch.
+- [x] A schema cannot cause double body consumption.
+- [x] Type inference is tested in an external consumer.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -119,3 +119,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-058
+Commit / PR: merged `gh-058-schema-package` into `main` (merge commit recorded in `log.md`).
+Files changed: `packages/schema/src/{standard,validate,sources,index}.ts` (new except index), `packages/schema/{package.json,tsconfig.json,README.md}`, `packages/schema/test/{validate,sources}.test.ts` (new, 15 tests), `tests/consumer/schema/{fixture.ts,consumer.test.ts,tsconfig.json}` (new, 5 tests + inference proof), root `package.json` (zod 4.4.3 + valibot 1.4.2 devDependencies, `test:consumer:schema`), root `tsconfig.json` (`@bundar/schema` path), `docs/guides/validation.md` (new), `evidence/gh-058/verification-transcript.md` (new).
+Commands executed: schema package tests 15/15; consumer tsc + runtime 5/5; package + root typecheck; lint; format; full suite 417/417; architecture:check (51 files); pack:inspect @bundar/schema and @bundar/core; build; docs validate/links; `bun install --frozen-lockfile` — all exit 0.
+Evidence: `evidence/gh-058/verification-transcript.md`; consumer fixture with two independent real validators (Zod 4.4.3, Valibot 1.4.2 — both Standard Schema v1).
+Contract/API changes: new public package surface — `validateSchema`, `validateForm`, `validateJson`, `validateQuery`, `validateParams`, `validateHeaders`, `SchemaDialectError`, `ValidationIssue`/`ValidationResult` types, spec-copied `StandardSchema*` types. @bundar/schema gains its planned workspace dependency on @bundar/core (allowed by the frozen boundary rules and the GH-001 skeleton allowance).
+Security/performance impact: schemas receive decoded data only — never the raw stream — so a validator cannot trigger extra body reads; double consumption fails deterministically; nonconforming dialects fail closed; `raw` vendor details documented as untrusted display data. Core keeps zero dependencies.
+Remaining risks: consumer validators are test-only root devDependencies; `raw` is opaque vendor data (documented); no new security-relevant residuals identified.
+Documentation updated: `packages/schema/README.md`, `docs/guides/validation.md`, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-059.

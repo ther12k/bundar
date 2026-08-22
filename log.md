@@ -419,3 +419,11 @@ GH-048 is complete; GH-049, GH-050, GH-053, GH-054, and GH-065 are unblocked.
 - Verification: budgets 27/27 (real-server slowloris 408, slow-handler 503 with recorded work stop, mid-request disconnect with zero unexpected-failure classifications), body 13/13, full repo 397/397, typecheck, lint, architecture, pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-067/verification-transcript.md`.
 
 GH-067 is complete; GH-068 is unblocked.
+
+## 2026-08-22 — GH-058: Standard Schema validation adapter
+
+- Implemented @bundar/schema: spec-copied Standard Schema v1 types, `validateSchema()` (sync + async validators, issues normalized to message + PropertyKey path with the library original preserved on `raw` as the explicit escape hatch, `SchemaDialectError` fail-closed for nonconforming dialects), and the request-source mappers — validateForm/validateJson (bounded single-consumption parsers), validateQuery (repeats → string[]), validateParams, validateHeaders. Coercion stays with the validator; Bundar passes decoded data untouched.
+- Consumer fixtures for two independent real validators (Zod 4.4.3, Valibot 1.4.2 — root devDependencies, never shipped): external tsc project proves output-type inference from both schema libraries through the adapter; 5 runtime tests cover coercion, defaults, and failure normalization. `test:consumer:schema` script added.
+- Verification: schema 15/15, consumer 5/5 + typecheck, full repo 417/417, package+root typecheck, lint, architecture (51 files; core still has zero schema edge), pack:inspect schema+core, build, docs — all exit 0. Guide at `docs/guides/validation.md`. Evidence: `evidence/gh-058/verification-transcript.md`.
+
+GH-058 is complete; GH-059 is unblocked.
