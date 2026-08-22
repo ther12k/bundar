@@ -672,3 +672,12 @@ GH-072 is complete (blocks none; M5 tooling progresses).
 - Verified: create-bundar 13/13, both scaffold runs, full suite 756/756, typecheck, lint, format, architecture (86 files), pack:inspect, api:check, build, docs — all exit 0. Evidence: `evidence/gh-071/verification-transcript.md`.
 
 GH-071 is complete; GH-075 (minimal starter template) is unblocked.
+
+## 2026-08-22 — GH-075: minimal starter template
+
+- Created `templates/minimal`: the canonical smallest coherent Bundar app — one layout, view-negotiated home, health route, a progressively enhanced subscribe form with real validation (`runFormAction`: no-JS PRG + htmx fragments from the same handlers, 422 field-error region), typed URLs from the generated `routes.gen.ts` (drift-guarded by routes:check), local pinned htmx asset (no CDN), and 5 in-process tests via @bundar/testing. README documents each file's exact purpose.
+- `test:template` verifies per variant end to end: install→typecheck→test→build→START with live HTTP assertions. The htmx4 variant is a temporary mount whose ONLY delta is `src/dialect.ts` — enforced by a recursive diff — proving adapter switching touches bootstrap configuration alone; bun.lock restored byte-for-byte.
+- Extended `htmx:source-diff` to guard the template alongside the dual-dialect fixture (7 application files, zero dialect conditionals, no raw protocol strings; dist/ bundles excluded — they contain the framework's own htmx internals).
+- Verified: both template variants, source-diff, routes:check, full suite 761/761, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-075/verification-transcript.md`.
+
+GH-075 is complete; GH-076 and GH-077 are unblocked.

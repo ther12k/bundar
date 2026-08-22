@@ -1,0 +1,29 @@
+{
+  "name": "bundar-minimal-starter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "scripts": {
+    "dev": "bun --hot src/main.ts",
+    "start": "bun src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "build": "bun build src/main.ts --outdir dist --target=bun",
+    "routes:check": "bundar routes check --entry src/app.ts --out src/routes.gen.ts"
+  },
+  "dependencies": {
+    "@bundar/core": "workspace:*",
+    "@bundar/htmx": "workspace:*",
+    "@bundar/jsx": "workspace:*",
+    "@bundar/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@bundar/cli": "workspace:*",
+    "@bundar/testing": "workspace:*",
+    "@types/bun": "1.3.14",
+    "typescript": "6.0.3"
+  }
+}
