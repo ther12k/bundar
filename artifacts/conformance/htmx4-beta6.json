@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "lane": "htmx4",
+  "status": "experimental-provisional",
+  "disclaimer": "Local experimental browser conformance evidence only. htmx 4 is beta/provisional and GA revalidation is mandatory.",
+  "generatedAt": "2026-08-22T07:52:27.977Z",
+  "profile": {
+    "testedVersion": "4.0.0-beta6",
+    "assetSha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25",
+    "maturity": "experimental",
+    "capabilities": {
+      "testedVersion": "4.0.0-beta6",
+      "assetSha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25",
+      "gaClaim": "none — htmx 4 is beta; no GA compatibility claim; GA revalidation is mandatory before any stable promotion",
+      "requestHeaders": [
+        "HX-Request",
+        "HX-Boosted",
+        "HX-Current-URL",
+        "HX-History-Restore-Request",
+        "HX-Prompt",
+        "HX-Target",
+        "HX-Trigger",
+        "HX-Trigger-Name",
+        "HX-Source"
+      ],
+      "responseHeaders": [
+        "HX-Location",
+        "HX-Push-URL",
+        "HX-Redirect",
+        "HX-Refresh",
+        "HX-Replace-URL",
+        "HX-Reselect",
+        "HX-Reswap",
+        "HX-Retarget",
+        "HX-Trigger",
+        "HX-Trigger-After-Settle",
+        "HX-Trigger-After-Swap"
+      ],
+      "requestSemantics": {
+        "sourceHeader": "HX-Source [provisional]",
+        "representationSemantics": "fragment negotiation identical to v2 [provisional]"
+      },
+      "lifecycle": {
+        "observedAfterRequest": false,
+        "eventPhases": "phases renamed/reworked in v4 [provisional]",
+        "emulatedEvents": ["trigger-after-swap", "trigger-after-settle"]
+      },
+      "history": {
+        "pushUrlDefault": true,
+        "replaceUrlSupported": true,
+        "historyCacheRework": "v4 reworks history cache internals [provisional]"
+      },
+      "errorBehavior": {
+        "defaultErrorSwap": "none-by-default (changed from v2 target swap)",
+        "migrationNote": "servers relying on v2 error-into-target must configure explicitly"
+      },
+      "inheritance": {
+        "attributeInheritance": false,
+        "migrationNote": "explicit inheritance helpers required (GH-047)"
+      },
+      "extensions": {
+        "changes": "extension API reworked in v4 [provisional]",
+        "partials": "first-class partials support added [provisional]",
+        "streaming": "response streaming support added [provisional]"
+      },
+      "unsupported": [
+        "cache-control policy (no beta6 surface observed — unsupported until GA)"
+      ],
+      "migrationDifferences": [
+        {
+          "topic": "lifecycle events",
+          "difference": "phases reworked; v2 event strings not fired",
+          "status": "fixture: GH-054 lane"
+        },
+        {
+          "topic": "error swap default",
+          "difference": "none-by-default vs v2 target swap",
+          "status": "documented record"
+        },
+        {
+          "topic": "attribute inheritance",
+          "difference": "removed from core; explicit helpers needed",
+          "status": "explicit unsupported record (GH-047)"
+        },
+        {
+          "topic": "extensions API",
+          "difference": "reworked",
+          "status": "explicit unsupported record"
+        },
+        {
+          "topic": "cache-control",
+          "difference": "no beta6 surface",
+          "status": "explicit unsupported record"
+        }
+      ]
+    }
+  },
+  "environment": {
+    "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+    "bun": "1.4.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "browserRun": {
+    "lane": "htmx4",
+    "stability": "experimental",
+    "htmxVersion": "4.0.0-beta6",
+    "asset": {
+      "path": "fixtures/htmx4/htmx.min.js",
+      "bytes": 36282,
+      "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
+    },
+    "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
+    "baseUrl": "http://127.0.0.1:46629",
+    "scenarios": [
+      "smoke-page",
+      "fragment-swap",
+      "form-post",
+      "history-push",
+      "incorrect-header-negative",
+      "page-fragment-negotiation",
+      "boosted-navigation",
+      "csrf-form-flow",
+      "csrf-header-flow",
+      "csrf-rejection",
+      "session-lifecycle",
+      "history-restore",
+      "action-fallback",
+      "error-negotiation",
+      "validated-form",
+      "multi-region",
+      "asset-serving",
+      "inheritance-disinherit",
+      "navigation-adaptive"
+    ],
+    "csrf": {
+      "issue": "GH-061",
+      "formFlow": "csrf-ok:Bundar",
+      "headerFlow": "csrf-ok:ViaHeader",
+      "rejection": 403
+    },
+    "negotiation": {
+      "issue": "GH-048",
+      "docIsDocument": true,
+      "fragIsFragment": true,
+      "boostedIsDocument": true,
+      "restoreIsDocument": true,
+      "fragmentVary": "HX-Request, HX-Boosted, HX-History-Restore-Request"
+    },
+    "boostedNavigation": {
+      "expected": "full document body swap, one html root, #items present",
+      "observed": {
+        "url": "/page-fragment",
+        "itemsHeading": "Items",
+        "htmlRoots": 1,
+        "bodyCount": 1
+      },
+      "classification": "experimental-lane observation",
+      "passed": true
+    },
+    "lifecycleEvent": {
+      "expected": "event: afterRequest",
+      "observed": "event: none",
+      "classification": "experimental-lane observation",
+      "passed": true
+    },
+    "negativeFixture": {
+      "expected": "failure",
+      "observedExitCode": 1,
+      "reason": "HX-Trigger-After-Swap is intentionally absent; fixture must not be reported as a pass."
+    },
+    "artifacts": [
+      "baseline-snapshot.stdout.txt",
+      "fragment-snapshot.stdout.txt",
+      "dom.html",
+      "state.json",
+      "page.png",
+      "requests.stdout.txt",
+      "response-headers.json",
+      "console.stdout.txt",
+      "trace-stop.stdout.txt",
+      "negotiation.json",
+      "boosted-state.json",
+      "csrf-result.txt",
+      "csrf-header.json",
+      "csrf-bad-result.txt",
+      "session.json",
+      "history-restore.json",
+      "action-fallback.json",
+      "errors.json",
+      "validated-form.json",
+      "multi-region.json",
+      "asset.json",
+      "inheritance.json",
+      "navigation.json"
+    ]
+  }
+}

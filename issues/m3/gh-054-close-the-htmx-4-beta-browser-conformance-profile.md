@@ -61,13 +61,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] The report clearly says beta/experimental.
-- [ ] Shared scenarios use the same server application source as v2.
-- [ ] Known beta differences are not hidden with blanket skips.
-- [ ] Every skip has reason, owner, and reassessment condition.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] The report clearly says beta/experimental.
+- [x] Shared scenarios use the same server application source as v2.
+- [x] Known beta differences are not hidden with blanket skips.
+- [x] Every skip has reason, owner, and reassessment condition.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -124,3 +124,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-054
+Commit / PR: merged `gh-054-htmx4-conformance` into `main` (merge commit recorded in `log.md`).
+Files changed: `tests/browser/conformance-report.ts`, `artifacts/conformance/{htmx4-beta6.json,htmx4.json}` (new), `docs/compatibility/htmx4-beta6.md` (new), `evidence/gh-054/verification-transcript.md` (new).
+Commands executed: `bun run test:browser:htmx4` (19 scenarios verified); `bun run conformance:report -- htmx4-beta6`; htmx + root typecheck; lint; format; full repo 635/635; architecture (74 files); pack:inspect @bundar/htmx; build; docs validate/links — all exit 0.
+Evidence: `evidence/gh-054/verification-transcript.md`; `artifacts/conformance/htmx4-beta6.json`; `docs/compatibility/htmx4-beta6.md`.
+Contract/API changes: none.
+Security/performance impact: htmx 4.0.0-beta6 experimental profile is verified across 19 browser scenarios including header aliasing (HX-Source), explicit error-swap compensation, CSRF, session, OOB, history restore, adaptive navigation, and offline asset serving with SHA-256 integrity.
+Remaining risks: htmx 4 is provisional/experimental; GA revalidation mandatory in M7.
+Documentation updated: `docs/compatibility/htmx4-beta6.md`, this closure record, `issues/m3/index.md`, `log.md`.
+Newly unblocked issues: GH-055 (unchanged-source dual-dialect reference fixture).

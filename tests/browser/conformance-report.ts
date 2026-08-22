@@ -5,8 +5,8 @@
  * (e.g. htmx2 or htmx4) from verified Playwright browser runs.
  *
  * Usage:
- *   bun tests/browser/conformance-report.ts <htmx2|htmx4>
- *   bun run conformance:report -- htmx2
+ *   bun tests/browser/conformance-report.ts <htmx2|htmx4|htmx4-beta6>
+ *   bun run conformance:report -- htmx4-beta6
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
@@ -21,9 +21,14 @@ import {
   HTMX4_ASSET_SHA256,
 } from "../../packages/htmx/src/dialects/v4/index";
 
-const lane = (process.argv[2] ?? "htmx2") as "htmx2" | "htmx4";
-if (lane !== "htmx2" && lane !== "htmx4") {
-  console.error("usage: bun tests/browser/conformance-report.ts <htmx2|htmx4>");
+const rawArg = process.argv[2] ?? "htmx2";
+const lane: "htmx2" | "htmx4" =
+  rawArg === "htmx4-beta6" || rawArg === "htmx4" ? "htmx4" : "htmx2";
+
+if (rawArg !== "htmx2" && rawArg !== "htmx4" && rawArg !== "htmx4-beta6") {
+  console.error(
+    "usage: bun tests/browser/conformance-report.ts <htmx2|htmx4|htmx4-beta6>",
+  );
   process.exit(2);
 }
 
@@ -56,6 +61,10 @@ const conformanceReport = {
     lane === "htmx2"
       ? "stable-conformance-verified"
       : "experimental-provisional",
+  disclaimer:
+    lane === "htmx4"
+      ? "Local experimental browser conformance evidence only. htmx 4 is beta/provisional and GA revalidation is mandatory."
+      : "Local stable browser conformance verified under pinned htmx 2.0.10.",
   generatedAt: new Date().toISOString(),
   profile: {
     testedVersion,
@@ -72,9 +81,17 @@ const conformanceReport = {
   browserRun: rawReport,
 };
 
-const outputPath = join(outputDir, `${lane}.json`);
-await writeFile(outputPath, `${JSON.stringify(conformanceReport, null, 2)}\n`);
+const outputFilenames =
+  lane === "htmx2" ? ["htmx2.json"] : ["htmx4-beta6.json", "htmx4.json"];
+
+for (const filename of outputFilenames) {
+  const outputPath = join(outputDir, filename);
+  await writeFile(
+    outputPath,
+    `${JSON.stringify(conformanceReport, null, 2)}\n`,
+  );
+}
 
 console.log(
-  `conformance:report: published ${lane} conformance report to artifacts/conformance/${lane}.json (${(rawReport.scenarios as string[]).length} verified scenarios)`,
+  `conformance:report: published ${lane} conformance report to artifacts/conformance/${outputFilenames[0]} (${(rawReport.scenarios as string[]).length} verified scenarios)`,
 );
