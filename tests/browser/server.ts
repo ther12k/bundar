@@ -1,6 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { action, actionResponse, view } from "@bundar/htmx";
+import {
+  action,
+  actionResponse,
+  errorViewResponse,
+  validationErrorView,
+  renderValidationErrorFragment,
+  view,
+} from "@bundar/htmx";
 import { document, jsx, renderToString } from "@bundar/jsx";
 import {
   composeMiddleware,
@@ -177,6 +184,54 @@ export async function handler(
         redirectTo: "/page-fragment",
         directives: [{ kind: "trigger", events: [{ name: "saved" }] }],
       }),
+    );
+  }
+  if (url.pathname === "/error-validation" && request.method === "POST") {
+    // GH-065: a 422 that updates the form region for enhanced requests
+    // and renders the full error document for ordinary ones
+    return errorViewResponse(
+      request,
+      validationErrorView({
+        order: ["name"],
+        global: [],
+        field: (name) => (name === "name" ? ["required"] : []),
+        first: [{ field: "name", message: "Name is required" }],
+        get empty() {
+          return false;
+        },
+      }),
+      {
+        renderDocument: (errorView) =>
+          document({
+            lang: "en",
+            title: `Error ${errorView.status}`,
+            children: jsx("body", {
+              children: jsx("h1", { children: errorView.message }),
+            }),
+          }),
+        renderFragment: renderValidationErrorFragment,
+        fragmentTarget: "#error-target",
+      },
+    );
+  }
+  if (url.pathname === "/error-forbidden") {
+    // GH-065: protected failure — document path regardless of enhancement
+    return errorViewResponse(
+      request,
+      { status: 403, code: "forbidden", message: "Access denied" },
+      {
+        renderDocument: () =>
+          document({
+            lang: "en",
+            title: "Forbidden",
+            children: jsx("body", {
+              children: jsx("h1", { children: "Access denied" }),
+            }),
+          }),
+        renderFragment: () =>
+          jsx("section", { id: "leaked-region", children: "secret-fragment" }),
+        fragmentTarget: "#error-target",
+      },
     );
   }
   if (url.pathname === "/session-whoami" && request.method === "GET") {
