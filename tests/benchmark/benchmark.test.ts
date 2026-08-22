@@ -4,13 +4,14 @@ import { parityCheck, runBenchmark } from "../../tools/benchmark/runner";
 import { scenarios } from "../../tools/benchmark/scenarios";
 
 describe("benchmark parity", () => {
-  test("all declared scenarios have equivalent raw Bun and Hono behavior", async () => {
+  test("all declared scenarios have equivalent raw Bun, Hono, and Bundar behavior", async () => {
     const parity = await parityCheck();
     expect(parity).toHaveLength(scenarios.length);
     expect(
       parity.every(
         (entry) =>
-          entry.adapters["raw-bun"].status === entry.adapters.hono.status,
+          entry.adapters["raw-bun"].status === entry.adapters.hono.status &&
+          entry.adapters["raw-bun"].status === entry.adapters.bundar.status,
       ),
     ).toBe(true);
   });
@@ -23,26 +24,39 @@ describe("benchmark parity", () => {
     expect(snapshot.body).toBe("<p>static</p>");
   });
 
-  test("Bundar is explicitly deferred rather than reported as a benchmark result", async () => {
+  test("Bundar parity comes from a real compiled app, not a stub", async () => {
     const bundar = adapters.find((adapter) => adapter.name === "bundar");
     expect(bundar).toBeDefined();
+    expect(bundar!.version).not.toBe("deferred-until-m1");
     const snapshot = await invoke(bundar!, scenarios[0]!);
-    expect(snapshot.status).toBe(501);
-    expect(snapshot.body).toContain("not available before M1/M2");
+    expect(snapshot.status).toBe(200);
+    expect(snapshot.body).toBe("<p>static</p>");
   });
 });
 
 describe("benchmark report", () => {
-  test("includes raw samples, parity metadata, and distributions", async () => {
+  test("includes raw samples, parity metadata, resources, and distributions", async () => {
     const originalArgv = process.argv;
-    process.argv = [...originalArgv, "--warmup", "1", "--iterations", "3"];
+    process.argv = [
+      ...originalArgv,
+      "--warmup",
+      "1",
+      "--iterations",
+      "3",
+      "--startup-samples",
+      "1",
+    ];
     try {
       const report = await runBenchmark();
-      expect(report.schemaVersion).toBe(1);
+      expect(report.schemaVersion).toBe(2);
       expect(report.methodology.parityCheckedBeforeTiming).toBe(true);
       expect(report.methodology.rawSamplesIncluded).toBe(true);
       expect(report.parity).toHaveLength(scenarios.length);
-      expect(report.results).toHaveLength(scenarios.length * 2);
+      expect(report.results).toHaveLength(scenarios.length * 3);
+      expect(report.resources.startup.map((s) => s.mode).sort()).toEqual([
+        "bundar",
+        "raw-bun",
+      ]);
       expect(
         report.results.every(
           (result) => result.distribution.samplesNs.length === 3,

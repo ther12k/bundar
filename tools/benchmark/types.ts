@@ -59,8 +59,22 @@ export type BenchmarkResult = {
   distribution: Distribution;
 };
 
+export type StartupDistribution = {
+  mode: "raw-bun" | "bundar";
+  samples: number;
+  readyMsMin: number;
+  readyMsP50: number;
+  rssBytesMin: number;
+  rssBytesP50: number;
+};
+
+export type BenchmarkResources = {
+  startup: readonly StartupDistribution[];
+  note: string;
+};
+
 export type BenchmarkReport = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   methodology: {
     timing: "in-process Request/Response; no localhost networking";
@@ -79,4 +93,5 @@ export type BenchmarkReport = {
   scenarios: readonly BenchmarkScenario[];
   parity: readonly ParityResult[];
   results: readonly BenchmarkResult[];
+  resources: BenchmarkResources;
 };

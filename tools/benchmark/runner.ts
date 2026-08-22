@@ -1,18 +1,21 @@
 import { mkdir } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { adapters, invoke } from "./adapters";
 import { scenarios } from "./scenarios";
 import type {
   Adapter,
   BenchmarkReport,
+  BenchmarkResources,
   BenchmarkScenario,
   Distribution,
   ParityResult,
   ResponseSnapshot,
+  StartupDistribution,
 } from "./types";
 
 const DEFAULT_WARMUP = 100;
 const DEFAULT_ITERATIONS = 1_000;
+const DEFAULT_STARTUP_SAMPLES = 7;
 
 function argument(name: string, fallback: string): string {
   const index = process.argv.indexOf(name);
@@ -43,13 +46,14 @@ function comparable(snapshot: ResponseSnapshot): ResponseSnapshot {
 function assertParity(
   scenario: BenchmarkScenario,
   raw: ResponseSnapshot,
-  hono: ResponseSnapshot,
+  other: ResponseSnapshot,
+  otherName: string,
 ): void {
   const expected = JSON.stringify(comparable(raw));
-  const actual = JSON.stringify(comparable(hono));
+  const actual = JSON.stringify(comparable(other));
   if (expected !== actual) {
     throw new Error(
-      `parity failure for ${scenario.id}: raw-bun=${expected}, hono=${actual}`,
+      `parity failure for ${scenario.id} (${otherName}): raw-bun=${expected}, ${otherName}=${actual}`,
     );
   }
 }
@@ -86,24 +90,23 @@ function distribution(samplesNs: number[]): Distribution {
 export async function parityCheck(): Promise<readonly ParityResult[]> {
   const raw = adapters.find((adapter) => adapter.name === "raw-bun");
   const hono = adapters.find((adapter) => adapter.name === "hono");
-  if (raw === undefined || hono === undefined)
-    throw new Error("raw-bun and hono adapters are required");
+  const bundar = adapters.find((adapter) => adapter.name === "bundar");
+  if (raw === undefined || hono === undefined || bundar === undefined)
+    throw new Error("raw-bun, hono, and bundar adapters are required");
 
   const results: ParityResult[] = [];
   for (const scenario of scenarios) {
     const rawSnapshot = await invoke(raw, scenario);
     const honoSnapshot = await invoke(hono, scenario);
-    assertParity(scenario, rawSnapshot, honoSnapshot);
+    const bundarSnapshot = await invoke(bundar, scenario);
+    assertParity(scenario, rawSnapshot, honoSnapshot, "hono");
+    assertParity(scenario, rawSnapshot, bundarSnapshot, "bundar");
     results.push({
       scenario: scenario.id,
       adapters: {
         "raw-bun": rawSnapshot,
         hono: honoSnapshot,
-        bundar: {
-          status: 501,
-          headers: { "content-type": "text/plain; charset=utf-8" },
-          body: "Bundar implementation is not available before M1/M2; this adapter is intentionally deferred.",
-        },
+        bundar: bundarSnapshot,
       },
     });
   }
@@ -131,17 +134,64 @@ async function measure(
   return distribution(samplesNs);
 }
 
+type ProbeSample = { mode: string; readyMs: number; rssBytes: number };
+
+async function probeOnce(mode: "raw" | "bundar"): Promise<ProbeSample> {
+  const proc = Bun.spawn({
+    cmd: [process.execPath, join(import.meta.dir, "startup-probe.ts"), mode],
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  const stdout = await new Response(proc.stdout).text();
+  const exitCode = await proc.exited;
+  if (exitCode !== 0)
+    throw new Error(`startup probe (${mode}) exited with ${exitCode}`);
+  const parsed = JSON.parse(stdout.trim()) as ProbeSample;
+  if (parsed.mode !== mode || typeof parsed.readyMs !== "number")
+    throw new Error(`startup probe (${mode}) returned malformed output`);
+  return parsed;
+}
+
+async function measureStartup(
+  samples: number,
+): Promise<readonly StartupDistribution[]> {
+  const distributions: StartupDistribution[] = [];
+  for (const mode of ["raw", "bundar"] as const) {
+    const readyMs: number[] = [];
+    const rssBytes: number[] = [];
+    for (let index = 0; index < samples; index += 1) {
+      const sample = await probeOnce(mode);
+      readyMs.push(sample.readyMs);
+      rssBytes.push(sample.rssBytes);
+    }
+    readyMs.sort((a, b) => a - b);
+    rssBytes.sort((a, b) => a - b);
+    const median = (values: readonly number[]): number =>
+      values[Math.floor(values.length / 2)] ?? 0;
+    distributions.push({
+      mode: mode === "raw" ? "raw-bun" : "bundar",
+      samples,
+      readyMsMin: readyMs[0] ?? 0,
+      readyMsP50: median(readyMs),
+      rssBytesMin: rssBytes[0] ?? 0,
+      rssBytesP50: median(rssBytes),
+    });
+  }
+  return distributions;
+}
+
 export async function runBenchmark(): Promise<BenchmarkReport> {
   const warmupIterations = numberArgument("--warmup", DEFAULT_WARMUP);
   const measuredIterations = numberArgument("--iterations", DEFAULT_ITERATIONS);
-  const parity = await parityCheck();
-  const benchmarkAdapters = adapters.filter(
-    (adapter) => adapter.name !== "bundar",
+  const startupSamples = numberArgument(
+    "--startup-samples",
+    DEFAULT_STARTUP_SAMPLES,
   );
+  const parity = await parityCheck();
   const results = [];
 
   for (const scenario of scenarios) {
-    for (const adapter of benchmarkAdapters) {
+    for (const adapter of adapters) {
       results.push({
         scenario: scenario.id,
         category: scenario.category,
@@ -157,8 +207,13 @@ export async function runBenchmark(): Promise<BenchmarkReport> {
     }
   }
 
+  const resources: BenchmarkResources = {
+    startup: await measureStartup(startupSamples),
+    note: "startup probes run in fresh Bun subprocesses; readyMs is performance.now() read at app-ready, i.e. process-boot → app-ready — raw: hand-rolled 9-route switch handler with no framework; bundar: App registration + compileRoutes + middleware composition; rss is process.memoryUsage.rss() after the build",
+  };
+
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: new Date().toISOString(),
     methodology: {
       timing: "in-process Request/Response; no localhost networking",
@@ -177,6 +232,7 @@ export async function runBenchmark(): Promise<BenchmarkReport> {
     scenarios,
     parity,
     results,
+    resources,
   };
 }
 

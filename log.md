@@ -384,3 +384,12 @@ GH-033 is complete; GH-034, GH-036, GH-048, GH-050, and GH-059 are unblocked.
 - Verification: full repo 352/352, all planned commands exit 0, no skips or suppressed failures. Evidence: `evidence/gh-023/verification-transcript.md`.
 
 GH-023 is complete; GH-024 and GH-025 are unblocked.
+
+## 2026-08-22 — GH-024: M1 performance and resource gate
+
+- Replaced the deferred Bundar benchmark stub with the real adapter: an `App` covering all 9 scenarios compiled through `compileRoutes`, chains composed once at startup; in-process table dispatch disclosed as standing in for Bun's native C++ dispatch; static entries cloned per request (JS bodies are one-shot; the native layer re-sends).
+- Added fresh-subprocess startup/RSS probes (raw switch vs bundar build+compile), `bench:m1`/`bench:report` scripts, report schema 2, and the fail-closed static tolerance check (≤ 2.0× raw-bun p50, reviewed in `delivery/gates/m1-performance.md`).
+- Results (committed `artifacts/bench/m1.json`): static 0.65× raw p50 (runs: 0.65×/0.91×/1.22×, all ≤ 2.0×), HTTP-core scenarios 0.58×–1.29×, JSX ratios are disclosed workload differences, `parseForm` ~2.5× tracked as optimization issue #97, startup +~8ms / RSS +~9MiB one-time.
+- Verification: parity 9/9, full repo 352/352, typecheck, lint, architecture (46 files), docs validate/links, build — all exit 0; GH-007's two deferred-adapter assertions updated to assert the real adapter (nothing skipped). Evidence: `evidence/gh-024/verification-transcript.md`.
+
+GH-024 is complete; GH-025 is unblocked and feeds GH-083.

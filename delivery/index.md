@@ -6,6 +6,7 @@
 - [Complete Issue Dependency Ledger](dependency-ledger.md) — Generated topological order, parallel execution waves, direct dependencies, and reverse blocking edges for all Bundar microtasks.
 - [Milestone Definitions and Exit Criteria](milestones.md) — Detailed objectives, deliverables, exclusions, and gate owners for each implementation milestone.
 - [M0 Contract-Freeze Gate](gates/m0.md) — Evidence-backed contract authorization and accepted residual risks for M1–M3 foundations.
+- [M1 Performance and Resource Gate](gates/m1-performance.md) — Measured M1 HTTP-core overhead against raw Bun and pinned Hono baselines with reviewed tolerances, trade-offs, and tracked optimization follow-ups.
 - [Release and Rollback Plan](release-plan.md) — Pre-release sequence, artifacts, publication checks, rollback, advisories, and compatibility communication.
 - [Bundar Risk Register](risk-register.md) — Product, technical, compatibility, security, performance, naming, ecosystem, and delivery risks with mitigations.
 - [Bundar Implementation Roadmap](roadmap.md) — Milestone sequence from contracts to alpha and stable htmx 4 support.
