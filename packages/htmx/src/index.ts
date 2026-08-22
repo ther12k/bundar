@@ -1,13 +1,15 @@
 /**
- * @bundar/htmx public surface (GH-039–GH-042).
+ * @bundar/htmx public surface (GH-039–GH-042, GH-048).
  *
  * Version-neutral protocol model: header constants, swap strategies, dialect
  * types, and request/response helpers. The capability-aware adapter interface
- * (GH-040), normalized request metadata (GH-041), and response directives
- * (GH-042) live here; versioned adapters are exported from separate subpaths
- * so callers do not load unused adapters.
+ * (GH-040), normalized request metadata (GH-041), response directives
+ * (GH-042), and page/fragment negotiation (GH-048) live here; versioned
+ * adapters are exported from separate subpaths so callers do not load unused
+ * adapters.
  *
- * Boundary: this package must not import @bundar/core or @bundar/jsx.
+ * Boundary: this package must not import @bundar/core; @bundar/jsx is the
+ * one allowed workspace dependency (ADR-0016), used by view() for rendering.
  */
 export {
   applyDirectives,
@@ -59,3 +61,17 @@ export type {
   HtmxResponseHeader,
   HtmxSwapStrategy,
 } from "./neutral";
+export {
+  negotiateView,
+  view,
+  VIEW_VARY_HEADERS,
+  ViewDefinitionError,
+} from "./view";
+export type {
+  NegotiatedView,
+  NegotiationReason,
+  ViewContent,
+  ViewDefinition,
+  ViewOptions,
+  ViewRepresentation,
+} from "./view";
