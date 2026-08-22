@@ -755,3 +755,11 @@ GH-082 is complete; GH-083 and GH-087 are unblocked.
 - Verified: bench chain green ×3 probes, full suite 827/827, typecheck, lint, format, architecture, api:check, build, docs — all exit 0. Evidence: `evidence/gh-083/verification-transcript.md`.
 
 GH-083 is complete; GH-087 is unblocked.
+
+## 2026-08-22 — GH-084: package contents, dependencies, licenses, and size audit
+
+- Built `pack:audit` (+ `pack:all`/`licenses:check`/`secrets:scan` as modes of the one auditor — inventory and checks cannot drift): packs all 8 public packages, inventories every tarball (files, SHA-256, packed/unpacked sizes), scans content for secrets/private paths/fixtures/artifacts, enforces the approved-license set, per-package size budgets, the ADR-0011 zero-runtime-dep claims (verified from PACKED manifests), and the no-external-runtime-deps policy — all fail-closed.
+- Result: 8 packages, 513KB unpacked total, **0 findings**, all MIT, all within budget. Machine-readable BOM (artifacts/packages/bom.json, SHA-256 per tarball — the base for GH-085 provenance) + license attribution (artifacts/licenses.json) + the gate record at delivery/gates/package-audit.md.
+- Verified: audit + all modes exit 0, full suite 827/827, typecheck, lint, format, build, docs — all exit 0. Evidence: `evidence/gh-084/verification-transcript.md`.
+
+GH-084 is complete; GH-085 and GH-087 are unblocked.
