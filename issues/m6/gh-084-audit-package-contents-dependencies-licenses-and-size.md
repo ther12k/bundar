@@ -58,13 +58,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] No secret or private test fixture is present.
-- [ ] All runtime/transitive licenses are approved and attributed.
-- [ ] Package exports resolve under a clean consumer.
-- [ ] Size exceptions have an ADR or release blocker.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] No secret or private test fixture is present.
+- [x] All runtime/transitive licenses are approved and attributed.
+- [x] Package exports resolve under a clean consumer.
+- [x] Size exceptions have an ADR or release blocker.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -120,3 +120,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-084
+Commit / PR: merged `gh-084-package-audit` into `main` (merge commit recorded in `log.md`).
+Files changed: `tools/pack-audit.ts` (new) + `pack:all`/`pack:audit`/`licenses:check`/`secrets:scan` scripts, `artifacts/packages/bom.json` + `artifacts/licenses.json` (committed), `delivery/gates/package-audit.md` (new), `evidence/gh-084/verification-transcript.md`.
+Commands executed: `pack:audit` exit 0 — 8 packages, 513KB unpacked, 0 findings, all MIT, all within budget, zero-dep claims verified from packed manifests; alias modes exit 0; full suite 827/827; typecheck; lint; format; build; docs — all exit 0.
+Evidence: `evidence/gh-084/verification-transcript.md`; `artifacts/packages/bom.json`; `delivery/gates/package-audit.md`.
+Contract/API changes: none to packages (audit tooling + artifacts).
+Security/performance impact: supply-chain posture — secrets/private-path/fixture/artifact scans over packed content; license attribution; SHA-256 tarball hashes in the BOM for GH-085 provenance.
+Remaining risks: budgets intentionally generous at alpha; consumer-resolution proof references the GH-081 cleanroom (same artifacts).
+Documentation updated: `delivery/gates/package-audit.md`, this closure record, `issues/m6/index.md`, `log.md`.
+Newly unblocked issues: GH-085, GH-087.

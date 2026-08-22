@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-08-22T15:45:20.702Z",
+  "approved": [
+    "MIT",
+    "ISC",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    "0BSD"
+  ],
+  "packages": [
+    {
+      "name": "@bundar/core",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/jsx",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/schema",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/security",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/htmx",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/testing",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/cli",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "create-bundar",
+      "license": "MIT",
+      "approved": true
+    }
+  ]
+}

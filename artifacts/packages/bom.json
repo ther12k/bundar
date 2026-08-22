@@ -1,0 +1,280 @@
+{
+  "generatedAt": "2026-08-22T15:45:20.702Z",
+  "policy": {
+    "approvedLicenses": [
+      "MIT",
+      "ISC",
+      "Apache-2.0",
+      "BSD-3-Clause",
+      "BSD-2-Clause",
+      "0BSD"
+    ],
+    "sizeBudgets": {
+      "@bundar/core": 220000,
+      "@bundar/jsx": 120000,
+      "@bundar/schema": 60000,
+      "@bundar/security": 120000,
+      "@bundar/htmx": 1200000,
+      "@bundar/testing": 80000,
+      "@bundar/cli": 150000,
+      "create-bundar": 60000
+    },
+    "notes": [
+      "core and jsx are zero-runtime-dependency by ADR-0011.",
+      "External runtime dependencies require an ADR; none exist.",
+      "Size exceptions require an ADR or a release blocker."
+    ]
+  },
+  "packages": [
+    {
+      "name": "@bundar/core",
+      "version": "0.0.0",
+      "tarball": "bundar-core-0.0.0.tgz",
+      "sha256": "f3e6bd3b8b6a79685ebc5b5f6d6f86382cd4360a1946d34fdc9ccfcb320f2522",
+      "fileCount": 19,
+      "files": [
+        "src/app.ts",
+        "src/context.ts",
+        "src/request/adapters.ts",
+        "src/request/body.ts",
+        "src/request/upload.ts",
+        "src/error-boundary.ts",
+        "src/budget.ts",
+        "src/manifest.ts",
+        "src/errors.ts",
+        "src/index.ts",
+        "src/routing/conflicts.ts",
+        "src/routing/types.ts",
+        "src/routing/path.ts",
+        "src/routing/compiler.ts",
+        "src/middleware.ts",
+        "src/module.ts",
+        "src/response.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 100180,
+      "packedBytes": 28651,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {},
+      "findings": []
+    },
+    {
+      "name": "@bundar/jsx",
+      "version": "0.0.0",
+      "tarball": "bundar-jsx-0.0.0.tgz",
+      "sha256": "c74a72e94e54a84007d2f9aa6c6935a581516db17e8e4c55e179ed56482671a1",
+      "fileCount": 22,
+      "files": [
+        "src/jsx-dev-runtime.ts",
+        "src/raw.ts",
+        "src/render-to-string.ts",
+        "src/types.ts",
+        "src/index.ts",
+        "src/escape.ts",
+        "src/types/intrinsic.ts",
+        "src/types/htmx.ts",
+        "src/document.ts",
+        "src/render/async.ts",
+        "src/render/attributes.ts",
+        "src/render/elements.ts",
+        "src/render/node.ts",
+        "src/render/primitive.ts",
+        "src/render-to-stream.ts",
+        "src/jsx-runtime.ts",
+        "src/forms/flash-region.ts",
+        "src/forms/error-summary.ts",
+        "src/forms/csrf-input.ts",
+        "src/response.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 65551,
+      "packedBytes": 19336,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {},
+      "findings": []
+    },
+    {
+      "name": "@bundar/schema",
+      "version": "0.0.0",
+      "tarball": "bundar-schema-0.0.0.tgz",
+      "sha256": "ee06e8b193a627933cfe07e2c6de7e7f371459dace2be4dd5ea8ca419efb91dc",
+      "fileCount": 7,
+      "files": [
+        "src/index.ts",
+        "src/issues.ts",
+        "src/validate.ts",
+        "src/sources.ts",
+        "src/standard.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 19361,
+      "packedBytes": 6288,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {
+        "@bundar/core": "workspace:*"
+      },
+      "findings": []
+    },
+    {
+      "name": "@bundar/security",
+      "version": "0.0.0",
+      "tarball": "bundar-security-0.0.0.tgz",
+      "sha256": "885466162c396e50d4903315ab99f60b6df242989dbb46b68d66a386219ea3f8",
+      "fileCount": 9,
+      "files": [
+        "src/index.ts",
+        "src/csrf.ts",
+        "src/flash.ts",
+        "src/headers.ts",
+        "src/session/store.ts",
+        "src/session/id.ts",
+        "src/session/middleware.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 40087,
+      "packedBytes": 12712,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {
+        "@bundar/core": "workspace:*"
+      },
+      "findings": []
+    },
+    {
+      "name": "@bundar/htmx",
+      "version": "0.0.0",
+      "tarball": "bundar-htmx-0.0.0.tgz",
+      "sha256": "6d9c5bfec7623955c24c7304be5d2f482c8f69dfa2e963b55e05c5ea44cb4818",
+      "fileCount": 26,
+      "files": [
+        "src/script.ts",
+        "src/assets.ts",
+        "src/neutral.ts",
+        "src/cache-policy.ts",
+        "src/view.ts",
+        "src/dialects/v2/index.ts",
+        "src/dialects/v4/index.ts",
+        "src/extensions.ts",
+        "src/updates.ts",
+        "src/dialect.ts",
+        "src/form-action.ts",
+        "src/action.ts",
+        "src/index.ts",
+        "src/capabilities.ts",
+        "src/v4.ts",
+        "src/inheritance.ts",
+        "src/v2.ts",
+        "src/error-view.ts",
+        "src/vendor/htmx4.min.js",
+        "src/vendor/htmx2.min.js",
+        "src/events.ts",
+        "src/request.ts",
+        "src/directives.ts",
+        "src/navigation.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 207162,
+      "packedBytes": 62678,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/jsx": "workspace:*",
+        "@bundar/schema": "workspace:*"
+      },
+      "findings": []
+    },
+    {
+      "name": "@bundar/testing",
+      "version": "0.0.0",
+      "tarball": "bundar-testing-0.0.0.tgz",
+      "sha256": "fd121434e99aa8224dcd318f1e343e103453f691ad7da92af72121b59513f70b",
+      "fileCount": 8,
+      "files": [
+        "src/match.ts",
+        "src/index.ts",
+        "src/server.ts",
+        "src/client.ts",
+        "src/request.ts",
+        "src/cookies.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 30582,
+      "packedBytes": 8998,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/htmx": "workspace:*",
+        "@bundar/jsx": "workspace:*",
+        "@bundar/schema": "workspace:*"
+      },
+      "findings": []
+    },
+    {
+      "name": "@bundar/cli",
+      "version": "0.0.0",
+      "tarball": "bundar-cli-0.0.0.tgz",
+      "sha256": "98f8a36ba2c2e7eed07bc746dd36cb1ac652493edbfb9c7d7d4ed220e51f033c",
+      "fileCount": 11,
+      "files": [
+        "src/index.ts",
+        "src/bin.ts",
+        "src/audit/scan.ts",
+        "src/audit/rules.ts",
+        "src/commands/dev.ts",
+        "src/commands/htmx-audit.ts",
+        "src/commands/routes.ts",
+        "src/process/child.ts",
+        "src/cli.ts",
+        "README.md",
+        "package.json"
+      ],
+      "unpackedBytes": 31820,
+      "packedBytes": 10857,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/htmx": "workspace:*"
+      },
+      "findings": []
+    },
+    {
+      "name": "create-bundar",
+      "version": "0.0.0",
+      "tarball": "create-bundar-0.0.0.tgz",
+      "sha256": "676f717f5aafc7fb8c884ca12ced71c6569dfb851ac0f3d48bda946695075098",
+      "fileCount": 6,
+      "files": [
+        "src/index.ts",
+        "src/bin.ts",
+        "src/cli.ts",
+        "README.md",
+        "templates/minimal.ts",
+        "package.json"
+      ],
+      "unpackedBytes": 18382,
+      "packedBytes": 6420,
+      "sizeWithinBudget": true,
+      "license": "MIT",
+      "runtimeDependencies": {},
+      "findings": []
+    }
+  ],
+  "summary": {
+    "packages": 8,
+    "totalUnpackedBytes": 513125,
+    "totalPackedBytes": 155940,
+    "findings": 0
+  }
+}
