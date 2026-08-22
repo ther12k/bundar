@@ -70,7 +70,9 @@
     "ci:m3": "bun scripts/m3-gate.ts",
     "security:headers": "bun tools/security/headers-audit.ts",
     "test:security": "bun tools/security/test-matrix.ts",
-    "security:report": "bun tools/security/security-report.ts"
+    "security:report": "bun tools/security/security-report.ts",
+    "test:reference-workflow": "bun test tests/workflow",
+    "ci:m4": "bun scripts/m4-gate.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

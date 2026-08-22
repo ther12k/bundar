@@ -253,6 +253,27 @@ describe("GH-061 safe methods and rotation", () => {
     expect(cookies.length).toBe(1);
     expect(cookies[0]).not.toContain(token);
   });
+
+  test("4xx responses change no state, so the token survives for form retries", async () => {
+    // GH-069: a 422 re-render embeds the SAME token the form just
+    // submitted; rotating it there would 403 the retry for no gain.
+    const token = await issuedToken();
+    const middleware = csrfMiddleware({ secret: SECRET });
+    const chain = composeMiddleware([middleware], () =>
+      text("validation failed", { status: 422 }),
+    );
+    const response = await chain(
+      createContext(
+        postForm(`${CSRF_FORM_FIELD}=${encodeURIComponent(token)}&name=x`, {
+          "bundar.session": SESSION,
+          "bundar.csrf": token,
+        }),
+        {},
+      ),
+    );
+    expect(response.status).toBe(422);
+    expect(response.headers.getSetCookie().length).toBe(0);
+  });
 });
 
 describe("GH-061 single-use replay prohibition", () => {

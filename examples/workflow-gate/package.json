@@ -1,0 +1,8 @@
+{
+  "name": "@bundar/example-workflow-gate",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reference authenticated progressive workflow composing sessions, CSRF, validation, flash, and action composition (M4 gate fixture).",
+  "license": "MIT"
+}

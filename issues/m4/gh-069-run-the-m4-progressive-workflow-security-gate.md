@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Workflow source is shared across browser modes.
-- [ ] Authorization is server-side and independent of HTMX metadata.
-- [ ] All M4 mandatory gates pass.
-- [ ] No security limitation is hidden behind example-only assumptions.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Workflow source is shared across browser modes.
+- [x] Authorization is server-side and independent of HTMX metadata.
+- [x] All M4 mandatory gates pass.
+- [x] No security limitation is hidden behind example-only assumptions.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -122,3 +122,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-069
+Commit / PR: merged `gh-069-m4-gate` into `main` (merge commit recorded in `log.md`).
+Files changed: `examples/workflow-gate/{workflow.ts,package.json,tsconfig.json}` (new), `tests/workflow/reference-workflow.test.ts` (new, 15 tests), `scripts/m4-gate.ts` (new) + `ci:m4`/`test:reference-workflow` scripts, `packages/security/src/csrf.ts` (422-no-rotation fix) + one new unit test, `delivery/gates/m4.md` (new), `evidence/gh-069/verification-transcript.md` (new).
+Commands executed: `ci:m4` 40/40 exit 0 (test:security 9/9 audits, security:report posture=pass, test:reference-workflow 15/15, both browser lanes, full suite 679/679, build); `bun test packages/security tests/security` 66/66. All exit 0.
+Evidence: `evidence/gh-069/verification-transcript.md`; `delivery/gates/m4.md`; `artifacts/security/{test-matrix.json,report.json}`.
+Contract/API changes: behavioral fix in `csrfMiddleware` — token rotation now applies only to state-changing (non-4xx) responses; a 422 re-render keeps the verified token valid so form retries verify. Two new scripts: `ci:m4`, `test:reference-workflow`. The frozen workflow composition contract is recorded in `delivery/gates/m4.md`.
+Security/performance impact: the gate found and fixed a real CSRF/synchronizer defect (rotation on non-mutating responses breaking re-rendered-form retries); verified session-bound tokens, fail-closed 403 matrix, generic 401s with no protected-content leakage in both lanes, and dialect-adapter composition. No performance-relevant changes.
+Remaining risks: multi-action enhanced sessions re-render the form region between state changes (documented synchronizer contract); example uses in-memory store + `secure: false` for local/test only; htmx 4 remains experimental — no GA claim.
+Documentation updated: this closure record, `delivery/gates/m4.md`, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-071 (create-bundar), GH-079 (API reference), and the M5 chain.
