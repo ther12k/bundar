@@ -8,7 +8,7 @@
 - [GH-044 — Implement the experimental HTMX 4 beta6 dialect adapter](gh-044-implement-the-experimental-htmx-4-beta6-dialect-adapter.md) — P0 / L; depends on GH-041, GH-042 — **complete 2026-08-21** (closure record and evidence)
 - [GH-045 — Implement the HTMX asset registry and local serving contract](gh-045-implement-the-htmx-asset-registry-and-local-serving-contract.md) — P1 / M; depends on GH-021, GH-043, GH-044 — **complete 2026-08-22** (closure record and evidence)
 - [GH-046 — Normalize HTMX lifecycle and application events](gh-046-normalize-htmx-lifecycle-and-application-events.md) — P1 / L; depends on GH-040, GH-043, GH-044 — **complete 2026-08-22** (closure record and evidence)
-- [GH-047 — Add inheritance and extension compatibility helpers](gh-047-add-inheritance-and-extension-compatibility-helpers.md) — P1 / L; depends on GH-035, GH-040, GH-043, GH-044
+- [GH-047 — Add inheritance and extension compatibility helpers](gh-047-add-inheritance-and-extension-compatibility-helpers.md) — P1 / L; depends on GH-035, GH-040, GH-043, GH-044 — **complete 2026-08-22** (closure record and evidence)
 - [GH-048 — Implement full-page and fragment negotiation](gh-048-implement-full-page-and-fragment-negotiation.md) — P0 / L; depends on GH-033, GH-041 — **complete 2026-08-22** (closure record and evidence)
 - [GH-049 — Implement cache variation and history safety policy](gh-049-implement-cache-variation-and-history-safety-policy.md) — P0 / M; depends on GH-043, GH-044, GH-048 — **complete 2026-08-22** (closure record and evidence)
 - [GH-050 — Implement the progressive action response composer](gh-050-implement-the-progressive-action-response-composer.md) — P0 / L; depends on GH-033, GH-042, GH-048 — **complete 2026-08-22** (closure record and evidence)

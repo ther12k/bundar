@@ -116,3 +116,16 @@ approximate, and unsupported mappings across dialect versions
 payloads. An explicit `rawDialectEvent(name)` escape hatch allows opting into
 unmapped version-specific events with audit tracking.
 
+## Inheritance & extension compatibility (GH-047)
+
+Bundar models attribute inheritance explicitly rather than relying on implicit
+upstream defaults. `formatDisinherit(attributes)` formats `hx-disinherit` values
+(or `"*"`), and `diagnoseInheritance(attribute, dialect)` identifies whether an
+attribute inherits by default under htmx 2 vs htmx 4.
+
+Extension helpers provide structured descriptors (`HtmxExtensionDescriptor`,
+`OFFICIAL_EXTENSIONS`), format `hx-ext` attributes (`formatExtensionAttribute`),
+and diagnose migration notes/compatibility (`diagnoseExtension`). The official
+`HTMX_2_COMPAT_EXTENSION` descriptor provides a migration reference for
+htmx 4 beta testing, while `rawExtension(name)` provides an audited escape hatch.
+
