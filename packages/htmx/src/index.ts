@@ -117,3 +117,9 @@ export type {
   ErrorViewOptions,
   PublicErrorView,
 } from "./error-view";
+export { INVALID_SUBMISSION_STATUS, runFormAction } from "./form-action";
+export type {
+  FormActionDefinition,
+  FormActionOutcome,
+  InvalidFormRender,
+} from "./form-action";

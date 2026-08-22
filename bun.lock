@@ -52,7 +52,9 @@
       "name": "@bundar/htmx",
       "version": "0.0.0",
       "dependencies": {
+        "@bundar/core": "workspace:*",
         "@bundar/jsx": "workspace:*",
+        "@bundar/schema": "workspace:*",
       },
     },
     "packages/jsx": {

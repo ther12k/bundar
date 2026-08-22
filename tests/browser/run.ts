@@ -387,6 +387,44 @@ try {
     throw new Error(`error negotiation failed in ${lane}: ${errorsText}`);
   }
 
+  // GH-060: validated form action — identical validation in both worlds.
+  await run("validated-form-eval", [
+    "eval",
+    "async () => { const invalidEnhanced = await fetch('/validated-form', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'HX-Request': 'true' }, body: 'name=' }); const invalidEnhancedBody = await invalidEnhanced.text(); const invalidOrdinary = await fetch('/validated-form', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=' }); const invalidOrdinaryBody = await invalidOrdinary.text(); const validEnhanced = await fetch('/validated-form', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'HX-Request': 'true' }, body: 'name=Bundar' }); const validEnhancedBody = await validEnhanced.text(); const validOrdinary = await fetch('/validated-form', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'name=Bundar', redirect: 'manual' }); return JSON.stringify({ invalidEnhancedStatus: invalidEnhanced.status, invalidEnhancedBody, invalidRetarget: invalidEnhanced.headers.get('hx-retarget'), invalidOrdinaryStatus: invalidOrdinary.status, invalidOrdinaryIsDocument: invalidOrdinaryBody.startsWith('<!doctype html>'), validEnhancedStatus: validEnhanced.status, validEnhancedBody, validOrdinaryType: validOrdinary.type }); }",
+    "--filename",
+    "validated-form.json",
+  ]);
+  const validatedText = await readFile(
+    join(artifactDirectory, "validated-form.json"),
+    "utf8",
+  );
+  const validatedState = JSON.parse(JSON.parse(validatedText) as string) as {
+    invalidEnhancedStatus: number;
+    invalidEnhancedBody: string;
+    invalidRetarget: string | null;
+    invalidOrdinaryStatus: number;
+    invalidOrdinaryIsDocument: boolean;
+    validEnhancedStatus: number;
+    validEnhancedBody: string;
+    validOrdinaryType: string;
+  };
+  if (
+    validatedState.invalidEnhancedStatus !== 422 ||
+    !validatedState.invalidEnhancedBody.includes("Name too short") ||
+    !validatedState.invalidEnhancedBody.includes('id="register"') ||
+    validatedState.invalidEnhancedBody.includes("<html") ||
+    validatedState.invalidRetarget !== "#register-card" ||
+    validatedState.invalidOrdinaryStatus !== 422 ||
+    !validatedState.invalidOrdinaryIsDocument ||
+    validatedState.validEnhancedStatus !== 200 ||
+    !validatedState.validEnhancedBody.includes("hi Bundar") ||
+    validatedState.validOrdinaryType !== "opaqueredirect"
+  ) {
+    throw new Error(
+      `validated form action failed in ${lane}: ${validatedText}`,
+    );
+  }
+
   // GH-062: session lifecycle through real browser cookies (same-origin
   // fetch sends them automatically): login rotates, whoami reads the store,
   // logout invalidates both the cookie and the backing record. Cookie
@@ -467,6 +505,7 @@ try {
       "history-restore",
       "action-fallback",
       "error-negotiation",
+      "validated-form",
     ],
     csrf: {
       issue: "GH-061",
@@ -525,6 +564,7 @@ try {
       "history-restore.json",
       "action-fallback.json",
       "errors.json",
+      "validated-form.json",
     ],
   };
   await writeFile(

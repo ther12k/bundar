@@ -517,3 +517,11 @@ GH-050 is complete; GH-051, GH-052, GH-053, GH-054, and GH-060 are unblocked.
 - Verification: error-negotiation 14/14, both lanes green, full repo 560/560, typechecks, lint, architecture (65 files), pack:inspect, build, docs — all exit 0. Evidence: `evidence/gh-065/verification-transcript.md`.
 
 GH-065 is complete; GH-068 awaits GH-060/063/064/066.
+
+## 2026-08-22 — GH-060: progressive validated form actions
+
+- Added runFormAction() to @bundar/htmx, composing bounded parsing (GH-057), Standard Schema validation (GH-058), GH-059 field-error rendering with REDACTED retained values, GH-065 error negotiation, and the GH-050 action composer behind one handler API — identical business validation for normal browsers and enhanced flows, 422 in both worlds on invalid input, no JSON client code. Success fragments execute exactly once per request inside optional transaction hooks (rollback-before-response on business failure). A raw-submission leak into form renderers found during testing was fixed (renderers now receive only the redacted model).
+- htmx gained @bundar/core and @bundar/schema workspace dependencies — the direction ADR-0016's frozen htmx row already permitted; boundaries.json aligned (core/jsx remain zero-dependency; 8 rules, 66 files green).
+- Verification: form-actions 7/7, both browser lanes with the validated-form scenario (invalid enhanced fragment + retarget; invalid ordinary document; valid enhanced fragment; valid ordinary PRG), full repo 567/567, typechecks, lint, architecture, pack:inspect ×2, build, docs — all exit 0. Evidence: `evidence/gh-060/verification-transcript.md`.
+
+GH-060 is complete; GH-068 awaits GH-063/064/066.
