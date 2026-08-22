@@ -37,6 +37,11 @@ const plannedPackages: readonly PlannedPackage[] = [
     allowsRuntimeDependencies: true,
   },
   {
+    directory: "packages/security",
+    name: "@bundar/security",
+    allowsRuntimeDependencies: true,
+  },
+  {
     directory: "packages/testing",
     name: "@bundar/testing",
     allowsRuntimeDependencies: true,

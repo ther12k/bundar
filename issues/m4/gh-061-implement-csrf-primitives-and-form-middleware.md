@@ -59,13 +59,13 @@ This issue implements one bounded part of the [Bundar roadmap](../../delivery/ro
 
 ## Acceptance criteria
 
-- [ ] Missing, malformed, expired, replayed where prohibited, and cross-origin tokens fail closed.
-- [ ] Safe methods do not rotate or consume tokens unexpectedly.
-- [ ] HTMX and no-JS form flows use the same protection.
-- [ ] Tokens are not logged or exposed in error messages.
-- [ ] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
-- [ ] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
-- [ ] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
+- [x] Missing, malformed, expired, replayed where prohibited, and cross-origin tokens fail closed.
+- [x] Safe methods do not rotate or consume tokens unexpectedly.
+- [x] HTMX and no-JS form flows use the same protection.
+- [x] Tokens are not logged or exposed in error messages.
+- [x] Exact verification commands, environment versions, and evidence locations are attached to the issue or pull request.
+- [x] No mandatory test failure is hidden, skipped without reason, or converted into a warning.
+- [x] Relevant OKF concepts, compatibility notes, and changelog/log entries are updated in the same change.
 
 ## Verification
 
@@ -121,3 +121,16 @@ Remaining risks:
 Documentation updated:
 Newly unblocked issues:
 ```
+
+## Closure report
+
+Stable ID: GH-061
+Commit / PR: merged `gh-061-csrf` into `main` (merge commit recorded in `log.md`).
+Files changed: `decisions/0017-security-package.md` (new ADR superseding ADR-0016's map by adding @bundar/security), `tools/architecture-check/boundaries.json` (8th rule), `decisions/index.md`, `tests/skeleton.test.ts`, `packages/security/**` (new package: csrf.ts, index, manifest, README, 22 tests), `packages/jsx/src/forms/csrf-input.ts` (new) + index export + 3 tests, `tools/security/csrf-audit.ts` (new) + `security:csrf` script, browser fixture routes + both-lane scenarios + error-boundary wiring, root `tsconfig.json` path, `evidence/gh-061/verification-transcript.md` (new).
+Commands executed: security 22/22; jsx forms 9/9; `security:csrf` audit; both browser lanes with CSRF scenarios hard-asserted; package×2+root typecheck; lint; format; full suite 459/459; architecture (56 files / 8 rules); pack:inspect @bundar/security; build; docs validate (211 documents — ADR included) + links — all exit 0.
+Evidence: `evidence/gh-061/verification-transcript.md`; browser artifacts `output/playwright/{htmx2,htmx4}/csrf-*`.
+Contract/API changes: new package @bundar/security (ADR-0017) — `csrfMiddleware`, `issueCsrfToken`, `verifyCsrfToken`, `verifyOrigin`, `createCsrfSecret`, `constantTimeEqual`, `createInMemoryTokenStore`, `CsrfError`, `CSRF_FORM_FIELD`/`CSRF_HEADER` + types; `CsrfInput` in @bundar/jsx. No existing API changed.
+Security/performance impact: synchronizer tokens HMAC-bound to the session cookie with constant-time MAC comparison, expiry, rotation on verified state changes, optional pluggable single-use replay store; Origin/Sec-Fetch-Site chain fails closed (absent evidence rejected); token submission read from a request clone preserving single-consumption; generic 403 envelope with reasons server-side only; tokens verified absent from serialized errors (audited).
+Remaining risks: default in-memory store is single-process (documented; pluggable); session-id rotation invalidates outstanding tokens (fail closed); non-browser clients without Origin are rejected by policy; token read buffers a bounded clone of form bodies.
+Documentation updated: ADR-0017 + index, `packages/security/README.md`, this closure record, `issues/m4/index.md`, `log.md`.
+Newly unblocked issues: GH-064, GH-068.

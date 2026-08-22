@@ -21,6 +21,11 @@
       "allowedBundarPackages": ["@bundar/core", "@bundar/jsx"],
       "allowedExternalImports": []
     },
+    "@bundar/security": {
+      "path": "packages/security",
+      "allowedBundarPackages": ["@bundar/core"],
+      "allowedExternalImports": []
+    },
     "@bundar/testing": {
       "path": "packages/testing",
       "allowedBundarPackages": [
