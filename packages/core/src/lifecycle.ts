@@ -159,13 +159,10 @@ export class Lifecycle {
       await Promise.race([
         allSettled.then(() => undefined),
         new Promise<void>((resolve) => {
-          const timer: ReturnType<typeof setTimeout> = setTimeout(
-            () => {
-              timedOut = true;
-              resolve();
-            },
-            deadlineMs,
-          );
+          const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
+            timedOut = true;
+            resolve();
+          }, deadlineMs);
           // never keep the process alive just for the drain timer
           if (typeof timer === "object" && "unref" in timer) timer.unref();
         }),
