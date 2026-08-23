@@ -1,5 +1,6 @@
 {
-  "comment": "Frozen package boundary rules from ADR-0016 (GH-005). Enforced by tools/architecture-check/check.ts via `bun run architecture:check`. Changes require an ADR.",
+  "comment": "Frozen post-alpha package boundary rules from ADR-0018 (BR-011/BR-012). Enforced by tools/architecture-check/check.ts via `bun run architecture:check`. Changes require an ADR. allowedBundarPackages encodes the TARGET state; transitional exceptions below bridge until their expiry tasks close.",
+  "adr": "ADR-0018",
   "packages": {
     "@bundar/core": {
       "path": "packages/core",
@@ -13,16 +14,12 @@
     },
     "@bundar/htmx": {
       "path": "packages/htmx",
-      "allowedBundarPackages": [
-        "@bundar/jsx",
-        "@bundar/core",
-        "@bundar/schema"
-      ],
+      "allowedBundarPackages": ["@bundar/jsx"],
       "allowedExternalImports": []
     },
     "@bundar/schema": {
       "path": "packages/schema",
-      "allowedBundarPackages": ["@bundar/core", "@bundar/jsx"],
+      "allowedBundarPackages": [],
       "allowedExternalImports": []
     },
     "@bundar/security": {
@@ -36,7 +33,9 @@
         "@bundar/core",
         "@bundar/jsx",
         "@bundar/htmx",
-        "@bundar/schema"
+        "@bundar/forms",
+        "@bundar/schema",
+        "@bundar/security"
       ],
       "allowedExternalImports": []
     },
@@ -46,7 +45,9 @@
         "@bundar/core",
         "@bundar/jsx",
         "@bundar/htmx",
+        "@bundar/forms",
         "@bundar/schema",
+        "@bundar/security",
         "@bundar/testing"
       ],
       "allowedExternalImports": []
@@ -57,13 +58,37 @@
         "@bundar/core",
         "@bundar/jsx",
         "@bundar/htmx",
+        "@bundar/forms",
         "@bundar/schema",
-        "@bundar/testing",
-        "@bundar/cli"
+        "@bundar/security",
+        "@bundar/testing"
       ],
       "allowedExternalImports": []
     }
   },
+  "exceptions": [
+    {
+      "from": "@bundar/htmx",
+      "to": "@bundar/core",
+      "adr": "ADR-0018 section 4",
+      "reason": "form-action.ts still orchestrates core parsing pre-move",
+      "expiresWith": "BR-015"
+    },
+    {
+      "from": "@bundar/htmx",
+      "to": "@bundar/schema",
+      "adr": "ADR-0018 section 4",
+      "reason": "field-error/result types not yet relocated",
+      "expiresWith": "BR-016"
+    },
+    {
+      "from": "@bundar/schema",
+      "to": "@bundar/core",
+      "adr": "ADR-0018 section 4",
+      "reason": "sources.ts parse adapters still kernel-bound",
+      "expiresWith": "BR-016"
+    }
+  ],
   "builtinPrefixes": ["bun:", "node:"],
   "rawHtmxConfinedTo": "@bundar/htmx",
   "rawHtmxPatterns": ["HX-[A-Z][A-Za-z-]*", "htmx:[a-z][A-Za-z]*"]

@@ -14,8 +14,7 @@
   "dependencies": {
     "@bundar/core": "workspace:*",
     "@bundar/htmx": "workspace:*",
-    "@bundar/jsx": "workspace:*",
-    "@bundar/schema": "workspace:*"
+    "@bundar/jsx": "workspace:*"
   },
   "exports": {
     ".": {

@@ -5,10 +5,20 @@
  * tests/architecture can prove every rule fails when violated. The CLI in
  * check.ts loads the real repository through this engine.
  */
+import { join } from "node:path";
+
 export type PackageRule = {
   path: string;
   allowedBundarPackages: string[];
   allowedExternalImports: string[];
+};
+
+export type BoundaryException = {
+  from: string;
+  to: string;
+  adr: string;
+  reason: string;
+  expiresWith: string;
 };
 
 export type BoundaryRules = {
@@ -16,6 +26,8 @@ export type BoundaryRules = {
   builtinPrefixes: string[];
   rawHtmxConfinedTo: string;
   rawHtmxPatterns: string[];
+  /** ADR-0018 §4 transitional exceptions; each must cite an ADR + expiry task. */
+  exceptions?: BoundaryException[];
 };
 
 export type SourceFile = {
@@ -105,7 +117,10 @@ export function checkBoundaries(
           violations.push({
             file: file.path,
             rule: "relative-escape",
-            message: `relative import "${specifier}" escapes package ${packageName} (resolves to ${target})`,
+            message:
+              `${packageName}: relative import "${specifier}" in ${file.path} ` +
+              `escapes the package (resolves to ${target}); remediation: import ` +
+              `through the owning package's public entry instead of a relative path`,
           });
         }
         continue;
@@ -123,13 +138,23 @@ export function checkBoundaries(
           imported !== packageName &&
           !rule.allowedBundarPackages.includes(imported)
         ) {
-          violations.push({
-            file: file.path,
-            rule: "forbidden-dependency",
-            message: `package ${packageName} may not import "${specifier}" (allowed: ${
-              rule.allowedBundarPackages.join(", ") || "none"
-            })`,
-          });
+          const exception = (rules.exceptions ?? []).find(
+            (candidate) =>
+              candidate.from === packageName && candidate.to === imported,
+          );
+          if (exception === undefined) {
+            violations.push({
+              file: file.path,
+              rule: "forbidden-dependency",
+              message:
+                `${packageName} → ${imported}: import "${specifier}" in ${file.path} ` +
+                `violates the ADR-0018 graph (allowed from ${packageName}: ` +
+                `${rule.allowedBundarPackages.join(", ") || "none"}); ` +
+                `remediation: remove the import, or amend the graph via a new ADR`,
+            });
+          }
+          // Excepted edges stay visible: the CLI prints active exceptions
+          // every run so transitional coupling can never go silent.
         }
         continue;
       }
@@ -137,7 +162,10 @@ export function checkBoundaries(
         violations.push({
           file: file.path,
           rule: "external-dependency",
-          message: `external import "${specifier}" is not allowed in ${packageName}; framework packages declare dependencies explicitly via ADR`,
+          message:
+            `${packageName} → external "${specifier}" at ${file.path} is not in ` +
+            `the package allowlist; remediation: declare it in the manifest ` +
+            `and add it to allowedExternalImports via ADR, or drop the import`,
         });
       }
     }
@@ -149,9 +177,91 @@ export function checkBoundaries(
           violations.push({
             file: file.path,
             rule: "raw-htmx-surface",
-            message: `raw htmx protocol string "${match[0]}" outside ${rules.rawHtmxConfinedTo}; dialect adapters own htmx specifics`,
+            message:
+              `${packageName}: raw htmx protocol string "${match[0]}" in ` +
+              `${file.path} outside ${rules.rawHtmxConfinedTo}; remediation: ` +
+              `move the protocol concern into the dialect adapter boundary`,
           });
         }
+      }
+    }
+  }
+
+  return violations;
+}
+
+/** Declared @bundar workspace dependencies per package, from its manifest. */
+export type ManifestDependencies = Record<string, readonly string[]>;
+
+/**
+ * BR-012 manifest-level checks over the ADR-0018 graph:
+ *
+ * - "undeclared-source-dependency": source imports a workspace package the
+ *   manifest does not declare.
+ * - "unused-manifest-dependency": the manifest declares a workspace
+ *   dependency no source or test file imports (stale edges are public API).
+ *
+ * Both directions inspect actual resolved usage, so documentation drift and
+ * declaration-only coupling both fail. Exceptions do NOT apply here: an
+ * excepted edge still must be declared, and its usage keeps it alive.
+ */
+export function checkManifests(
+  rules: BoundaryRules,
+  manifests: ManifestDependencies,
+  files: readonly SourceFile[],
+): Violation[] {
+  const violations: Violation[] = [];
+
+  // Actual import edges: package name → set of imported workspace packages,
+  // aggregated across src and test files of that package.
+  const usage = new Map<string, Set<string>>();
+  for (const file of files) {
+    const matched = packageForPath(rules, file.path);
+    if (matched === null) continue;
+    const [packageName] = matched;
+    const set = usage.get(packageName) ?? new Set<string>();
+    for (const specifier of extractImportSpecifiers(file.source)) {
+      if (!specifier.startsWith("@bundar/")) continue;
+      const imported = owningPackage(specifier);
+      if (
+        imported !== packageName &&
+        Object.prototype.hasOwnProperty.call(rules.packages, imported)
+      ) {
+        set.add(imported);
+      }
+    }
+    usage.set(packageName, set);
+  }
+
+  for (const [name, rule] of Object.entries(rules.packages)) {
+    if (!(name in manifests)) continue; // e.g. scaffolder without manifest deps
+    const declared = manifests[name]!;
+    const used = usage.get(name) ?? new Set<string>();
+
+    for (const imported of used) {
+      if (!declared.includes(imported)) {
+        violations.push({
+          file: rule.path,
+          rule: "undeclared-source-dependency",
+          message:
+            `${name} → ${imported}: source imports "${imported}" but the ` +
+            `manifest does not declare it; remediation: add the workspace ` +
+            `dependency to ${rule.path}/package.json or remove the import`,
+        });
+      }
+    }
+
+    for (const dependency of declared) {
+      if (!used.has(dependency)) {
+        violations.push({
+          file: join(rule.path, "package.json"),
+          rule: "unused-manifest-dependency",
+          message:
+            `${name} → ${dependency}: manifest declares this workspace ` +
+            `dependency but no source/test file imports it; remediation: ` +
+            `remove the declaration or restore the import (stale edges are ` +
+            `public compatibility promises)`,
+        });
       }
     }
   }

@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import {
   checkBoundaries,
+  checkManifests,
   type BoundaryRules,
   type SourceFile,
 } from "../../tools/architecture-check/engine";
@@ -174,5 +175,87 @@ describe("architecture boundary harness: real repository", () => {
     walk(REPOSITORY_ROOT);
     expect(files.length).toBeGreaterThan(0);
     expect(checkBoundaries(rules, files)).toEqual([]);
+  });
+});
+
+describe("BR-012 manifest and exception enforcement", () => {
+  const targetRulesNoExceptions: BoundaryRules = {
+    ...rules,
+    exceptions: [],
+  };
+
+  test("a core import from a protocol-pure htmx module fails at target state", () => {
+    const violations = checkBoundaries(targetRulesNoExceptions, [
+      file(
+        "packages/htmx/src/form-action.ts",
+        `import { parseForm } from "@bundar/core";\n`,
+      ),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.rule).toBe("forbidden-dependency");
+    // Diagnostics carry source package, target package, file, rule, remediation.
+    const message = violations[0]!.message;
+    expect(message).toContain("@bundar/htmx");
+    expect(message).toContain("@bundar/core");
+    expect(message).toContain("packages/htmx/src/form-action.ts");
+    expect(message).toContain("remediation:");
+  });
+
+  test("the same edge passes while its ADR-0018 exception is active", () => {
+    const violations = checkBoundaries(rules, [
+      file(
+        "packages/htmx/src/form-action.ts",
+        `import { parseForm } from "@bundar/core";\n`,
+      ),
+    ]);
+    expect(violations).toEqual([]);
+  });
+
+  test("an undeclared source dependency is reported at manifest level", () => {
+    const violations = checkManifests(
+      rules,
+      { "@bundar/security": ["@bundar/core"] },
+      [
+        file(
+          "packages/security/src/session.ts",
+          `import { createContext } from "@bundar/core";\nimport type { Context } from "@bundar/testing";\n`,
+        ),
+      ],
+    );
+    expect(violations.map((v) => v.rule)).toEqual([
+      "undeclared-source-dependency",
+    ]);
+    expect(violations[0]!.message).toContain(
+      "@bundar/security → @bundar/testing",
+    );
+  });
+
+  test("a declared-but-unused manifest dependency is still reported", () => {
+    const violations = checkManifests(
+      rules,
+      { "@bundar/cli": ["@bundar/core", "@bundar/schema"] },
+      [
+        file(
+          "packages/cli/src/bin.ts",
+          `import { App } from "@bundar/core";\n`,
+        ),
+      ],
+    );
+    expect(violations.map((v) => v.rule)).toEqual([
+      "unused-manifest-dependency",
+    ]);
+    expect(violations[0]!.message).toContain("@bundar/cli → @bundar/schema");
+    expect(violations[0]!.message).toContain("remediation:");
+  });
+
+  test("a cross-package relative path escape is reported", () => {
+    const violations = checkBoundaries(targetRulesNoExceptions, [
+      file(
+        "packages/htmx/src/deep/view.ts",
+        `export { parseForm } from "../../../core/src/form";\n`,
+      ),
+    ]);
+    expect(violations.map((v) => v.rule)).toEqual(["relative-escape"]);
+    expect(violations[0]!.message).toContain("remediation:");
   });
 });
