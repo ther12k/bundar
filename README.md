@@ -11,7 +11,7 @@ tags:
   - htmx
   - hypermedia
 status: alpha
-updated: '2026-08-22'
+updated: '2026-08-23'
 ---
 
 # Bundar
@@ -63,6 +63,7 @@ Bundar is aimed primarily at admin panels, internal tools, approval workflows, d
 | JavaScript-disabled flows | Core form workflows use Post/Redirect/Get and are tested without htmx headers |
 | Browser evidence | Chrome for Testing lanes are covered; other browser engines remain unclaimed in this alpha |
 | Registry publication | Pending maintainer credentials; source packages still use private workspace manifests |
+| Post-alpha planning | The post-alpha review and beta-readiness bundle are complete (~85 microtasks, M8 chain); the path to beta runs through correctness, package-boundary, production-security, conformance, and guarded-publication tasks behind a single evidence-backed GO/NO-GO gate |
 | License | MIT |
 
 See the [alpha release notes](docs/release-notes/alpha.md), [compatibility matrix](docs/compatibility/matrix.md), and [release gate](delivery/gates/alpha.md) for the evidence behind these statements.
