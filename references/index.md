@@ -1,3 +1,12 @@
+---
+type: Reference Index
+title: References Index
+description: Link index of reference material retained as engineering records; implementation status lives in README.md and delivery/gates.
+tags:
+- bundar
+status: stable
+---
+
 # References
 
 - [Bun 1.4 Design-Relevant Notes](bun-1.4.md) — Source-derived Bun 1.4 facts that shape the framework design and must be revalidated over time.

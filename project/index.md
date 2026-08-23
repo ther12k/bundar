@@ -1,3 +1,12 @@
+---
+type: Design Corpus Index
+title: Project Corpus Index
+description: Link index of the Bundar project design corpus (charter, strategy, personas); implementation status lives in README.md and delivery/gates.
+tags:
+- bundar
+status: stable
+---
+
 # Project
 
 - [Bundar Project Charter](charter.md) — Purpose, product boundary, stakeholders, outcomes, constraints, and governance for Bundar.
