@@ -9,7 +9,7 @@ import { ErrorBoundary } from "@bundar/core";
 import { createTestClient } from "@bundar/testing";
 import { htmx2 } from "@bundar/htmx/2";
 import { createAdminApp } from "./app";
-import { createInMemoryArticleRepository } from "./domain";
+import { createInMemoryArticleRepository } from "./features/articles/articles.repository";
 
 function fixture() {
   const repository = createInMemoryArticleRepository([

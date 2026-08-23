@@ -1,6 +1,6 @@
 /** Admin bootstrap: dialect from the environment (default stable htmx 2). */
 import { createAdminApp } from "./app";
-import { createInMemoryArticleRepository } from "./domain";
+import { createInMemoryArticleRepository } from "./features/articles/articles.repository";
 
 const repository = createInMemoryArticleRepository([
   {

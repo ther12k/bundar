@@ -1,8 +1,8 @@
 /** Shared JSX regions for the Admin CRUD app (GH-077). */
 import { document, jsx } from "@bundar/jsx";
 import { HtmxScript } from "@bundar/htmx";
-import type { Article, ArticlePage, AuditEntry } from "./domain";
-import { dialect } from "./dialect";
+import type { Article, ArticlePage, AuditEntry } from "./articles.types";
+import { dialect } from "../../platform/dialect";
 
 export function Layout({
   title,
