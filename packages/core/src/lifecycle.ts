@@ -17,7 +17,6 @@
  * Signals are wired through an injectable registrar so tests never send
  * real process signals.
  */
-import type { Context } from "./context";
 
 export interface LifecycleResource {
   readonly name: string;
@@ -160,14 +159,15 @@ export class Lifecycle {
       await Promise.race([
         allSettled.then(() => undefined),
         new Promise<void>((resolve) => {
-          const timer = setTimeout(() => {
-            timedOut = true;
-            resolve();
-          }, deadlineMs);
+          const timer: ReturnType<typeof setTimeout> = setTimeout(
+            () => {
+              timedOut = true;
+              resolve();
+            },
+            deadlineMs,
+          );
           // never keep the process alive just for the drain timer
-          typeof timer === "object" && "unref" in timer
-            ? timer.unref()
-            : undefined;
+          if (typeof timer === "object" && "unref" in timer) timer.unref();
         }),
       ]);
       if (timedOut && this.#inFlight.size > 0) {

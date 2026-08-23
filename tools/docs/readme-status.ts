@@ -49,6 +49,13 @@ function gitLatestTag(): string {
   return text;
 }
 
+function brRange(start: number, end: number): Set<string> {
+  const out = new Set<string>();
+  for (let n = start; n <= end; n++)
+    out.add(`BR-${String(n).padStart(3, "0")}`);
+  return out;
+}
+
 interface Fact {
   id: string;
   source: string;
@@ -127,4 +134,33 @@ if (failures > 0) {
   console.error(`docs:status-check: ${failures} drifted fact(s)`);
   process.exit(1);
 }
+// BR-009/BR-010 amendment: closure figures are GENERATED from the same
+// machine ledger the issue validator consumes — never hand-stored.
+const ledger = JSON.parse(
+  readFileSync(join(ROOT, "delivery/baseline/closure-ledger.json"), "utf8"),
+) as { totalIds: number; closed: string[]; open: string[] };
+{
+  const closedSet = new Set(ledger.closed);
+  const openSet = new Set(ledger.open);
+  const universe = brRange(1, ledger.totalIds);
+  const union = new Set([...closedSet, ...openSet]);
+  if (
+    closedSet.size !== ledger.closed.length ||
+    openSet.size !== ledger.open.length ||
+    [...closedSet].some((id) => openSet.has(id)) ||
+    [...universe].some((id) => !union.has(id)) ||
+    closedSet.size + openSet.size !== ledger.totalIds
+  ) {
+    console.error(
+      "docs:status-check: closure ledger failed set-algebra assertions",
+    );
+    process.exit(1);
+  }
+}
+const closedPct =
+  Math.round((ledger.closed.length / ledger.totalIds) * 1000) / 10;
+console.log(
+  `closure: ${ledger.closed.length}/${ledger.totalIds} (${closedPct}%) — generated from delivery/baseline/closure-ledger.json`,
+);
+
 console.log(`docs:status-check: ok (${facts.length} status facts verified)`);
