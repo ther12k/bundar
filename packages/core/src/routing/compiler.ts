@@ -3,7 +3,8 @@
  *
  * Compiles Bundar route descriptors into native `Bun.serve({ routes })`
  * entries. Route matching is performed entirely by Bun; Bundar never scans
- * the route list at request time. Middleware chains compose ONCE here.
+ * the route list at request time. Middleware chains compose ONCE here
+ * (BR-003): each compiled handler entry stores a precomposed pipeline.
  */
 import { createContext, type ContextServicesOptions } from "../context";
 import { composeMiddleware, type Middleware } from "../middleware";
@@ -145,19 +146,24 @@ export function compileRoutes(
       readonly Middleware[] | undefined;
     const chain = [...appMiddleware, ...(routeMiddleware ?? [])];
 
+    // BR-003 (GH-018): the chain is composed exactly once here, per compiled
+    // route/method entry, before any request arrives. The request closure
+    // below only allocates a Context and runs the precomposed pipeline; it
+    // never rebuilds the chain. The terminal resolves params from the live
+    // Context so one composed pipeline serves every request.
+    const composed =
+      chain.length > 0
+        ? composeMiddleware(chain, (ctx) => handler(ctx, ctx.params))
+        : undefined;
+
     for (const method of descriptor.methods) {
       // GH-017: a Context is created only here, per dynamic request. Static
       // Response entries above never allocate a Context.
-      // GH-018: the middleware chain is composed ONCE here at compile time.
       group[method] = (request) => {
-        const params = request.params ?? {};
-        const context = createContext(request, params, options);
-        if (chain.length === 0) {
-          return handler(context, params);
+        const context = createContext(request, request.params ?? {}, options);
+        if (!composed) {
+          return handler(context, context.params);
         }
-        const composed = composeMiddleware(chain, (ctx) =>
-          handler(ctx, params),
-        );
         return composed(context);
       };
     }

@@ -77,12 +77,14 @@ describe("BR-002 middleware composition count", () => {
       middleware: [asyncMw],
     });
 
-    const compiled = app.compile();
-
+    // Subscribe BEFORE compiling: under the GH-018/BR-003 contract every
+    // composition happens during app.compile(), so the listener must already
+    // be attached to observe them.
     const compositions: number[] = [];
     const off = onMiddlewareComposition((count) => compositions.push(count));
 
     try {
+      const compiled = app.compile();
       const REQUESTS = 5;
 
       await drive(
@@ -117,7 +119,7 @@ describe("BR-002 middleware composition count", () => {
       );
 
       // GH-018: exactly one composition per non-empty compiled chain — five
-      // dynamic routes here — no matter how many requests were served.
+      // dynamic routes here — emitted during compile(), never per request.
       expect(compositions).toEqual([1, 2, 1, 2, 2]);
 
       // Execution is orthogonal: every participant runs once per request that
