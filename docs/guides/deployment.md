@@ -59,6 +59,53 @@ If any resource fails to start, already-started resources are stopped in
 reverse order before `LifecycleStartError` propagates — no half-open
 databases or queues.
 
+## Cancellation (BR-058)
+
+Every request exposes one standard signal: `context.signal` (transport
+disconnect + budget deadline + forced shutdown, first cause wins).
+
+- Graceful stop does NOT cancel in-flight requests; only drain-deadline
+  expiry, a second forced stop, or an explicit abort does.
+- Pass `context.signal` into downstream work that accepts signals
+  (`generateReport({ signal })`, `renderToStream(node, { signal })`).
+- `context.signal.throwIfAborted()` at orchestration boundaries.
+
+**Cancellation is not transaction rollback.** Abort BEFORE a business
+commit may stop the operation; abort AFTER commit leaves the mutation
+committed and only cancels response delivery. Retry/idempotency remains
+an application contract.
+
+## Reverse proxies (ADR-0020)
+
+Forwarded headers are IGNORED unless you explicitly trust your proxy:
+
+```ts
+import { resolveClient } from "@bundar/security";
+import type { ProxyTrustConfig } from "@bundar/security";
+
+const trust: ProxyTrustConfig = {
+  proxies: ["10.0.0.5"], // your nginx/caddy/traefik IP or CIDR
+  maxHops: 1,
+};
+
+app.get("/", (context) => {
+  // peer comes from the server runtime; see lifecycle wiring
+  const client = resolveClient(context.request, peerAddress, trust);
+  // one normalized identity for cookies, origin checks, audit logs
+});
+```
+
+Common patterns:
+
+| Deployment | Config |
+| --- | --- |
+| Direct (no proxy) | omit `trust` — forwarded headers ignored entirely |
+| Single local reverse proxy | `proxies: ["127.0.0.1"]` |
+| Docker/private network | `proxies: ["10.0.0.0/8"]`, `maxHops: 2` |
+
+Never enable trust based on platform auto-detection; allowlist explicit
+addresses only.
+
 ## Checklist
 
 - [ ] `lifecycle.start()` before `Bun.serve()`

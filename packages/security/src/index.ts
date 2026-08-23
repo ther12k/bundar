@@ -59,3 +59,6 @@ export {
   SecurityHeaderError,
 } from "./headers";
 export type { NonceContext, SecurityHeaderPolicy } from "./headers";
+
+export { isProxyTrusted, resolveClient } from "./proxy";
+export type { ProxyTrustConfig, ResolvedClient } from "./proxy";
