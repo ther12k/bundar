@@ -69,7 +69,9 @@ export function createRequestAbortScope(
 
   const settle = (reason: RequestAbortReason): void => {
     // First cause wins: later sources are ignored after the first abort.
-    if (settledReason !== null || controller.signal.aborted) return;
+    if (settledReason !== null || controller.signal.aborted) {
+      return;
+    }
     settledReason = reason;
     controller.abort(reason.cause);
     dispose();
@@ -108,7 +110,9 @@ export function createRequestAbortScope(
   }
 
   function dispose(): void {
-    if (disposed) return;
+    if (disposed) {
+      return;
+    }
     disposed = true;
     for (const fn of cleanupFns) fn();
     cleanupFns.length = 0;

@@ -241,7 +241,7 @@ export class App {
     // Middleware travels per-route under meta.middleware (stamped at
     // registration by the owning scope); no app-level duplication here.
     return compileRoutes(this.manifest().routes, {
-      ...this.abortConfig,
+      ...(this.abortConfig !== undefined ? { abort: this.abortConfig } : {}),
       ...options,
     });
   }

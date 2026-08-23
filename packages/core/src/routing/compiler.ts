@@ -125,6 +125,7 @@ export function compileRoutes(
     string,
     Record<string, Response | BunRouteHandler>
   >();
+
   const appMiddleware = options.middleware ?? [];
 
   for (const descriptor of normalized) {
@@ -169,28 +170,54 @@ export function compileRoutes(
     for (const method of descriptor.methods) {
       // GH-017: a Context is created only here, per dynamic request. Static
       // Response entries above never allocate a Context.
-      group[method] = (request) => {
-        // BR-058: one cancellation scope per request — transport disconnect,
-        // budget deadline, and forced shutdown composed into context.signal.
-        const scope = createRequestAbortScope({
-          transport: request.signal,
-          forcedShutdown: options.abort?.forcedShutdown ?? null,
-          deadlineMs: options.abort?.deadlineMs ?? null,
-        });
-        const context = createContext(request, request.params ?? {}, {
-          ...options,
-          signal: scope.signal,
-        });
-        try {
-          if (!composed) {
-            return handler(context, context.params);
+      // BR-058: when abort sources are configured, each request gets ONE
+      // composite cancellation scope. That closure MUST be async so dispose()
+      // runs after the response settles — a synchronous return would detach
+      // listeners before any async work observes them. Without abort
+      // sources, the zero-allocation synchronous fast path is preserved.
+      const hasAbortSources =
+        options.abort !== undefined &&
+        ((options.abort.forcedShutdown !== undefined &&
+          options.abort.forcedShutdown !== null) ||
+          (options.abort.deadlineMs ?? 0) > 0);
+
+      group[method] = hasAbortSources
+        ? async (request) => {
+            const scope = createRequestAbortScope({
+              transport: request.signal,
+              forcedShutdown: options.abort?.forcedShutdown ?? null,
+              deadlineMs: options.abort?.deadlineMs ?? null,
+            });
+            const context = createContext(request, request.params ?? {}, {
+              ...options,
+              signal: scope.signal,
+            });
+            try {
+              // Explicit await is REQUIRED: Bun 1.4.0 runs this finally
+              // synchronously on a bare `return promise`, detaching
+              // cancellation listeners before async work observes them.
+              if (!composed) return await handler(context, context.params);
+              return await composed(context);
+            } finally {
+              if (process.env.PROBE === "1")
+                console.error(
+                  "ASYNC finally firing; signal aborted?",
+                  scope.signal.aborted,
+                );
+              scope.dispose();
+            }
           }
-          return composed(context);
-        } finally {
-          // Dispose listeners/timers exactly once; safe pre/post abort.
-          scope.dispose();
-        }
-      };
+        : (request) => {
+            const context = createContext(
+              request,
+              request.params ?? {},
+              options,
+            );
+            if (!composed) {
+              return handler(context, context.params);
+            }
+            return composed(context);
+          };
     }
   }
 
