@@ -107,6 +107,36 @@ describe("BR-058 request-abort scope", () => {
     expect(scope.signal.aborted).toBe(false); // never fires after dispose
   });
 
+  test("remaining races preserve first cause: deadline-vs-forced, forced-vs-transport", async () => {
+    // deadline fires first, forced arrives later
+    const forcedA = deferredSignal();
+    const scopeA = createRequestAbortScope({
+      deadlineMs: 5,
+      forcedShutdown: forcedA.signal,
+    });
+    await new Promise((r) => setTimeout(r, 15));
+    expect(scopeA.reason()?.kind).toBe("request_deadline");
+    forcedA.abort();
+    await tick();
+    expect(scopeA.reason()?.kind).toBe("request_deadline"); // unchanged
+    scopeA.dispose();
+
+    // forced fires first, transport arrives later
+    const forcedB = deferredSignal();
+    const transportB = deferredSignal();
+    const scopeB = createRequestAbortScope({
+      transport: transportB.signal,
+      forcedShutdown: forcedB.signal,
+    });
+    forcedB.abort();
+    await tick();
+    expect(scopeB.reason()?.kind).toBe("forced_shutdown");
+    transportB.abort();
+    await tick();
+    expect(scopeB.reason()?.kind).toBe("forced_shutdown"); // unchanged
+    scopeB.dispose();
+  });
+
   test("per-request isolation: sibling scopes are fully independent", async () => {
     const a = deferredSignal();
     const b = deferredSignal();

@@ -228,8 +228,9 @@ describe("BR-058 runtime cancellation over real sockets", () => {
     const server = Bun.serve({ ...app.compile(), port: 0 });
     const base = `http://localhost:${server.port}`;
 
-    const controllers = Array.from({ length: 100 }, () =>
-      new AbortController(),
+    const controllers = Array.from(
+      { length: 100 },
+      () => new AbortController(),
     );
     const requests = controllers.map((controller, index) =>
       fetch(`${base}/work/${index}`, { signal: controller.signal })
@@ -254,6 +255,48 @@ describe("BR-058 runtime cancellation over real sockets", () => {
     expect(victim.text).toContain("aborted");
     // every request observed its OWN composite signal instance
     expect(seenSignals.size).toBe(100);
+  });
+
+  test("forced shutdown of one app does not abort a second app instance", async () => {
+    const forcedA = new AbortController();
+    const appA = new App();
+    appA.setAbortScope({ forcedShutdown: forcedA.signal });
+    let sawAbortA = false;
+    appA.get("/hang-a", (context) => {
+      context.signal.addEventListener(
+        "abort",
+        () => {
+          sawAbortA = true;
+        },
+        { once: true },
+      );
+      return new Promise<Response>(() => {});
+    });
+
+    const lifecycleB = new Lifecycle();
+    await lifecycleB.start();
+    const appB = new App();
+    appB.setAbortScope({ forcedShutdown: undefined });
+    appB.get("/ok-b", () => new Response("b-fine"));
+
+    const serverA = Bun.serve({ ...appA.compile(), port: 0 });
+    const serverB = Bun.serve({ ...appB.compile(), port: 0 });
+
+    void fetch(`http://localhost:${serverA.port}/hang-a`).catch(() => {});
+    await new Promise((r) => setTimeout(r, 30));
+
+    // Force-stop instance A only.
+    forcedA.abort();
+
+    const okB = await fetch(`http://localhost:${serverB.port}/ok-b`);
+    expect(await okB.text()).toBe("b-fine");
+    // A's in-flight request observed its own forced abort.
+    await new Promise((r) => setTimeout(r, 20));
+    expect(sawAbortA).toBe(true);
+
+    serverA.stop(true);
+    serverB.stop(true);
+    await lifecycleB.stop();
   });
 
   test("committed mutation survives post-commit cancellation (no rollback lie)", async () => {

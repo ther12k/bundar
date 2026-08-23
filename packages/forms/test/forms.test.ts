@@ -116,6 +116,52 @@ describe("BR-014/015 @bundar/forms contracts and orchestration", () => {
     });
   });
 
+  test("budget expiry before the action prevents execution (BR-058)", async () => {
+    // Pre-aborted scope: the whole pipeline must stop at checkpoint 0.
+    const controller = new AbortController();
+    controller.abort(new Error("deadline"));
+
+    const context = createContext(
+      new Request("http://test/late", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: "x=1",
+      }),
+      {},
+      { signal: controller.signal },
+    );
+
+    let actionRan = false;
+    let adapterCalled = false;
+    const outcome = await forms
+      .executeFormAction(
+        context,
+        {
+          schema: okSchema(),
+          buildFragment: () => {
+            actionRan = true;
+            return "nope";
+          },
+          renderForm: () => null,
+        },
+        {
+          invalid: async () => {
+            adapterCalled = true;
+            return new Response("invalid");
+          },
+          valid: async () => {
+            adapterCalled = true;
+            return new Response("valid");
+          },
+        },
+      )
+      .catch((error: unknown) => ({ aborted: String(error) }));
+
+    expect(actionRan).toBe(false);
+    expect(adapterCalled).toBe(false);
+    expect((outcome as { aborted?: string }).aborted).toContain("deadline");
+  });
+
   test("business failure inside fragment building rolls back and rethrows", async () => {
     let commits = 0;
     let rollbacks = 0;
