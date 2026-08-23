@@ -2,7 +2,7 @@
 import { describe, expect, test } from "bun:test";
 import { createTestClient } from "@bundar/testing";
 import { createApp } from "./app";
-import { dialect } from "./dialect";
+import { dialect } from "./platform/dialect";
 import { urls } from "./routes.gen";
 
 const client = createTestClient(createApp(), { dialect });

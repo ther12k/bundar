@@ -11,11 +11,13 @@
     "start": "bun src/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
+    "app:arch": "bun ../../tools/app-architecture/check.ts .",
     "build": "bun build src/main.ts --outdir dist --target=bun",
     "routes:check": "bundar routes check --entry src/app.ts --out src/routes.gen.ts"
   },
   "dependencies": {
     "@bundar/core": "workspace:*",
+    "@bundar/forms": "workspace:*",
     "@bundar/htmx": "workspace:*",
     "@bundar/jsx": "workspace:*",
     "@bundar/schema": "workspace:*"

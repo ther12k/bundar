@@ -1,26 +1,26 @@
 /** One document layout: nav, content region, local htmx asset (no CDN). */
-import { document, jsx } from "@bundar/jsx";
+import { document, type JSXChild } from "@bundar/jsx";
 import { HtmxScript } from "@bundar/htmx";
-import { dialect } from "./dialect";
+import { dialect } from "./platform/dialect";
 
 export function Layout({
   title,
   children,
 }: {
   title: string;
-  children: unknown;
+  children: JSXChild;
 }) {
   return document({
     lang: "en",
     title,
     children: [
-      jsx("header", {
-        children: jsx("nav", {
-          children: jsx("a", { href: "/", children: "Bundar starter" }),
-        }),
-      }),
+      <header>
+        <nav>
+          <a href="/">Bundar starter</a>
+        </nav>
+      </header>,
       // the error region: validation failures land here for enhanced flows
-      jsx("main", { id: "content", children }),
+      <main id="content">{children}</main>,
       HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null }),
     ],
   });

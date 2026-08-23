@@ -1,7 +1,7 @@
 /** Bootstrap: the app owns its error boundary (opaque 500s in production). */
 import { ErrorBoundary } from "@bundar/core";
 import { createApp } from "./app";
-import { dialect } from "./dialect";
+import { dialect } from "./platform/dialect";
 
 const app = createApp();
 const boundary = new ErrorBoundary({
