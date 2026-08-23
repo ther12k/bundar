@@ -67,6 +67,7 @@
     "security:sinks": "bun tools/security/sink-audit.ts",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
     "docs:check": "bun run scripts/docs-check.ts",
+    "docs:status-check": "bun tools/docs/readme-status.ts",
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
     "docs:links": "bun tools/okf-validator/cli.ts links",
     "issues:graph": "bun tools/okf-validator/cli.ts graph",
