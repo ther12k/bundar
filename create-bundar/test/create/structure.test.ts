@@ -8,10 +8,7 @@ import { existsSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkAppBoundaries } from "../../../tools/app-architecture/engine";
-import {
-  createProject,
-  DEFAULT_STRUCTURE,
-} from "../../src/index";
+import { createProject, DEFAULT_STRUCTURE } from "../../src/index";
 
 function tempTarget(name: string): string {
   return join(
