@@ -1,5 +1,8 @@
 # Engineering
 
+- [Application Structure Standard](application-structure.md) — Canonical feature-slice layout, naming conventions, graduation triggers, and agent zones for Bundar applications.
+- [Application Import Policy](application-import-policy.md) — Frozen application dependency direction with allowed/forbidden examples, platform exceptions, and enforcement notes.
+- [Agent Task Contract](agent-task-contract.md) — Bounded read/write/check sets and forbidden-change declarations for coding-agent tasks.
 - [Benchmark Plan and Performance Budgets](benchmarks.md) — Comparable workloads, methodology, raw Bun and Hono baselines, budgets, reporting, and anti-gaming rules.
 - [Browser and HTMX Conformance Engineering](browser-conformance.md) — Server fixture design, pinned browser/HTMX matrices, trace capture, and cross-dialect equivalence rules.
 - [Continuous Integration Design](ci.md) — Required checks, version matrices, scheduled jobs, artifacts, caching, and branch protection.
