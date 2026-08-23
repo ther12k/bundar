@@ -13,6 +13,7 @@
     "test": "bun test",
     "app:arch": "bun ../../tools/app-architecture/check.ts .",
     "build": "bun build src/main.ts --outdir dist --target=bun",
+    "check": "bun run typecheck && bun test && bun run routes:check",
     "routes:check": "bundar routes check --entry src/app.ts --out src/routes.gen.ts"
   },
   "dependencies": {
