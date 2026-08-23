@@ -12,6 +12,7 @@
  * Exit codes (CI migration gates): 0 = below threshold; 1 = findings at
  * or above the threshold; 2 = usage error.
  */
+import { existsSync } from "node:fs";
 import type { CommandContext, CommandDefinition } from "../cli";
 import { scanTarget, type AuditReport } from "../audit/scan";
 import { severityRank, type AuditSeverity } from "../audit/rules";
@@ -102,6 +103,13 @@ export const htmxAuditCommand: CommandDefinition = {
         "usage: bundar htmx-audit <path>... [--format=human|json] [--fail-on=blocking|review|informational]",
       );
       return 2;
+    }
+    // BR-046: nonexistent inputs are a documented usage failure (exit 1),
+    // never an unhandled execution error (exit 3).
+    const missing = ctx.args.filter((target) => !existsSync(target));
+    if (missing.length > 0) {
+      console.error(`htmx-audit: path does not exist: ${missing.join(", ")}`);
+      return 1;
     }
     const reports = ctx.args.map((target) => scanTarget(target));
     const combined = {
