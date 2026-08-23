@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "bundar.inspect/1",
+  "type": "object",
+  "required": ["schema", "scope", "target", "versions", "inputHash"],
+  "properties": {
+    "schema": { "const": "bundar.inspect/1" },
+    "scope": { "enum": ["repo", "app", "feature"] },
+    "target": { "type": "string" },
+    "versions": {
+      "type": "object",
+      "required": ["bundar", "bun"],
+      "properties": {
+        "bundar": { "type": "string" },
+        "bun": { "type": "string" }
+      }
+    },
+    "inputHash": {
+      "type": "string",
+      "pattern": "^sha256-[0-9a-f]{64}$"
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "exports", "private"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^@bundar/" },
+          "path": { "type": "string" },
+          "exports": { "type": "array", "items": { "type": "string" } },
+          "private": { "type": "boolean" }
+        }
+      }
+    },
+    "app": {
+      "type": "object",
+      "required": [
+        "path",
+        "entrypoints",
+        "dialect",
+        "generatedFiles",
+        "routes",
+        "checks",
+        "features"
+      ],
+      "properties": {
+        "path": { "type": "string" },
+        "entrypoints": { "type": "array", "items": { "type": "string" } },
+        "dialect": { "type": "string" },
+        "generatedFiles": { "type": "array", "items": { "type": "string" } },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["method", "path"],
+            "properties": {
+              "name": { "type": ["string", "null"] },
+              "method": { "type": "string" },
+              "path": { "type": "string" }
+            }
+          }
+        },
+        "checks": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "files"],
+            "properties": {
+              "name": { "type": "string" },
+              "entrypoint": { "type": ["string", "null"] },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["path", "layer"],
+                  "properties": {
+                    "path": { "type": "string" },
+                    "layer": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "required": ["name", "files"],
+      "properties": {
+        "name": { "type": "string" },
+        "entrypoint": { "type": ["string", "null"] },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "layer"],
+            "properties": {
+              "path": { "type": "string" },
+              "layer": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

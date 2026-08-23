@@ -7,6 +7,7 @@
 import { routesCommand } from "./commands/routes";
 import { devCommand } from "./commands/dev";
 import { htmxAuditCommand } from "./commands/htmx-audit";
+import { inspectCommand } from "./commands/inspect";
 import {
   buildEnvelope,
   EXIT,
@@ -108,7 +109,8 @@ Commands:
   dev              Run the app with hot reload (development only)
   htmx-audit       Audit source for htmx 2→4 migration-sensitive patterns
   doctor           Environment diagnostics (secrets-safe)
-  info             Alias of doctor`);
+  info             Alias of doctor
+  inspect          Bounded offline project manifest (repo/app/feature)`);
 }
 
 /** Per-run collection for warnings/errors/next hints and envelope data. */
@@ -184,6 +186,9 @@ registerCommand(devCommand);
 
 // GH-078: htmx 2→4 migration audit
 registerCommand(htmxAuditCommand);
+
+// BR-047: bounded offline project manifest
+registerCommand(inspectCommand);
 
 export interface RunResult {
   exitCode: number;
