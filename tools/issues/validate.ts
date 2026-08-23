@@ -350,8 +350,11 @@ if (violations.length > 0) {
 console.log(
   `issues:check: ok (${contractIssues.length} agent-contract issues validated; ${writeSets.size} parallel-safe)`,
 );
+const openNumbers = ledger.open
+  .map((id) => ledger.issueNumbers[id])
+  .filter((n): n is number => n !== undefined);
 console.log(
-  `closure ledger: ${ledger.closed.length}/${ledger.totalIds} closed (${computedClosedPct}%), ${ledger.open.length} open (#${Math.min(...Object.values(ledger.issueNumbers))}–#${Math.max(...Object.values(ledger.issueNumbers))} range), amendments: ${ledger.amendments.length}`,
+  `closure ledger: ${ledger.closed.length}/${ledger.totalIds} closed (${computedClosedPct}%), ${ledger.open.length} open (#${Math.min(...openNumbers)}–#${Math.max(...openNumbers)}), amendments: ${ledger.amendments.length}`,
 );
 
 function byIssueThenRule(a: Violation, b: Violation): number {

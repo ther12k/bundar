@@ -16,6 +16,17 @@ export class ResponseMutationError extends Error {
   }
 }
 
+// eslint-disable-next-line no-control-regex -- intentional: detects injection
+const HEADER_CONTROL = /[\u0000-\u001f\u007f\u0080-\u009f]/;
+
+function assertHeaderValue(value: string): void {
+  if (HEADER_CONTROL.test(value)) {
+    throw new ResponseMutationError(
+      "header value contains control characters (header injection)",
+    );
+  }
+}
+
 function assertMutable(response: Response): void {
   if (response.bodyUsed) {
     throw new ResponseMutationError(
@@ -46,6 +57,7 @@ export function withHeader(
   mode: HeaderMode = "append",
 ): Response {
   return rebuilt(response, (headers) => {
+    assertHeaderValue(value);
     if (mode === "set") headers.set(name, value);
     else headers.append(name, value);
   });
@@ -61,6 +73,7 @@ export function withHeaderEntries(
   }[],
 ): Response {
   return rebuilt(response, (headers) => {
+    for (const entry of entries) assertHeaderValue(entry.value);
     for (const entry of entries) {
       if ((entry.mode ?? "append") === "set")
         headers.set(entry.name, entry.value);

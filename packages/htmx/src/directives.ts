@@ -33,7 +33,8 @@ export class DirectiveValidationError extends Error {
   }
 }
 
-const HEADER_INJECTION = /[\r\n\0]/;
+// eslint-disable-next-line no-control-regex -- intentional: detects injection
+const HEADER_INJECTION = /[\u0000-\u001f\u007f\u0080-\u009f]/;
 const SELECTOR_PATTERN = /^[A-Za-z0-9_[\]().#:= >~-]{1,256}$/;
 const URL_PATTERN = /^[!#$&'()*+,./:;=?@[\]A-Za-z0-9_-]{1,2048}$/;
 
@@ -58,14 +59,38 @@ function validateSelector(kind: string, selector: string): void {
 
 function validateUrl(kind: string, url: string): void {
   validateNoInjection(kind, url);
+  if (url.length === 0 || url.length > 2048) {
+    throw new DirectiveValidationError(kind, "url length out of bounds");
+  }
   if (!URL_PATTERN.test(url)) {
     throw new DirectiveValidationError(kind, "url contains invalid characters");
+  }
+  // BR-064 corpus: inspect a ONCE-DECODED copy; emit the original untouched.
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(url);
+  } catch {
+    throw new DirectiveValidationError(kind, "malformed percent-encoding");
+  }
+  validateNoInjection(kind, decoded);
+  const haystack = decoded.replace(/\\/g, "/").toLowerCase();
+  if (/^\s*(?:javascript|data|vbscript|file|blob):/.test(haystack)) {
+    throw new DirectiveValidationError(kind, "dangerous URL scheme");
+  }
+  if (/[a-z][a-z0-9+.-]*:\/\/[^/@]*@/.test(haystack)) {
+    throw new DirectiveValidationError(kind, "credential-bearing URL");
+  }
+  if (decoded.includes("../") || decoded.includes("..\\")) {
+    throw new DirectiveValidationError(kind, "path traversal");
   }
 }
 
 function validateEventName(kind: string, name: string): void {
   validateNoInjection(kind, name);
-  if (!/^[A-Za-z0-9_.:-]{1,128}$/.test(name)) {
+  // Commas separate an EVENT LIST; each segment must be identifier-like.
+  if (
+    !/^[A-Za-z0-9_.:-]{1,128}(?:\s*,\s*[A-Za-z0-9_.:-]{1,128})*$/.test(name)
+  ) {
     throw new DirectiveValidationError(
       kind,
       "event names must be identifier-like",
@@ -122,7 +147,14 @@ export function normalizeDirectives(
         for (const event of directive.events) {
           validateEventName("trigger", event.name);
           if (event.detail !== undefined) {
-            JSON.stringify(event.detail); // must be JSON-safe
+            const serialized = JSON.stringify(event.detail);
+            if (serialized.length > 4096) {
+              throw new DirectiveValidationError(
+                "trigger",
+                `event payload for "${event.name}" exceeds 4096 bytes`,
+              );
+            }
+            walkPrototypeKeys(event.detail, `event "${event.name}"`);
           }
         }
         break;
@@ -225,4 +257,20 @@ export function applyDirectives(
     statusText: response.statusText,
     headers,
   });
+}
+
+function walkPrototypeKeys(value: unknown, path: string): void {
+  if (value === null || typeof value !== "object") return;
+  for (const key of Object.keys(value as Record<string, unknown>)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      throw new DirectiveValidationError(
+        "trigger",
+        `prototype-like key "${key}" at ${path}.${key}`,
+      );
+    }
+    walkPrototypeKeys(
+      (value as Record<string, unknown>)[key],
+      `${path}.${key}`,
+    );
+  }
 }
