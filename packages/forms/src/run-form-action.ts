@@ -10,6 +10,30 @@
  * validation runs for ordinary and enhanced flows.
  */
 import { parseForm, type Context } from "@bundar/core";
+
+/**
+ * BR-058 honesty rule: Promise.race stops OUR continuation promptly but
+ * cannot interrupt a native body parser that ignores signals. The losing
+ * settlement is consumed defensively so no unhandled rejection escapes;
+ * the residual limitation is documented rather than hidden.
+ */
+function abortError(signal: AbortSignal): unknown {
+  return signal.reason ?? new Error("request cancellation (BR-058)");
+}
+
+async function raceAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal,
+): Promise<T> {
+  if (signal.aborted) throw abortError(signal);
+  const gate = new Promise<never>((_, reject) => {
+    const onAbort = (): void => reject(abortError(signal));
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+  // Defensive consumption of the loser prevents unhandled rejections.
+  promise.catch(() => undefined);
+  return Promise.race([promise, gate]);
+}
 import {
   resolveValidationAdapter,
   type FormValidationAdapter,
@@ -50,18 +74,27 @@ export async function executeFormAction<Output>(
   definition: FormActionDefinition<Output>,
   adapter: FormResponseAdapter,
 ): Promise<FormActionOutcome> {
-  // 1. bounded parse (single consumption; the schema sees decoded data)
-  const form = await parseForm(context);
+  // Checkpoint 0 — before any work (BR-058).
+  context.signal.throwIfAborted();
+
+  // 1. bounded parse, raced against cancellation. The native parser may not
+  // be signal-aware (documented residual limitation); our continuation stops
+  // immediately and the eventual settlement is consumed safely above.
+  const form = await raceAbort(parseForm(context), context.signal);
+  context.signal.throwIfAborted();
   const submitted = submittedValues(form);
 
   // 2. identical business validation for both worlds (via the resolved port)
+  context.signal.throwIfAborted(); // checkpoint: before validation
   const validation: FormValidationAdapter<Output> = resolveValidationAdapter(
     definition.schema,
     definition.validation,
   );
-  const result = (await validation.validate(
-    submitted,
+  const result = (await raceAbort(
+    Promise.resolve(validation.validate(submitted)),
+    context.signal,
   )) as ValidationResult<Output>;
+  context.signal.throwIfAborted(); // checkpoint: after async validation
 
   // 3. invalid: adapter renders the form region (or document) with safe data
   if (!result.success) {
@@ -69,6 +102,7 @@ export async function executeFormAction<Output>(
       result,
       submitted,
     );
+    context.signal.throwIfAborted(); // checkpoint: before invalid rendering
     const response = await adapter.invalid(context.request, {
       status: INVALID_SUBMISSION_STATUS,
       message: "Validation failed",
@@ -83,6 +117,7 @@ export async function executeFormAction<Output>(
   if (definition.transaction !== undefined) {
     handle = await definition.transaction.begin();
   }
+  context.signal.throwIfAborted(); // checkpoint: before action execution
   let fragment: unknown;
   try {
     fragment = await definition.buildFragment(result.value);
