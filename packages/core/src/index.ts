@@ -37,3 +37,11 @@ export {
   withoutHeader,
 } from "./response-mutate";
 export type { CookieOptions, HeaderMode } from "./response-mutate";
+
+export { Lifecycle, LifecycleStartError } from "./lifecycle";
+export type {
+  LifecycleHooks,
+  LifecycleOptions,
+  LifecycleResource,
+  LifecycleState,
+} from "./lifecycle";
