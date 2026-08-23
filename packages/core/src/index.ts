@@ -27,3 +27,13 @@ export * from "./routing/compiler";
 export * from "./routing/conflicts";
 export * from "./routing/path";
 export * from "./routing/types";
+
+export {
+  ResponseMutationError,
+  serializeCookie,
+  withHeader,
+  withHeaderEntries,
+  withSetCookie,
+  withoutHeader,
+} from "./response-mutate";
+export type { CookieOptions, HeaderMode } from "./response-mutate";

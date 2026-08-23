@@ -65,6 +65,7 @@
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "security:raw-html-audit": "bun tools/security/raw-html-audit.ts",
     "security:sinks": "bun tools/security/sink-audit.ts",
+    "security:response-hygiene": "bun tools/security/response-hygiene-audit.ts",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
     "docs:check": "bun run scripts/docs-check.ts",
     "docs:status-check": "bun tools/docs/readme-status.ts",

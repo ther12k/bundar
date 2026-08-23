@@ -15,9 +15,15 @@
  * current session cookie value, so a token minted for one session fails for
  * another without any server-side state.
  */
-import { CookieMutations, HttpError } from "@bundar/core";
+import {
+  CookieMutations,
+  HttpError,
+  serializeCookie,
+  withSetCookie,
+} from "@bundar/core";
 import type { Context, Middleware } from "@bundar/core";
 import { parseForm } from "@bundar/core";
+import { getSession } from "./session/middleware";
 
 const DEFAULT_TTL_MS = 30 * 60 * 1_000; // 30 minutes
 const DEFAULT_TOKEN_COOKIE = "bundar.csrf";
@@ -386,4 +392,56 @@ export function csrfMiddleware(options: CsrfMiddlewareOptions): Middleware {
       issued.expiresAtMs,
     );
   };
+}
+
+/**
+ * BR-055 composition helpers: applications compose the synchronizer flow
+ * through these instead of re-parsing framework cookies or hand-building
+ * Set-Cookie headers.
+ */
+
+/** Reads the current CSRF token cookie from a request (no app-side regex). */
+export function readCsrfTokenFromRequest(
+  request: Request,
+  cookieName = "bundar.csrf",
+): string {
+  return (
+    request.headers
+      .get("cookie")
+      ?.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`))?.[1] ?? ""
+  );
+}
+
+/**
+ * Issues a session-bound page token (GH-069 contract) in one call.
+ */
+export async function issuePageCsrfToken(
+  secret: CsrfSecret,
+  context: Context,
+  cookieName = "bundar.csrf",
+): Promise<IssuedCsrfToken & { readonly cookieName: string }> {
+  const session = getSession(context);
+  const issued = await issueCsrfToken(secret, session?.id ?? "");
+  return { ...issued, cookieName };
+}
+
+/**
+ * Attaches the page token as the authoritative CSRF cookie. When
+ * `replaceSameName` is set, any middleware-issued anonymous token is
+ * superseded so clients see exactly one matching value.
+ */
+export function withCsrfCookie(
+  response: Response,
+  token: { token: string; expiresAtMs: number },
+  options: { replaceSameName?: boolean } = {},
+): Response {
+  return withSetCookie(
+    response,
+    serializeCookie("bundar.csrf", token.token, {
+      expires: new Date(token.expiresAtMs),
+      httpOnly: true,
+      sameSite: "Strict",
+    }),
+    options,
+  );
 }

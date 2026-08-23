@@ -20,9 +20,11 @@ import {
   addFlash,
   consumeFlash,
   csrfMiddleware,
-  getSession,
-  issueCsrfToken,
+  issuePageCsrfToken,
+  readCsrfTokenFromRequest,
+  withCsrfCookie,
   type CsrfSecret,
+  getSession,
 } from "@bundar/security";
 import { jsx } from "@bundar/jsx";
 import {
@@ -46,29 +48,6 @@ import {
 import { urls } from "../../routes.gen";
 import { ADMIN_ROLE_RANK } from "./articles.authz";
 import { isEditor, parseStatus, requireRole, roleOf } from "./articles.authz";
-
-async function pageToken(secret: CsrfSecret, context: Context) {
-  const session = getSession(context);
-  return issueCsrfToken(secret, session?.id ?? "");
-}
-
-function submittedToken(request: Request): string {
-  return (
-    request.headers
-      .get("cookie")
-      ?.match(/(?:^|;\s*)bundar\.csrf=([^;]*)/)?.[1] ?? ""
-  );
-}
-
-function withCookie(response: Response, cookie: string): Response {
-  const headers = new Headers(response.headers);
-  headers.append("set-cookie", cookie);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
 
 export interface ArticleRouteDeps {
   readonly repository: ArticleRepository;
@@ -166,7 +145,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
               renderFragment: (view_) =>
                 articleForm({
                   action: urls["article-create"](),
-                  token: submittedToken(context.request),
+                  token: readCsrfTokenFromRequest(context.request),
                   title,
                   slug,
                   status: status ?? "draft",
@@ -221,7 +200,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
               renderFragment: (view_) =>
                 articleForm({
                   action: urls["article-edit"]({ id }),
-                  token: submittedToken(context.request),
+                  token: readCsrfTokenFromRequest(context.request),
                   title,
                   slug: existing.slug,
                   status: status ?? existing.status,
@@ -359,7 +338,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
   app.get(
     "/login",
     async (context) => {
-      const token = await pageToken(csrfSecret, context);
+      const token = await issuePageCsrfToken(csrfSecret, context);
       const response = await view(
         context.request,
         {
@@ -369,7 +348,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
         },
         dialectOptions,
       );
-      return withCookie(response, csrfCookie(token.token, token.expiresAtMs));
+      return withCsrfCookie(response, token, { replaceSameName: true });
     },
     { name: "login-page" },
   );
@@ -396,7 +375,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
       const statusParam = url.searchParams.get("status");
       const page = Number(url.searchParams.get("page") ?? "1");
       const flashes = consumeFlash(context);
-      const token = await pageToken(csrfSecret, context);
+      const token = await issuePageCsrfToken(csrfSecret, context);
       const role = roleOf(context);
       const canDelete = role === "admin";
       const result = repository.query({
@@ -445,7 +424,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
         },
         dialectOptions,
       );
-      return withCookie(response, csrfCookie(token.token, token.expiresAtMs));
+      return withCsrfCookie(response, token, { replaceSameName: true });
     },
     { name: "article-list" },
   );
@@ -458,7 +437,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
       const article = repository.get(Number(context.params["id"]));
       if (article === undefined) return notFound(context, user);
       const flashes = consumeFlash(context);
-      const token = await pageToken(csrfSecret, context);
+      const token = await issuePageCsrfToken(csrfSecret, context);
       const role = roleOf(context);
       const content = [
         jsx("h2", { children: article.title }),
@@ -500,7 +479,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
         },
         dialectOptions,
       );
-      return withCookie(response, csrfCookie(token.token, token.expiresAtMs));
+      return withCsrfCookie(response, token, { replaceSameName: true });
     },
     { name: "article-detail" },
   );
@@ -559,8 +538,4 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
       ),
     );
   }
-}
-
-function csrfCookie(token: string, expiresAtMs: number): string {
-  return `bundar.csrf=${token}; Path=/; HttpOnly; SameSite=Strict; Expires=${new Date(expiresAtMs).toUTCString()}`;
 }
