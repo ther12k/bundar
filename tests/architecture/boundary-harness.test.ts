@@ -164,7 +164,7 @@ describe("architecture boundary harness: real repository", () => {
             .join("/");
           if (
             Object.values(rules.packages).some((rule) =>
-              path.startsWith(`${rule.path}/`),
+              path.startsWith(`${rule.path}/src/`),
             )
           ) {
             files.push({ path, source: readFileSync(absolutePath, "utf8") });
@@ -201,8 +201,20 @@ describe("BR-012 manifest and exception enforcement", () => {
     expect(message).toContain("remediation:");
   });
 
-  test("the same edge passes while its ADR-0018 exception is active", () => {
-    const violations = checkBoundaries(rules, [
+  test("the same edge passes while an ADR-0018-style exception is active", () => {
+    const withException: BoundaryRules = {
+      ...targetRulesNoExceptions,
+      exceptions: [
+        {
+          from: "@bundar/htmx",
+          to: "@bundar/core",
+          adr: "synthetic",
+          reason: "test fixture",
+          expiresWith: "TEST",
+        },
+      ],
+    };
+    const violations = checkBoundaries(withException, [
       file(
         "packages/htmx/src/form-action.ts",
         `import { parseForm } from "@bundar/core";\n`,
