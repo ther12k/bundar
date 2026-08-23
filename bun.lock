@@ -130,6 +130,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@bundar/core": "workspace:*",
+        "@bundar/forms": "workspace:*",
         "@bundar/htmx": "workspace:*",
         "@bundar/jsx": "workspace:*",
         "@bundar/schema": "workspace:*",

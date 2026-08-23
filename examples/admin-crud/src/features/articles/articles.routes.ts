@@ -46,12 +46,7 @@ import {
   tableControls,
 } from "./articles.view";
 import { ADMIN_ROLE_RANK } from "./articles.authz";
-import {
-  isEditor,
-  parseStatus,
-  requireRole,
-  roleOf,
-} from "./articles.authz";
+import { isEditor, parseStatus, requireRole, roleOf } from "./articles.authz";
 
 async function pageToken(secret: CsrfSecret, context: Context) {
   const session = getSession(context);
