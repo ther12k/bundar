@@ -118,18 +118,18 @@ describe("BR-057 application lifecycle", () => {
   });
 
   test("signal registrar seam invokes stop without real signals", async () => {
-    let captured: ((signal: string) => void) | null = null;
+    const handlers: ((signal: "SIGINT" | "SIGTERM") => void)[] = [];
     const unregisterCalls: number[] = [];
     const lifecycle = new Lifecycle({
       registerSignals: (handler) => {
-        captured = handler;
+        handlers.push(handler);
         return () => unregisterCalls.push(1);
       },
     });
     await lifecycle.start();
     const off = lifecycle.attachSignals();
-    expect(captured).not.toBeNull();
-    captured?.("SIGTERM");
+    expect(handlers).toHaveLength(1);
+    handlers[0]?.("SIGTERM");
     // stop is async; wait a tick
     await new Promise((r) => setTimeout(r, 0));
     expect(lifecycle.state).toBe("stopped");
