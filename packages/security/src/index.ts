@@ -62,3 +62,8 @@ export type { NonceContext, SecurityHeaderPolicy } from "./headers";
 
 export { isProxyTrusted, resolveClient } from "./proxy";
 export type { ProxyTrustConfig, ResolvedClient } from "./proxy";
+export { SessionStoreError } from "./session/store";
+export { requireProductionSessionCapabilities } from "./session/store";
+export { assertSerializableSessionData } from "./session/store";
+export type { SessionStoreCapabilities } from "./session/store";
+export type { SessionStoreFailureKind } from "./session/store";

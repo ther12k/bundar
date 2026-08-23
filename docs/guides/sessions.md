@@ -54,3 +54,28 @@ Reviewed and deemed unnecessary (GH-062): all session state lives behind the
 store, so the cookie has nothing to sign or encrypt — only an opaque id
 generated from `crypto.getRandomValues`. If a stateless id scheme is ever
 added, it requires a superseding review under the same acceptance criteria.
+
+
+## Store contract and production posture (BR-061)
+
+Every adapter implements the narrow port (`load`/`commit`/`destroy`) plus
+security capabilities:
+
+| Capability | Meaning | Required for production |
+| --- | --- | --- |
+| `durable` | survives restart, shared across processes | yes |
+| `atomicRotate` | `rotate()` swaps ids indivisibly | **yes** (fixation defense) |
+| `touch` | idle-expiry extension | yes |
+
+- `rotate(oldId, record)` is ATOMIC: no dual-valid window across processes.
+  Naïve create-new/delete-old sequences are rejected by
+  `requireProductionSessionCapabilities`.
+- Failures throw `SessionStoreError` with `kind: unavailable | conflict |
+  serialization`; helpers must never silently mint anonymous sessions
+  after a protected mutation.
+- Serialization guard rejects functions, symbols, prototype-like keys,
+  and prototype-bearing objects (recursively).
+- Conformance suite: `packages/security/test/session-store-contract/` —
+  durable adapters must pass it before use.
+- In-memory store runs only with explicit `allowDegradedNonProduction`
+  acknowledgment in production posture checks.
