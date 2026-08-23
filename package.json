@@ -64,6 +64,7 @@
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "security:raw-html-audit": "bun tools/security/raw-html-audit.ts",
+    "security:sinks": "bun tools/security/sink-audit.ts",
     "build": "bun run --filter='./packages/*' --filter='./create-bundar' build",
     "docs:check": "bun run scripts/docs-check.ts",
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
