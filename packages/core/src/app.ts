@@ -33,6 +33,16 @@ type RouteSink = (route: RouteDescriptor) => void;
  */
 export class App {
   private readonly registered: RouteDescriptor[] = [];
+  /**
+   * BR-058: application-level cancellation sources threaded into every
+   * compiled request scope. `forcedShutdownSignal` comes from the app's
+   * Lifecycle (graceful drain must NOT abort requests — only forced stop
+   * or drain-deadline expiry aborts).
+   */
+  private abortConfig?: {
+    readonly forcedShutdown?: AbortSignal;
+    readonly deadlineMs?: number | null;
+  };
   /** Middleware scoped to this App level; composition happens at compile. */
   private readonly scopedMiddleware: Middleware[] = [];
   /**
@@ -47,6 +57,19 @@ export class App {
     parentChain: () => readonly Middleware[] = () => [],
   ) {
     this.parentChain = parentChain;
+  }
+
+  /**
+   * Configures per-request cancellation sources (BR-058). Call before
+   * compile/serve; the lifecycle's forced-shutdown signal is the expected
+   * `forcedShutdown` source.
+   */
+  public setAbortScope(config: {
+    readonly forcedShutdown?: AbortSignal;
+    readonly deadlineMs?: number | null;
+  }): this {
+    this.abortConfig = config;
+    return this;
   }
 
   /** Attaches middleware to this App/group scope. */
@@ -217,7 +240,10 @@ export class App {
   ): CompiledServerOptions {
     // Middleware travels per-route under meta.middleware (stamped at
     // registration by the owning scope); no app-level duplication here.
-    return compileRoutes(this.manifest().routes, options);
+    return compileRoutes(this.manifest().routes, {
+      ...this.abortConfig,
+      ...options,
+    });
   }
 
   /**

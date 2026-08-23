@@ -9,6 +9,7 @@
 import { createContext, type ContextServicesOptions } from "../context";
 import { composeMiddleware, type Middleware } from "../middleware";
 import { validateRouteConflicts, type RouteDeclaration } from "./conflicts";
+import { createRequestAbortScope } from "../request-abort";
 import type { RouteDescriptor } from "./types";
 
 /** Route descriptor carrying its composed middleware chain (compile-time). */
@@ -17,6 +18,15 @@ export type MiddlewareRouteDescriptor = RouteDescriptor & {
 };
 
 export type CompileOptions = ContextServicesOptions & {
+  /**
+   * BR-058: composite cancellation sources threaded from App wiring.
+   * `forcedShutdown` comes from the application Lifecycle; the deadline is
+   * the request-budget window (GH-067 integration point).
+   */
+  abort?: {
+    readonly forcedShutdown?: AbortSignal;
+    readonly deadlineMs?: number | null;
+  };
   /** App-level middleware prepended to every route's own chain. */
   middleware?: readonly Middleware[];
 };
@@ -160,11 +170,26 @@ export function compileRoutes(
       // GH-017: a Context is created only here, per dynamic request. Static
       // Response entries above never allocate a Context.
       group[method] = (request) => {
-        const context = createContext(request, request.params ?? {}, options);
-        if (!composed) {
-          return handler(context, context.params);
+        // BR-058: one cancellation scope per request — transport disconnect,
+        // budget deadline, and forced shutdown composed into context.signal.
+        const scope = createRequestAbortScope({
+          transport: request.signal,
+          forcedShutdown: options.abort?.forcedShutdown ?? null,
+          deadlineMs: options.abort?.deadlineMs ?? null,
+        });
+        const context = createContext(request, request.params ?? {}, {
+          ...options,
+          signal: scope.signal,
+        });
+        try {
+          if (!composed) {
+            return handler(context, context.params);
+          }
+          return composed(context);
+        } finally {
+          // Dispose listeners/timers exactly once; safe pre/post abort.
+          scope.dispose();
         }
-        return composed(context);
       };
     }
   }

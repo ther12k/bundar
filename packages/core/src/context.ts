@@ -13,12 +13,25 @@
 
 import type { RouteParams } from "./routing/types";
 
+/**
+ * Shared never-aborted signal used when a request runs without an abort
+ * scope (static fast-path or legacy wiring). One instance per process is
+ * safe: it can never fire.
+ */
+const NEVER_ABORTED_SIGNAL = new AbortController().signal;
+
 export type ServiceMap = Readonly<Record<string, unknown>>;
 
 export type RequestState = Record<string, unknown>;
 
 export interface ContextServicesOptions {
   readonly services?: ServiceMap;
+  /**
+   * Composite cancellation signal for this request (BR-058). When absent,
+   * the context exposes a shared never-aborted signal so application code
+   * can always read `context.signal`.
+   */
+  readonly signal?: AbortSignal;
 }
 
 export interface Context<
@@ -27,6 +40,12 @@ export interface Context<
 > {
   /** The raw request, by reference. Never copied. */
   readonly request: Request;
+  /**
+   * Standard cancellation signal combining transport disconnect, budget
+   * deadline, and forced shutdown (BR-058). Never rejects with framework
+   * internals — application code observes a plain AbortSignal.
+   */
+  readonly signal: AbortSignal;
   /** Native route parameters provided by Bun's router, by reference. */
   readonly params: Params;
   /** Parsed URL of the request (memoized after first access). */
@@ -60,6 +79,7 @@ export function createContext<
 
   const context: Context<Params, Services> = {
     request,
+    signal: options.signal ?? NEVER_ABORTED_SIGNAL,
     params,
     get url(): URL {
       if (!url) url = new URL(request.url);
