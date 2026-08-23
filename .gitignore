@@ -30,3 +30,7 @@ output/playwright/
 .vscode/
 tests/consumer/routes/routes.gen.*.ts
 !tests/consumer/routes/entry.ts
+
+# local artifacts — never commit
+bundar-post-alpha-review-beta-plan-v0.1.zip
+.zcode/
