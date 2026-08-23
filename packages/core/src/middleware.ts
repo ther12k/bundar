@@ -10,6 +10,7 @@
  * into a mounted module's routes.
  */
 import type { Context } from "./context";
+import { notifyMiddlewareComposed } from "./composition-seam";
 
 export type MiddlewareNext = (context: Context) => Response | Promise<Response>;
 
@@ -61,6 +62,7 @@ export function composeMiddleware(
     return terminal;
   }
 
+  notifyMiddlewareComposed(middlewares.length);
   return function composed(context: Context): Response | Promise<Response> {
     let cursor = -1;
 
