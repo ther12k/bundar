@@ -99,6 +99,23 @@ checking: \`bun run app:arch\`.
 
     "src/platform/dialect.ts": dialectModule,
 
+    "src/features/subscribe/AGENTS.md": () => `# subscribe slice — agent map
+
+Purpose: progressive email-subscribe form; one handler set for no-JS PRG and htmx fragments.
+Public entrypoint: subscribe.routes.tsx (\`registerSubscribeRoutes\`). Contracts: route names \`home\`, \`subscribe\`; DOM ids \`subscribe-form\`, \`email-error\`, \`subscribed\`.
+
+Allowed imports: routes → schema/types/view (+ framework); view → types only.
+Read zones: this directory + src/layout.tsx. Write zones: this directory.
+
+Checks:
+- bun run typecheck && bun test
+- bun run app:arch .
+
+Escalate when: validation semantics change or typed URLs must be regenerated.
+
+Details: see ADR-0019 in the Bundar repository.
+`,
+
     "src/features/subscribe/subscribe.types.ts": () =>
       `/**
  * Domain + read models for the subscribe feature.

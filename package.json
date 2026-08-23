@@ -70,6 +70,8 @@
     "docs:status-check": "bun tools/docs/readme-status.ts",
     "docs:claims-check": "bun tools/docs/claims-check.ts",
     "app:arch": "bun tools/app-architecture/check.ts",
+    "app:complexity:check": "bun tools/app-complexity/check.ts",
+    "agent-map:check": "bun tools/agent-map/check.ts",
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
     "docs:links": "bun tools/okf-validator/cli.ts links",
     "issues:graph": "bun tools/okf-validator/cli.ts graph",

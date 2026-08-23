@@ -24,6 +24,7 @@ const FEATURE_FILES = [
   // sorted() puts tsconfig.json between README.md and src/* — keep list in
   // the same order the assertion compares against:
   "src/app.ts",
+  "src/features/subscribe/AGENTS.md",
   "src/features/subscribe/subscribe.actions.ts",
   "src/features/subscribe/subscribe.routes.ts",
   "src/features/subscribe/subscribe.schema.ts",
