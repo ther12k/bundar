@@ -25,7 +25,6 @@ import {
   type CsrfSecret,
 } from "@bundar/security";
 import { jsx } from "@bundar/jsx";
-import type { JSXChild } from "@bundar/jsx";
 import {
   action,
   actionResponse,
