@@ -7,43 +7,15 @@
  * posture, bounded parsing, PRG fallback) and runs with JavaScript disabled
  * for the core flow.
  */
-import type { ScaffoldDialect } from "../src/index";
 
-export interface TemplateContext {
-  readonly name: string;
-  readonly dialect: ScaffoldDialect;
-}
-
-export type TemplateFile = (context: TemplateContext) => string;
+import {
+  dialectModule,
+  EXPERIMENTAL_BANNER,
+  type TemplateFile,
+} from "./shared";
 
 export interface MinimalTemplate {
   readonly files: Readonly<Record<string, TemplateFile>>;
-}
-
-const DIALECT_IMPORT: Readonly<Record<ScaffoldDialect, string>> = {
-  htmx2: `import { htmx2 } from "@bundar/htmx/2";`,
-  "htmx4-experimental": `import { htmx4Experimental } from "@bundar/htmx/4";`,
-};
-
-const DIALECT_BINDING: Readonly<Record<ScaffoldDialect, string>> = {
-  htmx2: `export const dialect = htmx2;`,
-  "htmx4-experimental": `export const dialect = htmx4Experimental;`,
-};
-
-const EXPERIMENTAL_BANNER = (context: TemplateContext): string =>
-  context.dialect === "htmx4-experimental"
-    ? `\n * ⚠ EXPERIMENTAL DIALECT: htmx 4.0.0-beta6 — beta software, no GA\n * compatibility claim. Data per docs/compatibility/htmx4-beta6.md.\n`
-    : ``;
-
-function dialectModule(context: TemplateContext): string {
-  return `/**${EXPERIMENTAL_BANNER(context)}
- * The ONE dialect decision in the application: bootstrap-time only.
- * Route handlers and components stay dialect-agnostic.
- */
-${DIALECT_IMPORT[context.dialect]}
-
-${DIALECT_BINDING[context.dialect]}
-`;
 }
 
 export const minimalTemplate: MinimalTemplate = {

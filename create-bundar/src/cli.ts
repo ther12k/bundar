@@ -2,14 +2,18 @@
  * create-bundar CLI (GH-071): interactive when attached to a TTY with no
  * arguments, non-interactive with flags (the tested path).
  *
- *   create-bundar <target> [--dialect htmx2|htmx4-experimental] [--name <name>]
+ *   create-bundar <target> [--dialect htmx2|htmx4-experimental]
+ *                  [--structure compact|feature] [--name <name>] [--dry-run] [--json]
  */
 import {
   createProject,
+  DEFAULT_STRUCTURE,
   DIALECTS,
   HTMX4_EXPERIMENTAL_NOTICE,
   ScaffoldError,
   type ScaffoldDialect,
+  type ScaffoldStructure,
+  STRUCTURES,
 } from "./index";
 
 export interface CliOptions {
@@ -97,13 +101,47 @@ export async function runCreateBundar(options: CliOptions): Promise<number> {
     return 1;
   }
 
+  const structureValue =
+    typeof flags["structure"] === "string" ? flags["structure"] : undefined;
+  let structure: ScaffoldStructure;
+  if (structureValue === undefined) {
+    structure = DEFAULT_STRUCTURE; // compact is the documented default
+  } else if ((STRUCTURES as readonly string[]).includes(structureValue)) {
+    structure = structureValue as ScaffoldStructure;
+  } else {
+    out(
+      `create-bundar: unknown structure ${JSON.stringify(structureValue)} (supported: ${STRUCTURES.join(", ")})`,
+    );
+    return 1;
+  }
+
   try {
+    const dryRun = flags["dry-run"] === true;
     const result = createProject({
       target,
       dialect,
+      structure,
+      dryRun,
       ...(typeof flags["name"] === "string" ? { name: flags["name"] } : {}),
     });
-    out(`created ${result.name} in ${result.directory}`);
+    if (dryRun) {
+      const manifest = {
+        name: result.name,
+        structure: result.structure,
+        dialect: result.dialect,
+        files: result.files,
+      };
+      if (flags["json"] === true) {
+        out(JSON.stringify(manifest, null, 2));
+      } else {
+        out(
+          `dry run: ${manifest.files.length} file(s), structure=${manifest.structure}`,
+        );
+        for (const filePath of manifest.files) out(`  ${filePath}`);
+      }
+      return 0;
+    }
+    out(`created ${result.name} in ${result.directory} (${result.structure})`);
     out(`  files: ${result.files.length}`);
     out("  next: bun install && bun run dev");
     if (result.dialect === "htmx4-experimental") {

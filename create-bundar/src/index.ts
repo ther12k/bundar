@@ -11,6 +11,7 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { minimalTemplate } from "../templates/minimal";
+import { featureTemplate } from "../templates/feature";
 
 /** Supported dialects: htmx 2 is the stable default; 4 is experimental. */
 export type ScaffoldDialect = "htmx2" | "htmx4-experimental";
@@ -19,6 +20,13 @@ export const DIALECTS: readonly ScaffoldDialect[] = [
   "htmx2",
   "htmx4-experimental",
 ];
+
+/** Supported application structures: compact is the documented default. */
+export type ScaffoldStructure = "compact" | "feature";
+
+export const STRUCTURES: readonly ScaffoldStructure[] = ["compact", "feature"];
+
+export const DEFAULT_STRUCTURE: ScaffoldStructure = "compact";
 
 export const HTMX4_EXPERIMENTAL_NOTICE = [
   "",
@@ -33,15 +41,22 @@ export interface CreateProjectOptions {
   /** Target directory (relative to cwd or absolute). */
   readonly target: string;
   readonly dialect: ScaffoldDialect;
+  /** Application layout; default "compact" (ADR-0019). */
+  readonly structure?: ScaffoldStructure;
   /** Package name; defaults to the directory's basename. */
   readonly name?: string;
+  /** When true, render but write nothing (dry run). */
+  readonly dryRun?: boolean;
 }
 
 export interface CreateProjectResult {
   readonly directory: string;
   readonly name: string;
   readonly dialect: ScaffoldDialect;
+  readonly structure: ScaffoldStructure;
   readonly files: readonly string[];
+  /** Rendered contents keyed by relative path (populated on dry runs). */
+  readonly contents: Readonly<Record<string, string>>;
 }
 
 export class ScaffoldError extends Error {
@@ -88,24 +103,50 @@ export function createProject(
       `unknown dialect ${JSON.stringify(options.dialect)} (supported: ${DIALECTS.join(", ")})`,
     );
   }
+  const structure = options.structure ?? DEFAULT_STRUCTURE;
+  if (!STRUCTURES.includes(structure)) {
+    throw new ScaffoldError(
+      `unknown structure ${JSON.stringify(structure)} (supported: ${STRUCTURES.join(", ")})`,
+    );
+  }
   const directory = validateTarget(options.target);
   const name = packageNameFor(options.target, options.name);
   const context = { name, dialect: options.dialect };
 
+  const template = structure === "feature" ? featureTemplate : minimalTemplate;
+
+  // Deterministic order for byte-identical repeated generation.
+  const entries = Object.entries(template.files).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+
   const written: string[] = [];
-  mkdirSync(directory, { recursive: true });
-  for (const [relativePath, render] of Object.entries(minimalTemplate.files)) {
+  const contents: Record<string, string> = {};
+  if (options.dryRun !== true) {
+    mkdirSync(directory, { recursive: true });
+  }
+  for (const [relativePath, render] of entries) {
     const filePath = join(directory, relativePath);
+    const rendered = render(context);
+    contents[relativePath] = rendered;
+    if (options.dryRun === true) continue;
     mkdirSync(join(filePath, ".."), { recursive: true });
     if (existsSync(filePath)) {
       // single-writer guarantee even if two renders race
       throw new ScaffoldError(`refusing to overwrite: ${filePath}`);
     }
-    writeFileSync(filePath, render(context));
+    writeFileSync(filePath, rendered);
     written.push(relativePath);
   }
 
-  return { directory, name, dialect: options.dialect, files: written };
+  return {
+    directory,
+    name,
+    dialect: options.dialect,
+    structure,
+    files: options.dryRun === true ? Object.keys(contents) : written,
+    contents,
+  };
 }
 
 export { minimalTemplate };
