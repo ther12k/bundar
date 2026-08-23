@@ -8,6 +8,7 @@ import { routesCommand } from "./commands/routes";
 import { devCommand } from "./commands/dev";
 import { htmxAuditCommand } from "./commands/htmx-audit";
 import { inspectCommand } from "./commands/inspect";
+import { agentContextCommand } from "./commands/agent-context";
 import {
   buildEnvelope,
   EXIT,
@@ -110,7 +111,8 @@ Commands:
   htmx-audit       Audit source for htmx 2→4 migration-sensitive patterns
   doctor           Environment diagnostics (secrets-safe)
   info             Alias of doctor
-  inspect          Bounded offline project manifest (repo/app/feature)`);
+  inspect          Bounded offline project manifest (repo/app/feature)
+  agent-context    Feature-bounded context pack for coding agents`);
 }
 
 /** Per-run collection for warnings/errors/next hints and envelope data. */
@@ -189,6 +191,9 @@ registerCommand(htmxAuditCommand);
 
 // BR-047: bounded offline project manifest
 registerCommand(inspectCommand);
+
+// BR-048: feature-bounded agent context packs
+registerCommand(agentContextCommand);
 
 export interface RunResult {
   exitCode: number;
