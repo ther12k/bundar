@@ -1,5 +1,6 @@
 /**
- * Input-source mapping for Standard Schema validation (GH-058).
+ * Input-source mapping for Standard Schema validation (GH-058, moved to
+ * `@bundar/forms` by BR-016).
  *
  * Each source extractor pulls plain decoded data from the request exactly
  * once and hands it to the schema: forms and JSON consume the body through
@@ -8,13 +9,13 @@
  * query, params, and headers are lazy per-request reads. Coercion is the
  * schema's responsibility; Bundar never mutates input or output.
  */
-import type { Context } from "@bundar/core";
-import { parseForm, parseJson, type ParsedForm } from "@bundar/core";
-import { validateSchema } from "./validate";
-import type { StandardSchema } from "./standard";
-import type { ValidationResult } from "./validate";
+import { parseForm, parseJson, type Context } from "@bundar/core";
+import type { StandardSchema, ValidationResult } from "@bundar/schema";
+import { validateSchema } from "@bundar/schema";
 
-function formInput(form: ParsedForm): Record<string, string | string[]> {
+function formInput(
+  form: Awaited<ReturnType<typeof parseForm>>,
+): Record<string, string | string[]> {
   const input: Record<string, string | string[]> = {};
   for (const field of form.fields) {
     if (field.name in input) continue; // first appearance already recorded

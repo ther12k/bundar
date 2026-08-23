@@ -9,6 +9,14 @@ describe("BR-014/015 @bundar/forms contracts and orchestration", () => {
       "FORMS_CONTRACT_VERSION",
       "INVALID_SUBMISSION_STATUS",
       "executeFormAction",
+      "isStandardSchemaLike",
+      "resolveValidationAdapter",
+      "standardSchemaAdapter",
+      "validateForm",
+      "validateHeaders",
+      "validateJson",
+      "validateParams",
+      "validateQuery",
     ]);
   });
 

@@ -6,7 +6,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { createContext, type Context } from "@bundar/core";
-import { validateForm, validateJson, validateQuery } from "@bundar/schema";
+import { validateForm, validateJson, validateQuery } from "@bundar/forms";
 import { valibotPayload, valibotSearch, zodUser } from "./fixture";
 
 function form(body: string): Context<Record<string, string>> {

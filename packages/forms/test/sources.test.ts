@@ -12,7 +12,7 @@ import {
   validateParams,
   validateQuery,
 } from "../src/index";
-import type { StandardSchema } from "../src/index";
+import type { StandardSchema } from "@bundar/schema";
 
 const echoSchema: StandardSchema<unknown, Record<string, unknown>> = {
   "~standard": {

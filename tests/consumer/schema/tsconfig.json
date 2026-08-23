@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "@bundar/core": ["../../../packages/core/src/index.ts"],
+      "@bundar/forms": ["../../../packages/forms/src/index.ts"],
       "@bundar/schema": ["../../../packages/schema/src/index.ts"]
     }
   },

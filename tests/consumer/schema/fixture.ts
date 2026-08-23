@@ -7,7 +7,7 @@
 import * as v from "valibot";
 import { z } from "zod";
 import type { Context } from "@bundar/core";
-import { validateForm, validateJson, validateQuery } from "@bundar/schema";
+import { validateForm, validateJson, validateQuery } from "@bundar/forms";
 
 export const zodUser = z.object({
   name: z.string().min(1),

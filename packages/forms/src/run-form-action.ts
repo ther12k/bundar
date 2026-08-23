@@ -10,7 +10,10 @@
  * validation runs for ordinary and enhanced flows.
  */
 import { parseForm, type Context } from "@bundar/core";
-import { toFieldErrors, validateSchema } from "@bundar/schema";
+import {
+  resolveValidationAdapter,
+  type FormValidationAdapter,
+} from "./validation";
 import type { ValidationResult } from "@bundar/schema";
 import {
   INVALID_SUBMISSION_STATUS,
@@ -18,7 +21,6 @@ import {
   type FormActionOutcome,
   type FormResponseAdapter,
   type InvalidFormRender,
-  type RetainedValues,
 } from "./contracts";
 
 export { INVALID_SUBMISSION_STATUS };
@@ -52,20 +54,21 @@ export async function executeFormAction<Output>(
   const form = await parseForm(context);
   const submitted = submittedValues(form);
 
-  // 2. identical business validation for both worlds
-  const result: ValidationResult<Output> = await validateSchema(
+  // 2. identical business validation for both worlds (via the resolved port)
+  const validation: FormValidationAdapter<Output> = resolveValidationAdapter(
     definition.schema,
-    submitted,
+    definition.validation,
   );
+  const result = (await validation.validate(
+    submitted,
+  )) as ValidationResult<Output>;
 
   // 3. invalid: adapter renders the form region (or document) with safe data
   if (!result.success) {
-    const model = toFieldErrors(result, { submitted });
-    const render: InvalidFormRender = {
-      errors: model,
-      submitted: model.submitted as RetainedValues,
-      firstErrorField: model.first[0]?.field ?? null,
-    };
+    const render: InvalidFormRender = validation.invalidRender(
+      result,
+      submitted,
+    );
     const response = await adapter.invalid(context.request, {
       status: INVALID_SUBMISSION_STATUS,
       message: "Validation failed",

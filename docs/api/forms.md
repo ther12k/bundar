@@ -4,11 +4,19 @@
 
 Progressive-form workflow contracts — parsing orchestration, retained values, action composition (skeleton).
 
-## Runtime exports (3)
+## Runtime exports (11)
 
 - `FORMS_CONTRACT_VERSION`
-- `defineFormAction`
-- `formsContractSummary`
+- `INVALID_SUBMISSION_STATUS`
+- `executeFormAction`
+- `isStandardSchemaLike`
+- `resolveValidationAdapter`
+- `standardSchemaAdapter`
+- `validateForm`
+- `validateHeaders`
+- `validateJson`
+- `validateParams`
+- `validateQuery`
 
 ## Type exports (0)
 

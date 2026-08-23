@@ -9,9 +9,11 @@
     "bun": ">=1.4.0"
   },
   "dependencies": {
-    "@bundar/core": "workspace:*",
     "@bundar/forms": "workspace:*",
-    "@bundar/jsx": "workspace:*",
+    "@bundar/jsx": "workspace:*"
+  },
+  "devDependencies": {
+    "@bundar/core": "workspace:*",
     "@bundar/schema": "workspace:*"
   },
   "main": "./src/index.ts",

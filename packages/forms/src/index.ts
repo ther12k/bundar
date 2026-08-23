@@ -22,6 +22,21 @@ export {
   type ValidSubmissionDelivery,
 } from "./contracts";
 export { executeFormAction } from "./run-form-action";
+export {
+  isStandardSchemaLike,
+  resolveValidationAdapter,
+  standardSchemaAdapter,
+  type AnyStandardSchema,
+  type FormValidationAdapter,
+  type FormValidationOutcome,
+} from "./validation";
+export {
+  validateForm,
+  validateHeaders,
+  validateJson,
+  validateParams,
+  validateQuery,
+} from "./sources";
 
 /** Contract version of this surface; bumps when a contract shape changes. */
-export const FORMS_CONTRACT_VERSION = "1.0.0";
+export const FORMS_CONTRACT_VERSION = "1.1.0";

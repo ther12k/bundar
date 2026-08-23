@@ -15,13 +15,6 @@ export type {
 } from "./standard";
 export { SchemaDialectError, validateSchema } from "./validate";
 export type { ValidationIssue, ValidationResult } from "./validate";
-export {
-  validateForm,
-  validateHeaders,
-  validateJson,
-  validateParams,
-  validateQuery,
-} from "./sources";
 export { redactSubmitted, SENSITIVE_FIELD_KEYS, toFieldErrors } from "./issues";
 export type {
   FieldError,

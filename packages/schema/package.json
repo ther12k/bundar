@@ -25,9 +25,6 @@
     "test": "bun test"
   },
   "license": "MIT",
-  "dependencies": {
-    "@bundar/core": "workspace:*"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ther12k/bundar.git",

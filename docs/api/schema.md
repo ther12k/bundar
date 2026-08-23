@@ -4,17 +4,12 @@
 
 Standard Schema validation adapter and field-error models.
 
-## Runtime exports (10)
+## Runtime exports (5)
 
 - `SENSITIVE_FIELD_KEYS`
 - `SchemaDialectError`
 - `redactSubmitted`
 - `toFieldErrors`
-- `validateForm`
-- `validateHeaders`
-- `validateJson`
-- `validateParams`
-- `validateQuery`
 - `validateSchema`
 
 ## Type exports (11)

@@ -100,7 +100,7 @@ framework package.
 | --- | --- | --- | --- |
 | htmx → core | `form-action.ts` still orchestrated core parsing | BR-015 | EXPIRED — removed |
 | htmx → schema | field-error/result types not yet relocated | BR-016 (partial) | EXPIRED — removed early by BR-015 |
-| schema → core | `sources.ts` parse adapters still kernel-bound | BR-016 | active |
+| schema → core | `sources.ts` parse adapters still kernel-bound | BR-016 | EXPIRED — sources moved to forms; schema is dependency-free |
 
 Every exception cites this ADR and expires when its listed task closes;
 BR-012 fails the build if an exception outlives its task. Note: the matrix

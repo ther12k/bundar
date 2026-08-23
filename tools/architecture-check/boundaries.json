@@ -71,15 +71,7 @@
       "allowedExternalImports": []
     }
   },
-  "exceptions": [
-    {
-      "from": "@bundar/schema",
-      "to": "@bundar/core",
-      "adr": "ADR-0018 section 4",
-      "reason": "sources.ts parse adapters still kernel-bound",
-      "expiresWith": "BR-016"
-    }
-  ],
+  "exceptions": [],
   "builtinPrefixes": ["bun:", "node:"],
   "rawHtmxConfinedTo": "@bundar/htmx",
   "rawHtmxPatterns": ["HX-[A-Z][A-Za-z-]*", "htmx:[a-z][A-Za-z]*"]

@@ -12,6 +12,7 @@
 import type { Context } from "@bundar/core";
 import type { FieldErrorModel } from "@bundar/schema";
 import type { StandardSchema } from "@bundar/schema";
+import type { FormValidationAdapter } from "./validation";
 
 /**
  * The workflow's request-context requirement. Re-exported as a neutral
@@ -76,6 +77,12 @@ export interface InvalidSubmissionDelivery {
 export interface FormActionDefinition<Output> {
   /** The Standard Schema the submission is validated against. */
   readonly schema: StandardSchema<unknown, Output>;
+  /**
+   * Optional custom validation port. When present it REPLACES the default
+   * Standard Schema path — custom validators need not import
+   * `@bundar/schema` at all.
+   */
+  readonly validation?: FormValidationAdapter<Output>;
   /** Builds the success fragment from the validated output. */
   readonly buildFragment: (output: Output) => Promise<unknown> | unknown;
   /** Adapter-owned delivery options for the valid path. */

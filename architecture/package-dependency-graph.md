@@ -44,10 +44,7 @@ test code that imports it.
 
 ## Transitional exceptions (ADR-0018 §4)
 
-| Edge | Reason | Expires when | Status |
-| --- | --- | --- | --- |
-| schema → core | `sources.ts` parse adapters | BR-016 closes | active |
-
-The htmx → core and htmx → schema exceptions expired with the BR-015 move:
-`@bundar/htmx` source no longer imports the kernel or schema. An exception
-that outlives its task fails `architecture:check`.
+None remain active. All three transitional exceptions expired on schedule:
+htmx → core and htmx → schema with the BR-015 move, schema → core when
+BR-016 relocated the request-source validators into `@bundar/forms`.
+An exception that outlives its task fails `architecture:check`.
