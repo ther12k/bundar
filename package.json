@@ -72,6 +72,7 @@
     "app:arch": "bun tools/app-architecture/check.ts",
     "app:complexity:check": "bun tools/app-complexity/check.ts",
     "agent-map:check": "bun tools/agent-map/check.ts",
+    "issues:check": "bun tools/issues/validate.ts",
     "docs:validate": "bun tools/okf-validator/cli.ts validate",
     "docs:links": "bun tools/okf-validator/cli.ts links",
     "issues:graph": "bun tools/okf-validator/cli.ts graph",
