@@ -24,16 +24,15 @@ import {
   issueCsrfToken,
   type CsrfSecret,
 } from "@bundar/security";
-import { jsx, renderToString } from "@bundar/jsx";
+import { jsx } from "@bundar/jsx";
 import type { JSXChild } from "@bundar/jsx";
 import {
   action,
   actionResponse,
+  composeFragment,
   errorViewResponse,
-  serializeUpdates,
   view,
   type HtmxDialectAdapter,
-  type UpdateIntent,
 } from "@bundar/htmx";
 import { ArticleConflictError, type ArticleRepository } from "./articles.types";
 import {
@@ -295,18 +294,21 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
         }
         addFlash(context, "info", `Deleted “${existing.title}”.`);
         // multi-region: remove the row AND refresh the audit feed (OOB)
-        const intents: UpdateIntent[] = [
-          { target: { id: `article-${id}` }, operation: { kind: "remove" } },
-          {
-            target: { id: "audit-region" },
-            operation: { kind: "replace-element" },
-            content: auditRegion(repository.audit(8)) as JSXChild,
-          },
-        ];
         return actionResponse(
           context.request,
           action({
-            fragment: serializeUpdates(intents, dialect).html,
+            fragment: composeFragment(
+              {
+                updates: [
+                  { target: `article-${id}`, operation: "remove" },
+                  {
+                    target: "audit-region",
+                    content: auditRegion(repository.audit(8)),
+                  },
+                ],
+              },
+              { dialect },
+            ),
             redirectTo: urls["article-list"](),
           }),
           dialectOptions,
@@ -538,18 +540,18 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
       return Promise.reject(new HttpError("not_found", "Article not found"));
     }
     const row = articleRow({ article: updated, token: "", canDelete: true });
-    const markup =
-      renderToString(jsx("tbody", { children: row })) +
-      serializeUpdates(
-        [
+    const markup = composeFragment(
+      {
+        primary: jsx("tbody", { children: row }),
+        updates: [
           {
-            target: { id: "audit-region" },
-            operation: { kind: "replace-element" },
-            content: auditRegion(repository.audit(8)) as JSXChild,
+            target: "audit-region",
+            content: auditRegion(repository.audit(8)),
           },
         ],
-        dialect,
-      ).html;
+      },
+      { dialect },
+    );
     return Promise.resolve(
       actionResponse(
         context.request,

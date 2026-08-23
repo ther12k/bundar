@@ -114,6 +114,81 @@ const OOB_SWAP_BY_OPERATION: Record<UpdateOperation["kind"], string | null> = {
  * records the raw mechanism and the capability state so audits can track
  * dialect drift (e.g. a future dialect that changes or drops OOB).
  */
+/**
+ * Declarative update spec (BR-052): applications describe WHAT changes;
+ * the dialect adapter decides HOW it reaches the wire. Applications never
+ * construct raw `hx-swap-oob` markers or htmx 4 partial syntax.
+ */
+/** Friendly string form for specs; mapped onto {@link UpdateOperation}. */
+export type UpdateSpecOperation =
+  "replace-element" | "replace-content" | "append" | "prepend" | "remove";
+
+export interface UpdateSpec {
+  /** Target element id (without "#"). */
+  readonly target: string;
+  /** Defaults to "replace-element" (outerHTML semantics per dialect). */
+  readonly operation?: UpdateSpecOperation;
+  /** Rendered content for every operation except "remove". */
+  readonly content?: unknown;
+}
+
+export interface FragmentSpec {
+  /** Primary swap content (JSX node, string, or async component output). */
+  readonly primary?: unknown;
+  /** Normalized secondary updates applied out of band. */
+  readonly updates?: readonly UpdateSpec[];
+}
+
+/**
+ * Renders a fragment spec through the selected dialect: primary content
+ * first, then normalized secondary intents. Applications never call
+ * renderToString/serializeUpdates manually for this shape.
+ */
+export function composeFragment(
+  spec: FragmentSpec,
+  options: { dialect: HtmxDialectAdapter },
+): string {
+  if (
+    spec.primary !== undefined &&
+    typeof spec.primary === "object" &&
+    spec.primary !== null &&
+    "then" in spec.primary
+  ) {
+    // Explicit buffering rule (BR-052): secondary OOB ordering is only
+    // guaranteed for fully-resolved primary content. Await async nodes at
+    // the callsite, then compose.
+    throw new UpdateIntentError(
+      "primary is a Promise; await async nodes before composeFragment",
+    );
+  }
+  const primary =
+    spec.primary === undefined ? "" : renderToString(spec.primary);
+  const updateList = spec.updates ?? [];
+  if (updateList.length === 0) return primary;
+  const intents: UpdateIntent[] = updateList.map((update) => {
+    const operation = update.operation ?? "replace-element";
+    const kind: UpdateOperation =
+      operation === "replace-content"
+        ? { kind: "replace-content" }
+        : operation === "append"
+          ? { kind: "append" }
+          : operation === "prepend"
+            ? { kind: "prepend" }
+            : operation === "remove"
+              ? { kind: "remove" }
+              : { kind: "replace-element" };
+    const intent: UpdateIntent = {
+      target: { id: update.target },
+      operation: kind,
+      ...(update.content !== undefined
+        ? { content: update.content as JSXChild | string }
+        : {}),
+    };
+    return intent;
+  });
+  return primary + serializeUpdates(intents, options.dialect).html;
+}
+
 export function serializeUpdates(
   intents: readonly UpdateIntent[],
   adapter: HtmxDialectAdapter,

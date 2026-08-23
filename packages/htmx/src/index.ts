@@ -126,10 +126,12 @@ export type {
   InvalidFormRender,
 } from "./form-action";
 export {
+  composeFragment,
   auditUpdateMechanisms,
   serializeUpdates,
   UpdateIntentError,
 } from "./updates";
+export type { FragmentSpec, UpdateSpec, UpdateSpecOperation } from "./updates";
 export type {
   SerializedUpdates,
   UpdateDiagnostic,

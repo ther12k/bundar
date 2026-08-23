@@ -5,18 +5,16 @@
  * out-of-band region updates via NORMALIZED update intents. Mutations ride
  * the session-bound synchronizer CSRF posture composed by the app shell.
  */
-import { jsx, renderToString } from "@bundar/jsx";
-import type { JSXChild } from "@bundar/jsx";
+import { jsx } from "@bundar/jsx";
 import type { App, Context } from "@bundar/core";
 import {
   action,
   actionResponse,
+  composeFragment,
   errorViewResponse,
   runFormAction,
-  serializeUpdates,
   view,
   type HtmxDialectAdapter,
-  type UpdateIntent,
 } from "@bundar/htmx";
 import {
   addFlash,
@@ -28,6 +26,7 @@ import {
 import type { CsrfSecret } from "@bundar/security";
 import { Layout } from "../../layout";
 import { urls } from "../../routes.gen";
+import type { UpdateSpec } from "@bundar/htmx";
 import { parseFilter, titleSchema } from "./todos.schema";
 import { countsRegion, filterLinks, todoForm, todoItem } from "./todos.view";
 import type { TodoCounts, TodoRepository } from "./todos.types";
@@ -63,23 +62,30 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
     primary: unknown,
     counts: TodoCounts,
     removeItemId?: number,
-  ): string => {
-    const primaryHtml = renderToString(primary);
-    const intents: UpdateIntent[] = [
+  ): string =>
+    composeFragment(
       {
-        target: { id: "todo-counts" },
-        operation: { kind: "replace-element" },
-        content: countsRegion(counts, "all") as JSXChild,
+        primary,
+        updates: [
+          {
+            target: "todo-counts",
+            content: countsRegion(
+              counts,
+              "all",
+            ) as import("@bundar/jsx").JSXChild,
+          },
+          ...(removeItemId !== undefined
+            ? [
+                {
+                  target: `todo-${removeItemId}`,
+                  operation: "remove",
+                } satisfies UpdateSpec,
+              ]
+            : []),
+        ],
       },
-    ];
-    if (removeItemId !== undefined) {
-      intents.push({
-        target: { id: `todo-${removeItemId}` },
-        operation: { kind: "remove" },
-      });
-    }
-    return primaryHtml + serializeUpdates(intents, deps.dialect).html;
-  };
+      { dialect: deps.dialect },
+    );
 
   const notFound = (context: Context) =>
     errorViewResponse(
