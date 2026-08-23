@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-22T16:19:40.794Z",
+  "generatedAt": "2026-08-23T04:13:16.323Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -30,8 +30,8 @@
       "name": "@bundar/core",
       "version": "0.0.0",
       "tarball": "bundar-core-0.0.0.tgz",
-      "sha256": "c82adbfb70b2196185a06615661ae1e3dd0eea4e9fd0a037cd84444a4d7fe112",
-      "fileCount": 19,
+      "sha256": "35a28a515167831173cafa2f766ea436c8459dc958d359e765fdb5c4f02e3dc2",
+      "fileCount": 20,
       "files": [
         "src/app.ts",
         "src/context.ts",
@@ -50,11 +50,12 @@
         "src/middleware.ts",
         "src/module.ts",
         "src/response.ts",
+        "src/composition-seam.ts",
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 100311,
-      "packedBytes": 28711,
+      "unpackedBytes": 103209,
+      "packedBytes": 29661,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -64,7 +65,7 @@
       "name": "@bundar/jsx",
       "version": "0.0.0",
       "tarball": "bundar-jsx-0.0.0.tgz",
-      "sha256": "47b69a332285c6ea647de14ce4d55eb1a9dbfc1ba5940dbc061073fbccaf16e0",
+      "sha256": "485abf715fe0c327b4d41c360f38f2216e27c09cf84f9191757b21997ca1bec4",
       "fileCount": 22,
       "files": [
         "src/jsx-dev-runtime.ts",
@@ -90,8 +91,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 65681,
-      "packedBytes": 19388,
+      "unpackedBytes": 66060,
+      "packedBytes": 19542,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -196,7 +197,7 @@
       "name": "@bundar/testing",
       "version": "0.0.0",
       "tarball": "bundar-testing-0.0.0.tgz",
-      "sha256": "a02347c5454678cfc4d962fd52ee83472d3fe10137012c97b10048d88b992003",
+      "sha256": "be25af18b2e89c373db334c8af449c8bac9a06a93ae7a1be4bb3f2a82f84dd18",
       "fileCount": 8,
       "files": [
         "src/match.ts",
@@ -208,15 +209,14 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 30716,
-      "packedBytes": 9054,
+      "unpackedBytes": 30685,
+      "packedBytes": 9045,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
         "@bundar/core": "workspace:*",
         "@bundar/htmx": "workspace:*",
-        "@bundar/jsx": "workspace:*",
-        "@bundar/schema": "workspace:*"
+        "@bundar/jsx": "workspace:*"
       },
       "findings": []
     },
@@ -273,8 +273,8 @@
   ],
   "summary": {
     "packages": 8,
-    "totalUnpackedBytes": 514180,
-    "totalPackedBytes": 156406,
+    "totalUnpackedBytes": 517426,
+    "totalPackedBytes": 157501,
     "findings": 0
   }
 }

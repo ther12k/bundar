@@ -46,6 +46,13 @@ const PACKAGES: readonly PackageSpec[] = [
     blurb: "Standard Schema validation adapter and field-error models.",
   },
   {
+    id: "forms",
+    module: "@bundar/forms",
+    source: "packages/forms/src/index.ts",
+    blurb:
+      "Progressive-form workflow contracts — parsing orchestration, retained values, action composition (skeleton).",
+  },
+  {
     id: "security",
     module: "@bundar/security",
     source: "packages/security/src/index.ts",

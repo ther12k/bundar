@@ -22,6 +22,11 @@
       "allowedBundarPackages": [],
       "allowedExternalImports": []
     },
+    "@bundar/forms": {
+      "path": "packages/forms",
+      "allowedBundarPackages": ["@bundar/core", "@bundar/schema"],
+      "allowedExternalImports": []
+    },
     "@bundar/security": {
       "path": "packages/security",
       "allowedBundarPackages": ["@bundar/core"],

@@ -81,6 +81,14 @@
       "name": "@bundar/core",
       "version": "0.0.0",
     },
+    "packages/forms": {
+      "name": "@bundar/forms",
+      "version": "0.0.0",
+      "dependencies": {
+        "@bundar/core": "workspace:*",
+        "@bundar/schema": "workspace:*",
+      },
+    },
     "packages/htmx": {
       "name": "@bundar/htmx",
       "version": "0.0.0",
@@ -115,7 +123,6 @@
         "@bundar/core": "workspace:*",
         "@bundar/htmx": "workspace:*",
         "@bundar/jsx": "workspace:*",
-        "@bundar/schema": "workspace:*",
       },
     },
     "templates/minimal": {
@@ -149,6 +156,8 @@
     "@bundar/example-todo": ["@bundar/example-todo@workspace:examples/todo"],
 
     "@bundar/example-workflow-gate": ["@bundar/example-workflow-gate@workspace:examples/workflow-gate"],
+
+    "@bundar/forms": ["@bundar/forms@workspace:packages/forms"],
 
     "@bundar/htmx": ["@bundar/htmx@workspace:packages/htmx"],
 
