@@ -16,6 +16,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { semanticGuardFailures } from "./semantic-guard";
 
 const REPO = join(import.meta.dir, "..", "..");
 const ALPHA = join(REPO, "artifacts", "bench", "alpha.json");
@@ -135,6 +136,16 @@ if (parityFailures.length > 0) {
 }
 
 const generate = process.argv.includes("--generate");
+
+// BR-004 semantic guard: ratio budgets carry variance headroom, so a
+// reintroduced per-request middleware composer can hide inside timing noise.
+// This deterministic check fails closed before any budget comparison.
+const guardFailures = semanticGuardFailures();
+if (guardFailures.length > 0) {
+  console.error("bench:regression: SEMANTIC GUARD FAILURES:");
+  for (const failure of guardFailures) console.error(`  - ${failure}`);
+  process.exit(1);
+}
 
 if (generate) {
   // pool per-run ratios from three fresh runs (same-run ratios cancel

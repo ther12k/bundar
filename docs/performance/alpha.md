@@ -18,6 +18,15 @@ observed variance (median + k·MAD headroom; see
 [`alpha-budgets.json`](../artifacts/bench/alpha-budgets.json)) —
 `bun run bench:regression` fails closed, and missing budgets fail too.
 
+Since BR-003/BR-004, `bench:regression` also runs a deterministic
+semantic guard (`tools/benchmark/semantic-guard.ts`): middleware chains
+must compose exactly once per compiled route during `app.compile()` and
+never per request. Timing ratios alone cannot reliably catch a
+reintroduced per-request composer (measured: ~1.30× observed versus a
+2.41× fail threshold on the sync-middleware scenario), so the guard
+fails closed on composition-count violations independent of machine
+speed or load.
+
 ## Startup and memory (median of 7 samples)
 
 | Mode | Ready p50 | RSS p50 |
