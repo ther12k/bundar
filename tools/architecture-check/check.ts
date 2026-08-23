@@ -37,7 +37,8 @@ function listSourceFiles(absoluteDirectory: string): string[] {
   return files;
 }
 
-const files: SourceFile[] = [];
+const sourceFiles: SourceFile[] = [];
+const allFiles: SourceFile[] = [];
 for (const rule of Object.values(rules.packages)) {
   for (const subdirectory of ["src", "test"]) {
     for (const absolutePath of listSourceFiles(
@@ -46,7 +47,12 @@ for (const rule of Object.values(rules.packages)) {
       const path = relative(REPOSITORY_ROOT, absolutePath)
         .split("\\")
         .join("/");
-      files.push({ path, source: readFileSync(absolutePath, "utf8") });
+      const entry = { path, source: readFileSync(absolutePath, "utf8") };
+      allFiles.push(entry);
+      // Boundary rules gate the package SURFACE (src); test trees count as
+      // consumer fixtures — they prove manifest usage below but a test may
+      // import any workspace package an application could.
+      if (subdirectory === "src") sourceFiles.push(entry);
     }
   }
 }
@@ -76,8 +82,8 @@ for (const [name, rule] of Object.entries(rules.packages)) {
 }
 
 const violations = [
-  ...checkBoundaries(rules, files),
-  ...checkManifests(rules, manifests, files),
+  ...checkBoundaries(rules, sourceFiles),
+  ...checkManifests(rules, manifests, allFiles),
 ];
 
 if (violations.length > 0) {
@@ -102,7 +108,7 @@ if (violations.length > 0) {
 
 const exceptions = rules.exceptions ?? [];
 console.log(
-  `architecture:check: ok (${files.length} source/test files, ` +
+  `architecture:check: ok (${sourceFiles.length} source files + ${allFiles.length - sourceFiles.length} test files, ` +
     `${Object.keys(rules.packages).length} package rules, ` +
     `${Object.keys(manifests).length} manifests cross-checked)`,
 );

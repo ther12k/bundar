@@ -31,8 +31,9 @@ cli       ← (terminal)
 
 Forbidden in every direction not listed above — notably:
 
-- `@bundar/htmx` must never import `@bundar/core`, `@bundar/schema`,
-  `@bundar/forms`, or `@bundar/security` (protocol purity).
+- `@bundar/htmx` must never import `@bundar/core`, `@bundar/schema`, or
+  `@bundar/security` (protocol purity). It MAY import `@bundar/forms` to
+  implement the form-workflow delivery adapter (ADR-0018 §2/§3).
 - `@bundar/core` and `@bundar/jsx` import nothing from any `@bundar/*`
   package.
 - No cycles anywhere in the graph.
@@ -43,10 +44,10 @@ test code that imports it.
 
 ## Transitional exceptions (ADR-0018 §4)
 
-| Edge | Reason | Expires when |
-| --- | --- | --- |
-| htmx → core | `form-action.ts` pre-move | BR-015 closes |
-| htmx → schema | result types pre-relocation | BR-016 closes |
-| schema → core | `sources.ts` parse adapters | BR-016 closes |
+| Edge | Reason | Expires when | Status |
+| --- | --- | --- | --- |
+| schema → core | `sources.ts` parse adapters | BR-016 closes | active |
 
-An exception that outlives its task fails `architecture:check`.
+The htmx → core and htmx → schema exceptions expired with the BR-015 move:
+`@bundar/htmx` source no longer imports the kernel or schema. An exception
+that outlives its task fails `architecture:check`.

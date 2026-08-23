@@ -14,7 +14,7 @@
     },
     "@bundar/htmx": {
       "path": "packages/htmx",
-      "allowedBundarPackages": ["@bundar/jsx"],
+      "allowedBundarPackages": ["@bundar/jsx", "@bundar/forms"],
       "allowedExternalImports": []
     },
     "@bundar/schema": {
@@ -72,20 +72,6 @@
     }
   },
   "exceptions": [
-    {
-      "from": "@bundar/htmx",
-      "to": "@bundar/core",
-      "adr": "ADR-0018 section 4",
-      "reason": "form-action.ts still orchestrates core parsing pre-move",
-      "expiresWith": "BR-015"
-    },
-    {
-      "from": "@bundar/htmx",
-      "to": "@bundar/schema",
-      "adr": "ADR-0018 section 4",
-      "reason": "field-error/result types not yet relocated",
-      "expiresWith": "BR-016"
-    },
     {
       "from": "@bundar/schema",
       "to": "@bundar/core",

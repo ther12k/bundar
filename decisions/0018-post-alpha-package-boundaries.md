@@ -62,18 +62,19 @@ This is the last cheap moment to correct ownership.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **core** | — | – | – | – | – | – | – | – |
 | **jsx** | – | — | – | – | – | – | – | – |
-| **htmx** | ✗ | ✔ | — | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **htmx** | ✗ | ✔ | — | ✔ | ✗ | ✗ | ✗ | ✗ |
 | **forms** | ✔ | ✗ | ✗* | — | ✔ | ✗ | ✗ | ✗ |
 | **schema** | ✗ | ✗ | ✗ | ✗ | — | ✗ | ✗ | ✗ |
 | **security** | ✔ | ✗ | ✗ | ✗ | ✗ | — | ✗ | ✗ |
 | **testing** | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | — | ✗ |
 | **cli** | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✗* | — |
 
-`@bundar/htmx` is protocol-pure: it may use standard `Request`/`Response`
-and `@bundar/jsx`, never the kernel or schema/forms. `✗*`: the htmx response
-composition consumed by form actions is exposed as directive/view APIs that
-`@bundar/forms` composes — forms imports nothing from htmx; applications
-combine them.
+`@bundar/htmx` stays kernel- and schema-free (protocol purity): it may use
+standard `Request`/`Response`, `@bundar/jsx`, and the `@bundar/forms`
+workflow contracts, never `@bundar/core`/`@bundar/schema`. Forms never
+imports htmx (`✗*`): the htmx layer implements forms'
+`FormResponseAdapter` to deliver enhanced responses, so applications can
+combine them freely — including without htmx at all.
 
 Tooling carve-out: `create-bundar` (and `@bundar/cli`) may depend on
 `@bundar/testing` because the scaffolder embeds generated application test
@@ -95,14 +96,16 @@ framework package.
 
 ## 4. Transitional exceptions (time-boxed, enforced by BR-012)
 
-| Edge | Reason | Removed by |
-| --- | --- | --- |
-| htmx → core | `form-action.ts` still orchestrates core parsing | BR-015 |
-| htmx → schema | field-error/result types not yet relocated | BR-016 |
-| schema → core | `sources.ts` parse adapters still kernel-bound | BR-016 |
+| Edge | Reason | Removed by | Status |
+| --- | --- | --- | --- |
+| htmx → core | `form-action.ts` still orchestrated core parsing | BR-015 | EXPIRED — removed |
+| htmx → schema | field-error/result types not yet relocated | BR-016 (partial) | EXPIRED — removed early by BR-015 |
+| schema → core | `sources.ts` parse adapters still kernel-bound | BR-016 | active |
 
 Every exception cites this ADR and expires when its listed task closes;
-BR-012 fails the build if an exception outlives its task.
+BR-012 fails the build if an exception outlives its task. Note: the matrix
+grants htmx a forms dependency because the htmx layer implements the
+workflow's response-delivery adapter without touching kernel or schema.
 
 ## 5. Compatibility policy for pre-1.0 boundary moves
 

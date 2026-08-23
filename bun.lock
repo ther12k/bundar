@@ -94,6 +94,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@bundar/core": "workspace:*",
+        "@bundar/forms": "workspace:*",
         "@bundar/jsx": "workspace:*",
         "@bundar/schema": "workspace:*",
       },

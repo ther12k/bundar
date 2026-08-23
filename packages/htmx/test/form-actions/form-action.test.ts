@@ -5,11 +5,12 @@
  * rollback on business failure, and approved action semantics.
  */
 import { describe, expect, test } from "bun:test";
-import { createContext, type Context } from "@bundar/core";
+import { createContext } from "@bundar/core";
 import { jsx } from "@bundar/jsx";
 import { runFormAction } from "../../src/index";
-import type { FormActionDefinition, InvalidFormRender } from "../../src/index";
+import type { FormWorkflowContext } from "@bundar/forms";
 import type { StandardSchema } from "@bundar/schema";
+import type { FormActionDefinition, InvalidFormRender } from "../../src/index";
 
 const schema: StandardSchema<unknown, { name: string; email: string }> = {
   "~standard": {
@@ -32,7 +33,7 @@ const schema: StandardSchema<unknown, { name: string; email: string }> = {
 function formContext(
   body: string,
   headers: Record<string, string> = {},
-): Context<Record<string, string>> {
+): FormWorkflowContext {
   return createContext(
     new Request("http://localhost/register", {
       method: "POST",
