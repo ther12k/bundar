@@ -1,46 +1,45 @@
 /**
- * BR-005 reproduction + threat-model evidence: raw-HTML brand forgery.
+ * BR-005 reproduction + BR-006 closure evidence: raw-HTML brand forgery.
  *
- * Documents the CURRENT behavior of the GH-031 trust boundary at the audit
- * baseline (8ffd270). The brand is `Symbol.for("bundar.jsx.raw")` — a REALM-
- * GLOBAL registered symbol — and `isRawHtml()` accepts any object whose
- * brand property equals `true`, regardless of how it was created.
+ * History: at audit baseline 8ffd270 the brand was `Symbol.for("bundar.jsx.raw")`
+ * — a realm-global registered symbol — and `isRawHtml()` accepted any object
+ * whose brand property equaled `true`, including inherited properties. Both
+ * deliberate-forgery probes below failed closed only AFTER BR-006 replaced
+ * the marker with a module-private unique symbol plus an own-property check.
  *
- * Findings encoded here (see file-end threat model):
+ * Current guarantees pinned here:
  *
- * 1. DELIBERATE same-realm reconstruction forges the brand with one line of
- *    code (`Symbol.for("bundar.jsx.raw")`). This is a contract mismatch with
- *    GH-031's non-forgeability intent; remediation belongs to BR-006.
- * 2. Prototype-chain laundering via `Object.create(genuine)` also passes
- *    `isRawHtml()` because the check reads an inherited property.
- * 3. The ACCIDENTAL vectors GH-031 actually specified — spread, JSON round
- *    trip, plain shape — remain correctly blocked.
- *
- * These tests pin current behavior precisely so BR-006's opaque-brand fix
- * flips exactly the deliberate-forgery assertions.
+ * 1. Global-registry reconstruction (`Symbol.for("bundar.jsx.raw")`) no
+ *    longer mints trust; the runtime brand cannot be named outside the module.
+ * 2. `defineProperty` with any reconstructable key cannot forge the brand.
+ * 3. Prototype laundering (`Object.create(genuine)`) is rejected by the
+ *    own-property requirement.
+ * 4. The accidental vectors from GH-031 — spread, JSON round trip, plain
+ *    shape — remain blocked.
+ * 5. Legitimate `raw()` values render verbatim in both string and stream
+ *    renderers; unbranded payloads stay escaped.
  */
 
 import { describe, expect, test } from "bun:test";
 import { renderPrimitive } from "../../src/escape";
+import { renderToStream } from "../../src/render-to-stream";
 import { isRawHtml, raw } from "../../src/raw";
 
 const PAYLOAD = `<img src=x onerror="alert('bundar-br-005')">`;
 
-describe("BR-005 raw-HTML brand forgery (current behavior)", () => {
-  test("the brand uses the global symbol registry (forgeable marker)", () => {
-    // Any same-realm code — a dependency, a transitive import, application
-    // code — can reconstruct the exact brand symbol without importing
-    // anything from @bundar/jsx.
+describe("BR-005/BR-006 raw-HTML brand forgery", () => {
+  test("global symbol registry reconstruction does not mint trust", () => {
+    // Any same-realm code could once do this; the registered key is now a
+    // decoy that carries no authority.
     const forged = {
       html: PAYLOAD,
       [Symbol.for("bundar.jsx.raw")]: true,
     };
-    expect(isRawHtml(forged)).toBe(true);
-    // Forged value renders verbatim: escaping is fully bypassed.
-    expect(renderPrimitive(forged)).toBe(PAYLOAD);
+    expect(isRawHtml(forged)).toBe(false);
+    expect(() => renderPrimitive(forged)).toThrow();
   });
 
-  test("defineProperty on an ordinary object also forges the brand", () => {
+  test("defineProperty with a reconstructable key cannot forge the brand", () => {
     const forged: Record<PropertyKey, unknown> = { html: PAYLOAD };
     Object.defineProperty(forged, Symbol.for("bundar.jsx.raw"), {
       value: true,
@@ -48,15 +47,15 @@ describe("BR-005 raw-HTML brand forgery (current behavior)", () => {
       writable: false,
       configurable: false,
     });
-    expect(isRawHtml(forged)).toBe(true);
-    expect(renderPrimitive(forged)).toBe(PAYLOAD);
+    expect(isRawHtml(forged)).toBe(false);
+    expect(() => renderPrimitive(forged)).toThrow();
   });
 
-  test("prototype-chain laundering passes isRawHtml", () => {
+  test("prototype-chain laundering is rejected (own-property requirement)", () => {
     const genuine = raw("<hr>");
     const laundered: object = Object.create(genuine) as object;
-    expect(isRawHtml(laundered)).toBe(true);
-    expect((laundered as { html?: string }).html).toBe("<hr>");
+    expect(isRawHtml(laundered)).toBe(false);
+    expect(() => renderPrimitive(laundered)).toThrow();
   });
 
   test("accidental vectors stay blocked (GH-031 spread/JSON/plain shape)", () => {
@@ -78,30 +77,40 @@ describe("BR-005 raw-HTML brand forgery (current behavior)", () => {
     expect(renderPrimitive(PAYLOAD)).not.toContain("<img");
     expect(renderPrimitive(raw(PAYLOAD))).toBe(PAYLOAD);
   });
+
+  test("legitimate raw values render identically in string and stream paths", async () => {
+    const trusted = raw('<b data-x="1">ok</b>');
+    expect(renderPrimitive(trusted)).toBe('<b data-x="1">ok</b>');
+
+    const rendered = renderToStream(raw("<hr>"));
+    const reader = rendered.stream.getReader();
+    const decoder = new TextDecoder();
+    let streamed = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      streamed += decoder.decode(value, { stream: true });
+    }
+    streamed += decoder.decode();
+    expect(streamed).toContain("<hr>");
+  });
 });
 
 /*
- * THREAT MODEL (BR-005 deliverable)
+ * THREAT MODEL (BR-005 deliverable, updated by BR-006)
  *
- * Brand mechanism: `Symbol.for("bundar.jsx.raw")` + truthy property check.
- * Forgery cost inside the server realm: one line, no Bundar imports.
+ * Before BR-006: forgery cost inside the server realm was one line via
+ * Symbol.for; realistic risk was supply-chain erosion of the trust boundary
+ * rather than a proven remote vulnerability (exploitation required executing
+ * attacker-influenced code inside the realm).
  *
- * Contract mismatch, not proven remote vulnerability:
- * - Exploitation requires executing attacker-influenced code INSIDE the
- *   server realm (compromised dependency, eval'd config, SSRF-reachable code
- *   generator). An attacker with that capability usually has stronger
- *   primitives than a JSX bypass; no network-reachable path feeds untrusted
- *   objects into JSX children today.
- * - The realistic risk is defense-in-depth erosion: supply-chain incidents,
- *   copy-pasted "helper" modules, or future Bundar-adjacent tooling treating
- *   the brand as public API. A trust boundary whose forgeability depends on
- *   nobody ever calling Symbol.for with a guessable key does not hold its
- *   documented guarantee ("cannot forge the brand").
+ * After BR-006: the marker is a module-private unique symbol plus an
+ * own-property check. Same-realm code can still bypass escaping ONLY by
+ * calling the explicit raw() API or by obtaining the unexported symbol
+ * reference through a Bundar module namespace object (import { } from
+ * "@bundar/jsx" exposes no such name). That preserves an auditable escape
+ * hatch while removing string-key reconstruction and inheritance laundering.
  *
- * Remediation requirements handed to BR-006:
- * - Module-private (non-registered) symbol or closure-hidden state, so the
- *   brand cannot be reconstructed outside packages/jsx.
- * - Own-property (non-inherited) brand check to kill prototype laundering.
- * - Keep spread/JSON/plain-shape vectors blocked (regression suite stays).
- * - No sanitizer bundled; raw() caller responsibility unchanged.
+ * Responsibility split (unchanged): Bundar does not sanitize. Whoever calls
+ * raw() owns sanitization of its argument.
  */

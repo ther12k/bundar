@@ -1,16 +1,21 @@
 /**
- * Explicit raw-HTML trust boundary (GH-031).
+ * Explicit raw-HTML trust boundary (GH-031, BR-006).
  *
  * Only values constructed through `raw()` bypass text escaping. The brand is
- * a private symbol; the marker field is non-enumerable, non-writable, and
- * truthy-unique, so ordinary objects — even ones shaped like the internal
- * representation — cannot forge the brand by property copying, spreading, or
- * JSON round-tripping. Bundar ships no sanitizer: the caller who writes
- * `raw(...)` owns sanitization. No sanitizer or trusted-types polyfill is
- * bundled in v0.1 by scope decision.
+ * a module-private unique symbol: it is NOT registered in the global symbol
+ * registry (`Symbol.for`), is not exported, and cannot be reconstructed from
+ * a string key by other modules or dependencies. `isRawHtml()` additionally
+ * requires the brand as an OWN property, so prototype chains rooted at a
+ * genuine value cannot launder trust either. Plain objects, spread copies,
+ * and JSON round-trips remain rejected.
+ *
+ * Trust statement: Bundar ships no sanitizer. `raw(...)` marks HTML the
+ * caller has already sanitized; whoever writes `raw(...)` owns sanitization
+ * of its argument. No sanitizer or trusted-types polyfill is bundled in v0.1
+ * by scope decision. See docs/security/raw-html.md for the exact guarantee.
  */
 
-const RAW_BRAND = Symbol.for("bundar.jsx.raw");
+const RAW_BRAND = Symbol("bundar.jsx.raw");
 
 export interface RawHtml {
   readonly html: string;
@@ -22,6 +27,7 @@ export function isRawHtml(value: unknown): value is RawHtml {
   return (
     typeof value === "object" &&
     value !== null &&
+    Object.prototype.hasOwnProperty.call(value, RAW_BRAND) &&
     (value as { [RAW_BRAND]?: unknown })[RAW_BRAND] === true
   );
 }
