@@ -45,6 +45,7 @@ import {
   loginForm,
   tableControls,
 } from "./articles.view";
+import { urls } from "../../routes.gen";
 import { ADMIN_ROLE_RANK } from "./articles.authz";
 import { isEditor, parseStatus, requireRole, roleOf } from "./articles.authz";
 
@@ -125,7 +126,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
               id: "login-result",
               children: `Signed in as ${requested}.`,
             }),
-            redirectTo: "/articles",
+            redirectTo: urls["article-list"](),
           }),
           dialectOptions,
         );
@@ -166,7 +167,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
                 }),
               renderFragment: (view_) =>
                 articleForm({
-                  action: "/articles",
+                  action: urls["article-create"](),
                   token: submittedToken(context.request),
                   title,
                   slug,
@@ -221,7 +222,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
                 }),
               renderFragment: (view_) =>
                 articleForm({
-                  action: `/articles/${id}/edit`,
+                  action: urls["article-edit"]({ id }),
                   token: submittedToken(context.request),
                   title,
                   slug: existing.slug,
@@ -306,7 +307,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
           context.request,
           action({
             fragment: serializeUpdates(intents, dialect).html,
-            redirectTo: "/articles",
+            redirectTo: urls["article-list"](),
           }),
           dialectOptions,
         );
@@ -375,7 +376,10 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
   app.get(
     "/",
     () =>
-      new Response(null, { status: 303, headers: { location: "/articles" } }),
+      new Response(null, {
+        status: 303,
+        headers: { location: urls["article-list"]() },
+      }),
     {
       name: "root",
     },
@@ -410,7 +414,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
           id: "form-region",
           children: isEditor(role)
             ? articleForm({
-                action: "/articles",
+                action: urls["article-create"](),
                 token: token.token,
                 title: "",
                 slug: "",
@@ -511,7 +515,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
             flash: [],
             children: jsx("p", {
               children: jsx("a", {
-                href: "/login",
+                href: urls["login-page"](),
                 children: "Go to the login page",
               }),
             }),
@@ -549,7 +553,7 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
     return Promise.resolve(
       actionResponse(
         context.request,
-        action({ fragment: markup, redirectTo: "/articles" }),
+        action({ fragment: markup, redirectTo: urls["article-list"]() }),
         dialectOptions,
       ),
     );

@@ -2,6 +2,7 @@
 import { document, jsx } from "@bundar/jsx";
 import { HtmxScript } from "@bundar/htmx";
 import type { Article, ArticlePage, AuditEntry } from "./articles.types";
+import { urls } from "../../routes.gen";
 import { dialect } from "../../platform/dialect";
 
 export function Layout({
@@ -49,8 +50,7 @@ export function tableControls(params: {
     if (params.search.length > 0) search.set("q", params.search);
     if (params.status.length > 0) search.set("status", params.status);
     if (page > 1) search.set("page", String(page));
-    const text = search.toString();
-    return text.length > 0 ? `/articles?${text}` : "/articles";
+    return urls["article-list"]({}, Object.fromEntries(search.entries()));
   };
   return jsx("div", {
     id: "table-controls",
@@ -58,7 +58,7 @@ export function tableControls(params: {
       jsx("form", {
         id: "filter-form",
         method: "get",
-        action: "/articles",
+        action: urls["article-list"](),
         children: [
           jsx("input", {
             type: "search",
@@ -151,7 +151,7 @@ export function articleRow({
     children: [
       jsx("td", {
         children: jsx("a", {
-          href: `/articles/${article.id}`,
+          href: urls["article-detail"]({ id: article.id }),
           children: article.title,
         }),
       }),
@@ -160,13 +160,16 @@ export function articleRow({
       jsx("td", { children: String(article.version) }),
       jsx("td", {
         children: [
-          jsx("a", { href: `/articles/${article.id}`, children: "Edit" }),
+          jsx("a", {
+            href: urls["article-detail"]({ id: article.id }),
+            children: "Edit",
+          }),
           " ",
           canDelete
             ? jsx("form", {
                 method: "post",
-                action: `/articles/${article.id}/delete`,
-                "hx-post": `/articles/${article.id}/delete`,
+                action: urls["article-delete"]({ id: article.id }),
+                "hx-post": urls["article-delete"]({ id: article.id }),
                 "hx-target": `#article-${article.id}`,
                 style: "display: inline",
                 children: [
@@ -288,7 +291,7 @@ export function loginForm({
   return jsx("form", {
     id: "login-form",
     method: "post",
-    action: "/login",
+    action: urls.login(),
     children: [
       jsx("input", { type: "hidden", name: "_csrf", value: token }),
       jsx("fieldset", {

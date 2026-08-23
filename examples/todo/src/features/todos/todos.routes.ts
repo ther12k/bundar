@@ -27,6 +27,7 @@ import {
 } from "@bundar/security";
 import type { CsrfSecret } from "@bundar/security";
 import { Layout } from "../../layout";
+import { urls } from "../../routes.gen";
 import { parseFilter, titleSchema } from "./todos.schema";
 import { countsRegion, filterLinks, todoForm, todoItem } from "./todos.view";
 import type { TodoCounts, TodoRepository } from "./todos.types";
@@ -118,7 +119,7 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
                   repository.counts(),
                 );
               },
-              redirectTo: "/",
+              redirectTo: urls["todo-list"](),
             },
             renderForm: (render) =>
               todoForm({
@@ -153,7 +154,7 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
               todoItem({ item: toggled, token: "" }),
               repository.counts(),
             ),
-            redirectTo: "/",
+            redirectTo: urls["todo-list"](),
           }),
           dialectOptions,
         );
@@ -184,7 +185,7 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
                   repository.counts(),
                 );
               },
-              redirectTo: "/",
+              redirectTo: urls["todo-list"](),
             },
             renderForm: (render) =>
               todoForm({
@@ -218,7 +219,7 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
               repository.counts(),
               id,
             ),
-            redirectTo: "/",
+            redirectTo: urls["todo-list"](),
           }),
           dialectOptions,
         );

@@ -1,4 +1,5 @@
 /** Shared Todo UI regions (BR-035): real TSX components over typed models. */
+import { urls } from "../../routes.gen";
 import type { Todo, TodoCounts, TodoFilter } from "./todos.types";
 
 export function countsRegion(counts: TodoCounts, filter: TodoFilter): unknown {
@@ -41,8 +42,8 @@ export function todoItem({
       <span class="title">{item.title}</span>{" "}
       <form
         method="post"
-        action={`/todos/${item.id}/toggle`}
-        hx-post={`/todos/${item.id}/toggle`}
+        action={urls["todo-toggle"]({ id: item.id })}
+        hx-post={urls["todo-toggle"]({ id: item.id })}
         hx-target={`#todo-${item.id}`}
         style="display: inline"
       >
@@ -51,8 +52,8 @@ export function todoItem({
       </form>{" "}
       <form
         method="post"
-        action={`/todos/${item.id}/delete`}
-        hx-post={`/todos/${item.id}/delete`}
+        action={urls["todo-delete"]({ id: item.id })}
+        hx-post={urls["todo-delete"]({ id: item.id })}
         hx-target="#todo-list"
         style="display: inline"
       >
@@ -78,8 +79,8 @@ export function todoForm({
     <form
       id="todo-form"
       method="post"
-      action="/todos"
-      hx-post="/todos"
+      action={urls["todo-create"]()}
+      hx-post={urls["todo-create"]()}
       hx-target="#todo-list"
       hx-swap="beforeend"
     >

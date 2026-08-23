@@ -10,7 +10,9 @@
     "start": "bun src/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
-    "app:arch": "bun ../../tools/app-architecture/check.ts ."
+    "app:arch": "bun ../../tools/app-architecture/check.ts .",
+    "routes:gen": "bun ../../packages/cli/src/bin.ts routes generate --entry src/routes.entry.ts --out src/routes.gen.ts",
+    "routes:check": "bun ../../packages/cli/src/bin.ts routes check --entry src/routes.entry.ts --out src/routes.gen.ts"
   },
   "dependencies": {
     "@bundar/core": "workspace:*",
