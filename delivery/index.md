@@ -1,5 +1,6 @@
 # Delivery
 
+- [Post-Alpha Audit Baseline and Provenance](baseline/post-alpha-audit-baseline.md) — Immutable BR-001 anchor: audited revision, environment pins, bundle checksums, source ledger, and finding classifications after the M8.0 rebase.
 - [Backlog Summary](backlog-summary.md) — Milestone-level backlog inventory and issue-size philosophy for the generated GitHub-ready tasks.
 - [Beta Readiness Definition](beta-definition.md) — Conditions beyond alpha required before Bundar may be described as beta-ready.
 - [Issue Dependency Graph and Execution Waves](dependency-graph.md) — Topological execution model, stable issue IDs, parallel waves, blocking policy, and graph validation.
