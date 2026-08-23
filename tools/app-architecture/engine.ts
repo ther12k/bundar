@@ -192,6 +192,9 @@ export function checkAppBoundaries(
   for (const file of files) {
     const info = classify(config, file.path);
     if (info === null) continue;
+    // Test files are consumer fixtures: they may import anything an
+    // application could and prove manifest usage instead.
+    if (/\.test\.tsx?$/.test(file.path)) continue;
     if (info.layer === "platform" || info.layer === "composition") continue;
 
     // File-level checks (run regardless of imports present).

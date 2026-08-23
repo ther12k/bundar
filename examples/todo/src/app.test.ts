@@ -9,7 +9,7 @@ import { ErrorBoundary } from "@bundar/core";
 import { createTestClient } from "@bundar/testing";
 import { htmx2 } from "@bundar/htmx/2";
 import { createTodoApp } from "./app";
-import { createInMemoryTodoRepository } from "./domain";
+import { createInMemoryTodoRepository } from "./features/todos/todos.repository";
 
 function fixture() {
   const repository = createInMemoryTodoRepository({ seed: ["Seed one"] });

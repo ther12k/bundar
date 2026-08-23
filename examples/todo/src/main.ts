@@ -1,6 +1,6 @@
 /** Todo bootstrap: dialect from the environment (default stable htmx 2). */
 import { createTodoApp } from "./app";
-import { createInMemoryTodoRepository } from "./domain";
+import { createInMemoryTodoRepository } from "./features/todos/todos.repository";
 
 const repository = createInMemoryTodoRepository({
   seed: ["Write the walkthrough", "Verify both browser modes"],

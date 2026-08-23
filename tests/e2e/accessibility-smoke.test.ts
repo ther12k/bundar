@@ -9,7 +9,8 @@ import { describe, expect, test } from "bun:test";
 import { createTestClient } from "@bundar/testing";
 import { htmx2 } from "@bundar/htmx/2";
 import { createTodoApp } from "../../examples/todo/src/app";
-import { createInMemoryTodoRepository } from "../../examples/todo/src/domain";
+import { createInMemoryTodoRepository } from "../../examples/todo/src/features/todos/todos.repository";
+import {  } from "../../examples/todo/src/features/todos/todos.types";
 
 function todoClient() {
   const { app } = createTodoApp({

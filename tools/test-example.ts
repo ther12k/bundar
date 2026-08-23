@@ -92,7 +92,10 @@ try {
   if ((variant ?? "").endsWith("htmx4")) {
     if (existsSync(TEMP_MOUNT)) throw new Error(`${TEMP_MOUNT} already exists`);
     cpSync(TODO, TEMP_MOUNT, { recursive: true });
-    writeFileSync(join(TEMP_MOUNT, "src", "dialect.ts"), HTMX4_DIALECT);
+    writeFileSync(
+      join(TEMP_MOUNT, "src", "platform", "dialect.ts"),
+      HTMX4_DIALECT,
+    );
     const pkg = JSON.parse(
       readFileSync(join(TEMP_MOUNT, "package.json"), "utf8"),
     );
