@@ -100,6 +100,15 @@ export function normalizeRoutePath(path: string): string {
   if (!path.startsWith("/")) {
     throw new RoutePathValidationError("path must start with '/'", path);
   }
+  // BR-068 property finding: CR/LF/control characters must never survive
+  // normalization into the compiled route table (log/header injection).
+  // eslint-disable-next-line no-control-regex -- intentional: detects injection
+  if (/[\u0000-\u001f\u007f\u0080-\u009f]/.test(path)) {
+    throw new RoutePathValidationError(
+      "path contains control characters",
+      path,
+    );
+  }
   if (path === "/") {
     return "/";
   }

@@ -105,8 +105,15 @@ export function serializeCookie(
   value: string,
   options: CookieOptions = {},
 ): string {
-  if (/[;,\s]/.test(name) || value.includes(";")) {
-    throw new ResponseMutationError("invalid cookie name/value characters");
+  if (/[;,\s]/.test(name) || HEADER_CONTROL.test(name)) {
+    throw new ResponseMutationError(
+      "invalid cookie name characters (control characters rejected)",
+    );
+  }
+  if (value.includes(";") || HEADER_CONTROL.test(value)) {
+    throw new ResponseMutationError(
+      "invalid cookie value characters (control characters rejected)",
+    );
   }
   const parts = [`${name}=${value}`];
   parts.push(`Path=${options.path ?? "/"}`);
