@@ -45,3 +45,9 @@ export type {
   LifecycleResource,
   LifecycleState,
 } from "./lifecycle";
+
+export {
+  generateErrorId,
+  redactDetails,
+  sanitizeStack,
+} from "./error-redaction";

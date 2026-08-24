@@ -19,9 +19,15 @@ export type HttpErrorCode =
   | "too_many_requests"
   | "request_timeout"
   | "internal"
-  | "service_unavailable";
+  | "service_unavailable"
+  /** BR-067: drain deadline expired or explicit force-stop (BR-058). */
+  | "server_shutting_down"
+  /** BR-067: a lifecycle resource failed during startup rollback. */
+  | "lifecycle_start_failed"
+  /** BR-067: the session store could not persist (durable posture). */
+  | "session_unavailable";
 
-const STATUS_BY_CODE: Record<HttpErrorCode, number> = {
+export const STATUS_BY_CODE: Record<HttpErrorCode, number> = {
   bad_request: 400,
   unauthorized: 401,
   forbidden: 403,
@@ -35,6 +41,9 @@ const STATUS_BY_CODE: Record<HttpErrorCode, number> = {
   request_timeout: 408,
   internal: 500,
   service_unavailable: 503,
+  server_shutting_down: 503,
+  lifecycle_start_failed: 503,
+  session_unavailable: 503,
 };
 
 /** Public, deterministic error envelope. */
