@@ -1,34 +1,35 @@
 /**
- * Explicit raw-HTML trust boundary (GH-031, BR-006).
+ * Explicit raw-HTML trust boundary (GH-031, BR-006, BR-068 hardening).
  *
- * Only values constructed through `raw()` bypass text escaping. The brand is
- * a module-private unique symbol: it is NOT registered in the global symbol
- * registry (`Symbol.for`), is not exported, and cannot be reconstructed from
- * a string key by other modules or dependencies. `isRawHtml()` additionally
- * requires the brand as an OWN property, so prototype chains rooted at a
- * genuine value cannot launder trust either. Plain objects, spread copies,
- * and JSON round-trips remain rejected.
+ * Only values constructed through `raw()` bypass text escaping.
+ *
+ * Trust mechanism: a MODULE-PRIVATE WeakSet membership check — strictly
+ * stronger than any property-based brand because:
+ * - there is NO observable marker to copy: getOwnPropertySymbols reveals
+ *   nothing and defineProperty cannot forge membership;
+ * - Proxy wrappers around genuine values FAIL (the WeakSet holds the
+ *   original target, never the proxy);
+ * - prototype chains cannot launder trust (own-object identity);
+ * - a second installed copy of @bundar/jsx has its OWN WeakSet, so its
+ *   values are untrusted here (duplicate installs fail closed).
  *
  * Trust statement: Bundar ships no sanitizer. `raw(...)` marks HTML the
  * caller has already sanitized; whoever writes `raw(...)` owns sanitization
- * of its argument. No sanitizer or trusted-types polyfill is bundled in v0.1
- * by scope decision. See docs/security/raw-html.md for the exact guarantee.
+ * of its argument. See docs/security/raw-html.md for the exact guarantee.
  */
 
-const RAW_BRAND = Symbol("bundar.jsx.raw");
+/** Module-private trust registry. Never exported, never enumerable. */
+const trustedRawValues = new WeakSet<object>();
 
+/** Opaque trusted-HTML value; trust is keyed on object IDENTITY. */
 export interface RawHtml {
   readonly html: string;
-  readonly [RAW_BRAND]: true;
 }
 
-/** Returns true only for values created by `raw()`. */
+/** Returns true only for values created by `raw()` in THIS module instance. */
 export function isRawHtml(value: unknown): value is RawHtml {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    Object.prototype.hasOwnProperty.call(value, RAW_BRAND) &&
-    (value as { [RAW_BRAND]?: unknown })[RAW_BRAND] === true
+    typeof value === "object" && value !== null && trustedRawValues.has(value)
   );
 }
 
@@ -37,12 +38,8 @@ export function isRawHtml(value: unknown): value is RawHtml {
  * prefer escaped children or components whenever possible.
  */
 export function raw(html: string): RawHtml {
-  const branded = { html } as { html: string } & { [RAW_BRAND]: true };
-  Object.defineProperty(branded, RAW_BRAND, {
-    value: true,
-    enumerable: false,
-    writable: false,
-    configurable: false,
-  });
-  return Object.freeze(branded) as RawHtml;
+  const value: { html: string } = { html };
+  Object.freeze(value);
+  trustedRawValues.add(value);
+  return value as RawHtml;
 }

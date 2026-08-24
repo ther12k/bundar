@@ -58,6 +58,49 @@ describe("BR-005/BR-006 raw-HTML brand forgery", () => {
     expect(() => renderPrimitive(laundered)).toThrow();
   });
 
+  test("BR-068: brand symbols are not observable or copyable", async () => {
+    const genuine = raw("<hr>");
+    const symbols = Object.getOwnPropertySymbols(genuine);
+    // The WeakSet model leaves NO marker on the value at all.
+    expect(symbols).toEqual([]);
+
+    // Even if an attacker guesses a symbol and defines it, membership
+    // cannot be forged.
+    const forged = Object.defineProperty({ html: PAYLOAD }, Symbol("x"), {
+      value: true,
+    });
+    expect(isRawHtml(forged)).toBe(false);
+  });
+
+  test("BR-068: Proxy wrappers around genuine values fail closed", () => {
+    const genuine = raw("<i>ok</i>");
+    const lyingProxy = new Proxy(genuine, {
+      get(_target, key) {
+        if (key === "html") return PAYLOAD; // lie about content
+        return Reflect.get(genuine, key);
+      },
+    });
+    // WeakSet holds the TARGET, not the proxy — trust does not transfer.
+    expect(isRawHtml(lyingProxy)).toBe(false);
+    expect(() => renderPrimitive(lyingProxy as never)).toThrow();
+  });
+
+  test("BR-068: structuredClone drops trust; duplicate installs fail closed", async () => {
+    const genuine = raw("<u>clone</u>");
+    const cloned = structuredClone(genuine) as unknown as {
+      html: string;
+    };
+    expect(cloned.html).toBe("<u>clone</u>");
+    expect(isRawHtml(cloned)).toBe(false); // clone loses membership
+
+    // Duplicate-install simulation: a second module instance would hold its
+    // OWN WeakSet, so its values are untrusted here by construction. We
+    // approximate by asserting that ANY hand-built lookalike fails.
+    const lookalike = { html: "<b>from another install</b>" };
+    Object.freeze(lookalike);
+    expect(isRawHtml(lookalike)).toBe(false);
+  });
+
   test("accidental vectors stay blocked (GH-031 spread/JSON/plain shape)", () => {
     const genuine = raw("<i>ok</i>");
 

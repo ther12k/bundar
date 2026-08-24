@@ -64,7 +64,8 @@ comma-joined list per Fetch semantics.
 
 Scheme resolution order when forwarded data is trusted: RFC 7239 `proto=`,
 else `X-Forwarded-Proto`; values restricted to `http`/`https` (anything
-else → `unknown`). Host: first `X-Forwarded-Host` entry, else the request
+else → `unknown`). DOWNGRADE GUARD: an https transport connection to the
+trusted peer can never be downgraded by a claimed http value. Host: first `X-Forwarded-Host` entry, else the request
 URL host. Consumers (cookies BR-060, origin checks BR-062, redirects,
 audit) MUST consume this single resolved contract — never parse forwarded
 headers independently.
