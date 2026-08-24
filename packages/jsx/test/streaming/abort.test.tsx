@@ -4,6 +4,7 @@
  * abort is never converted into ordinary error markup.
  */
 import { describe, expect, test } from "bun:test";
+import { jsx } from "../../src/index";
 import { renderToStream } from "../../src/render-to-stream";
 import { AbortedRenderError } from "../../src/render/async";
 
@@ -86,11 +87,17 @@ describe("BR-058 render cancellation", () => {
 
   test("abort error surfaces as cancellation, not generic failure markup", async () => {
     const controller = new AbortController();
-    const rendered = renderToStream(<div>never finishes</div>, {
-      signal: controller.signal,
-    });
+    // A genuinely pending async component guarantees the abort lands
+    // mid-render rather than after completion (no flakiness).
+    const rendered = renderToStream(
+      jsx(async () => {
+        await new Promise((r) => setTimeout(r, 200));
+        return jsx("div", { children: "late" });
+      }, {}),
+      { signal: controller.signal },
+    );
     const reading = drain(rendered.stream);
-    setTimeout(() => controller.abort(new Error("client gone")), 5);
+    setTimeout(() => controller.abort(new Error("client gone")), 20);
     const chain: unknown[] = [];
     try {
       await reading;

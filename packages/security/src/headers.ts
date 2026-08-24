@@ -16,6 +16,12 @@
 import type { Context, Middleware } from "@bundar/core";
 
 export interface SecurityHeaderPolicy {
+  /**
+   * BR-065: when a fresh nonce is embedded in this response's CSP, also
+   * emit `Cache-Control: no-store` so shared caches cannot replay it.
+   * Default true. (default: true)
+   */
+  readonly nonceNoStore?: boolean;
   /** CSP directives beyond the baseline; merged with mandatory policy. */
   readonly cspDirectives?: Readonly<Record<string, string>>;
   /** Allowed frame ancestors (`'self'`, specific origins). Default `'none'`. */
@@ -198,6 +204,17 @@ export function securityHeaders(policy: SecurityHeaderPolicy = {}): Middleware {
       );
 
       headers.set(HEADER_MAP.contentTypeOptions, "nosniff");
+
+      // BR-065: a fresh per-response nonce makes this response inherently
+      // unshareable — mark it no-store so caches can never serve a stale
+      // nonce to a different request. Opt-out for apps managing their own
+      // caching of nonce-free responses via policy.nonceNoStore=false.
+      if (
+        policy.nonceNoStore !== false &&
+        (headers.get(HEADER_MAP.csp) ?? "").includes(nonce)
+      ) {
+        headers.set("cache-control", "no-store");
+      }
       headers.set(
         HEADER_MAP.frameOptions,
         frameAncestors === "'none'" ? "DENY" : "SAMEORIGIN",

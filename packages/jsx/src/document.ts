@@ -16,6 +16,13 @@ export interface DocumentOptions {
   /** `<meta charset>` — defaults to "utf-8" when the document helper is used. */
   readonly charset?: string;
   readonly title?: string;
+  /**
+   * BR-065: per-response CSP nonce. When set, every TOP-LEVEL `<script>`
+   * child receives `nonce="<value>"` unless it already has one — enabling
+   * strict CSP (`script-src 'nonce-…'`, no unsafe-inline) without touching
+   * each script call-site.
+   */
+  readonly cspNonce?: string;
 }
 
 /** Thrown when a document tree contains nested or duplicate html roots. */
@@ -36,7 +43,47 @@ export class DuplicateDocumentRootError extends Error {
 export function document(
   options: DocumentOptions & { children?: JSXChild },
 ): JSXChild {
-  const { lang, charset = "utf-8", title, children } = options;
+  const { lang, charset = "utf-8", title, cspNonce, children } = options;
+
+  // JSX nodes are FROZEN, so stamping RE-CREATES script nodes that lack a
+  // nonce. Originals are never shared across responses (fresh trees per
+  // request), so per-response nonces stay single-use.
+  const stampNonce = (node: unknown): unknown => {
+    if (cspNonce === undefined || typeof node !== "object" || node === null)
+      return node;
+    if (Array.isArray(node)) return node.map(stampNonce);
+    const n = node as {
+      type?: unknown;
+      props?: Record<string, unknown> & { children?: unknown };
+    };
+    if (
+      typeof n.type !== "string" ||
+      typeof n.props !== "object" ||
+      n.props === null
+    )
+      return node;
+
+    if (n.type === "script") {
+      return n.props["nonce"] !== undefined
+        ? node
+        : jsx("script", { ...n.props, nonce: cspNonce });
+    }
+    if (n.props.children !== undefined) {
+      return jsx(n.type, {
+        ...n.props,
+        children: stampNonce(n.props.children),
+      });
+    }
+    return node;
+  };
+
+  const stampedChildren =
+    children === undefined
+      ? undefined
+      : Array.isArray(children)
+        ? children.map(stampNonce)
+        : [stampNonce(children)];
+
   return jsx("html", {
     ...(lang ? { lang } : {}),
     children: [
@@ -46,7 +93,9 @@ export function document(
           ...(title !== undefined ? [jsx("title", { children: title })] : []),
         ],
       }),
-      jsx("body", { ...(children !== undefined ? { children } : {}) }),
+      jsx("body", {
+        ...(stampedChildren !== undefined ? { children: stampedChildren } : {}),
+      }),
     ],
   });
 }
