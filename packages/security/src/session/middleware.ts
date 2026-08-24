@@ -291,16 +291,34 @@ export function sessionMiddleware(
 
     const finalId = rotated ? generateSessionId() : currentId;
     if (dirty || isNew || rotated) {
-      if (rotated && !isNew && cookieId !== undefined) {
-        // Fixation policy: the old id dies the moment a new one is issued.
-        await options.store.destroy(cookieId);
+      if (
+        rotated &&
+        !isNew &&
+        cookieId !== undefined &&
+        typeof options.store.rotate === "function" &&
+        options.store.capabilities?.atomicRotate === true
+      ) {
+        // BR-063: ATOMIC rotation when the store supports it. A "conflict"
+        // means another request consumed this session first — propagate so
+        // exactly one privileged session survives the race.
+        await options.store.rotate(cookieId, {
+          id: finalId,
+          data,
+          createdAtMs,
+          expiresAtMs: absoluteDeadline,
+        });
+      } else {
+        if (rotated && !isNew && cookieId !== undefined) {
+          // Fixation policy fallback for non-atomic stores.
+          await options.store.destroy(cookieId);
+        }
+        await options.store.commit({
+          id: finalId,
+          data,
+          createdAtMs,
+          expiresAtMs: absoluteDeadline,
+        });
       }
-      await options.store.commit({
-        id: finalId,
-        data,
-        createdAtMs,
-        expiresAtMs: absoluteDeadline,
-      });
       headers.append(
         "set-cookie",
         sessionCookie(

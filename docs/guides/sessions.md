@@ -90,3 +90,20 @@ security capabilities:
 `SameSite=None` without `Secure` and enforces `__Host-` rules
 (Secure + Path=/ + no Domain). Session middleware refuses production
 construction with explicit `secure:false` and no proxy trust.
+
+
+## Lifecycle security guarantees (BR-063)
+
+- **Fixation**: authentication/privilege change ROTATES the id; an
+  attacker-planted pre-auth cookie is never retained.
+- **Rotation atomicity**: stores with `atomicRotate` use compare-and-swap
+  `rotate()`; losing a concurrent race throws `conflict` so exactly ONE
+  privileged session survives. Non-atomic stores fall back to
+  destroy-then-commit (documented weaker path).
+- **Logout**: destroy + epoch-clear cookie; stale-cookie replay yields a
+  fresh anonymous session with NO inherited state.
+- **Expiry**: expired ids are replaced with fresh anonymous cookies (epoch
+  clear is reserved for logout).
+- **CSRF rebinding**: tokens bind to the session id — rotation invalidates
+  pre-rotation tokens for all post-rotation requests.
+- Flash messages: single-consumption via `consumeFlash`.

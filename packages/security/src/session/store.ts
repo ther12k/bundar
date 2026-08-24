@@ -68,6 +68,11 @@ export interface SessionStore {
    * `oldId` as one indivisible operation. Required for login/privilege
    * changes (session-fixation defense). Absence is a production-posture
    * violation — see {@link requireProductionSessionCapabilities}.
+   *
+   * COMPARE-AND-SWAP semantics: if `oldId` has already been consumed
+   * (rotated/destroyed by a concurrent request), adapters throw
+   * {@link SessionStoreError} with kind "conflict" — callers treat that as
+   * losing the rotation race (exactly one privileged session survives).
    */
   rotate?(oldId: string, record: SessionData): Promise<void>;
 
@@ -215,9 +220,15 @@ export function createMemorySessionStore(
       entries.set(id, { ...record, expiresAtMs });
       return true;
     },
-    // Atomic within the event loop: both mutations land before any await.
+    // Atomic within the event loop; CAS against concurrent consumption.
     async rotate(oldId: string, record: SessionData): Promise<void> {
       assertSerializableSessionData(record.data);
+      if (!entries.has(oldId)) {
+        throw new SessionStoreError(
+          "conflict",
+          `rotation lost: old session "${oldId}" already consumed`,
+        );
+      }
       entries.delete(oldId);
       entries.set(record.id, clone(record));
     },

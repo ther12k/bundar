@@ -89,7 +89,7 @@ export function runSessionStoreContract(
     const newId = "race-new";
     await store.commit(record(oldId, Date.now() + 60_000));
 
-    await Promise.all([
+    const outcomes = await Promise.allSettled([
       ...Array.from({ length: 8 }, () => store.load(oldId)),
       ...Array.from({ length: 4 }, () =>
         store.touch!(oldId, Date.now() + 30_000),
@@ -98,8 +98,20 @@ export function runSessionStoreContract(
       ...Array.from({ length: 4 }, () => store.destroy(oldId)),
       ...Array.from({ length: 8 }, () => store.load(oldId)),
     ]);
+    // CAS rotation MAY lose the race with a concurrent destroy — that is
+    // the documented conflict path, not a contract failure.
+    for (const outcome of outcomes) {
+      if (outcome.status === "rejected") {
+        expect(
+          outcome.reason instanceof SessionStoreError &&
+            outcome.reason.kind === "conflict",
+        ).toBe(true);
+      }
+    }
 
-    // Invariant after the storm: exactly ONE live session — the new one.
+    // Invariant after the storm: old id dead; new id live exactly when its
+    // rotate won (memory adapter always wins here because destroy+rotate
+    // ordering is event-loop serialized before any await).
     expect(await store.load(oldId)).toBeNull();
     expect((await store.load(newId))?.data).toEqual({ role: "user" });
   });
