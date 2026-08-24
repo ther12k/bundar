@@ -79,3 +79,14 @@ security capabilities:
   durable adapters must pass it before use.
 - In-memory store runs only with explicit `allowDegradedNonProduction`
   acknowledgment in production posture checks.
+
+
+## Secure cookie policy (BR-060)
+
+`resolveCookieSecure` derives `Secure` from the NORMALIZED origin
+(ADR-0020): trusted https termination ⇒ `Secure`; production http origin
+⇒ hard failure (never silent); development http requires explicit
+`allowInsecureDevelopment`. `validateCookieAttributes` rejects
+`SameSite=None` without `Secure` and enforces `__Host-` rules
+(Secure + Path=/ + no Domain). Session middleware refuses production
+construction with explicit `secure:false` and no proxy trust.

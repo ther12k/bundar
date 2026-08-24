@@ -67,3 +67,14 @@ export { requireProductionSessionCapabilities } from "./session/store";
 export { assertSerializableSessionData } from "./session/store";
 export type { SessionStoreCapabilities } from "./session/store";
 export type { SessionStoreFailureKind } from "./session/store";
+
+export {
+  CookiePolicyError,
+  resolveCookieSecure,
+  validateCookieAttributes,
+} from "./cookies";
+export type {
+  CookieAttributeContract,
+  CookieEnvironment,
+  CookieOriginInput,
+} from "./cookies";

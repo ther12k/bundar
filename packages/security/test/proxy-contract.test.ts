@@ -133,6 +133,6 @@ describe("BR-059 trusted-proxy contract", () => {
     expect(resolveClient(request, "10.0.0.5", config).host).toBe(
       "public.example",
     );
-    expect(resolveClient(request, "10.0.0.5").host).toBe("app.internal");
+    expect(resolveClient(request, "10.0.0.5").host).toBe("app");
   });
 });

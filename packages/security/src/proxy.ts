@@ -183,10 +183,20 @@ export function resolveClient(
 
   return {
     address: client,
-    proto: parseProto(
-      request.headers.get("forwarded"),
-      request.headers.get("x-forwarded-proto"),
-    ),
+    // Fail toward SECURE: a claimed http proto can never downgrade an
+    // https transport connection to the trusted proxy.
+    proto:
+      url.protocol === "https:"
+        ? "https"
+        : parseProto(
+              request.headers.get("forwarded"),
+              request.headers.get("x-forwarded-proto"),
+            ) === "https"
+          ? "https"
+          : parseProto(
+              request.headers.get("forwarded"),
+              request.headers.get("x-forwarded-proto"),
+            ),
     host:
       request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ?? host,
     forwardedTrusted: true,

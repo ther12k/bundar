@@ -21,6 +21,12 @@
 import type { Context, Middleware } from "@bundar/core";
 import { generateSessionId, isCanonicalSessionId } from "./id";
 import type { SessionData, SessionStore } from "./store";
+import {
+  CookiePolicyError,
+  resolveCookieSecure,
+  type CookieEnvironment,
+} from "../cookies";
+import type { ProxyTrustConfig } from "../proxy";
 
 /** Well-known state key; handlers read the session via getSession(). */
 export const SESSION = Symbol.for("bundar.security.session");
@@ -65,6 +71,14 @@ export interface SessionMiddlewareOptions {
   /** Cookie Secure flag. Default true; disable only for local development. */
   readonly secure?: boolean;
   readonly domain?: string;
+  /**
+   * BR-060: when set, Secure derives from the NORMALIZED trusted origin
+   * instead of the static flag; production http origins fail construction
+   * (fail before listen).
+   */
+  readonly proxyTrust?: ProxyTrustConfig;
+  readonly environment?: CookieEnvironment;
+  readonly peer?: string | null;
 }
 
 const DEFAULT_IDLE_MS = 30 * 60 * 1_000;
@@ -118,9 +132,19 @@ function clearCookie(name: string, options: SessionMiddlewareOptions): string {
 export function sessionMiddleware(
   options: SessionMiddlewareOptions,
 ): Middleware {
+  // effective secure resolved per request when trust is configured
   const cookieName = options.cookie ?? "bundar.session";
   const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_MS;
   const absoluteTimeoutMs = options.absoluteTimeoutMs ?? DEFAULT_ABSOLUTE_MS;
+  if (
+    options.environment === "production" &&
+    options.secure === false &&
+    options.proxyTrust === undefined
+  ) {
+    throw new CookiePolicyError(
+      "session middleware refuses production with explicit secure:false and no trusted-proxy configuration",
+    );
+  }
   if (idleTimeoutMs < 1 || absoluteTimeoutMs < idleTimeoutMs) {
     throw new SessionError(
       "idleTimeoutMs must be positive and not exceed absoluteTimeoutMs",
