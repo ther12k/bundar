@@ -75,12 +75,15 @@ describe("GH-022 method behaviors", () => {
     expect(await post.text()).toBe("known-post");
   });
 
-  test("method mismatch surfaces Bun's native 404/405 behavior", async () => {
-    // /only-put exists only for PUT: Bun's route table has a single-method
-    // path entry; the wrong method falls through to fetch (404 by Bun's
-    // documented behavior — Bundar does not invent method negotiation).
+  test("method mismatch on a known path 405s with Allow (BR-069)", async () => {
+    // /only-put exists only for PUT. Bun's own router would silently fall
+    // an unregistered method through to `fetch`, indistinguishable from a
+    // truly unknown path - packages/core/src/routing/methods.ts closes that
+    // gap by filling every path's method table, so this is deterministic:
+    // see packages/core/test/http-methods/ for the full conformance suite.
     const wrong = await fetch(`http://localhost:${server.port}/only-put`);
-    expect([404, 405]).toContain(wrong.status);
+    expect(wrong.status).toBe(405);
+    expect(wrong.headers.get("Allow")).toBe("OPTIONS, PUT");
 
     const right = await fetch(`http://localhost:${server.port}/only-put`, {
       method: "PUT",
