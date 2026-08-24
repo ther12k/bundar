@@ -27,6 +27,7 @@ import {
   type CookieEnvironment,
 } from "../cookies";
 import type { ProxyTrustConfig } from "../proxy";
+import { assertProductionPosture } from "../posture";
 
 /** Well-known state key; handlers read the session via getSession(). */
 export const SESSION = Symbol.for("bundar.security.session");
@@ -79,6 +80,12 @@ export interface SessionMiddlewareOptions {
   readonly proxyTrust?: ProxyTrustConfig;
   readonly environment?: CookieEnvironment;
   readonly peer?: string | null;
+  /** CSRF/session signing secret material; length feeds the posture gate. */
+  readonly csrfSecret?: string;
+  /** BR-062 named overrides — each accepts exactly one documented risk. */
+  readonly allowMemorySessionsInProduction?: boolean;
+  readonly allowInsecureCookies?: boolean;
+  readonly allowWeakCsrfSecret?: boolean;
 }
 
 const DEFAULT_IDLE_MS = 30 * 60 * 1_000;
@@ -166,10 +173,30 @@ export function sessionMiddleware(
   };
   const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_MS;
   const absoluteTimeoutMs = options.absoluteTimeoutMs ?? DEFAULT_ABSOLUTE_MS;
+  if (options.environment === "production") {
+    // BR-062: fail BEFORE listening on fixture-only settings. Overrides are
+    // explicit named flags; diagnostics never print secret material.
+    assertProductionPosture({
+      environment: "production",
+      store: options.store,
+      insecureCookies:
+        options.secure === false && options.proxyTrust === undefined,
+      csrfSecretBytes:
+        options.csrfSecret !== undefined
+          ? options.csrfSecret.length
+          : undefined,
+      overrides: {
+        allowMemorySessions: options.allowMemorySessionsInProduction === true,
+        allowInsecureCookies: options.allowInsecureCookies === true,
+        allowWeakCsrfSecret: options.allowWeakCsrfSecret === true,
+      },
+    });
+  }
   if (
     options.environment === "production" &&
     options.secure === false &&
-    options.proxyTrust === undefined
+    options.proxyTrust === undefined &&
+    options.allowInsecureCookies !== true
   ) {
     throw new CookiePolicyError(
       "session middleware refuses production with explicit secure:false and no trusted-proxy configuration",
@@ -242,12 +269,8 @@ export function sessionMiddleware(
     (context.state as Record<PropertyKey, unknown>)[SESSION] = handle;
 
     const secureOverride =
-      options.proxyTrust !== undefined &&
-      options.environment !== undefined
-        ? resolveEffectiveSecure(
-            context.request,
-            options.peer ?? null,
-          )
+      options.proxyTrust !== undefined && options.environment !== undefined
+        ? resolveEffectiveSecure(context.request, options.peer ?? null)
         : undefined;
 
     const response = await next(context);

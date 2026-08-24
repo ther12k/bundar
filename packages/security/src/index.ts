@@ -78,3 +78,10 @@ export type {
   CookieEnvironment,
   CookieOriginInput,
 } from "./cookies";
+
+export { assertProductionPosture, ProductionPostureError } from "./posture";
+export type {
+  PostureViolation,
+  PostureViolationCode,
+  ProductionPostureInput,
+} from "./posture";
