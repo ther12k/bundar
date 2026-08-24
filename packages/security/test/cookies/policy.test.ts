@@ -135,4 +135,3 @@ describe("BR-060 cookie policy derivation", () => {
 function makeReq(url: string, headers: Record<string, string> = {}): Request {
   return new Request(url, { headers });
 }
-function makeReqLegacyUnused(): void {}

@@ -99,7 +99,10 @@ function sessionCookie(
   id: string,
   expiresAtMs: number,
   options: SessionMiddlewareOptions,
+  secureOverride?: boolean,
 ): string {
+  const secure =
+    secureOverride !== undefined ? secureOverride : options.secure !== false;
   const parts = [
     `${name}=${id}`,
     "Path=/",
@@ -107,12 +110,16 @@ function sessionCookie(
     "SameSite=Lax",
     `Expires=${new Date(expiresAtMs).toUTCString()}`,
   ];
-  if (options.secure !== false) parts.push("Secure");
+  if (secure) parts.push("Secure");
   if (options.domain !== undefined) parts.push(`Domain=${options.domain}`);
   return parts.join("; ");
 }
 
-function clearCookie(name: string, options: SessionMiddlewareOptions): string {
+function clearCookie(
+  name: string,
+  options: SessionMiddlewareOptions,
+  secureOverride?: boolean,
+): string {
   const parts = [
     `${name}=`,
     "Path=/",
@@ -120,7 +127,9 @@ function clearCookie(name: string, options: SessionMiddlewareOptions): string {
     "SameSite=Lax",
     `Expires=${SET_COOKIE_EPOCH}`,
   ];
-  if (options.secure !== false) parts.push("Secure");
+  const secure =
+    secureOverride !== undefined ? secureOverride : options.secure !== false;
+  if (secure) parts.push("Secure");
   if (options.domain !== undefined) parts.push(`Domain=${options.domain}`);
   return parts.join("; ");
 }
@@ -132,8 +141,29 @@ function clearCookie(name: string, options: SessionMiddlewareOptions): string {
 export function sessionMiddleware(
   options: SessionMiddlewareOptions,
 ): Middleware {
-  // effective secure resolved per request when trust is configured
   const cookieName = options.cookie ?? "bundar.session";
+  /**
+   * BR-060: with proxyTrust configured, Secure derives from the NORMALIZED
+   * origin of each request (trusted https termination ⇒ Secure), falling
+   * back to the static option only for direct deployments.
+   */
+  const resolveEffectiveSecure = (
+    request: Request,
+    peer: string | null,
+  ): boolean => {
+    if (options.proxyTrust !== undefined && options.environment !== undefined) {
+      return resolveCookieSecure(
+        {
+          request,
+          peer,
+          trust: options.proxyTrust,
+          environment: options.environment,
+        },
+        { allowInsecureDevelopment: options.secure === false },
+      );
+    }
+    return options.secure !== false;
+  };
   const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_MS;
   const absoluteTimeoutMs = options.absoluteTimeoutMs ?? DEFAULT_ABSOLUTE_MS;
   if (
@@ -211,12 +241,24 @@ export function sessionMiddleware(
     };
     (context.state as Record<PropertyKey, unknown>)[SESSION] = handle;
 
+    const secureOverride =
+      options.proxyTrust !== undefined &&
+      options.environment !== undefined
+        ? resolveEffectiveSecure(
+            context.request,
+            options.peer ?? null,
+          )
+        : undefined;
+
     const response = await next(context);
 
     const headers = new Headers(response.headers);
     if (destroyed) {
       if (cookieId !== undefined) await options.store.destroy(cookieId);
-      headers.append("set-cookie", clearCookie(cookieName, options));
+      headers.append(
+        "set-cookie",
+        clearCookie(cookieName, options, secureOverride),
+      );
       return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
@@ -238,7 +280,13 @@ export function sessionMiddleware(
       });
       headers.append(
         "set-cookie",
-        sessionCookie(cookieName, finalId, absoluteDeadline, options),
+        sessionCookie(
+          cookieName,
+          finalId,
+          absoluteDeadline,
+          options,
+          secureOverride,
+        ),
       );
     }
     return new Response(response.body, {
