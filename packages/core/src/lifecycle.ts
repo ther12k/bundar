@@ -200,20 +200,20 @@ export class Lifecycle {
    * Wires SIGINT/SIGTERM through the injectable registrar. Returns the
    * unregister function so tests never touch real signals.
    */
-  attachSignals(
-    registerSignals: (
-      handler: (signal: "SIGINT" | "SIGTERM") => void,
-    ) => () => void = (handler) => {
-      const listener = (signal: NodeJS.Signals) => handler(signal as "SIGINT");
-      process.on("SIGINT", listener);
-      process.on("SIGTERM", listener);
-      return () => {
-        process.off("SIGINT", listener);
-        process.off("SIGTERM", listener);
-      };
-    },
-  ): () => void {
-    return registerSignals(() => {
+  attachSignals(): () => void {
+    const registrar =
+      this.#options.registerSignals ??
+      ((handler: (signal: "SIGINT" | "SIGTERM") => void) => {
+        const listener = (signal: NodeJS.Signals) =>
+          handler(signal as "SIGINT");
+        process.on("SIGINT", listener);
+        process.on("SIGTERM", listener);
+        return () => {
+          process.off("SIGINT", listener);
+          process.off("SIGTERM", listener);
+        };
+      });
+    return registrar(() => {
       void this.stop();
     });
   }

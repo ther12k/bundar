@@ -14,6 +14,16 @@ export interface BodyLimits {
   readonly maxFields: number;
   readonly maxFiles: number;
   readonly maxNestingDepth: number;
+  /** BR-066: total multipart parts (fields + files). */
+  readonly maxParts: number;
+  /** BR-066: single text-field byte budget. */
+  readonly maxFieldBytes: number;
+  /** BR-066: single file byte budget. */
+  readonly maxFileBytes: number;
+  /** BR-066: header-block bytes allowed per multipart part. */
+  readonly maxPartHeaderBytes: number;
+  /** BR-066: repeated occurrences allowed per field name. */
+  readonly maxDuplicateKeys: number;
   readonly timeoutMs: number;
 }
 
@@ -23,6 +33,11 @@ export const DEFAULT_BODY_LIMITS: BodyLimits = Object.freeze({
   maxFields: 100,
   maxFiles: 10,
   maxNestingDepth: 8,
+  maxParts: 200,
+  maxFieldBytes: 65_536,
+  maxFileBytes: 10 * 1_048_576,
+  maxPartHeaderBytes: 8 * 1024,
+  maxDuplicateKeys: 16,
   timeoutMs: 10_000,
 });
 
@@ -105,6 +120,7 @@ const FORM_TEXT_DECODER = new TextDecoder();
 async function readBoundedBytes(
   request: Request,
   limits: BodyLimits,
+  signal?: AbortSignal,
 ): Promise<Uint8Array> {
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (declared > limits.maxBytes) {
@@ -121,17 +137,40 @@ async function readBoundedBytes(
   // (not the cancel reason) carries the timeout into a hard failure — a
   // dribbling body can never be accepted as a complete partial read.
   let timedOut = false;
+  let completedNormally: boolean | undefined;
   const timeout = setTimeout(() => {
     timedOut = true;
     void reader.cancel();
   }, limits.timeoutMs);
 
+  // BR-066: client disconnect / budget abort must terminate bounded reads
+  // promptly instead of waiting for the slowloris timer.
+  let abortedDuringRead = false;
+  const abortGate = new Promise<never>((_, reject) => {
+    if (signal === undefined) return;
+    const onAbort = (): void => {
+      abortedDuringRead = true; // wins the race even if cancel resolves done
+      void reader.cancel();
+      reject(
+        new BodyLimitError(
+          "timeoutMs",
+          "request aborted before the body completed",
+        ),
+      );
+    };
+    if (signal.aborted) onAbort();
+    else signal.addEventListener("abort", onAbort, { once: true });
+  });
+
   try {
     const chunks: Uint8Array[] = [];
     let total = 0;
     for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      const { done, value } = await Promise.race([reader.read(), abortGate]);
+      if (done) {
+        completedNormally = true;
+        break;
+      }
       total += value!.byteLength;
       if (total > limits.maxBytes) {
         void reader.cancel();
@@ -146,6 +185,14 @@ async function readBoundedBytes(
       throw new BodyLimitError(
         "timeoutMs",
         `${limits.timeoutMs}ms elapsed with an incomplete body`,
+      );
+    }
+    // Abort-cancelled readers surface as `done` with a TRUNCATED body —
+    // that partial payload must never parse as a complete form (BR-066).
+    if (abortedDuringRead || (!completedNormally && signal?.aborted === true)) {
+      throw new BodyLimitError(
+        "timeoutMs",
+        "request aborted mid-body; truncated payload discarded",
       );
     }
     // small bodies (the common form post) arrive as one chunk — return
@@ -224,7 +271,7 @@ export async function parseForm(
     );
   }
 
-  const bytes = await readBoundedBytes(request, effective);
+  const bytes = await readBoundedBytes(request, effective, context.signal);
   // stateless decode: one shared decoder, no per-call allocation
   const text = FORM_TEXT_DECODER.decode(bytes);
 
@@ -240,12 +287,33 @@ export async function parseForm(
     // order — identical semantics to buildForm without the second scan
     const byName = new Map<string, string[]>();
     const order: string[] = [];
+    let partsSeen = 0;
     for (const [name, value] of params.entries()) {
+      partsSeen += 1;
+      if (partsSeen > effective.maxParts) {
+        throw new BodyLimitError(
+          "maxParts",
+          `${partsSeen} parts exceeds ${effective.maxParts}`,
+        );
+      }
+      const valueBytes = Buffer.byteLength(value);
+      if (valueBytes > effective.maxFieldBytes) {
+        throw new BodyLimitError(
+          "maxFieldBytes",
+          `field value of ${valueBytes} bytes exceeds ${effective.maxFieldBytes}`,
+        );
+      }
       let values = byName.get(name);
       if (values === undefined) {
         values = [];
         byName.set(name, values);
         order.push(name);
+      }
+      if (values.length + 1 > effective.maxDuplicateKeys) {
+        throw new BodyLimitError(
+          "maxDuplicateKeys",
+          `field "${name}" repeated more than ${effective.maxDuplicateKeys} times`,
+        );
       }
       values.push(value);
     }
@@ -263,22 +331,58 @@ export async function parseForm(
   }
 
   // multipart/form-data via the FormData constructor on a rebuilt request
+  // BR-066: multipart header-block scan BEFORE native parsing — Bun's
+  // parser does not expose per-part header sizes, so a hostile part with
+  // megabytes of headers must be rejected here. Malformed terminator
+  // (missing final boundary) also surfaces as MalformedBodyError.
+  enforceMultipartHeaderBudget(
+    bytes,
+    request.headers.get("content-type")!,
+    effective.maxPartHeaderBytes,
+  );
+
   const boundaryRequest = new Request("http://bundar.invalid/", {
     method: "POST",
     headers: { "content-type": request.headers.get("content-type")! },
     body: bytes,
   });
-  const formData = await boundaryRequest.formData();
+  let formData: globalThis.FormData;
+  try {
+    formData =
+      (await boundaryRequest.formData()) as unknown as globalThis.FormData;
+  } catch (cause) {
+    // Native parse failures include malformed terminators / truncated
+    // bodies — normalize so callers see one documented error family.
+    throw new MalformedBodyError(
+      "multipart",
+      cause instanceof Error ? cause.message : String(cause),
+    );
+  }
   const entries: [string, string][] = [];
   const files: FormFile[] = [];
-  let fieldCount = 0;
-  for (const [name, value] of formData.entries()) {
+  let partsSeen = 0;
+  for (const [name, value] of formData.entries() as IterableIterator<
+    [string, string | File]
+  >) {
+    partsSeen += 1;
+    if (partsSeen > effective.maxParts) {
+      throw new BodyLimitError(
+        "maxParts",
+        `${partsSeen} parts exceeds ${effective.maxParts}`,
+      );
+    }
     if (typeof value === "string") {
-      fieldCount++;
-      if (fieldCount > effective.maxFields) {
+      if (entries.length + 1 > effective.maxFields) {
         throw new BodyLimitError(
           "maxFields",
-          `${fieldCount} fields exceeds ${effective.maxFields}`,
+          `${entries.length + 1} fields exceeds ${effective.maxFields}`,
+        );
+      }
+      const valueBytes = Buffer.byteLength(value);
+      if (valueBytes > effective.maxFieldBytes) {
+        throw new BodyLimitError(
+          "maxFieldBytes",
+          `text part of ${valueBytes} bytes exceeds ${effective.maxFieldBytes}`,
         );
       }
       entries.push([name, value]);
@@ -289,25 +393,97 @@ export async function parseForm(
           `${files.length + 1} files exceeds ${effective.maxFiles}`,
         );
       }
-      const buffer = await value.arrayBuffer();
-      if (buffer.byteLength > effective.maxBytes) {
+    }
+    if (typeof value !== "string") {
+      // File branch (kept separate so the field path above stays sync).
+      const file = value as File;
+      const buffer = await file.arrayBuffer();
+      if (buffer.byteLength > effective.maxFileBytes) {
         throw new BodyLimitError(
-          "maxBytes",
-          `file ${value.name} exceeds ${effective.maxBytes}`,
+          "maxFileBytes",
+          `file part ${files.length + 1} of ${buffer.byteLength} bytes exceeds ${effective.maxFileBytes}`,
         );
       }
       files.push(
         Object.freeze({
           name,
-          filename: value.name,
-          type: value.type,
+          filename: file.name,
+          type: file.type,
           size: buffer.byteLength,
           bytes: new Uint8Array(buffer),
         }),
       );
     }
   }
+
+  // Duplicate-key budget across the merged view.
+  const dupes = new Map<string, number>();
+  for (const [name] of entries) {
+    dupes.set(name, (dupes.get(name) ?? 0) + 1);
+  }
+  for (const [, count] of dupes) {
+    if (count > effective.maxDuplicateKeys) {
+      throw new BodyLimitError(
+        "maxDuplicateKeys",
+        `field repeated ${count} times exceeds ${effective.maxDuplicateKeys}`,
+      );
+    }
+  }
   return buildForm(entries, files);
+}
+
+/** Measures each part's header block against the per-part budget. */
+function enforceMultipartHeaderBudget(
+  bytes: Uint8Array,
+  contentType: string,
+  maxHeaderBytes: number,
+): void {
+  const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;\s]+))/i);
+  if (boundaryMatch === null) return; // content-type validation happens elsewhere
+  const delimiter = `--${boundaryMatch[1] ?? boundaryMatch[2]!}`;
+  const delimiterBytes = new TextEncoder().encode(delimiter);
+
+  let index = indexOfSequence(bytes, delimiterBytes, 0);
+  while (index !== -1) {
+    let cursor = index + delimiterBytes.length;
+    // terminal "--" → done
+    if (bytes[cursor] === 0x2d && bytes[cursor + 1] === 0x2d) return;
+    // skip CRLF after boundary line
+    while (
+      cursor < bytes.length &&
+      (bytes[cursor] === 0x0d || bytes[cursor] === 0x0a)
+    )
+      cursor += 1;
+    const headStart = cursor;
+    const headEnd = indexOfSequence(
+      bytes,
+      new TextEncoder().encode("\r\n\r\n"),
+      headStart,
+    );
+    if (headEnd === -1) return; // truncated final part: native parser reports it
+    const headerBytes = headEnd - headStart;
+    if (headerBytes > maxHeaderBytes) {
+      throw new BodyLimitError(
+        "maxPartHeaderBytes",
+        `part header block of ${headerBytes} bytes exceeds ${maxHeaderBytes}`,
+      );
+    }
+    index = indexOfSequence(bytes, delimiterBytes, headEnd);
+  }
+}
+
+function indexOfSequence(
+  haystack: Uint8Array,
+  needle: Uint8Array,
+  from: number,
+): number {
+  outer: for (let i = from; i <= haystack.length - needle.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) continue outer;
+    }
+    return i;
+  }
+  return -1;
 }
 
 /** Parses the body as JSON with a nesting-depth guard. */
@@ -329,7 +505,7 @@ export async function parseJson<T = unknown>(
     );
   }
 
-  const bytes = await readBoundedBytes(request, effective);
+  const bytes = await readBoundedBytes(request, effective, context.signal);
   let parsed: unknown;
   try {
     parsed = JSON.parse(new TextDecoder().decode(bytes));
@@ -384,6 +560,6 @@ export async function parseText(
       request.headers.get("content-type") ?? "",
     );
   }
-  const bytes = await readBoundedBytes(request, effective);
+  const bytes = await readBoundedBytes(request, effective, context.signal);
   return new TextDecoder().decode(bytes);
 }
