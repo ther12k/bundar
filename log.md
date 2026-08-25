@@ -813,3 +813,14 @@ GH-088 is complete; **the M6 milestone is closed**. M7 (htmx 4 GA chain) remains
 - Branch-protection recommendation recorded for the maintainer: `ci.yml` already declares a `pull_request` trigger; requiring the CI check on main would structurally prevent direct-push drift. Decision pending; per-push battery evidence is the interim mitigation (this entry is that record for this push).
 
 BR-086 is complete; CI on main is green again.
+
+## 2026-08-25 — BR-086 (follow-up): unmask and fix the Claim/status gates step
+
+- With formatting green, the next CI run (32873122509) exposed a step that had never executed successfully: "Claim/status gates" was added by the same job-split commit and was always masked by the earlier format failure. Three independent defects:
+  1. `docs:status-check` failed in CI only — `git describe --tags` needs tag ancestry; GitHub's default checkout is shallow without tags. Fix: `fetch-depth: 0` on the verify job checkout.
+  2. `issues:check` failed everywhere — the closure ledger still listed BR-058…BR-074 (#109–#125) as open while all seventeen are closed on GitHub with landed commits. Fix: recorded the seventeen closures (74/85 closed, 11 open = #126–#136, set algebra and prerequisite rules re-validated).
+  3. `issues:check` shells out to `gh`, which requires a token in Actions. Fix: `GH_TOKEN: ${{ github.token }}` with explicit `permissions: contents: read, issues: read` on the verify job.
+- Verified locally: `docs:status-check` ok (6 facts), `issues:check` ok (11 agent-contract issues, 0 violations), `docs:check` ok, prettier clean on both edited files.
+- Stale-read-path warnings on open BR issues are informational (future-work paths) and unchanged.
+
+BR-086 follow-up is complete; CI on main should now reach a fully green run.
