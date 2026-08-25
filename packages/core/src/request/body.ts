@@ -117,6 +117,41 @@ function contentTypeOf(request: Request): string {
 /** Shared, stateless decoder for whole-buffer decodes (no stream mode). */
 const FORM_TEXT_DECODER = new TextDecoder();
 
+// BR-071 body OWNERSHIP: the first parser to touch a request owns it.
+// Later helpers fail with an actionable message naming the first consumer
+// instead of surfacing engine-specific "bodyUsed" text.
+const BODY_CONSUMER = new WeakMap<object, string>();
+
+// BR-071 lazy cache: parseFormCached stores one parsed form per request so
+// middleware/handlers/validation share a single parse intentionally.
+const FORM_CACHE = new WeakMap<object, ParsedForm>();
+
+function claimBody(request: Request, consumer: string): void {
+  const prior = BODY_CONSUMER.get(request);
+  if (prior !== undefined && prior !== consumer) {
+    throw new BodyConsumedError(
+      `body already consumed by ${prior} (requested by ${consumer}); ` +
+        "parse once and share the result, or use parseFormCached",
+    );
+  }
+  if (prior === undefined) BODY_CONSUMER.set(request, consumer);
+}
+
+/**
+ * Parses the form body ONCE per request and caches the result. Safe to call
+ * from middleware, handlers, and validation for the same request.
+ */
+export async function parseFormCached(
+  context: Context,
+  limits: Partial<BodyLimits> = {},
+): Promise<ParsedForm> {
+  const cached = FORM_CACHE.get(context.request);
+  if (cached !== undefined) return cached;
+  const parsed = await parseForm(context, limits, "parseFormCached");
+  FORM_CACHE.set(context.request, parsed);
+  return parsed;
+}
+
 async function readBoundedBytes(
   request: Request,
   limits: BodyLimits,
@@ -253,12 +288,14 @@ function buildForm(
 export async function parseForm(
   context: Context,
   limits: Partial<BodyLimits> = {},
+  ownerName = "parseForm",
 ): Promise<ParsedForm> {
   const effective: BodyLimits =
     limits === undefined || Object.keys(limits).length === 0
       ? DEFAULT_BODY_LIMITS
       : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
+  claimBody(request, ownerName);
   if (request.bodyUsed) throw new BodyConsumedError("parseForm");
 
   const type = contentTypeOf(request);
@@ -496,13 +533,21 @@ export async function parseJson<T = unknown>(
       ? DEFAULT_BODY_LIMITS
       : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
+  claimBody(request, "parseJson");
   if (request.bodyUsed) throw new BodyConsumedError("parseJson");
 
+  const rawType = request.headers.get("content-type") ?? "";
   const type = contentTypeOf(request);
   if (type !== "application/json") {
-    throw new UnsupportedMediaTypeError(
-      request.headers.get("content-type") ?? "",
-    );
+    throw new UnsupportedMediaTypeError(rawType);
+  }
+  // BR-071: JSON is UTF-8 per RFC 8259 — other charsets are unsupported.
+  const charset = /charset=([^;]+)/i.exec(rawType)?.[1]?.trim().toLowerCase();
+  if (
+    charset !== undefined &&
+    !["utf-8", "utf8", "us-ascii"].includes(charset)
+  ) {
+    throw new UnsupportedMediaTypeError(`application/json; charset=${charset}`);
   }
 
   const bytes = await readBoundedBytes(request, effective, context.signal);
@@ -552,6 +597,7 @@ export async function parseText(
       ? DEFAULT_BODY_LIMITS
       : { ...DEFAULT_BODY_LIMITS, ...limits };
   const request = context.request;
+  claimBody(request, "parseText");
   if (request.bodyUsed) throw new BodyConsumedError("parseText");
 
   const type = contentTypeOf(request);

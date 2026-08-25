@@ -114,7 +114,7 @@ describe("BR-046 machine output contract", () => {
         throw new Error("boom");
       },
     });
-    const result = await runCliWithEnvelope(["__test-boom"]);
+    const result = await runCliWithEnvelope(["__test-boom", "--json"]);
     expect(result.exitCode).toBe(EXIT.execution);
     expect(result.envelope?.errors.join(" ")).toContain("boom");
   });

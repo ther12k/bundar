@@ -51,3 +51,5 @@ export {
   redactDetails,
   sanitizeStack,
 } from "./error-redaction";
+
+export { parseFormCached } from "./request/body";

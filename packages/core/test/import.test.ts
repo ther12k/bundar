@@ -92,6 +92,7 @@ describe("GH-011 @bundar/core package skeleton", () => {
       "normalizeRoutePath",
       "param",
       "parseForm",
+      "parseFormCached",
       "parseJson",
       "parseText",
       "pathParams",
