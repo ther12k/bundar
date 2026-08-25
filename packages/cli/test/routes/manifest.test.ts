@@ -72,30 +72,36 @@ describe("GH-073 generated module", () => {
     expect(diff).not.toBe(base); // deterministic diff: removed user-create/files
   });
 
-  test("generated module compiles as TypeScript", async () => {
-    const source = generateRoutesModule(
-      buildRouteManifest(namedApp().manifest()),
-    );
-    const path = `/tmp/routes-${Date.now()}.gen.ts`;
-    await Bun.write(path, source);
-    // cwd for tsc: /tmp so the repo tsconfig doesn't interfere (TS5112)
-    const proc = Bun.spawnSync(
-      [
-        "bunx",
-        "tsc",
-        "--noEmit",
-        "--strict",
-        "--target",
-        "esnext",
-        "--module",
-        "preserve",
-        "--moduleResolution",
-        "bundler",
-        path,
-      ],
-      { cwd: "/tmp" },
-    );
-    expect(proc.exitCode).toBe(0);
-    expect(proc.stderr.toString()).not.toContain("error TS");
-  });
+  test(
+    "generated module compiles as TypeScript",
+    async () => {
+      const source = generateRoutesModule(
+        buildRouteManifest(namedApp().manifest()),
+      );
+      const path = `/tmp/routes-${Date.now()}.gen.ts`;
+      await Bun.write(path, source);
+      // cwd for tsc: /tmp so the repo tsconfig doesn't interfere (TS5112)
+      const proc = Bun.spawnSync(
+        [
+          "bunx",
+          "tsc",
+          "--noEmit",
+          "--strict",
+          "--target",
+          "esnext",
+          "--module",
+          "preserve",
+          "--moduleResolution",
+          "bundler",
+          path,
+        ],
+        { cwd: "/tmp" },
+      );
+      expect(proc.exitCode).toBe(0);
+      expect(proc.stderr.toString()).not.toContain("error TS");
+    },
+    // bunx + tsc cold start exceeds bun's 5s default on 2-core CI runners
+    // (observed failing run 32879893474 at 5073ms, passing on rerun).
+    { timeout: 30_000 },
+  );
 });
