@@ -31,3 +31,23 @@ The full request matrix (all route forms × method cases) is pinned in
 `packages/core/test/http-methods/conformance.test.ts`. A Bun runtime change
 that alters any cell fails CI loudly rather than silently changing
 framework semantics.
+
+## Edge-case policy (BR-070)
+
+- Registration normalizes trailing slashes and empty segments (`//a//` →
+  `/a`).
+- **Encoded separators fail closed**: `%2F` / `%5C` in a registered path
+  throw `RoutePathValidationError` — Bun matches the DECODED form, so such
+  routes would be silently dead. Register the decoded literal instead.
+- Control characters in paths are rejected (BR-068 finding).
+- **Duplicate route names** throw `RouteConflictError` naming BOTH paths —
+  typed URLs stay one-to-one.
+- Percent-encoded values inside parameters decode at the VALUE level
+  (`%2F` → `/` inside `:param`, `%E2%9C%94` → ✔); this never splits
+  segments.
+
+## Conformance corpus
+
+Table-driven fixtures live in
+`packages/core/test/routing/edge-corpus.test.ts`; the live precedence/
+encoding matrix is pinned over real sockets.

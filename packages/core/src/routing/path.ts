@@ -8,6 +8,7 @@ export type RoutePathIssue =
   | "wildcard must be a bare final segment"
   | "parameter names must use identifier characters"
   | "path contains control characters"
+  | "path contains encoded separators (register the decoded form)"
   | "static segments must not contain ':'";
 
 function sanitizeText(value: string): string {
@@ -107,6 +108,14 @@ export function normalizeRoutePath(path: string): string {
   if (/[\u0000-\u001f\u007f\u0080-\u009f]/.test(path)) {
     throw new RoutePathValidationError(
       "path contains control characters",
+      path,
+    );
+  }
+  // BR-070 fail-closed: encoded separators create silent dead routes
+  // because Bun matches the DECODED form. Register the decoded literal.
+  if (/%(?:2f|5c)/i.test(path)) {
+    throw new RoutePathValidationError(
+      "path contains encoded separators (register the decoded form)",
       path,
     );
   }

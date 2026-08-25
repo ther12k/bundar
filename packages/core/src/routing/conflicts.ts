@@ -86,6 +86,7 @@ export function validateRouteConflicts(
 ): readonly RouteDescriptor[] {
   const normalized: RouteDescriptor[] = [];
   const seen = new Map<string, { route: RouteDescriptor; source: string }>();
+  const nameIndex = new Map<string, { path: string; source: string }>();
 
   declarations.forEach((declaration, index) => {
     const route = normalizeRouteDescriptor(declaration.route);
@@ -122,6 +123,26 @@ export function validateRouteConflicts(
         });
       }
       seen.set(key, { route, source });
+    }
+
+    // BR-070: duplicate names would make typed URLs ambiguous — the
+    // generator maps name -> URL one-to-one.
+    const routeName = (route.meta as { name?: string } | undefined)?.name;
+    if (routeName !== undefined) {
+      const previousName = nameIndex.get(routeName);
+      if (previousName !== undefined) {
+        throw new RouteConflictError({
+          kind: "duplicate-route",
+          path: route.path,
+          method: ((route.methods as readonly string[])[0] ??
+            "GET") as HttpMethod,
+          // Sources carry the conflicting PATHS so typed-URL ambiguity is
+          // diagnosable from the error alone.
+          firstSource: previousName.path,
+          secondSource: route.path,
+        });
+      }
+      nameIndex.set(routeName, { path: route.path, source });
     }
 
     normalized.push(route);

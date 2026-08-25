@@ -130,7 +130,7 @@ describe("BR-069 HTTP method conformance", () => {
     const compiled = app.compile();
     const res = compiled.fetch(
       new Request("http://t/x", { method: "OPTIONS" }),
-    );
+    ) as Response;
     expect(res.headers.get("allow")).toBe("DELETE, GET, HEAD, OPTIONS, POST");
   });
 });
