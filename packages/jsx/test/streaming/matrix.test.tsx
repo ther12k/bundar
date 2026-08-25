@@ -54,7 +54,7 @@ describe("BR-072 streaming conformance matrix", () => {
   test("abort before first byte: nothing enqueues", async () => {
     const controller = new AbortController();
     controller.abort(); // BEFORE any read
-    let enqueued = 0;
+    const enqueued = { count: 0 };
     const tree = (
       <div>
         <p>never</p>
@@ -70,7 +70,7 @@ describe("BR-072 streaming conformance matrix", () => {
     } catch {
       /* expected termination */
     }
-    expect(enqueued).toBe(0);
+    expect(enqueued.count).toBe(0);
   });
 
   test("late producer error terminates the stream with correlated cause", async () => {
