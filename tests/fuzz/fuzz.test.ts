@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- BR-068: generators intentionally reuse loop vars */
 /**
  * BR-068 bounded fuzz lane: multipart boundary chaos, form-key storms,
  * and encoded-input chaos against parsers/serializers. Deterministic

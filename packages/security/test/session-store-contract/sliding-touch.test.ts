@@ -11,7 +11,10 @@ import { sessionMiddleware } from "../../src/session/middleware";
 const IDLE = 10 * 60 * 1000; // 10 minutes
 const ABSOLUTE = 60 * 60 * 1000; // 1 hour
 
-function ctxWith(cookie?: string, signal = new AbortController().signal): Context {
+function ctxWith(
+  cookie?: string,
+  signal = new AbortController().signal,
+): Context {
   return {
     request: new Request("http://t/read", {
       headers: cookie ? { cookie: `bundar.session=${cookie}` } : {},
@@ -22,7 +25,10 @@ function ctxWith(cookie?: string, signal = new AbortController().signal): Contex
   } as unknown as Context;
 }
 
-async function readOnlyRequest(store: ReturnType<typeof createMemorySessionStore>, cookie: string) {
+async function readOnlyRequest(
+  store: ReturnType<typeof createMemorySessionStore>,
+  cookie: string,
+) {
   const middleware = sessionMiddleware({
     store,
     secure: false,
@@ -104,5 +110,5 @@ describe("BR-062 review: sliding idle timeout", () => {
 
     // the DEAD id must remain unloadable — activity cannot resurrect it
     expect(await store.load(deadId)).toBeNull();
-      });
+  });
 });

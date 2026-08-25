@@ -242,7 +242,7 @@ function bindingOf(context: Context, sessionCookie: string): string {
     context.request.headers.get("cookie"),
     sessionCookie,
   );
-  return read.duplicates > 1 ? "" : read.value ?? "";
+  return read.duplicates > 1 ? "" : (read.value ?? "");
 }
 
 async function tokenFromRequest(
@@ -328,13 +328,12 @@ export function csrfMiddleware(options: CsrfMiddlewareOptions): Middleware {
   return async (context, next) => {
     const binding = bindingOf(context, sessionCookie);
     // Duplicates are ambiguous → treat as absent (fail closed).
-    const currentTokenCookie = readCookieExact(
-      context.request.headers.get("cookie"),
-      tokenCookie,
-    ).duplicates > 1
-      ? undefined
-      : readCookieExact(context.request.headers.get("cookie"), tokenCookie)
-          .value ?? undefined;
+    const currentTokenCookie =
+      readCookieExact(context.request.headers.get("cookie"), tokenCookie)
+        .duplicates > 1
+        ? undefined
+        : (readCookieExact(context.request.headers.get("cookie"), tokenCookie)
+            .value ?? undefined);
 
     if (!UNSAFE_METHODS.has(context.request.method)) {
       const response = await next(context);
@@ -414,7 +413,7 @@ export function readCsrfTokenFromRequest(
   cookieName = "bundar.csrf",
 ): string {
   const read = readCookieExact(request.headers.get("cookie"), cookieName);
-  return read.duplicates > 1 ? "" : read.value ?? "";
+  return read.duplicates > 1 ? "" : (read.value ?? "");
 }
 
 /**

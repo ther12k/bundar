@@ -252,11 +252,18 @@ export function compileRoutes(
           .filter(([pattern]) => pattern.includes(":") || pattern.includes("*"))
           .map(([pattern, methods]) => {
             const parts = pattern.split("/").filter((seg) => seg !== "");
-            const statics = parts.filter((seg) => !seg.startsWith(":") && !seg.startsWith("*")).length;
-            const isWildcard = parts[parts.length - 1]?.startsWith("*") === true;
+            const statics = parts.filter(
+              (seg) => !seg.startsWith(":") && !seg.startsWith("*"),
+            ).length;
+            const isWildcard =
+              parts[parts.length - 1]?.startsWith("*") === true;
             return { pattern, methods, parts, statics, isWildcard };
           })
-          .sort((a, b) => b.statics - a.statics || Number(a.isWildcard) - Number(b.isWildcard));
+          .sort(
+            (a, b) =>
+              b.statics - a.statics ||
+              Number(a.isWildcard) - Number(b.isWildcard),
+          );
         outer: for (const { pattern, methods } of candidates) {
           if (!pattern.includes(":") && !pattern.includes("*")) continue;
           const parts = pattern.split("/").filter((seg) => seg !== "");
