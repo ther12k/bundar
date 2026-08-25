@@ -103,7 +103,7 @@ export function createContext<
               // BR-062 review fix: malformed percent-encoding from clients
               // must NEVER become an unhandled 500. Fall back to the raw
               // value (cookies are opaque strings by contract).
-              let decoded = value;
+              let decoded: string;
               try {
                 decoded = decodeURIComponent(value);
               } catch {
