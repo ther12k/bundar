@@ -1,0 +1,67 @@
+{
+  "schema": "bundar.checker-map/1",
+  "checker": "htmx org upgrade checker (advisory; not run in CI)",
+  "dispositions": [
+    {
+      "category": "renamed request/response headers",
+      "disposition": "adapter-normalized",
+      "auditRule": "header-rename:*",
+      "notes": "Dialect modules alias 2.x names to 4.x wire names; applications use Bundar directives."
+    },
+    {
+      "category": "event renames / approximate event names",
+      "disposition": "adapter-normalized",
+      "auditRule": "event-approximate:*",
+      "notes": "Normalized event emission per dialect profile."
+    },
+    {
+      "category": "implicit inheritance removed/changed",
+      "disposition": "escape-hatch",
+      "auditRule": "implicit-inheritance",
+      "notes": "Bundar requires explicit inheritance declarations; audit flags implicit usage."
+    },
+    {
+      "category": "extension API changes",
+      "disposition": "unsupported-until-verified",
+      "auditRule": "extension-compat:*",
+      "notes": "Extensions must be revalidated against the pinned beta build."
+    },
+    {
+      "category": "error swapping semantics",
+      "disposition": "stable-subset",
+      "auditRule": "error-swap-assumption",
+      "notes": "Bundar response composition never assumes swap-on-error."
+    },
+    {
+      "category": "history handling changes",
+      "disposition": "escape-hatch",
+      "auditRule": "history-assumption",
+      "notes": "Direct config pokes are flagged; use Bundar navigation helpers."
+    },
+    {
+      "category": "request type changes",
+      "disposition": "adapter-normalized",
+      "auditRule": "header-rename:*",
+      "notes": "Covered by the header-rename family in official checker output."
+    },
+    {
+      "category": "partials changes",
+      "disposition": "adapter-normalized",
+      "auditRule": "header-rename:*",
+      "notes": "Multi-region updates are dialect-rendered by Bundar itself."
+    },
+    {
+      "category": "CDN script usage",
+      "disposition": "escape-hatch",
+      "auditRule": "cdn-script",
+      "notes": "Bundar serves pinned local assets."
+    },
+    {
+      "category": "unpinned asset version",
+      "disposition": "stable-subset",
+      "auditRule": "asset-pin",
+      "notes": "Assets carry explicit version metadata + SRI."
+    }
+  ],
+  "policy": "No official-checker finding may be silently ignored: every documented upstream category MUST appear here with a disposition."
+}

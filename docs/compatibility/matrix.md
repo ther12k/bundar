@@ -31,3 +31,14 @@ hashes. Compatibility is defined by tested profiles, not floating majors.
 > **Important:** htmx 4 capabilities marked [provisional] are beta/experimental.
 > GA revalidation is mandatory in milestone M7 before any GA compatibility
 > claim may be made. See [htmx4-beta6.md](htmx4-beta6.md) for details.
+
+
+## Upgrade-checker conformance (BR-073)
+
+The official htmx upgrade checker is ADVISORY evidence. Its documented
+finding categories map one-to-one onto Bundar dispositions in
+`artifacts/compatibility/checker-map.json` (stable-subset,
+adapter-normalized, escape-hatch, unsupported-until-verified); Bundar's own
+deterministic audit (`bundar htmx-audit`) remains REQUIRED and is pinned by
+the fixture corpus in `tests/compatibility/`. htmx 4 support stays
+EXPERIMENTAL behind the v4 dialect; no GA compatibility claim.
