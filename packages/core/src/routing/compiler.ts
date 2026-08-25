@@ -221,10 +221,57 @@ export function compileRoutes(
     }
   }
 
+  // BR-069: path -> registered methods index for 405/Allow/auto-OPTIONS.
+  const methodIndex = new Map<string, string[]>();
+  for (const [path, entry] of Object.entries(routeTable)) {
+    const methods = Object.keys(entry as Record<string, unknown>)
+      .filter((key) => /^[A-Z]+$/.test(key))
+      .sort();
+    methodIndex.set(path, methods);
+  }
+
   return {
     routes: routeTable,
     fetch(request: Request): Response {
-      // GH-022: unknown paths land here; the application 404 is configurable.
+      // BR-069 policy: a KNOWN path hit with an unregistered method answers
+      // 405 with a sorted, deduplicated Allow header (registered methods
+      // plus implicit HEAD for GET and auto-OPTIONS). OPTIONS itself
+      // returns 204 + Allow. Unknown paths keep the GH-022 configurable 404.
+      const path = new URL(request.url).pathname;
+      let registered = methodIndex.get(path);
+
+      // Dynamic routes (:param / *wildcard) are keyed by their PATTERN in
+      // the index; structural-match the request path against those.
+      if (registered === undefined) {
+        const segments = path.split("/").filter((seg) => seg !== "");
+        outer: for (const [pattern, methods] of methodIndex) {
+          if (!pattern.includes(":") && !pattern.includes("*")) continue;
+          const parts = pattern.split("/").filter((seg) => seg !== "");
+          if (parts.length > 0 && parts[parts.length - 1]!.startsWith("*")) {
+            if (segments.length + 1 < parts.length) continue;
+          } else if (parts.length !== segments.length) {
+            continue;
+          }
+          for (let i = 0; i < Math.min(parts.length, segments.length); i++) {
+            const part = parts[i]!;
+            if (part.startsWith("*")) break;
+            if (!part.startsWith(":") && part !== segments[i]) continue outer;
+          }
+          registered = methods;
+          break;
+        }
+      }
+
+      if (registered !== undefined && registered.length > 0) {
+        const allow = buildAllowHeader(registered);
+        if (request.method === "OPTIONS") {
+          return new Response(null, { status: 204, headers: { allow } });
+        }
+        if (!registered.includes(request.method)) {
+          return new Response(null, { status: 405, headers: { allow } });
+        }
+      }
+
       return options.notFound
         ? (options.notFound(request) as Response)
         : defaultNotFound();
@@ -233,4 +280,15 @@ export function compileRoutes(
     // application boundary instead of Bun's default opaque 500.
     ...(options.error ? { error: options.error } : {}),
   };
+}
+
+/**
+ * BR-069: sorted, deduplicated Allow value including implicit methods
+ * (HEAD implied by GET; OPTIONS always offered by the framework).
+ */
+function buildAllowHeader(registered: readonly string[]): string {
+  const allow = new Set<string>(registered);
+  if (allow.has("GET")) allow.add("HEAD");
+  allow.add("OPTIONS");
+  return [...allow].sort().join(", ");
 }

@@ -7,6 +7,7 @@ export type RoutePathIssue =
   | "optional parameters are not supported"
   | "wildcard must be a bare final segment"
   | "parameter names must use identifier characters"
+  | "path contains control characters"
   | "static segments must not contain ':'";
 
 function sanitizeText(value: string): string {
