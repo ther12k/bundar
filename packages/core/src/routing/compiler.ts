@@ -244,7 +244,20 @@ export function compileRoutes(
       // the index; structural-match the request path against those.
       if (registered === undefined) {
         const segments = path.split("/").filter((seg) => seg !== "");
-        outer: for (const [pattern, methods] of methodIndex) {
+        // BR-070 review: match candidates must follow the SAME precedence
+        // Bun uses — static segments first, then params, wildcards last.
+        // Registration order would let a late-registered wildcard shadow
+        // an earlier param pattern for Allow/OPTIONS decisions.
+        const candidates = [...methodIndex.entries()]
+          .filter(([pattern]) => pattern.includes(":") || pattern.includes("*"))
+          .map(([pattern, methods]) => {
+            const parts = pattern.split("/").filter((seg) => seg !== "");
+            const statics = parts.filter((seg) => !seg.startsWith(":") && !seg.startsWith("*")).length;
+            const isWildcard = parts[parts.length - 1]?.startsWith("*") === true;
+            return { pattern, methods, parts, statics, isWildcard };
+          })
+          .sort((a, b) => b.statics - a.statics || Number(a.isWildcard) - Number(b.isWildcard));
+        outer: for (const { pattern, methods } of candidates) {
           if (!pattern.includes(":") && !pattern.includes("*")) continue;
           const parts = pattern.split("/").filter((seg) => seg !== "");
           if (parts.length > 0 && parts[parts.length - 1]!.startsWith("*")) {

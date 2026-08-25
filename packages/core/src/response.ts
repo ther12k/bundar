@@ -39,7 +39,7 @@ export function text(
   });
 }
 
-/** JSON response with deterministic serialization (sorted keys). */
+/** JSON response. Serialization uses JSON.stringify (insertion order). */
 export function json(
   body: unknown,
   options: { status?: number; headers?: Record<string, string> } = {},

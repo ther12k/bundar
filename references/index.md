@@ -1,5 +1,4 @@
 ---
-type: Reference Index
 title: References Index
 description: Link index of reference material retained as engineering records; implementation status lives in README.md and delivery/gates.
 tags:

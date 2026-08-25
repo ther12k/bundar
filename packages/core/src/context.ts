@@ -99,7 +99,18 @@ export function createContext<
             if (separator === -1) continue;
             const key = part.slice(0, separator).trim();
             const value = part.slice(separator + 1).trim();
-            if (key) cookies.set(key, decodeURIComponent(value));
+            if (key) {
+              // BR-062 review fix: malformed percent-encoding from clients
+              // must NEVER become an unhandled 500. Fall back to the raw
+              // value (cookies are opaque strings by contract).
+              let decoded = value;
+              try {
+                decoded = decodeURIComponent(value);
+              } catch {
+                decoded = value;
+              }
+              cookies.set(key, decoded);
+            }
           }
         }
       }

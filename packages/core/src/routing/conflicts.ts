@@ -93,6 +93,13 @@ export function validateRouteConflicts(
     const source = sourceLabel(declaration.source, index);
     const methods = new Set<string>();
 
+    if (route.methods.length === 0) {
+      throw new RouteValidationError(
+        "route must declare at least one HTTP method",
+        route.path,
+      );
+    }
+
     for (const method of route.methods as readonly string[]) {
       if (!isHttpMethod(method)) {
         throw new RouteValidationError("invalid HTTP method", route.path);

@@ -23,6 +23,7 @@ import { generateSessionId, isCanonicalSessionId } from "./id";
 import type { SessionData, SessionStore } from "./store";
 import {
   CookiePolicyError,
+  readCookieExact,
   resolveCookieSecure,
   type CookieEnvironment,
 } from "../cookies";
@@ -95,8 +96,11 @@ const SET_COOKIE_EPOCH = "Thu, 01 Jan 1970 00:00:00 GMT";
 function readCookieId(request: Request, name: string): string | undefined {
   const header = request.headers.get("cookie");
   if (header === null) return undefined;
-  const match = header.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
-  const value = match?.[1];
+  const parsed = readCookieExact(header, name);
+  // BR-062 review: duplicate same-name cookies are AMBIGUOUS (host-only vs
+  // parent-domain provenance is unknowable) — treat as no valid session.
+  if (parsed.duplicates > 1) return undefined;
+  const value = parsed.value ?? undefined;
   // Malformed/forged values are treated as absent, never as a lookup key.
   return isCanonicalSessionId(value) ? value : undefined;
 }
@@ -274,6 +278,29 @@ export function sessionMiddleware(
         : undefined;
 
     const response = await next(context);
+
+    // BR-063 review fix: SLIDING idle timeout for read-only requests —
+    // store.touch extends expiry when >50% of the idle window has been
+    // consumed (write-amplification throttle). The ABSOLUTE deadline from
+    // the original record is never extended. No-op when nothing changed.
+    if (
+      !destroyed &&
+      !isNew &&
+      !dirty &&
+      !rotated &&
+      loaded !== null &&
+      typeof options.store.touch === "function"
+    ) {
+      const nowMs = Date.now();
+      const nextExpiry = Math.min(absoluteDeadline, nowMs + idleTimeoutMs);
+      const remaining = loaded.expiresAtMs - nowMs;
+      if (
+        remaining < idleTimeoutMs / 2 &&
+        nextExpiry > (loaded.expiresAtMs ?? 0)
+      ) {
+        await options.store.touch(currentId, nextExpiry);
+      }
+    }
 
     const headers = new Headers(response.headers);
     if (destroyed) {

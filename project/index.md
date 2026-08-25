@@ -1,5 +1,4 @@
 ---
-type: Design Corpus Index
 title: Project Corpus Index
 description: Link index of the Bundar project design corpus (charter, strategy, personas); implementation status lives in README.md and delivery/gates.
 tags:

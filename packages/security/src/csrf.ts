@@ -21,6 +21,7 @@ import {
   serializeCookie,
   withSetCookie,
 } from "@bundar/core";
+import { readCookieExact } from "./cookies";
 import type { Context, Middleware } from "@bundar/core";
 import { parseForm } from "@bundar/core";
 import { getSession } from "./session/middleware";
@@ -235,11 +236,13 @@ function bindingOf(context: Context, sessionCookie: string): string {
   // The raw session cookie value is the binding; anonymous sessions bind to
   // a stable empty string only when no session exists (documented: protect
   // authenticated state, issue per-visitor tokens otherwise).
-  return (
-    context.request.headers
-      .get("cookie")
-      ?.match(new RegExp(`(?:^|;\\s*)${sessionCookie}=([^;]*)`))?.[1] ?? ""
+  // BR-062 review: exact cookie reader — no regex interpolation, and
+  // duplicate same-name cookies are ambiguous for a SECURITY binding.
+  const read = readCookieExact(
+    context.request.headers.get("cookie"),
+    sessionCookie,
   );
+  return read.duplicates > 1 ? "" : read.value ?? "";
 }
 
 async function tokenFromRequest(
@@ -324,9 +327,14 @@ export function csrfMiddleware(options: CsrfMiddlewareOptions): Middleware {
 
   return async (context, next) => {
     const binding = bindingOf(context, sessionCookie);
-    const currentTokenCookie = context.request.headers
-      .get("cookie")
-      ?.match(new RegExp(`(?:^|;\\s*)${tokenCookie}=([^;]*)`))?.[1];
+    // Duplicates are ambiguous → treat as absent (fail closed).
+    const currentTokenCookie = readCookieExact(
+      context.request.headers.get("cookie"),
+      tokenCookie,
+    ).duplicates > 1
+      ? undefined
+      : readCookieExact(context.request.headers.get("cookie"), tokenCookie)
+          .value ?? undefined;
 
     if (!UNSAFE_METHODS.has(context.request.method)) {
       const response = await next(context);
@@ -405,11 +413,8 @@ export function readCsrfTokenFromRequest(
   request: Request,
   cookieName = "bundar.csrf",
 ): string {
-  return (
-    request.headers
-      .get("cookie")
-      ?.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`))?.[1] ?? ""
-  );
+  const read = readCookieExact(request.headers.get("cookie"), cookieName);
+  return read.duplicates > 1 ? "" : read.value ?? "";
 }
 
 /**

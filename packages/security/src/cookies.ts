@@ -101,3 +101,41 @@ export function validateCookieAttributes(
     }
   }
 }
+
+/**
+ * Exact cookie-header reader (BR-062 review fix).
+ *
+ * No regular expressions: cookie names are matched LITERALLY, so names
+ * like "bundar.session" can never be confused with "bundarXsession" and
+ * special characters cannot alter the pattern. Duplicates are surfaced to
+ * callers so security-sensitive cookies can REJECT ambiguous requests.
+ */
+export interface CookieReadResult {
+  readonly value: string | null;
+  /** Number of same-name occurrences seen (0 = absent, >1 = duplicate). */
+  readonly duplicates: number;
+}
+
+/** Cookie-name grammar per RFC 6265 token definition. */
+const COOKIE_NAME = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
+
+/** Reads a single named cookie with exact matching and duplicate count. */
+export function readCookieExact(
+  header: string | null,
+  name: string,
+): CookieReadResult {
+  if (!header || !COOKIE_NAME.test(name)) return { value: null, duplicates: 0 };
+  let value: string | null = null;
+  let duplicates = 0;
+  for (const part of header.split(";")) {
+    const separator = part.indexOf("=");
+    if (separator === -1) continue;
+    const key = part.slice(0, separator).trim();
+    if (key !== name) continue;
+    duplicates += 1;
+    // last-wins within the header mirrors browser jar behavior for the
+    // SAME name+path; duplicate COUNT is still reported for policy use.
+    value = part.slice(separator + 1).trim();
+  }
+  return { value, duplicates };
+}

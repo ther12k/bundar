@@ -9,6 +9,7 @@ export type RoutePathIssue =
   | "parameter names must use identifier characters"
   | "path contains control characters"
   | "path contains encoded separators (register the decoded form)"
+  | "route must declare at least one HTTP method"
   | "static segments must not contain ':'";
 
 function sanitizeText(value: string): string {

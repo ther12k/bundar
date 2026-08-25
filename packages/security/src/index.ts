@@ -85,3 +85,6 @@ export type {
   PostureViolationCode,
   ProductionPostureInput,
 } from "./posture";
+
+export { readCookieExact } from "./cookies";
+export type { CookieReadResult } from "./cookies";

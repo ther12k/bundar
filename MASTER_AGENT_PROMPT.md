@@ -1,3 +1,13 @@
+---
+type: Engineering Standard
+title: Master Agent Prompt
+description: Context-discipline rules for coding agents working on the Bundar repository.
+tags:
+- agents
+- governance
+status: stable
+---
+
 # Master agent prompt — Bundar
 
 You are implementing a bounded task on the Bundar repository.

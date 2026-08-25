@@ -258,15 +258,27 @@ export class App {
       hostname?: string;
       services?: ServiceMap;
       notFound?: (request: Request) => Response | Promise<Response>;
+      /** BR-067: forwarded to compile() so the boundary applies globally. */
+      error?: (error: Error) => Response | Promise<Response>;
       idleTimeout?: number;
       maxRequestBodySize?: number;
     } = {},
   ): ReturnType<typeof Bun.serve> {
-    const { port, hostname, services, notFound, ...rest } = options;
+    const {
+      port,
+      hostname,
+      services,
+      notFound,
+      error,
+      ...rest
+    } = options;
     return Bun.serve({
       ...this.compile({
         ...(services ? { services } : {}),
         ...(notFound ? { notFound } : {}),
+        // BR-067 review: serve() must be as capable as compile() — the
+        // global boundary applies to handler/timeout failures here too.
+        ...(error ? { error } : {}),
       }),
       port: port ?? 0,
       ...(hostname ? { hostname } : {}),

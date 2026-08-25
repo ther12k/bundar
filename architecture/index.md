@@ -1,5 +1,4 @@
 ---
-type: Design Corpus Index
 title: Architecture Corpus Index
 description: Link index of the OKF architecture design corpus; implementation status lives in README.md and delivery/gates.
 tags:
