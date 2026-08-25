@@ -42,3 +42,12 @@ adapter-normalized, escape-hatch, unsupported-until-verified); Bundar's own
 deterministic audit (`bundar htmx-audit`) remains REQUIRED and is pinned by
 the fixture corpus in `tests/compatibility/`. htmx 4 support stays
 EXPERIMENTAL behind the v4 dialect; no GA compatibility claim.
+
+
+## Browser engine scope (BR-074)
+
+Browser conformance evidence is **Chromium-only** by explicit maintainer
+decision (well-known-browser policy). Firefox/WebKit are out of scope for
+beta; the claim is narrowed rather than silently untested. See
+[browsers.md](browsers.md) and
+`artifacts/conformance/browsers.json`.

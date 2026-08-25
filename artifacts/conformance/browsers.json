@@ -1,0 +1,31 @@
+{
+  "schema": "bundar.browser-conformance/1",
+  "updated": "2026-08-25",
+  "policy": {
+    "testedEngines": ["chromium"],
+    "claimScope": "Chromium-only evidence; Firefox and WebKit are EXPLICITLY OUT OF SCOPE by maintainer decision (well-known-browser policy). The compatibility matrix narrows the claim accordingly.",
+    "reviewTrigger": "Revisit multi-engine lanes before any GA announcement (not required for beta).",
+    "retryQuarantine": "No automatic retries: a consistent failure is a failure. Flaky harness steps must be fixed or quarantined with an owner + review date in this file."
+  },
+  "engines": [
+    {
+      "name": "chromium",
+      "version": "playwright bundled (chrome)",
+      "lanes": ["htmx2", "htmx4"],
+      "status": "passing-evidence",
+      "notes": "Canonical navigation, forms, validation, redirects/history, OOB/multi-region, errors, CSRF/session, asset/CSP fixtures run per lane via tests/browser/run.ts."
+    }
+  ],
+  "deferredEngines": [
+    {
+      "name": "firefox",
+      "reason": "explicitly out of scope (maintainer decision)"
+    },
+    {
+      "name": "webkit",
+      "reason": "explicitly out of scope (maintainer decision)"
+    }
+  ],
+  "artifactsOnFailureOnly": true,
+  "secretsInArtifacts": false
+}
