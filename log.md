@@ -804,3 +804,12 @@ GH-088 is complete; **the M6 milestone is closed**. M7 (htmx 4 GA chain) remains
 - Closed the eight M7 issues as `not planned` (externally blocked — NOT completed): their prerequisite, the official htmx 4 GA release, does not exist upstream (npm dist-tags latest=2.0.10 / next=4.0.0-beta6; zero GA candidates among all published 4.x; the htmx releases page and "The fetch()ening" confirm beta-only with possible slippage to 2027).
 - The shipped alpha scope keeps complete, evidenced beta support: experimental adapter at 4.0.0-beta6 (SHA-256-verified), 19-suite matrix with 6 classified deviations, audit-first migration tooling, one-file rollback — no GA claims anywhere (machine-checked).
 - Record: `delivery/descopes/m7-htmx4-ga.md` (evidence + reopen trigger + the ready GH-089→GH-096 execution plan). Reopen and execute in order when GA ships.
+
+## 2026-08-25 — BR-086: restore green CI on main (format drift + lint hygiene)
+
+- Framework review at `ac2fc48` found CI red for five consecutive runs on main: commit `626dbee` pushed four Prettier-drifted files (`core/src/app.ts`, `core/src/routing/compiler.ts`, `security/src/csrf.ts`, `security/test/session-store-contract/sliding-touch.test.ts`) plus a stale `eslint-disable` in `tests/fuzz/fuzz.test.ts` without the local battery. Registered as issue #138 (BR-086, P0).
+- Fix is formatting-only (verified: diffs are pure Prettier reflow, no token changes) plus removal of the unused lint directive. No behavior change to the `626dbee` fixes, which were line-reviewed as correct during the same review.
+- Verified on the fix commit: format:check, lint (0 warnings), typecheck, architecture:check, full suite 1059/1059, build, docs:check — all exit 0.
+- Branch-protection recommendation recorded for the maintainer: `ci.yml` already declares a `pull_request` trigger; requiring the CI check on main would structurally prevent direct-push drift. Decision pending; per-push battery evidence is the interim mitigation (this entry is that record for this push).
+
+BR-086 is complete; CI on main is green again.

@@ -264,14 +264,7 @@ export class App {
       maxRequestBodySize?: number;
     } = {},
   ): ReturnType<typeof Bun.serve> {
-    const {
-      port,
-      hostname,
-      services,
-      notFound,
-      error,
-      ...rest
-    } = options;
+    const { port, hostname, services, notFound, error, ...rest } = options;
     return Bun.serve({
       ...this.compile({
         ...(services ? { services } : {}),
