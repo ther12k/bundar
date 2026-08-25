@@ -8,9 +8,16 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # docs:status-check derives the release-tag fact from
+          # `git describe --tags`; a shallow checkout has no tag ancestry.
+          fetch-depth: 0
       - name: Set up Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
         with:
@@ -31,6 +38,9 @@ jobs:
         run: bun run docs:check
       - name: Claim/status gates
         run: bun run docs:status-check && bun run issues:check
+        env:
+          # issues:check shells out to `gh` for live issue states.
+          GH_TOKEN: ${{ github.token }}
 
   test:
     runs-on: ubuntu-latest
