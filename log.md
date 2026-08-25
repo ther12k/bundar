@@ -824,3 +824,11 @@ BR-086 is complete; CI on main is green again.
 - Stale-read-path warnings on open BR issues are informational (future-work paths) and unchanged.
 
 BR-086 follow-up is complete; CI on main should now reach a fully green run.
+
+## 2026-08-25 — #137 (BR-069 follow-up): the missing Bun-native behavior fixture
+
+- Verified #137's completion report against the tree: criteria 1–3 (HEAD/OPTIONS/405 consistency across route forms, sorted+deduplicated Allow with implicit methods) are genuinely covered by `http-methods/conformance.test.ts` and the inline implementation in `routing/compiler.ts` — but the report's file layout overclaimed (`routing/methods.ts` never existed; the fix lives inline in `compiler.ts:224-302`), and criterion 4's plain-`Bun.serve` compatibility fixture was missing entirely: no test pinned Bun's raw method behavior without the Bundar layer.
+- Added `packages/core/test/http-methods/bun-native-behavior.test.ts` (no `@bundar/*` imports): pins native HEAD-from-GET (handler runs, body stripped), unknown-path fallthrough to `fetch`, unregistered-method-on-known-path fallthrough (no native 405/Allow/auto-OPTIONS — the exact gap the compiler fills), native param extraction, and a footgun pin discovered while writing it: the BARE handler form is method-agnostic (POST runs the GET handler, 200) — documented as the reason Bundar's compiler always emits the explicit per-method map.
+- Verified: prettier, lint, typecheck, architecture:check (117 test files), full suite 1066/1066 across three consecutive runs. One earlier run under parallel install/lint load had a single unreproduced failure (test name not captured; three subsequent clean runs); flagged here rather than hidden per the no-hidden-failures rule.
+
+#137's acceptance criteria are now all materially satisfied; closing with a corrected evidence record.
