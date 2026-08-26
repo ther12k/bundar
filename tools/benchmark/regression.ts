@@ -319,3 +319,24 @@ if (breaches.length > 0) {
 console.log(
   `bench:regression: within budget (${seen.size} measurements checked, ${alerts.length} alert(s))`,
 );
+
+// BR-077: the beta workload gate rides on the same invocation — the alpha
+// artifact's parity pre-check has already passed above. Fail-closed: an
+// existing beta.json without committed budgets is a breach, not a skip.
+{
+  const BETA_ARTIFACT = join(REPO, "artifacts", "bench", "beta.json");
+  if (!existsSync(BETA_ARTIFACT)) {
+    console.warn(
+      "bench:regression: no beta.json — run bun run bench:beta to measure BR-077 workloads",
+    );
+  } else {
+    const spawned = Bun.spawnSync(
+      ["bun", join(import.meta.dir, "beta-workloads.ts"), "--verify"],
+      { cwd: REPO, stdout: "inherit", stderr: "inherit" },
+    );
+    if (spawned.exitCode !== 0) {
+      console.error("bench:regression: beta workload budget check failed");
+      process.exit(1);
+    }
+  }
+}

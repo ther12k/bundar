@@ -1,0 +1,92 @@
+{
+  "generatedAt": "2026-08-26T16:07:16.088Z",
+  "runsPooled": 3,
+  "basis": "same-run stream/string ratios + MAD-widened absolute p50/TTFB budgets",
+  "budgets": {
+    "ratio:table-stream-100:over-string": {
+      "p50": 10.069832774869932,
+      "alert": 13.582204039062065,
+      "fail": 17.094575303254196
+    },
+    "ratio:table-stream-1000:over-string": {
+      "p50": 12.097907682614823,
+      "alert": 17.574991365550275,
+      "fail": 23.052075048485733
+    },
+    "ratio:table-stream-10000:over-string": {
+      "p50": 7.545761186895233,
+      "alert": 10.209239532155994,
+      "fail": 12.872717877416752
+    },
+    "abs:table-string-100:p50ns": {
+      "p50": 114627,
+      "alert": 214532.25,
+      "fail": 314437.5
+    },
+    "abs:table-stream-100:p50ns": {
+      "p50": 1283229,
+      "alert": 2688843.75,
+      "fail": 4094458.5
+    },
+    "abs:table-stream-100:ttfbP95ns": {
+      "p50": 31438,
+      "alert": 58796.5,
+      "fail": 86155
+    },
+    "abs:table-string-1000:p50ns": {
+      "p50": 1135176,
+      "alert": 2104635,
+      "fail": 3074094
+    },
+    "abs:table-stream-1000:p50ns": {
+      "p50": 13358478,
+      "alert": 25930150.5,
+      "fail": 38501823
+    },
+    "abs:table-stream-1000:ttfbP95ns": {
+      "p50": 43899,
+      "alert": 82016.25,
+      "fail": 120133.5
+    },
+    "abs:table-string-10000:p50ns": {
+      "p50": 19502690,
+      "alert": 36694440.5,
+      "fail": 53886191
+    },
+    "abs:table-stream-10000:p50ns": {
+      "p50": 140711687,
+      "alert": 285908410.25,
+      "fail": 431105133.5
+    },
+    "abs:table-stream-10000:ttfbP95ns": {
+      "p50": 55407,
+      "alert": 103451.25,
+      "fail": 151495.5
+    },
+    "abs:fragment-only-update:p50ns": {
+      "p50": 23553,
+      "alert": 44439.75,
+      "fail": 65326.5
+    },
+    "abs:primary-secondary-updates:p50ns": {
+      "p50": 27726,
+      "alert": 51340.5,
+      "fail": 74955
+    },
+    "abs:form-urlencoded-validate-20:p50ns": {
+      "p50": 47614,
+      "alert": 87506.5,
+      "fail": 127399
+    },
+    "abs:form-urlencoded-parse-100:p50ns": {
+      "p50": 136387,
+      "alert": 288426.25,
+      "fail": 440465.5
+    },
+    "abs:multipart-parse-8f-2files:p50ns": {
+      "p50": 56780,
+      "alert": 137222,
+      "fail": 217664
+    }
+  }
+}
