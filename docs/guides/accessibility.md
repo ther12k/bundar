@@ -5,7 +5,10 @@ baseline is a property of the markup your handlers render — not of client
 JavaScript. The browser lanes enforce it: `bun run test:a11y` (axe-core
 scan, zero critical/serious violations, no waivers) and `bun run
 test:no-js` (keyboard-only PRG flows) run against the unmodified
-reference applications in the beta/release battery (wired into scripts/release-gate.ts).
+reference applications in the beta/release battery (wired into
+`scripts/release-gate.ts`, fail-closed on any lane failure) and as a
+dedicated `browser-lanes` CI job that uploads every lane artifact —
+axe scans and per-step transcripts — bound to the run.
 
 Lane scope honesty: the no-JS lane blocks the htmx asset and asserts
 `window.htmx` is absent — it verifies ENHANCEMENT-OFF behavior, not a fully

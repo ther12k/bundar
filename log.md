@@ -911,3 +911,14 @@ BR-076 is complete: the benchmark suite now compares Bun-native scenarios across
 - Full local battery green: 14 benchmark tests (incl. new budget-math and fixture tests), full suite 0 fail, typecheck, lint, format, architecture:check, docs gates, build, release:plan.
 
 BR-077 is complete: beta budgets reflect real target workloads, verified before timing, fail-closed going forward.
+
+## 2026-08-26 — BR-091 (#143): browser lanes wired into required battery + dedicated CI job
+
+- Closed the remaining gap between the a11y/no-js docs claim and enforcement. The release-gate battery already ran both lanes fail-closed (added with the BR-075 lane work; proven when the no-JS lane blocked a real candidate over empty CSRF tokens), so this wave delivered what was genuinely missing: CI runnability and artifact binding.
+- `tests/browser/lanes/cli.ts` resolves its playwright CLI in order — `BUNDAR_PLAYWRIGHT_CLI` override → Codex skill wrapper → generated portable shim exec'ing `npx --yes --package @playwright/cli playwright-cli` with identical session-flag handling. The shim makes lanes runnable on GitHub runners (nothing repo-local to install).
+- New required `browser-lanes` CI job: bun 1.4.0, frozen install, Chromium via the CLI (`--with-deps`), test:a11y + test:no-js, then uploads `output/playwright/` artifacts with `if: always()` — failing lanes still bind their axe scans and per-step transcripts to the run.
+- Both lanes were executed through the GENERATED-SHIM path (CODEX_HOME forced nonexistent) on this branch: a11y PASS 7 scans / 0 blocking, no-JS PASS full keyboard PRG flows — i.e., the exact code path CI takes, not just the workstation path.
+- Resolution contract pinned by tests (override precedence, codex-optional fallback, npx/session passthrough). Accessibility guide wording now states battery fail-closure + dedicated CI job + uploaded artifacts.
+- Verified: lane runs above, resolution tests 4/4, tsc/lint/prettier clean.
+
+BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully closed.
