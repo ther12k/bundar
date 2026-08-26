@@ -25,7 +25,7 @@ export const urls = {
     const required: readonly string[] = ["id"];
     for (const name of required) {
       if ((params as Record<string, unknown>)[name] === undefined) {
-        throw new Error(`urls.user-show: missing required path parameter "${name}"`);
+        throw new Error("urls.user-show: missing required path parameter \"" + name + "\"");
       }
     }
     const raw = "/users/:id";
@@ -40,7 +40,7 @@ export const urls = {
     const required: readonly string[] = [];
     for (const name of required) {
       if ((params as Record<string, unknown>)[name] === undefined) {
-        throw new Error(`urls.user-create: missing required path parameter "${name}"`);
+        throw new Error("urls.user-create: missing required path parameter \"" + name + "\"");
       }
     }
     const raw = "/users";
@@ -55,7 +55,7 @@ export const urls = {
     const required: readonly string[] = [];
     for (const name of required) {
       if ((params as Record<string, unknown>)[name] === undefined) {
-        throw new Error(`urls.search: missing required path parameter "${name}"`);
+        throw new Error("urls.search: missing required path parameter \"" + name + "\"");
       }
     }
     const raw = "/search";

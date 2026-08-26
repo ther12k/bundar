@@ -1,92 +1,92 @@
 {
-  "generatedAt": "2026-08-26T20:22:47.333Z",
+  "generatedAt": "2026-08-26T23:10:59.513Z",
   "runsPooled": 3,
   "basis": "same-run stream/string ratios + MAD-widened absolute p50/TTFB budgets",
   "budgets": {
     "ratio:table-stream-100:over-string": {
-      "p50": 2.276726368159204,
-      "alert": 3.00184301844073,
-      "fail": 3.7269596687222557
+      "p50": 2.552872786715707,
+      "alert": 3.6062529705415907,
+      "fail": 4.659633154367474
     },
     "ratio:table-stream-1000:over-string": {
-      "p50": 2.77160809195328,
-      "alert": 3.6723388054511013,
-      "fail": 4.573069518948923
+      "p50": 3.311478039585984,
+      "alert": 4.843260752177754,
+      "fail": 6.375043464769524
     },
     "ratio:table-stream-10000:over-string": {
-      "p50": 1.600734273932615,
-      "alert": 2.523965206692872,
-      "fail": 3.4471961394531294
+      "p50": 1.9986680392235574,
+      "alert": 3.3863189731247494,
+      "fail": 4.773969907025942
     },
     "abs:table-string-100:p50ns": {
-      "p50": 104375,
-      "alert": 187084.25,
-      "fail": 269793.5
+      "p50": 119901,
+      "alert": 232899.75,
+      "fail": 345898.5
     },
     "abs:table-stream-100:p50ns": {
-      "p50": 234080,
-      "alert": 424694,
-      "fail": 615308
+      "p50": 306092,
+      "alert": 562301,
+      "fail": 818510
     },
     "abs:table-stream-100:ttfbP95ns": {
-      "p50": 444098,
-      "alert": 799770.5,
-      "fail": 1155443
+      "p50": 568669,
+      "alert": 1124386.75,
+      "fail": 1680104.5
     },
     "abs:table-string-1000:p50ns": {
-      "p50": 990052,
-      "alert": 1733683,
-      "fail": 2477314
+      "p50": 1097156,
+      "alert": 2012999,
+      "fail": 2928842
     },
     "abs:table-stream-1000:p50ns": {
-      "p50": 2745045,
-      "alert": 4875414.75,
-      "fail": 7005784.5
+      "p50": 3721898,
+      "alert": 6779391.5,
+      "fail": 9836885
     },
     "abs:table-stream-1000:ttfbP95ns": {
-      "p50": 312859,
-      "alert": 667872.25,
-      "fail": 1022885.5
+      "p50": 623532,
+      "alert": 1308501,
+      "fail": 1993470
     },
     "abs:table-string-10000:p50ns": {
-      "p50": 16198042,
-      "alert": 33070775.5,
-      "fail": 49943509
+      "p50": 19293178,
+      "alert": 34394717.5,
+      "fail": 49496257
     },
     "abs:table-stream-10000:p50ns": {
-      "p50": 25928761,
-      "alert": 45686668.75,
-      "fail": 65444576.5
+      "p50": 35250820,
+      "alert": 68187877,
+      "fail": 101124934
     },
     "abs:table-stream-10000:ttfbP95ns": {
-      "p50": 828111,
-      "alert": 1486586.25,
-      "fail": 2145061.5
+      "p50": 559078,
+      "alert": 1343666.5,
+      "fail": 2128255
     },
     "abs:fragment-only-update:p50ns": {
-      "p50": 22674,
-      "alert": 39793.5,
-      "fail": 56913
+      "p50": 26426,
+      "alert": 47703.5,
+      "fail": 68981
     },
     "abs:primary-secondary-updates:p50ns": {
-      "p50": 26964,
-      "alert": 47568,
-      "fail": 68172
+      "p50": 30683,
+      "alert": 59158.25,
+      "fail": 87633.5
     },
     "abs:form-urlencoded-validate-20:p50ns": {
-      "p50": 46098,
-      "alert": 81601.5,
-      "fail": 117105
+      "p50": 51382,
+      "alert": 103427.5,
+      "fail": 155473
     },
     "abs:form-urlencoded-parse-100:p50ns": {
-      "p50": 119661,
-      "alert": 211215.75,
-      "fail": 302770.5
+      "p50": 132748,
+      "alert": 262291,
+      "fail": 391834
     },
     "abs:multipart-parse-8f-2files:p50ns": {
-      "p50": 46243,
-      "alert": 80997.25,
-      "fail": 115751.5
+      "p50": 61839,
+      "alert": 164291.25,
+      "fail": 266743.5
     }
   }
 }

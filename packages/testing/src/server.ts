@@ -13,6 +13,7 @@ import type { RouteModule } from "@bundar/core";
 import { CookieJar } from "./cookies";
 import {
   compileForTest,
+  responseRequestMap,
   type TestClient,
   type TestClientOptions,
   type TestClientTarget,
@@ -67,10 +68,7 @@ export function startTestServer(
   const jar = new CookieJar();
   const useJar = options.cookies !== false;
   const { dialect } = options;
-  let lastRequest: Request | undefined;
-
   const send = async (request: Request): Promise<Response> => {
-    lastRequest = request;
     // requests are built against TEST_ORIGIN; the transport rewrites them
     // onto this server's real origin (path + query preserved)
     const sourceUrl = new URL(request.url);
@@ -83,6 +81,7 @@ export function startTestServer(
         : {}),
       redirect: "manual",
     });
+    responseRequestMap.set(response, request);
     if (useJar) jar.absorb(response, target);
     return response;
   };
@@ -151,7 +150,7 @@ export function startTestServer(
         }),
       ),
     follow: (response, maxHops = 5) =>
-      followChain(client, response, lastRequest, maxHops),
+      followChain(client, response, responseRequestMap.get(response), maxHops),
     dispose: () => {
       jar.clear();
     },
@@ -185,6 +184,9 @@ async function followChain(
     if (location === null) return currentResponse;
 
     const status = currentResponse.status;
+    const base = currentRequest ? currentRequest.url : client.url;
+    const targetUrl = new URL(location, base).toString();
+
     let nextRequest: Request;
     if (status === 307 || status === 308) {
       const method = currentRequest ? currentRequest.method : "GET";
@@ -193,18 +195,12 @@ async function followChain(
       if (currentRequest && method !== "GET" && method !== "HEAD") {
         body = await currentRequest.clone().arrayBuffer();
       }
-      const targetUrl = location.startsWith("http")
-        ? location
-        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
       nextRequest = new Request(targetUrl, {
         method,
         headers,
         body,
       });
     } else {
-      const targetUrl = location.startsWith("http")
-        ? location
-        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
       nextRequest = new Request(targetUrl, {
         method: "GET",
       });

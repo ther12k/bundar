@@ -1,23 +1,31 @@
 /**
- * publish:approved (GH-088): the guarded publish step. Publishing is a
- * maintainer decision — this tool refuses to touch any registry unless
- * an explicit approval token is present (BUNDAR_RELEASE_TOKEN) AND npm
- * credentials exist. Without them it runs in DRY-RUN mode: prints the
- * exact publish plan (dependency-first, pre-release dist-tag) and
- * verifies the artifacts one last time. No partial claims: if it did
- * not publish, it says so.
+ * publish:approved (GH-088 / BR-081 / BR-105): the guarded publish step.
+ *
+ * Publishing is an explicit maintainer decision:
+ * 1. Refuses to publish unless `BUNDAR_RELEASE_TOKEN` is set AND `npm whoami` succeeds.
+ * 2. Accepts `--version` (default 0.1.0-alpha.2) and `--tag` (default canary / alpha).
+ * 3. Builds and publishes the EXACT audited candidate `.tgz` files (never source workspaces).
+ * 4. Verifies SHA-256 integrity of each tarball before running `npm publish <file.tgz>`.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
+import {
+  buildCandidateTarballs,
+  DEFAULT_TAG,
+  DEFAULT_VERSION,
+  PUBLISH_ORDER,
+  REPO,
+} from "./pack-release";
 
-const REPO = join(import.meta.dir, "..", "..");
-const SIM_VERSION = "0.1.0-alpha.1";
-const DIST_TAG = "alpha";
-const dryRun = JSON.parse(
-  readFileSync(join(REPO, "artifacts", "publish-dry-run.json"), "utf8"),
-);
-const order: readonly string[] = dryRun.plan.publishOrder;
+function argument(name: string, fallback: string): string {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
+}
+
+const VERSION = argument("--version", DEFAULT_VERSION);
+const DIST_TAG = argument("--tag", DEFAULT_TAG);
 
 const token = process.env.BUNDAR_RELEASE_TOKEN;
 const hasNpmIdentity =
@@ -25,29 +33,41 @@ const hasNpmIdentity =
 
 if (token === undefined || token.length === 0 || !hasNpmIdentity) {
   console.log(
-    `publish:approved: DRY-RUN (no approval token or npm identity) — nothing published.`,
+    "publish:approved: DRY-RUN (no approval token or npm identity) — nothing published.",
   );
   console.log(
-    `Plan: for each of ${order.join(" → ")}: npm publish --tag ${DIST_TAG} (version ${SIM_VERSION}).`,
+    `Plan: for each of ${PUBLISH_ORDER.join(" → ")}: npm publish <tarball.tgz> --tag ${DIST_TAG} --access public (version ${VERSION}).`,
   );
   console.log(
-    "Approval procedure: maintainer sets BUNDAR_RELEASE_TOKEN, authenticates npm, re-runs this command.",
+    "Approval procedure: maintainer sets BUNDAR_RELEASE_TOKEN, authenticates npm, re-runs this command with optional --tag/--version.",
   );
   process.exit(0);
 }
 
-console.log(`publish:approved: publishing ${SIM_VERSION} @ ${DIST_TAG}`);
-for (const pkg of order) {
-  const dir =
-    pkg === "create-bundar"
-      ? "create-bundar"
-      : `packages/${pkg.replace("@bundar/", "")}`;
-  console.log(`\n[publish] ${pkg} (${dir})`);
+console.log(`publish:approved: publishing ${VERSION} @ ${DIST_TAG}`);
+const artifactsDir = join(REPO, "artifacts", "packages");
+const candidates = buildCandidateTarballs({
+  version: VERSION,
+  outputDir: artifactsDir,
+});
+
+for (const pkg of PUBLISH_ORDER) {
+  const candidate = candidates.get(pkg)!;
+  console.log(`\n[publish] ${pkg} (${candidate.tarballFile})`);
+
+  // Verify checksum before upload
+  const currentSha = createHash("sha256")
+    .update(readFileSync(candidate.tarballPath))
+    .digest("hex");
+  if (currentSha !== candidate.sha256) {
+    console.error(`publish:approved: integrity mismatch for ${pkg}`);
+    process.exit(1);
+  }
+
   const result = spawnSync(
     "npm",
-    ["publish", "--tag", DIST_TAG, "--access", "public"],
+    ["publish", candidate.tarballPath, "--tag", DIST_TAG, "--access", "public"],
     {
-      cwd: join(REPO, dir),
       stdio: "inherit",
     },
   );
@@ -59,5 +79,5 @@ for (const pkg of order) {
   }
 }
 console.log(
-  `publish:approved: ${order.length} packages published @ ${DIST_TAG}`,
+  `publish:approved: ${PUBLISH_ORDER.length} packages published @ ${DIST_TAG}`,
 );

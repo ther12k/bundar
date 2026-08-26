@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-08-26T20:50:45.169Z",
+  "generatedAt": "2026-08-26T23:23:46.013Z",
   "plan": {
-    "simulatedVersion": "0.1.0-alpha.1",
-    "distTag": "alpha",
+    "simulatedVersion": "0.1.0-alpha.2",
+    "distTag": "canary",
     "publishOrder": [
       "@bundar/core",
       "@bundar/jsx",
@@ -17,14 +17,14 @@
     "notes": [
       "Dependency-first publish order; inter-package deps synchronized to the simulated version (the form npm publish emits).",
       "No registry publish executed (out of scope); this dry run proves tarball installability, entry points, CLI, and metadata.",
-      "Planned command shape: npm publish --tag alpha per package, in order."
+      "Planned command shape: npm publish --tag canary per package, in order."
     ]
   },
   "checks": [
     {
       "check": "pack+version-sync",
       "status": "pass",
-      "detail": "9/9 tarballs at 0.1.0-alpha.1"
+      "detail": "9/9 tarballs at 0.1.0-alpha.2"
     },
     {
       "check": "no-unpublished-paths @bundar/core",

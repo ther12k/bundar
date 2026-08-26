@@ -92,6 +92,7 @@ export interface TestClient {
 }
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+export const responseRequestMap = new WeakMap<Response, Request>();
 
 function isApp(target: TestClientTarget): target is App {
   return target instanceof App;
@@ -172,14 +173,18 @@ export function createTestClient(
   const jar = new CookieJar();
   const useJar = options.cookies !== false;
   const { dialect } = options;
-  let lastRequest: Request | undefined;
 
   const dispatch = async (incoming: Request): Promise<Response> => {
-    lastRequest = incoming;
     const request =
       useJar && jar.size > 0
         ? await withCookieHeader(incoming, jar.header(incoming.url))
         : incoming;
+
+    const record = (res: Response): Response => {
+      responseRequestMap.set(res, incoming);
+      if (useJar) jar.absorb(res, incoming.url);
+      return res;
+    };
 
     const url = new URL(request.url);
     const match = matchRoute(compiled, request.method, url.pathname);
@@ -188,23 +193,26 @@ export function createTestClient(
       if (request.method === "HEAD") {
         response = stripBody(response);
       }
-      if (useJar) jar.absorb(response, request.url);
-      return response;
+      return record(response);
     }
     if (match.kind === "method-not-allowed") {
-      return new Response(null, {
-        status: 405,
-        headers: { allow: match.allowed.join(", ") },
-      });
+      return record(
+        new Response(null, {
+          status: 405,
+          headers: { allow: match.allowed.join(", ") },
+        }),
+      );
     }
 
     const optionsAllow = match.optionsResponse;
     if (optionsAllow !== undefined) {
       // Auto-OPTIONS policy parity: 204 + deterministic Allow.
-      return new Response(null, {
-        status: 204,
-        headers: { allow: optionsAllow },
-      });
+      return record(
+        new Response(null, {
+          status: 204,
+          headers: { allow: optionsAllow },
+        }),
+      );
     }
     if (match.entry instanceof Response) {
       // BR-073 review: static entries are SHARED objects in the compiled
@@ -214,8 +222,7 @@ export function createTestClient(
         request.method === "HEAD"
           ? stripBody(match.entry.clone() as Response)
           : (match.entry.clone() as Response);
-      if (useJar) jar.absorb(response, request.url);
-      return response;
+      return record(response);
     }
 
     try {
@@ -226,16 +233,14 @@ export function createTestClient(
       if (request.method === "HEAD") {
         response = stripBody(response);
       }
-      if (useJar) jar.absorb(response, request.url);
-      return response;
+      return record(response);
     } catch (error) {
       if (compiled.error !== undefined) {
         let response = await compiled.error(error as Error);
         if (request.method === "HEAD") {
           response = stripBody(response);
         }
-        if (useJar) jar.absorb(response, request.url);
-        return response;
+        return record(response);
       }
       // In-process semantics: no hook → surface the failure to the test.
       throw error;
@@ -290,7 +295,12 @@ export function createTestClient(
         }),
       ),
     follow: (response, maxHops = 5) =>
-      followRedirects(client, response, lastRequest, maxHops),
+      followRedirects(
+        client,
+        response,
+        responseRequestMap.get(response),
+        maxHops,
+      ),
     dispose: () => {
       jar.clear();
     },
@@ -312,6 +322,9 @@ async function followRedirects(
     if (location === null) return currentResponse;
 
     const status = currentResponse.status;
+    const base = currentRequest ? currentRequest.url : client.url;
+    const targetUrl = new URL(location, base).toString();
+
     let nextRequest: Request;
     if (status === 307 || status === 308) {
       // Preserve method and body
@@ -321,9 +334,6 @@ async function followRedirects(
       if (currentRequest && method !== "GET" && method !== "HEAD") {
         body = await currentRequest.clone().arrayBuffer();
       }
-      const targetUrl = location.startsWith("http")
-        ? location
-        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
       nextRequest = new Request(targetUrl, {
         method,
         headers,
@@ -331,9 +341,6 @@ async function followRedirects(
       });
     } else {
       // 301, 302, 303: PRG pattern -> GET
-      const targetUrl = location.startsWith("http")
-        ? location
-        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
       nextRequest = new Request(targetUrl, {
         method: "GET",
       });

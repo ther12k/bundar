@@ -10,7 +10,7 @@
     {
       "name": "bundar-jsx-0.0.0.tgz",
       "digest": {
-        "sha256": "4ab7cb507caa4ce72a27e814cd9e2574d5ef19371bcb1d98b493b4b4373c699c"
+        "sha256": "4a73951210c856515fa895ac93c0ebaddf914e72cc212bf27235cb9ce974ec16"
       }
     },
     {
@@ -40,7 +40,7 @@
     {
       "name": "bundar-testing-0.0.0.tgz",
       "digest": {
-        "sha256": "27007bd5696a3ba416bf175c4048318b396bd393600001ed34b2485be4b4194f"
+        "sha256": "3f4d62067b9ad91575a4f246984f40f13a28ae71f43d3e874bdab100d0e1006a"
       }
     },
     {
@@ -66,9 +66,9 @@
       "configSource": {
         "uri": "git+https://github.com/ther12k/bundar",
         "digest": {
-          "sha1": "2a5b11a5350b622a707b681300d3e4efc8210fe2"
+          "sha1": "020a9d9cc6b9be6dd9f90e5eb8d7dc7ed4e2ecb1"
         },
-        "branch": "gh-131-artifact-audit"
+        "branch": "gh-release-hardening"
       },
       "environment": {
         "bun": "1.4.0",
@@ -84,8 +84,8 @@
       "typescript": "6.0.3"
     },
     "metadata": {
-      "buildInvocationId": "local-1787777441789",
-      "buildStartedOn": "2026-08-26T20:50:41.789Z",
+      "buildInvocationId": "local-1787786623788",
+      "buildStartedOn": "2026-08-26T23:23:43.788Z",
       "reproducible": true,
       "completeness": {
         "parameters": true,
@@ -97,7 +97,7 @@
       {
         "uri": "git+https://github.com/ther12k/bundar",
         "digest": {
-          "sha1": "2a5b11a5350b622a707b681300d3e4efc8210fe2"
+          "sha1": "020a9d9cc6b9be6dd9f90e5eb8d7dc7ed4e2ecb1"
         }
       }
     ]

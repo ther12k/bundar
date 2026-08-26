@@ -109,19 +109,23 @@ function throwIfAborted(signal: AbortSignal | undefined): void {
 }
 
 /**
- * BR-098: Coalesces consecutive synchronous text fragments into chunk-sized
- * buffers. Flushes before awaiting async promises to preserve instant TTFB
- * and progressive delivery, while eliminating per-tag generator suspensions.
+ * BR-098 / BR-110: Coalesces consecutive synchronous text fragments into
+ * chunk-sized buffers with byte-aware UTF-8 accounting. Flushes before awaiting
+ * async promises to preserve instant TTFB and progressive delivery, while
+ * eliminating per-tag generator suspensions.
  */
 class ChunkCollector {
   private buffer = "";
+  private bytes = 0;
   public constructor(public readonly limit: number) {}
 
   public push(text: string): string | null {
     this.buffer += text;
-    if (this.buffer.length >= this.limit) {
+    this.bytes += Buffer.byteLength(text, "utf8");
+    if (this.bytes >= this.limit) {
       const out = this.buffer;
       this.buffer = "";
+      this.bytes = 0;
       return out;
     }
     return null;
@@ -131,6 +135,7 @@ class ChunkCollector {
     if (this.buffer.length > 0) {
       const out = this.buffer;
       this.buffer = "";
+      this.bytes = 0;
       return out;
     }
     return null;

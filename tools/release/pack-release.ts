@@ -1,0 +1,125 @@
+/**
+ * Candidate packaging pipeline (ADR-0021 / BR-080 / BR-105).
+ *
+ * Packs the 9 workspace packages into publication-form tarballs:
+ * - Sets the publication `version` (e.g. `0.1.0-alpha.2`);
+ * - Removes `"private": true` on the packed tarball manifest only (source manifests stay untouched 0.0.0 private);
+ * - Rewrites internal `workspace:*` dependencies to caret ranges (`^${version}`);
+ * - Produces exact `.tgz` files with deterministic SHA-256 checksums.
+ */
+import { spawnSync } from "node:child_process";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+export const REPO = join(import.meta.dir, "..", "..");
+export const DEFAULT_VERSION = "0.1.0-alpha.2";
+export const DEFAULT_TAG = "canary";
+
+export const PUBLISH_ORDER = [
+  "@bundar/core",
+  "@bundar/jsx",
+  "@bundar/schema",
+  "@bundar/forms",
+  "@bundar/security",
+  "@bundar/htmx",
+  "@bundar/testing",
+  "@bundar/cli",
+  "create-bundar",
+] as const;
+
+export interface PackedCandidate {
+  readonly name: string;
+  readonly version: string;
+  readonly tarballFile: string;
+  readonly tarballPath: string;
+  readonly sha256: string;
+}
+
+export function buildCandidateTarballs(options: {
+  version: string;
+  outputDir: string;
+}): Map<string, PackedCandidate> {
+  const { version, outputDir } = options;
+  mkdirSync(outputDir, { recursive: true });
+  const result = new Map<string, PackedCandidate>();
+
+  for (const pkg of PUBLISH_ORDER) {
+    const dir =
+      pkg === "create-bundar"
+        ? join(REPO, "create-bundar")
+        : join(REPO, "packages", pkg.replace("@bundar/", ""));
+    const manifest = JSON.parse(
+      readFileSync(join(dir, "package.json"), "utf8"),
+    );
+    const spawned = spawnSync("bun", ["pm", "pack"], {
+      cwd: dir,
+      stdio: "pipe",
+    });
+    if (spawned.status !== 0) {
+      throw new Error(`bun pm pack failed for ${pkg}`);
+    }
+    const originalTarball = join(
+      dir,
+      `${manifest.name.replace("@", "").replace("/", "-")}-${manifest.version}.tgz`,
+    );
+
+    // Extract, rewrite version/private/workspace deps, repack to target
+    const extractDir = mkdtempSync(join(tmpdir(), "bundar-candidate-pack-"));
+    spawnSync("tar", ["-xzf", originalTarball, "-C", extractDir], {
+      stdio: "ignore",
+    });
+    rmSync(originalTarball, { force: true });
+
+    const pkgJsonPath = join(extractDir, "package", "package.json");
+    const packedPkg = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
+    packedPkg.version = version;
+    delete packedPkg.private; // Packed publication tarballs MUST NOT be private
+
+    for (const field of [
+      "dependencies",
+      "devDependencies",
+      "peerDependencies",
+    ]) {
+      const deps = packedPkg[field] as Record<string, string> | undefined;
+      if (deps === undefined) continue;
+      for (const [name, spec] of Object.entries(deps)) {
+        if (
+          name.startsWith("@bundar/") &&
+          (spec === manifest.version || spec.startsWith("workspace:"))
+        ) {
+          deps[name] = `^${version}`; // Synchronized lockstep version (ADR-0021)
+        }
+      }
+    }
+    writeFileSync(pkgJsonPath, JSON.stringify(packedPkg, null, 2) + "\n");
+
+    const tarballFile = `${manifest.name.replace("@", "").replace("/", "-")}-${version}.tgz`;
+    const targetTarballPath = join(outputDir, tarballFile);
+    spawnSync("tar", ["-czf", targetTarballPath, "-C", extractDir, "package"], {
+      stdio: "ignore",
+    });
+    rmSync(extractDir, { recursive: true, force: true });
+
+    const sha256 = createHash("sha256")
+      .update(readFileSync(targetTarballPath))
+      .digest("hex");
+
+    result.set(pkg, {
+      name: pkg,
+      version,
+      tarballFile,
+      tarballPath: targetTarballPath,
+      sha256,
+    });
+  }
+
+  return result;
+}

@@ -3,7 +3,7 @@
   "lane": "htmx4",
   "status": "experimental-provisional",
   "disclaimer": "Local experimental browser conformance evidence only. htmx 4 is beta/provisional and GA revalidation is mandatory.",
-  "generatedAt": "2026-08-22T16:15:03.772Z",
+  "generatedAt": "2026-08-26T23:17:16.453Z",
   "profile": {
     "testedVersion": "4.0.0-beta6",
     "assetSha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25",
@@ -111,7 +111,7 @@
       "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
     },
     "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-    "baseUrl": "http://127.0.0.1:33743",
+    "baseUrl": "http://127.0.0.1:35047",
     "scenarios": [
       "smoke-page",
       "fragment-swap",

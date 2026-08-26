@@ -44,6 +44,7 @@ const PACKAGES = [
   "packages/htmx",
   "packages/testing",
   "packages/cli",
+  "create-bundar",
 ] as const;
 
 interface Step {
@@ -173,7 +174,24 @@ try {
 
   // ---- 2. generate the app and point deps at the PACKED artifacts ----
   const started = t0();
-  const { createProject } = await import("../create-bundar/src/index");
+  // BR-107: run scaffolding from the packed create-bundar tarball artifact
+  const createBundarTarball = registry.get("create-bundar");
+  if (!createBundarTarball)
+    throw new Error("cleanroom: packed create-bundar tarball missing");
+  const scaffolderDir = join(ROOM, "scaffolder");
+  mkdirSync(scaffolderDir, { recursive: true });
+  spawnSync("tar", ["-xzf", createBundarTarball, "-C", scaffolderDir], {
+    stdio: "ignore",
+  });
+  const { createProject } = (await import(
+    join(scaffolderDir, "package", "src", "index.ts")
+  )) as {
+    createProject: (options: {
+      target: string;
+      dialect: string;
+      name: string;
+    }) => void;
+  };
   createProject({ target: APP, dialect: "htmx2", name: "my-app" });
   const appPkg = JSON.parse(readFileSync(join(APP, "package.json"), "utf8"));
   for (const field of ["dependencies", "devDependencies"]) {

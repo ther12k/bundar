@@ -36,8 +36,12 @@ const steps = [
   ["release:sbom", ["run", "release:sbom"]],
   ["release:provenance", ["run", "release:provenance"]],
   ["release:reproduce", ["run", "release:reproduce"]],
-  ["publish:dry-run (38 checks)", ["run", "publish:dry-run"]],
+  ["publish:dry-run (42 checks)", ["run", "publish:dry-run"]],
   ["release:notes-check", ["run", "release:notes-check"]],
+  [
+    "release:verify (artifact integrity & release preconditions)",
+    ["run", "release:verify"],
+  ],
 ] as const;
 
 function runStep(name: string, args: readonly string[]): Promise<number> {
