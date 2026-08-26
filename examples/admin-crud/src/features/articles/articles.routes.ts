@@ -135,12 +135,20 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
               message: "Invalid title, slug, or status",
             },
             {
-              renderDocument: (view_) =>
+              renderDocument: () =>
                 Layout({
                   title: "Invalid article",
                   flash: [],
                   user,
-                  children: jsx("h1", { children: view_.message }),
+                  children: articleForm({
+                    action: urls["article-create"](),
+                    token: readCsrfTokenFromRequest(context.request),
+                    title,
+                    slug,
+                    status: status ?? "draft",
+                    error: "Invalid title, slug, or status",
+                    submitLabel: "Create",
+                  }),
                 }),
               renderFragment: (view_) =>
                 articleForm({
@@ -190,12 +198,21 @@ export function registerArticleRoutes(app: App, deps: ArticleRouteDeps): void {
               message: "Invalid title or status",
             },
             {
-              renderDocument: (view_) =>
+              renderDocument: () =>
                 Layout({
                   title: "Invalid article",
                   flash: [],
                   user,
-                  children: jsx("h1", { children: view_.message }),
+                  children: articleForm({
+                    action: urls["article-edit"]({ id }),
+                    token: readCsrfTokenFromRequest(context.request),
+                    title,
+                    slug: existing.slug,
+                    status: status ?? existing.status,
+                    version: existing.version,
+                    error: "Invalid title or status",
+                    submitLabel: "Save",
+                  }),
                 }),
               renderFragment: (view_) =>
                 articleForm({

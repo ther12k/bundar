@@ -83,10 +83,9 @@ try {
     }`,
   ]);
 
-  // VALIDATION: 1-char title → 422 document. The ordinary path currently
-  // renders the framework default error document (announced via a
-  // role=alert summary — asserted here); app-document re-render with
-  // associated fields is tracked in #140 / BR-088.
+  // VALIDATION: 1-char title → 422 APPLICATION document (BR-088 closed):
+  // the todo page re-renders with the form, retained value, associated
+  // field error, and an announced summary — no generic error page.
   await runner.run("nojs-validation", [
     "run-code",
     `async page => {
@@ -95,19 +94,19 @@ try {
         input.value = 'x';
         document.getElementById('todo-form').submit();
       });
-      await page.waitForFunction(() => document.getElementById('error-summary') !== null, null, { timeout: 8000 });
+      await page.waitForFunction(() => document.getElementById('todo-form') !== null && (document.getElementById('title-error')?.textContent.trim().length ?? 0) > 0, null, { timeout: 8000 });
       return await page.evaluate(() => {
-        const summary = document.getElementById('error-summary');
-        if (summary.getAttribute('role') !== 'alert') throw new Error('summary not announced (role=alert missing)');
-        const text = summary.textContent.trim();
-        if (!text.includes('Title must be 2–200 characters')) throw new Error('field message missing: ' + text);
-        return '422 announced: ' + text.slice(0, 60);
+        if (!document.querySelector('header h1')) throw new Error('application document not rendered');
+        const input = document.querySelector('input[name=title]');
+        if (input.value !== 'x') throw new Error('retained value lost: ' + input.value);
+        const described = input.getAttribute('aria-describedby') ?? '';
+        if (!described.split(/\\s+/).includes('title-error')) throw new Error('field error not associated');
+        if (input.getAttribute('aria-invalid') !== 'true') throw new Error('aria-invalid missing');
+        if (typeof window.htmx !== 'undefined') throw new Error('JS unexpectedly active');
+        return '422 app document: ' + document.getElementById('title-error').textContent.trim();
       });
     }`,
   ]);
-
-  // The 422 landed on the framework error document; return to the app.
-  await runner.run("return-to-list", ["goto", `${todoUrl}/`]);
 
   // TOGGLE via keyboard: focus the first item's Done button, press Enter.
   await runner.run("nojs-toggle", [

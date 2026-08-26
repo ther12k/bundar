@@ -54,3 +54,27 @@ links. It renders nothing for an empty model and escapes every message.
 `tests/consumer/schema/` validates the same app-shaped fixture against two
 independent real validators — Zod 4 and Valibot 1 — at both the type level
 (`bunx tsc`) and runtime (`bun run test:consumer:schema`).
+
+## Invalid submissions without JavaScript (BR-088)
+
+Ordinary (no-JS) invalid submissions re-render your APPLICATION document
+when you pass `renderInvalidDocument` to `runFormAction` — the same
+validation result as the enhanced path, represented as the full page:
+
+```ts
+runFormAction(context, {
+  schema,
+  action: { fragment, redirectTo },
+  renderForm,                    // enhanced: form region fragment
+  renderInvalidDocument: (render, view) =>
+    myLayout(renderForm(render)), // ordinary: the complete document
+});
+```
+
+The renderer receives the redacted retained values, the field-error
+model, and the first-error hint — mirror your page composition so the
+user keeps the list/context and the forms stay submittable (token from
+the request cookie). Without the option, the framework's generic error
+document is used: announced via a `role="alert"` summary WITHOUT field
+anchor links (the fields are not in that document — dangling anchors
+were the pre-BR-088 defect).
