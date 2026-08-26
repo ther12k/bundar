@@ -30,37 +30,51 @@ describe("benchmark parity", () => {
   test("all declared scenarios have equivalent behavior across participating adapters", async () => {
     const parity = await parityCheck();
     expect(parity).toHaveLength(scenarios.length);
-    for (const entry of parity) {
-      const raw = entry.adapters["raw-bun"];
-      expect(raw).toBeDefined();
+    for (const [index, entry] of parity.entries()) {
+      const scenario = scenarios[index]!;
+      if ((scenario.excluded ?? []).length > 0) continue; // Bundar-only rows carry context snapshots, no comparison
       for (const snapshot of Object.values(entry.adapters)) {
-        expect(snapshot?.status).toBe(raw!.status);
-        expect(snapshot?.body).toBe(raw!.body);
+        const reference = entry.adapters["raw-bun"]!;
+        expect(snapshot?.status).toBe(reference.status);
+        expect(snapshot?.body).toBe(reference.body);
       }
     }
   });
 
-  test("JSX-model scenarios exclude the Carno adapter instead of faking parity", () => {
+  test("JSX-model scenarios exclude every other adapter (BR-103): Bundar-only rows", () => {
     const jsxScenarios = scenarios.filter((scenario) => scenario.excluded);
     expect(jsxScenarios.map((scenario) => scenario.id).sort()).toEqual([
       "async-jsx-component",
       "escaped-jsx-fragment",
     ]);
     for (const scenario of jsxScenarios)
-      expect(scenario.excluded).toEqual(["carno"]);
+      expect([...(scenario.excluded ?? [])].sort()).toEqual([
+        "carno",
+        "hono",
+        "raw-bun",
+      ]);
   });
 
-  test("participating adapters cover raw-bun, hono, bundar, and carno unless excluded", () => {
+  test("JSX parity entries carry only the Bundar snapshot", async () => {
+    const parity = await parityCheck();
+    for (const entry of parity) {
+      if (
+        !["async-jsx-component", "escaped-jsx-fragment"].includes(
+          entry.scenario,
+        )
+      )
+        continue;
+      expect(Object.keys(entry.adapters)).toEqual(["bundar"]);
+    }
+  });
+
+  test("shared-surface scenarios keep the full four-adapter comparison", () => {
     for (const scenario of scenarios) {
-      const names = participatingAdapters(scenario).map(
-        (adapter) => adapter.name,
+      if ((scenario.excluded ?? []).length > 0) continue;
+      const names = participatingAdapters(scenario).map((a) => a.name);
+      expect(new Set(names)).toEqual(
+        new Set(["raw-bun", "hono", "bundar", "carno"]),
       );
-      expect(names).toContain("raw-bun");
-      expect(names).toContain("hono");
-      expect(names).toContain("bundar");
-      if ((scenario.excluded ?? []).includes("carno"))
-        expect(names).not.toContain("carno");
-      else expect(names).toContain("carno");
     }
   });
 

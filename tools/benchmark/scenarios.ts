@@ -53,17 +53,18 @@ export const scenarios: readonly BenchmarkScenario[] = [
     id: "escaped-jsx-fragment",
     category: "micro",
     description: "Render an escaped HTML fragment.",
-    // Bundar's JSX rendering model (renderNode escaping) — the other
-    // adapters would only concatenate a pre-escaped string, which is not
-    // equivalent work, so no direct comparison is printed.
-    excluded: ["carno"],
+    // Bundar's JSX rendering model (renderNode escaping). Every other
+    // adapter concatenates a PREBUILT string here — including raw Bun and
+    // Hono — which is not equivalent work (BR-103): no comparison is
+    // printed or budgeted against any of them.
+    excluded: ["raw-bun", "hono", "carno"],
     request: () => requests.get("/fragment"),
   },
   {
     id: "async-jsx-component",
     category: "micro",
     description: "Resolve one asynchronous component and render HTML.",
-    excluded: ["carno"],
+    excluded: ["raw-bun", "hono", "carno"],
     request: () => requests.get("/async-component"),
   },
   {

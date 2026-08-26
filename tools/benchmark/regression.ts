@@ -110,10 +110,15 @@ const comparable = (snapshot: ParitySnapshot): string =>
 function parityFailuresOf(artifact: BenchArtifact): string[] {
   return artifact.parity
     .filter((check) => {
-      const reference = check.adapters["raw-bun"];
-      if (reference === undefined) return true;
-      return Object.entries(check.adapters).some(
-        ([, snapshot]) => comparable(snapshot) !== comparable(reference),
+      const entries = Object.entries(check.adapters);
+      // BR-103: single-adapter entries are Bundar-only by design —
+      // recorded context with no comparison to get wrong.
+      if (entries.length < 2) return false;
+      const [first, ...rest] = entries;
+      return rest.some(
+        ([, snapshot]) =>
+          comparable(snapshot as ParitySnapshot) !==
+          comparable(first![1] as ParitySnapshot),
       );
     })
     .map((check) => check.scenario);

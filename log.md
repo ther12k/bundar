@@ -940,3 +940,10 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - Every artifact directory gains `toolchain.json`: CLI name+version, Playwright runtime version, Chromium revision (+ headless-shell revision) resolved from the INSTALLED tree through realpathed package resolution (bun's isolated .bun layout). Sample committed under evidence/gh-151/.
 - Contract tests updated: override precedence, local-pinned path shape, no-fallback-even-with-empty-HOME, and identity assertions binding cli 0.1.18 / runtime 1.63.0-alpha / chromium 1237.
 - Both lanes executed green on the pinned path locally; CI browser-lanes run provides the hosted-Chromium proof post-merge.
+
+## 2026-08-27 — BR-103 (#155): JSX benchmark rows scoped to Bundar alone
+
+- The third re-audit caught that raw Bun and Hono were compared against Bundar on the two JSX rendering rows despite doing prebuilt-string work vs Bundar's build+escape+serialize. Extended the Carno-style exclusion to ALL other adapters (the auditor's preferred option): scenarios metadata excludes raw-bun/hono/carno on escaped-jsx-fragment and async-jsx-component.
+- Harness semantics follow participation fully now: single-participant scenarios record a context snapshot without comparisons, regression's parity re-check accepts sub-two-entry snapshots as by-design, and JSX ratio budget keys disappear from generation (15 → 13 keys).
+- One recorded-run correction: an initial retry tripped the load-sensitive sync-middleware ratio once more; passed with disclosed conditions on the next attempt (13 + 17 measurements within budget, 0 alerts).
+- Alpha.md table/prose updated so no cross-adapter number, ratio, or "same escaping" claim survives for those rows; new tests pin the exact exclusion trio and Bundar-only parity keys.

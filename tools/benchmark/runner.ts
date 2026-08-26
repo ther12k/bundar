@@ -99,19 +99,31 @@ export function participatingAdapters(
 }
 
 export async function parityCheck(): Promise<readonly ParityResult[]> {
-  const raw = adapters.find((adapter) => adapter.name === "raw-bun");
-  if (raw === undefined) throw new Error("the raw-bun adapter is required");
-
   const results: ParityResult[] = [];
   for (const scenario of scenarios) {
-    const rawSnapshot = await invoke(raw, scenario);
+    const participants = participatingAdapters(scenario);
+    if (participants.length === 0)
+      throw new Error(`scenario ${scenario.id} has no participating adapters`);
+    // BR-103: Bundar-only scenarios take a single snapshot with nothing to
+    // compare against — recorded as context, never asserted.
+    if (participants.length === 1) {
+      results.push({
+        scenario: scenario.id,
+        adapters: { [participants[0]!.name]: await invoke(participants[0]!, scenario) },
+      });
+      continue;
+    }
+    const reference =
+      participants.find((adapter) => adapter.name === "raw-bun") ??
+      participants[0]!;
+    const referenceSnapshot = await invoke(reference, scenario);
     const snapshots: Partial<
       Record<(typeof adapters)[number]["name"], ResponseSnapshot>
-    > = { "raw-bun": rawSnapshot };
-    for (const adapter of participatingAdapters(scenario)) {
-      if (adapter.name === "raw-bun") continue;
+    > = { [reference.name]: referenceSnapshot };
+    for (const adapter of participants) {
+      if (adapter === reference) continue;
       const snapshot = await invoke(adapter, scenario);
-      assertParity(scenario, rawSnapshot, snapshot, adapter.name);
+      assertParity(scenario, referenceSnapshot, snapshot, adapter.name);
       snapshots[adapter.name] = snapshot;
     }
     results.push({ scenario: scenario.id, adapters: snapshots });
