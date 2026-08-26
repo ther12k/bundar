@@ -6,7 +6,7 @@ Dialect negotiation, actions, updates, events, assets.
 
 > ⚠️ **Experimental** — the htmx 4 beta adapter (`@bundar/htmx/4`, 4.0.0-beta6, integrity `sha256-28fae7bbe8e8…`) is `maturity: experimental`. No GA compatibility claim. Cross-reference: [compatibility matrix](../compatibility/matrix.md).
 
-## Runtime exports (71)
+## Runtime exports (73)
 
 - `ACTION_VARY_HEADERS`
 - `ActionDefinitionError`
@@ -41,12 +41,14 @@ Dialect negotiation, actions, updates, events, assets.
 - `cachePolicyFor`
 - `capabilities`
 - `composeAction`
+- `composeFragment`
 - `composeNavigation`
 - `createApplicationEvent`
 - `createHtmxAssetHandler`
 - `diagnoseExtension`
 - `diagnoseInheritance`
 - `encodeDirectives`
+- `errorResponseHandlingOf`
 - `errorSwapMode`
 - `errorViewResponse`
 - `formatDisinherit`
@@ -80,7 +82,7 @@ Dialect negotiation, actions, updates, events, assets.
 - `view`
 - `withHtmxHeaders`
 
-## Type exports (64)
+## Type exports (68)
 
 - `ActionBodyStatus`
 - `ActionOptOut`
@@ -97,6 +99,7 @@ Dialect negotiation, actions, updates, events, assets.
 - `CreateHtmxAssetHandlerOptions`
 - `ErrorPresentationMode`
 - `ErrorPresentationPolicy`
+- `ErrorResponseHandlingRule`
 - `ErrorSwapMode`
 - `ErrorViewOptions`
 - `EventMapping`
@@ -104,6 +107,7 @@ Dialect negotiation, actions, updates, events, assets.
 - `ExtensionDiagnostic`
 - `FormActionDefinition`
 - `FormActionOutcome`
+- `FragmentSpec`
 - `HistoryPolicy`
 - `HtmxAdapterMaturity`
 - `HtmxApplicationEvent`
@@ -141,6 +145,8 @@ Dialect negotiation, actions, updates, events, assets.
 - `UpdateDiagnostic`
 - `UpdateIntent`
 - `UpdateOperation`
+- `UpdateSpec`
+- `UpdateSpecOperation`
 - `UpdateTarget`
 - `ViewContent`
 - `ViewDefinition`

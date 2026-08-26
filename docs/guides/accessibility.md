@@ -43,29 +43,17 @@ declared in `@bundar/forms`; how it reaches the browser differs by mode:
   default 422 document, which announces the errors through a
   `role="alert"` summary. Re-rendering the application document with the
   associated form is a planned improvement (BR-088, #140).
-- **htmx 2 note (BR-087, #139)**: htmx 2.x does not swap 4xx response
-  bodies by default. Applications must enable the documented
-  `responseHandling` preset in their bootstrap (see below) so enhanced
-  invalid submissions actually swap the error fragment.
-
-## Enabling enhanced error swaps (htmx 2 bootstrap)
-
-```html
-<script>
-  // after the htmx asset loads — swap 4xx responses so the re-rendered
-  // form fragment (HX-Retarget + HX-Reswap, server-issued) is applied
-  htmx.config.responseHandling = [
-    { code: "204", swap: false },
-    { code: "[23]..", swap: true },
-    { code: "[45]..", swap: true, error: true },
-    { code: "default", swap: false, error: true },
-  ];
-</script>
-```
-
-The htmx 4 beta dialect already receives an explicit `HX-Reswap` from
-the error composer. A dialect-owned preset shipped by `@bundar/htmx` is
-planned under #139 so applications do not hand-copy this configuration.
+- **htmx 2 (BR-087, closed)**: htmx 2.x does not swap 4xx response bodies
+  by default, so `HtmxScript` ships the dialect-owned preset
+  automatically — a CSP-safe `<meta name="htmx-config">` (static tag, no
+  inline script) rendered in `<head>` before the asset script. Reference
+  applications, the starter template, and the scaffolder all place
+  `HtmxScript(...)` in the document's `head` slot; enhanced invalid
+  submissions swap the re-rendered form region by default (proven by the
+  accessibility lane with zero runtime configuration). Pass
+  `errorSwap: false` to `HtmxScript` only when your application
+  configures htmx itself. The htmx 4 beta needs no preset: its error
+  swaps are governed by server-issued response directives.
 
 ## Focus management responsibilities
 

@@ -117,6 +117,18 @@ export const htmx2: HtmxDialectAdapter = Object.freeze({
     "htmx2:pinnedVersion": HTMX2_TESTED_VERSION,
     "htmx2:assetIntegrity": `sha256-${HTMX2_ASSET_SHA256}`,
     "htmx2:profile": HTMX2_PROFILE,
+    // BR-087: htmx 2's default responseHandling drops ALL 4xx/5xx bodies,
+    // so the framework's own error fragments never reach the region in a
+    // real browser. This client preset — applied by HtmxScript through the
+    // CSP-safe <meta name="htmx-config"> tag, never an inline script —
+    // re-enables swaps for error statuses. htmx 4 needs no preset: its
+    // response directives already govern error swaps.
+    errorResponseHandling: Object.freeze([
+      Object.freeze({ code: "204", swap: false }),
+      Object.freeze({ code: "[23]..", swap: true }),
+      Object.freeze({ code: "[45]..", swap: true, error: true }),
+      Object.freeze({ code: "default", swap: false, error: true }),
+    ]),
   }),
   decodeRequest: decode,
   encodeResponseDirective: encode,

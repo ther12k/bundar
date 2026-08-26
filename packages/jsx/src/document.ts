@@ -23,6 +23,12 @@ export interface DocumentOptions {
    * each script call-site.
    */
   readonly cspNonce?: string;
+  /**
+   * Additional `<head>` content after charset/title — meta tags (e.g.
+   * htmx client config), preloads, styles. BR-087: htmx 2 reads its
+   * `<meta name="htmx-config">` from head placement at load time.
+   */
+  readonly head?: import("./types").JSXChild;
 }
 
 /** Thrown when a document tree contains nested or duplicate html roots. */
@@ -43,7 +49,7 @@ export class DuplicateDocumentRootError extends Error {
 export function document(
   options: DocumentOptions & { children?: JSXChild },
 ): JSXChild {
-  const { lang, charset = "utf-8", title, cspNonce, children } = options;
+  const { lang, charset = "utf-8", title, cspNonce, head, children } = options;
 
   // JSX nodes are FROZEN, so stamping RE-CREATES script nodes that lack a
   // nonce. Originals are never shared across responses (fresh trees per
@@ -91,6 +97,7 @@ export function document(
         children: [
           jsx("meta", { charset }),
           ...(title !== undefined ? [jsx("title", { children: title })] : []),
+          ...(head !== undefined ? [head] : []),
         ],
       }),
       jsx("body", {

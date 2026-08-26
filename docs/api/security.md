@@ -4,19 +4,24 @@
 
 CSRF, sessions, flash, security headers/CSP.
 
-## Runtime exports (28)
+## Runtime exports (42)
 
 - `CSRF_FORM_FIELD`
 - `CSRF_HEADER`
+- `CookiePolicyError`
 - `CsrfError`
 - `FLASH_KEY`
 - `FlashError`
 - `MAX_FLASH_COUNT`
 - `MAX_FLASH_MESSAGE_LENGTH`
+- `ProductionPostureError`
 - `SESSION`
 - `SecurityHeaderError`
 - `SessionError`
+- `SessionStoreError`
 - `addFlash`
+- `assertProductionPosture`
+- `assertSerializableSessionData`
 - `buildCspHeader`
 - `constantTimeEqual`
 - `consumeFlash`
@@ -28,15 +33,28 @@ CSRF, sessions, flash, security headers/CSP.
 - `getNonce`
 - `getSession`
 - `isCanonicalSessionId`
+- `isProxyTrusted`
 - `issueCsrfToken`
+- `issuePageCsrfToken`
 - `peekFlash`
+- `readCookieExact`
+- `readCsrfTokenFromRequest`
+- `requireProductionSessionCapabilities`
+- `resolveClient`
+- `resolveCookieSecure`
 - `securityHeaders`
 - `sessionMiddleware`
+- `validateCookieAttributes`
 - `verifyCsrfToken`
 - `verifyOrigin`
+- `withCsrfCookie`
 
-## Type exports (15)
+## Type exports (26)
 
+- `CookieAttributeContract`
+- `CookieEnvironment`
+- `CookieOriginInput`
+- `CookieReadResult`
 - `CsrfFailureReason`
 - `CsrfMiddlewareOptions`
 - `CsrfSecret`
@@ -46,9 +64,16 @@ CSRF, sessions, flash, security headers/CSP.
 - `IssuedCsrfToken`
 - `NonceContext`
 - `OriginVerdict`
+- `PostureViolation`
+- `PostureViolationCode`
+- `ProductionPostureInput`
+- `ProxyTrustConfig`
+- `ResolvedClient`
 - `SecurityHeaderPolicy`
 - `SessionData`
 - `SessionHandle`
 - `SessionMiddlewareOptions`
 - `SessionStore`
+- `SessionStoreCapabilities`
+- `SessionStoreFailureKind`
 - `TokenStore`

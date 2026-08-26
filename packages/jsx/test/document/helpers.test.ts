@@ -123,3 +123,34 @@ describe("GH-032 document structure", () => {
     expect(html).toContain(`<body>x</body>`);
   });
 });
+
+// BR-087: optional head slot renders after charset/title (htmx meta config).
+describe("document head slot", () => {
+  test("head content renders inside <head> after the title", async () => {
+    const { renderToString } = await import("../../src/index");
+    const { document } = await import("../../src/index");
+    const html = renderToString(
+      document({
+        lang: "en",
+        title: "T",
+        head: jsx("meta", { name: "htmx-config", content: "{}" }),
+        children: jsx("main", { children: "body" }),
+      }),
+    );
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head).toContain('<meta charset="utf-8">');
+    expect(head.indexOf("<title>")).toBeLessThan(
+      head.indexOf('name="htmx-config"'),
+    );
+    expect(head).toContain('name="htmx-config"');
+    expect(html.slice(html.indexOf("<body>"))).not.toContain("htmx-config");
+  });
+
+  test("head omitted renders exactly as before", async () => {
+    const { document, renderToString } = await import("../../src/index");
+    const html = renderToString(
+      document({ lang: "en", title: "T", children: jsx("main", {}) }),
+    );
+    expect(html).toContain("</head><body>");
+  });
+});

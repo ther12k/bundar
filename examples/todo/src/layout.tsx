@@ -12,9 +12,13 @@ export function Layout({
   flash: readonly { message: string }[];
   children: import("@bundar/jsx").JSXChild;
 }) {
+  // BR-087: HtmxScript renders the dialect's error-swap preset as a
+  // <meta name="htmx-config"> BEFORE the script — it must live in <head>,
+  // where htmx reads it at load.
   return document({
     lang: "en",
     title,
+    head: HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null }),
     children: [
       <header>
         <h1>Bundar Todos</h1>
@@ -24,7 +28,6 @@ export function Layout({
         {flash.map((f) => f.message).join(" ")}
       </p>,
       <main>{children}</main>,
-      HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null }),
     ],
   });
 }

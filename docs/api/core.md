@@ -4,7 +4,7 @@
 
 Routing, context, middleware, errors, budgets — zero runtime dependencies.
 
-## Runtime exports (77)
+## Runtime exports (90)
 
 - `App`
 - `BodyConsumedError`
@@ -20,14 +20,18 @@ Routing, context, middleware, errors, budgets — zero runtime dependencies.
 - `HTTP_METHODS`
 - `HttpError`
 - `InvalidCookieNameError`
+- `Lifecycle`
+- `LifecycleStartError`
 - `MalformedBodyError`
 - `MissingResponseError`
 - `REQUEST_BUDGET`
 - `RequestTimeoutError`
+- `ResponseMutationError`
 - `RouteConflictError`
 - `RoutePathValidationError`
 - `RouteValidationError`
 - `STATIC_ROUTE_FORBIDDEN_META_KEYS`
+- `STATUS_BY_CODE`
 - `StaticRouteMetadataError`
 - `UnsupportedMediaTypeError`
 - `UploadPolicyError`
@@ -47,6 +51,7 @@ Routing, context, middleware, errors, budgets — zero runtime dependencies.
 - `encodePath`
 - `file`
 - `freezeManifest`
+- `generateErrorId`
 - `generateRoutesModule`
 - `getRequestBudget`
 - `handleUploads`
@@ -67,23 +72,36 @@ Routing, context, middleware, errors, budgets — zero runtime dependencies.
 - `normalizeRoutePath`
 - `param`
 - `parseForm`
+- `parseFormCached`
 - `parseJson`
 - `parseText`
 - `pathParams`
 - `queryAdapter`
+- `redactDetails`
 - `redirect`
 - `requestBudget`
 - `requiredParam`
 - `resolveBudget`
 - `routeConflictKey`
 - `sanitizeClientName`
+- `sanitizeStack`
 - `seeOther`
+- `serializeCookie`
 - `text`
 - `uploadFileExists`
 - `validateRouteConflicts`
 - `withCookies`
+- `withHeader`
+- `withHeaderEntries`
 - `withHeaders`
+- `withSetCookie`
+- `withoutHeader`
 
-## Type exports (0)
+## Type exports (6)
 
-_none_
+- `CookieOptions`
+- `HeaderMode`
+- `LifecycleHooks`
+- `LifecycleOptions`
+- `LifecycleResource`
+- `LifecycleState`

@@ -23,13 +23,47 @@ export interface HtmxScriptProps {
   readonly crossOrigin?: "anonymous" | "use-credentials";
   /** Whether the script should defer execution. Defaults to true. */
   readonly defer?: boolean;
+  /**
+   * Render the dialect's error-swap preset (htmx 2) as a CSP-safe
+   * `<meta name="htmx-config">` before the script. Defaults to true;
+   * pass false only when the application configures htmx itself.
+   */
+  readonly errorSwap?: boolean;
   /** Custom data-attributes or script attributes. */
   readonly attributes?: Readonly<Record<string, string | boolean>>;
+}
+
+/** One htmx responseHandling rule a dialect may prescribe for clients. */
+export interface ErrorResponseHandlingRule {
+  readonly code: string;
+  readonly swap: boolean;
+  readonly error?: boolean;
+}
+
+/**
+ * Reads the dialect-owned error-swap preset (neutral metadata key; only
+ * dialects whose clients need it carry one — htmx 2 today).
+ */
+export function errorResponseHandlingOf(
+  dialect: HtmxDialectAdapter,
+): readonly ErrorResponseHandlingRule[] | undefined {
+  const raw = dialect.metadata["errorResponseHandling"];
+  if (raw === undefined) return undefined;
+  if (!Array.isArray(raw))
+    throw new Error("dialect metadata errorResponseHandling must be an array");
+  return raw as readonly ErrorResponseHandlingRule[];
 }
 
 /**
  * Renders an accessible, secure `<script>` tag for the local HTMX asset.
  * Includes data-htmx-version for deterministic inspection and SRI integrity.
+ *
+ * BR-087: when the dialect prescribes a client error-swap preset (htmx 2),
+ * a `<meta name="htmx-config">` tag is rendered BEFORE the script so
+ * enhanced 4xx/5xx error fragments actually swap — configured through a
+ * static meta tag, never an inline script, so CSP nonce/strict-dynamic
+ * policies are unaffected. Pass `errorSwap: false` when the application
+ * configures htmx itself.
  */
 export function HtmxScript({
   dialect = htmx2,
@@ -38,6 +72,7 @@ export function HtmxScript({
   integrity,
   crossOrigin,
   defer = true,
+  errorSwap = true,
   attributes = {},
 }: HtmxScriptProps = {}): JSXChild {
   const asset = getBundledAsset(dialect);
@@ -48,7 +83,7 @@ export function HtmxScript({
   const effectiveCrossOrigin =
     crossOrigin ?? (effectiveIntegrity !== undefined ? "anonymous" : undefined);
 
-  return jsx("script", {
+  const script = jsx("script", {
     src,
     defer,
     "data-htmx-version": asset.version,
@@ -57,4 +92,15 @@ export function HtmxScript({
     ...(nonce ? { nonce } : {}),
     ...attributes,
   });
+
+  const preset = errorSwap ? errorResponseHandlingOf(dialect) : undefined;
+  if (preset === undefined) return script;
+  // htmx-config content is a config OBJECT — the preset rides under the
+  // responseHandling key (a bare array would be ignored by the merge).
+  const config = jsx("meta", {
+    name: "htmx-config",
+    content: JSON.stringify({ responseHandling: preset }),
+  });
+  // meta must precede the script: htmx reads meta config at load time.
+  return [config, script];
 }

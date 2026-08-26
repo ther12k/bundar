@@ -4,15 +4,21 @@
 
 The bundar command-line interface.
 
-## Runtime exports (4)
+## Runtime exports (8)
 
 - `BUNDAR_VERSION`
+- `EXIT`
+- `buildEnvelope`
 - `parseArgs`
+- `printEnvelope`
 - `registerCommand`
 - `runCli`
+- `stripAnsi`
 
-## Type exports (3)
+## Type exports (5)
 
+- `CliEnvelopeV1`
 - `CommandContext`
 - `CommandDefinition`
 - `CommandHandler`
+- `ExitCode`

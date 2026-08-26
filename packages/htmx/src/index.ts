@@ -147,8 +147,8 @@ export {
   AssetRegistryError,
 } from "./assets";
 export type { CreateHtmxAssetHandlerOptions, HtmxAsset } from "./assets";
-export { HtmxScript } from "./script";
-export type { HtmxScriptProps } from "./script";
+export { HtmxScript, errorResponseHandlingOf } from "./script";
+export type { HtmxScriptProps, ErrorResponseHandlingRule } from "./script";
 export {
   createApplicationEvent,
   getEventMappingTable,
