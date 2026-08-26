@@ -931,3 +931,12 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - BR-093 (#145): sessionMiddleware runs validateCookieAttributes AT CONSTRUCTION (__Host- with secure:false throws CookiePolicyError before posture checks run); shared validator contract unit-pinned.
 - BR-097 (#149): source-scan guard keeps packages/core/src free of PROBE/console.error debug branches permanently.
 - Verified: full suite 1140 pass / 0 fail (+25 tests), tsc/lint/prettier clean.
+
+## 2026-08-27 — BR-099 (#151): browser test toolchain pinned into the lockfile
+
+- Root devDependencies now pin `@playwright/cli` 0.1.18 AND its Playwright runtime `playwright` 1.63.0-alpha-2026-08-05 — both land in bun.lock, so an exact commit + frozen lock determine the entire browser test environment.
+- Lane resolution rewritten fail-closed (`tests/browser/lanes/cli.ts`): explicit `BUNDAR_PLAYWRIGHT_CLI` override or the installed local binary at `node_modules/.bin/playwright-cli` — nothing else. The generated npx shim, the Codex-wrapper detection chain, and BOTH unpinned npx fallbacks in ci.yml are gone; a missing pinned binary is an immediate lane-startup error.
+- `playwright install --with-deps chromium` in CI now runs via the pinned local binary (`./node_modules/.bin/playwright`).
+- Every artifact directory gains `toolchain.json`: CLI name+version, Playwright runtime version, Chromium revision (+ headless-shell revision) resolved from the INSTALLED tree through realpathed package resolution (bun's isolated .bun layout). Sample committed under evidence/gh-151/.
+- Contract tests updated: override precedence, local-pinned path shape, no-fallback-even-with-empty-HOME, and identity assertions binding cli 0.1.18 / runtime 1.63.0-alpha / chromium 1237.
+- Both lanes executed green on the pinned path locally; CI browser-lanes run provides the hosted-Chromium proof post-merge.

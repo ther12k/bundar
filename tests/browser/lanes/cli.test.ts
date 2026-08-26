@@ -1,48 +1,41 @@
 import { describe, expect, test } from "bun:test";
-import { resolvePlaywrightCli, SHIM_SOURCE } from "./cli";
+import { resolvePlaywrightCli, toolchainIdentity } from "./cli";
 import { join } from "node:path";
 
-describe("playwright CLI resolution (BR-091)", () => {
-  const binDirectory = join("output", "playwright", ".bin");
-
-  test("explicit override wins over every other source", () => {
-    const resolved = resolvePlaywrightCli(
-      { BUNDAR_PLAYWRIGHT_CLI: "/opt/cli/pw.sh" },
-      binDirectory,
-    );
+describe("playwright CLI resolution (BR-091 + BR-099)", () => {
+  test("explicit override wins", () => {
+    const resolved = resolvePlaywrightCli({
+      BUNDAR_PLAYWRIGHT_CLI: "/opt/cli/pw.sh",
+    });
     expect(resolved.source).toBe("override");
     expect(resolved.path).toBe("/opt/cli/pw.sh");
   });
 
-  test("codex skill wrapper is used when it exists", () => {
-    // This development machine has the codex wrapper; if it disappears the
-    // suite still passes because resolution falls through — so assert
-    // against whichever branch reality takes here.
-    const resolved = resolvePlaywrightCli({}, binDirectory);
-    if (resolved.source === "codex") {
-      expect(resolved.path).toContain(".codex");
-      expect(resolved.path.endsWith("playwright_cli.sh")).toBe(true);
+  test("default resolution is the pinned local binary — no npx, no codex fallback", () => {
+    const resolved = resolvePlaywrightCli({});
+    // On a properly installed tree the pinned local binary exists; when it
+    // does not, resolution must FAIL CLOSED rather than degrade to npx.
+    if (resolved.source === "local-pinned") {
+      expect(resolved.path).toBe(
+        join(process.cwd(), "node_modules", ".bin", "playwright-cli"),
+      );
     } else {
-      expect(resolved.source).toBe("generated-shim");
+      throw new Error("expected fail-closed resolution error");
     }
   });
 
-  test("generated shim keeps the npx + session-flag contract", () => {
-    expect(SHIM_SOURCE).toContain(
-      "npx --yes --package @playwright/cli playwright-cli",
-    );
-    expect(SHIM_SOURCE).toContain("PLAYWRIGHT_CLI_SESSION");
-    expect(SHIM_SOURCE).toContain("--session");
-    expect(SHIM_SOURCE).toContain('cmd+=("$@")');
-    expect(SHIM_SOURCE.trimEnd()).toContain('exec "${cmd[@]}"');
+  test("empty HOME/CODEX_HOME cannot resurrect any fallback (BR-099)", () => {
+    const resolved = resolvePlaywrightCli({ HOME: "", CODEX_HOME: "" });
+    expect(["override", "local-pinned"]).toContain(resolved.source);
+    expect(JSON.stringify(resolved)).not.toContain("npx");
+    expect(JSON.stringify(resolved)).not.toContain(".codex");
   });
 
-  test("HOME without a codex install resolves to the generated shim", () => {
-    const resolved = resolvePlaywrightCli(
-      { HOME: "/home/runner" },
-      binDirectory,
-    );
-    expect(resolved.source).toBe("generated-shim");
-    expect(resolved.path).toBe(join(binDirectory, "playwright_cli.sh"));
+  test("toolchain identity resolves from installed lockfile packages", () => {
+    const identity = toolchainIdentity();
+    expect(identity.cli.name).toBe("@playwright/cli");
+    expect(identity.cli.version).toBe("0.1.18");
+    expect(identity.playwrightRuntime.version).toBe("1.63.0-alpha-2026-08-05");
+    expect(identity.chromiumRevision).not.toBeNull();
   });
 });

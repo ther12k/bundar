@@ -1,0 +1,11 @@
+{
+  "cli": {
+    "name": "@playwright/cli",
+    "version": "0.1.18"
+  },
+  "playwrightRuntime": {
+    "version": "1.63.0-alpha-2026-08-05"
+  },
+  "chromiumRevision": "1237",
+  "chromiumHeadlessShellRevision": "1237"
+}
