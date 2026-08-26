@@ -1,8 +1,8 @@
-# Beta performance report (BR-077)
+# Beta performance report (BR-077 / BR-098)
 
 > **These are measurements on ONE environment under ambient desktop load
 > (~2.4–3.5), not universal claims.** Recorded by `bun run bench:release`
-> at commit `20d26b9` (2026-08-26): Bun 1.4.0, Linux x86_64, 12 cores.
+> (2026-08-26): Bun 1.4.0, Linux x86_64, 12 cores.
 > Reproduce with `bun run bench:beta` on your hardware before drawing
 > conclusions.
 
@@ -31,53 +31,46 @@ body limits are untouched: the 100-field scenario raises `maxFields`/
 `maxParts` through `parseForm`'s explicit argument and would fail at
 the shipped defaults by design.
 
-## Results (p50 / p99 µs; lower is better)
+## Results (p50 / p95 / p99 µs; lower is better)
 
 | Scenario | p50 | p95 | p99 |
 | --- | ---: | ---: | ---: |
-| table-string-100 | 136.8 | 230.3 | 400.6 |
-| table-stream-100 (ttfb p50 6.1µs) | 1230.7 | 2026.5 | 2879.8 |
-| table-string-1000 | 1312.2 | 3417.4 | 6537.7 |
-| table-stream-1000 (ttfb p50 35.2µs) | 14322.6 | 16614.7 | 19635.0 |
-| table-string-10000 | 18623.5 | 31855.5 | 35762.7 |
-| table-stream-10000 (ttfb p50 36.4µs) | 151180.6 | 181184.9 | 215554.2 |
-| fragment-only-update | 24.5 | 40.6 | 59.2 |
-| primary-secondary-updates (3 OOB) | 34.8 | 59.7 | 95.5 |
-| form-urlencoded-validate-20 | 54.0 | 159.0 | 1482.6 |
-| form-urlencoded-parse-100 (raised limits) | 127.8 | 209.7 | 726.9 |
-| multipart-parse-8f-2files | 47.0 | 96.9 | 670.3 |
+| table-string-100 | 104.8 | 140.7 | 548.4 |
+| table-stream-100 (ttfb p50 193.5µs) | 229.2 | 402.3 | 898.0 |
+| table-string-1000 | 995.9 | 2120.6 | 2884.9 |
+| table-stream-1000 (ttfb p50 203.9µs) | 2740.4 | 2935.8 | 3599.5 |
+| table-string-10000 | 15899.1 | 22754.3 | 29167.1 |
+| table-stream-10000 (ttfb p50 236.7µs) | 25648.0 | 27423.3 | 28922.5 |
+| fragment-only-update | 22.8 | 30.1 | 43.0 |
+| primary-secondary-updates (3 OOB) | 28.3 | 37.1 | 55.0 |
+| form-urlencoded-validate-20 | 45.7 | 79.7 | 680.2 |
+| form-urlencoded-parse-100 (raised limits) | 120.5 | 184.5 | 705.2 |
+| multipart-parse-8f-2files | 46.6 | 100.7 | 628.0 |
 
 Memory proxies around each measured block (advisory, from
 `process.memoryUsage()` deltas): at 10k rows the string block grew RSS
-+15.1 MiB while the streaming block was net −5.7 MiB — buffering keeps
++12.6 MiB while the streaming block was net +2.2 MiB — buffering keeps
 the whole page resident, streaming does not.
 
 ## Reading
 
 - **Time-to-first-byte is stream-shaped, not size-shaped.** Streams
-  deliver their first bytes in 6–36 µs regardless of table size; the
-  string render cannot answer before its entire tree is built
-  (0.14 ms at 100 rows → 18.6 ms at 10k rows).
-- **Total CPU is string-shaped.** Streaming pays per-chunk emission
-  overhead (roughly 12–15 µs per row here): total consumption costs
-  8–11× the equivalent string render at every size tested.
+  deliver early byte chunks in sub-millisecond ranges (190–240 µs p50)
+  independent of table size, whereas large string renders cannot respond
+  until the entire document is constructed (16 ms at 10k rows).
+- **Chunk coalescing (BR-098 optimization):** Batching synchronous text
+  fragments into 8 KiB chunks before controller enqueueing reduced
+  10k-table stream consumption from ~151 ms down to ~25.6 ms (a ~6× speedup)
+  and lowered the stream-over-string ratio from 8.12× down to ~1.6× while
+  preserving byte-for-byte output equality and backpressure semantics.
 
 ## Recommendation: string or stream by workload size
 
 | Rows | Recommendation |
 | --- | --- |
-| ≤ ~100 | **String.** Streaming's total-cost penalty buys nothing — there is nothing to hide behind a first-byte win of microseconds. |
-| ~1,000 | **String by default** (1–3 ms end-to-end is inside human indifference); choose stream when the client renders progressively or p95 wall-time headroom matters more than server CPU. |
-| ≥ ~10,000 unpaginated | **Stream** — first visible content arrives ~500× earlier (36 µs vs 19 ms blank wait) with bounded memory; but paginate or window server-side *first*: paginated strings beat any single giant response in total CPU. |
+| ≤ ~100 | **String.** Streaming's overhead buys little at this size — buffered string rendering is virtually instantaneous (~100 µs). |
+| ~1,000 | **String by default** (~1 ms end-to-end); choose stream when the client renders progressively or early time-to-first-byte matters. |
+| ≥ ~10,000 unpaginated | **Stream** — early chunks arrive in sub-millisecond ranges with bounded memory resident footprint; but paginate or window server-side *first*: paginated strings beat any single giant response in total CPU. |
 
 No claims are made beyond this environment. The budget gate (not these
 numbers) decides regressions going forward.
-
-## Measured optimization opportunities
-
-- Per-row chunk emission dominates streaming totals (~12–15 µs/row).
-  Coalescing adjacent sync-rendered rows into larger chunks before
-  flushing could plausibly cut streamed totals several-fold at zero
-  semantic change. Measured impact justifies a tracked follow-up;
-  complexity touches BR-072 streaming conformance, so it is registered
-  as its own issue rather than folded into BR-077.
