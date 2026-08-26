@@ -48,10 +48,12 @@ declared in `@bundar/forms`; how it reaches the browser differs by mode:
   targeted at the server-known form region (`formTarget`), with the error
   text associated to the field (`aria-describedby`, `aria-invalid`). The
   lane proves the swapped fragment passes the full axe scan.
-- **Ordinary (no-JS) submissions** currently receive the framework
-  default 422 document, which announces the errors through a
-  `role="alert"` summary. Re-rendering the application document with the
-  associated form is a planned improvement (BR-088, #140).
+- **Ordinary (no-JS) submissions** re-render the APPLICATION document
+  with the retained form and field-associated errors: form actions accept
+  a `renderInvalidDocument` hook that receives the same validation result
+  as the enhanced fragment path, and the reference applications ship it
+  out of the box (BR-088, closed). Without the hook the generic 422
+  document announces errors through a linkless `role="alert"` summary.
 - **htmx 2 (BR-087, closed)**: htmx 2.x does not swap 4xx response bodies
   by default, so `HtmxScript` ships the dialect-owned preset
   automatically — a CSP-safe `<meta name="htmx-config">` (static tag, no
