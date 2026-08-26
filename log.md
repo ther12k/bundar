@@ -857,3 +857,15 @@ BR-078 is complete; BR-079 (human gate) and BR-080 inherit a fixed publication t
 - Verified: both lanes PASS (artifacts under output/playwright/{accessibility,no-js}/); format, lint, typecheck, architecture:check, docs:check, docs:status-check, issues:check, docs:validate (232 docs), docs:links (1259), full suite 1075/1075, build, release:plan — all exit 0.
 
 BR-075 is complete; BR-085 (beta gate) gains two required lanes.
+
+## 2026-08-26 — BR-087 (#139): dialect-owned htmx 2 error-swap preset ships by default
+
+- Closed the enhanced-error gap end to end: htmx 2's default `responseHandling` drops every 4xx body, so Bundar's error fragments never swapped in real browsers without per-app configuration.
+- The v2 adapter now carries the preset as neutral metadata (`errorResponseHandling`, alongside the existing `requestHeaderAliases` pattern); `HtmxScript` renders it as a CSP-safe `<meta name="htmx-config">` (a static tag — no inline script, nonce policies unaffected) placed in `<head>` where htmx reads it at load, with an `errorSwap: false` opt-out for apps that configure htmx themselves. The htmx 4 beta prescribes no preset — its error swaps are server-directed (verified in-browser with the vendored 4.0.0-beta6: swaps without any client config).
+- `document()` gained an additive `head` slot (charset/title + app head content) so layouts place `HtmxScript` correctly; todo/admin layouts, `templates/minimal`, and the scaffolder template all adopted it. Config shape pinned by tests: the meta content is a config OBJECT (`{"responseHandling":[…]}`) — a bare array is silently ignored by htmx's merge (found live; the standalone probe that passed used the object form).
+- The accessibility lane's error-association step NO LONGER injects runtime configuration — it asserts `htmx.config.responseHandling` arrived from the meta and proves the default app swaps the 422 fragment into the form region. Lane: PASS (7 scans, 0 blocking).
+- Incidental repair found by the battery: `bun run test:scaffold` had exited 2 (usage) since GH-071 — the npm script never passed the dialect argument. The tool now defaults to running BOTH dialect journeys; both pass with the new head-slot template.
+- Re-audit acknowledgment: the 2026-08-26 external re-audit's nine findings are registered as #141–#149 (session capabilities P1, sliding cookie P1, gate wiring P1, testing parity P1, cookie validator P2, JSON guard P2, codegen P2, fallback precedence P2, PROBE cleanup P3) and will be worked in that order; #140 (ordinary 422 document re-render) remains open as BR-088.
+- Verified: a11y + no-js lanes, test:template, test:scaffold (both dialects), format, lint, typecheck, architecture:check, docs:check/status-check/issues:check, docs:validate, docs:links, full suite (0 fail), build, release:plan — all exit 0.
+
+BR-087 is complete: enhanced 4xx errors now work by default in real htmx 2 browsers.

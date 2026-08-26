@@ -88,9 +88,15 @@ export function Layout({
   children: unknown;
   script?: boolean;
 }) {
+  // local asset only — no CDN; served from the pinned vendor file.
+  // In <head>: HtmxScript ships the dialect error-swap preset as a meta
+  // tag that htmx reads at load.
   return document({
     lang: "en",
     title,
+    head: script
+      ? HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null })
+      : null,
     children: [
       jsx("header", {
         children: jsx("nav", {
@@ -98,10 +104,6 @@ export function Layout({
         }),
       }),
       jsx("main", { children }),
-      // local asset only — no CDN; served from the pinned vendor file
-      script
-        ? HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null })
-        : null,
     ],
   });
 }

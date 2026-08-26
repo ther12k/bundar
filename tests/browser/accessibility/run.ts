@@ -70,19 +70,16 @@ try {
   await scanAndGate("todo-home");
 
   // Targeted: validation error is ASSOCIATED with the field + announced.
-  // htmx 2 defaults do not swap 4xx bodies (see #139 / BR-087) — the app
-  // bootstrap enables the documented responseHandling preset first, then
-  // this proves the swapped fragment carries a correctly associated error.
+  // BR-087 closed: the dialect-owned preset ships via HtmxScript's
+  // CSP-safe <meta name="htmx-config"> — NO runtime configuration is
+  // injected here; this proves the reference application swaps enhanced
+  // error fragments by DEFAULT.
   await assertInPage(
     runner,
     "todo-error-association",
     `async () => {
-      window.htmx.config.responseHandling = [
-        { code: "204", swap: false },
-        { code: "[23]..", swap: true },
-        { code: "[45]..", swap: true, error: true },
-        { code: "default", swap: false, error: true },
-      ];
+      if (typeof window.htmx.config.responseHandling === "undefined")
+        throw new Error("meta preset not loaded (HtmxScript regression)");
       document.querySelector('input[name=title]').value = 'x'; // 1 char < min
       document.querySelector('#todo-form button[type=submit]').click();
       await new Promise(r => setTimeout(r, 600));

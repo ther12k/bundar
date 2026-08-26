@@ -4,13 +4,13 @@
 
 | Package | Runtime exports | Type exports |
 | --- | ---: | ---: |
-| [@bundar/core](./core.md) | 77 | 0 |
+| [@bundar/core](./core.md) | 90 | 6 |
 | [@bundar/jsx](./jsx.md) | 49 | 35 |
 | [@bundar/schema](./schema.md) | 5 | 11 |
 | [@bundar/forms](./forms.md) | 11 | 0 |
-| [@bundar/security](./security.md) | 28 | 15 |
-| [@bundar/htmx](./htmx.md) | 71 | 64 |
+| [@bundar/security](./security.md) | 42 | 26 |
+| [@bundar/htmx](./htmx.md) | 73 | 68 |
 | [@bundar/testing](./testing.md) | 16 | 0 |
-| [@bundar/cli](./cli.md) | 4 | 3 |
+| [@bundar/cli](./cli.md) | 8 | 5 |
 
 Topic deep-dives: [compatibility matrix](../compatibility/matrix.md), [htmx 2 profile](../compatibility/htmx2.md), [htmx 4 beta profile](../compatibility/htmx4-beta6.md), [guides](../guides/README.md).

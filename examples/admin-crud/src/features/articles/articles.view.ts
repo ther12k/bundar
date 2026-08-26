@@ -16,9 +16,11 @@ export function Layout({
   user?: string;
   children: unknown;
 }) {
+  // BR-087: HtmxScript's error-swap preset meta must be in <head>.
   return document({
     lang: "en",
     title,
+    head: HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null }),
     children: [
       jsx("header", {
         children: [
@@ -34,7 +36,6 @@ export function Layout({
         children: flash.map((f) => f.message).join(" "),
       }),
       jsx("main", { children }),
-      HtmxScript({ dialect, src: "/assets/htmx.js", integrity: null }),
     ],
   });
 }

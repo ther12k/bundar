@@ -11,9 +11,11 @@ export function Layout({
   title: string;
   children: JSXChild;
 }) {
+  // BR-087: HtmxScript's error-swap preset meta must be in <head>.
   return document({
     lang: "en",
     title,
+    head: HtmxScript({ dialect, src: urls["asset-htmx"](), integrity: null }),
     children: [
       <header>
         <nav>
@@ -22,7 +24,6 @@ export function Layout({
       </header>,
       // the error region: validation failures land here for enhanced flows
       <main id="content">{children}</main>,
-      HtmxScript({ dialect, src: urls["asset-htmx"](), integrity: null }),
     ],
   });
 }

@@ -23,6 +23,17 @@ import {
 
 const dialectArg = process.argv[2];
 if (dialectArg !== "htmx2" && dialectArg !== "htmx4-experimental") {
+  if (dialectArg === undefined) {
+    // `bun run test:scaffold` (no argument): run BOTH dialect journeys and
+    // aggregate exit codes — the npm script never passed one, so it had
+    // been exiting 2 on usage since GH-071.
+    const results = ["htmx2", "htmx4-experimental"].map((dialect) =>
+      spawnSync(process.execPath, [import.meta.path, dialect], {
+        stdio: "inherit",
+      }),
+    );
+    process.exit(results.every((r) => r.status === 0) ? 0 : 1);
+  }
   console.error("test:scaffold: pass htmx2 or htmx4-experimental");
   process.exit(2);
 }
