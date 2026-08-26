@@ -73,6 +73,7 @@ const environment = {
   packages: {
     typescript: pkg.devDependencies.typescript,
     honoParityFixture: pkg.devDependencies.hono,
+    carnoReferenceFixture: pkg.devDependencies["@carno.js/core"],
   },
   dialectPins: {
     htmx2: { version: stable.version, integrity: stable.integrity },

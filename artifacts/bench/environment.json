@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-22T16:30:40.601Z",
-  "commit": "7848c1524b44c9a2a68087509f9102e1116c7d77",
+  "generatedAt": "2026-08-26T15:18:09.053Z",
+  "commit": "64cc79dc4bbe6b8775870c3837837ca30d16e4c6",
   "runtime": {
     "bun": "1.4.0",
     "platform": "linux",
@@ -11,7 +11,8 @@
   },
   "packages": {
     "typescript": "6.0.3",
-    "honoParityFixture": "4.13.3"
+    "honoParityFixture": "4.13.3",
+    "carnoReferenceFixture": "1.7.0"
   },
   "dialectPins": {
     "htmx2": {

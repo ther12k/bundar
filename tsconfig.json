@@ -17,7 +17,9 @@
       "@bundar/cli": ["./packages/cli/src/index.ts"]
     },
     "jsx": "react-jsx",
-    "jsxImportSource": "@bundar/jsx"
+    "jsxImportSource": "@bundar/jsx",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
     "scripts/**/*.ts",

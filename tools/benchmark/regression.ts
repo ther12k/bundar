@@ -193,6 +193,7 @@ if (generate) {
       }
     }
     for (const startup of artifact.resources.startup) {
+      if (startup.mode === "carno") continue; // comparator context, not a gate
       for (const [suffix, value] of [
         ["readyMs", startup.readyMsP50],
         ["rssBytes", startup.rssBytesP50],
@@ -277,6 +278,9 @@ for (const [scenario, adapters] of byScenario) {
   }
 }
 for (const startup of alpha.resources.startup) {
+  // Carno startup is recorded as comparison context (like Hono ratios);
+  // only what Bundar owns is gated.
+  if (startup.mode === "carno") continue;
   for (const [suffix, value] of [
     ["readyMs", startup.readyMsP50],
     ["rssBytes", startup.rssBytesP50],

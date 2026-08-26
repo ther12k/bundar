@@ -1,19 +1,49 @@
 import { describe, expect, test } from "bun:test";
+import { readdirSync } from "node:fs";
 import { adapters, invoke } from "../../tools/benchmark/adapters";
-import { parityCheck, runBenchmark } from "../../tools/benchmark/runner";
+import {
+  participatingAdapters,
+  parityCheck,
+  runBenchmark,
+} from "../../tools/benchmark/runner";
 import { scenarios } from "../../tools/benchmark/scenarios";
 
 describe("benchmark parity", () => {
-  test("all declared scenarios have equivalent raw Bun, Hono, and Bundar behavior", async () => {
+  test("all declared scenarios have equivalent behavior across participating adapters", async () => {
     const parity = await parityCheck();
     expect(parity).toHaveLength(scenarios.length);
-    expect(
-      parity.every(
-        (entry) =>
-          entry.adapters["raw-bun"].status === entry.adapters.hono.status &&
-          entry.adapters["raw-bun"].status === entry.adapters.bundar.status,
-      ),
-    ).toBe(true);
+    for (const entry of parity) {
+      const raw = entry.adapters["raw-bun"];
+      expect(raw).toBeDefined();
+      for (const snapshot of Object.values(entry.adapters)) {
+        expect(snapshot?.status).toBe(raw!.status);
+        expect(snapshot?.body).toBe(raw!.body);
+      }
+    }
+  });
+
+  test("JSX-model scenarios exclude the Carno adapter instead of faking parity", () => {
+    const jsxScenarios = scenarios.filter((scenario) => scenario.excluded);
+    expect(jsxScenarios.map((scenario) => scenario.id).sort()).toEqual([
+      "async-jsx-component",
+      "escaped-jsx-fragment",
+    ]);
+    for (const scenario of jsxScenarios)
+      expect(scenario.excluded).toEqual(["carno"]);
+  });
+
+  test("participating adapters cover raw-bun, hono, bundar, and carno unless excluded", () => {
+    for (const scenario of scenarios) {
+      const names = participatingAdapters(scenario).map(
+        (adapter) => adapter.name,
+      );
+      expect(names).toContain("raw-bun");
+      expect(names).toContain("hono");
+      expect(names).toContain("bundar");
+      if ((scenario.excluded ?? []).includes("carno"))
+        expect(names).not.toContain("carno");
+      else expect(names).toContain("carno");
+    }
   });
 
   test("parity executes in process without a network listener", async () => {
@@ -31,6 +61,38 @@ describe("benchmark parity", () => {
     const snapshot = await invoke(bundar!, scenarios[0]!);
     expect(snapshot.status).toBe(200);
     expect(snapshot.body).toBe("<p>static</p>");
+  });
+
+  test("Carno reference is the reviewed pinned version", async () => {
+    const carno = adapters.find((adapter) => adapter.name === "carno");
+    expect(carno).toBeDefined();
+    expect(carno!.version).toBe("1.7.0");
+    const scenario = scenarios.find((s) => s.id === "service-access")!;
+    const snapshot = await invoke(carno!, scenario);
+    expect(snapshot.status).toBe(200);
+    expect(snapshot.body).toBe('<p data-service="Bundar">service</p>');
+  });
+
+  test("Carno stays optional — root dev dependency only, never a package dependency", async () => {
+    const root = JSON.parse(await Bun.file("package.json").text());
+    expect(root.devDependencies["@carno.js/core"]).toBe("1.7.0");
+    expect(root.dependencies?.["@carno.js/core"]).toBeUndefined();
+    for (const group of ["packages", "examples"]) {
+      for (const entry of readdirSync(group, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        const manifest = JSON.parse(
+          await Bun.file(`${group}/${entry.name}/package.json`).text(),
+        );
+        for (const field of [
+          "dependencies",
+          "devDependencies",
+          "peerDependencies",
+          "optionalDependencies",
+        ]) {
+          expect(manifest[field]?.["@carno.js/core"]).toBeUndefined();
+        }
+      }
+    }
   });
 });
 
@@ -52,9 +114,14 @@ describe("benchmark report", () => {
       expect(report.methodology.parityCheckedBeforeTiming).toBe(true);
       expect(report.methodology.rawSamplesIncluded).toBe(true);
       expect(report.parity).toHaveLength(scenarios.length);
-      expect(report.results).toHaveLength(scenarios.length * 3);
+      const expectedResults = scenarios.reduce(
+        (sum, scenario) => sum + participatingAdapters(scenario).length,
+        0,
+      );
+      expect(report.results).toHaveLength(expectedResults);
       expect(report.resources.startup.map((s) => s.mode).sort()).toEqual([
         "bundar",
+        "carno",
         "raw-bun",
       ]);
       expect(
