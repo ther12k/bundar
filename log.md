@@ -832,3 +832,13 @@ BR-086 follow-up is complete; CI on main should now reach a fully green run.
 - Verified: prettier, lint, typecheck, architecture:check (117 test files), full suite 1066/1066 across three consecutive runs. One earlier run under parallel install/lint load had a single unreproduced failure (test name not captured; three subsequent clean runs); flagged here rather than hidden per the no-hidden-failures rule.
 
 #137's acceptance criteria are now all materially satisfied; closing with a corrected evidence record.
+
+## 2026-08-25 — BR-078: freeze the pre-1.0 versioning and publication policy (ADR-0021)
+
+- ADR-0021 (`decisions/0021-package-versioning-and-publication.md`): synchronized lockstep versions for all nine packages; first registry version `0.1.0-alpha.2` (dist-tag `alpha`, continuing the source-only GitHub `v0.1.0-alpha.1` line); `latest` EMPTY until stable `0.1.0`, `next` reserved EMPTY; in-repo manifests stay `0.0.0`+`private:true` until the one-shot publication commit flips both for all packages; internal edges `workspace:*` in-repo → `^0.1.0-alpha.2` caret ranges when packed; tag-before-publish provenance binding; yank-only-for-security; automation never publishes or moves dist-tags.
+- htmx 4 GA guard made mechanical: a GA-looking `HTMX4_TESTED_VERSION` while the M7 descope record stands is a policy violation.
+- New `tools/release/plan.ts` (`release:plan [--json]`): side-effect-free validator of the six ADR invariants + plan printer; `package:audit` aliased to the existing `pack:audit`. 9 tests in `tests/release/release-plan.test.ts` (synthetic per-rule drift + real-tree conformance + frozen constants).
+- Read-set deviations: the issue's suggested `decisions/0020-package-versioning-and-publication.md` was written before ADR-0020 (trusted proxy) took the number — this ADR is 0021. `packages/*/package.json` needed no changes (already conformant: synchronized `0.0.0`, `workspace:*` edges); the scripts entry point moved to the root manifest instead.
+- Verified: release:plan (human+JSON), package:audit, prettier, lint, typecheck, architecture:check, docs:check, docs:status-check (6 facts), issues:check, docs:validate (232 docs), docs:links (1258), full suite 1075/1075, build — all exit 0.
+
+BR-078 is complete; BR-079 (human gate) and BR-080 inherit a fixed publication target.

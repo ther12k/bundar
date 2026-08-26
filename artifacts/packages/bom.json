@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-23T04:13:16.323Z",
+  "generatedAt": "2026-08-26T01:30:08.637Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -30,9 +30,12 @@
       "name": "@bundar/core",
       "version": "0.0.0",
       "tarball": "bundar-core-0.0.0.tgz",
-      "sha256": "35a28a515167831173cafa2f766ea436c8459dc958d359e765fdb5c4f02e3dc2",
-      "fileCount": 20,
+      "sha256": "7e0e3734b7923492e2233ece01c9632d857a578b24cb23dbdaadec6a37001e44",
+      "fileCount": 24,
       "files": [
+        "src/lifecycle.ts",
+        "src/response-mutate.ts",
+        "src/error-redaction.ts",
         "src/app.ts",
         "src/context.ts",
         "src/request/adapters.ts",
@@ -43,6 +46,7 @@
         "src/manifest.ts",
         "src/errors.ts",
         "src/index.ts",
+        "src/request-abort.ts",
         "src/routing/conflicts.ts",
         "src/routing/types.ts",
         "src/routing/path.ts",
@@ -54,8 +58,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 103209,
-      "packedBytes": 29661,
+      "unpackedBytes": 142731,
+      "packedBytes": 41161,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -65,7 +69,7 @@
       "name": "@bundar/jsx",
       "version": "0.0.0",
       "tarball": "bundar-jsx-0.0.0.tgz",
-      "sha256": "485abf715fe0c327b4d41c360f38f2216e27c09cf84f9191757b21997ca1bec4",
+      "sha256": "9c70c023848039b2a859f7026c988ee5507ef8af5b345269521da9e431b6bc09",
       "fileCount": 22,
       "files": [
         "src/jsx-dev-runtime.ts",
@@ -91,8 +95,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 66060,
-      "packedBytes": 19542,
+      "unpackedBytes": 67555,
+      "packedBytes": 20104,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -102,33 +106,32 @@
       "name": "@bundar/schema",
       "version": "0.0.0",
       "tarball": "bundar-schema-0.0.0.tgz",
-      "sha256": "d3abf4cf2ded805414a77bb45b516aa0fb0d87916638053fafe57a43e13c1739",
-      "fileCount": 7,
+      "sha256": "fc829fdf2e7fca5c9527ae849e21a3a1e2f4083e9821dedda3ece5ca269a0133",
+      "fileCount": 6,
       "files": [
         "src/index.ts",
         "src/issues.ts",
         "src/validate.ts",
-        "src/sources.ts",
         "src/standard.ts",
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 19494,
-      "packedBytes": 6343,
+      "unpackedBytes": 15870,
+      "packedBytes": 5508,
       "sizeWithinBudget": true,
       "license": "MIT",
-      "runtimeDependencies": {
-        "@bundar/core": "workspace:*"
-      },
+      "runtimeDependencies": {},
       "findings": []
     },
     {
       "name": "@bundar/security",
       "version": "0.0.0",
       "tarball": "bundar-security-0.0.0.tgz",
-      "sha256": "81ed50d31a539c3bcc051a2b5c89a6061c6738b49472b6e8fb4036844b076da6",
-      "fileCount": 9,
+      "sha256": "ac2e9699d92030d5782f575cd17b627171a94b70c28d4e69476b8f2d0d892f3b",
+      "fileCount": 12,
       "files": [
+        "src/proxy.ts",
+        "src/posture.ts",
         "src/index.ts",
         "src/csrf.ts",
         "src/flash.ts",
@@ -136,11 +139,12 @@
         "src/session/store.ts",
         "src/session/id.ts",
         "src/session/middleware.ts",
+        "src/cookies.ts",
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 40222,
-      "packedBytes": 12770,
+      "unpackedBytes": 69565,
+      "packedBytes": 21691,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -152,7 +156,7 @@
       "name": "@bundar/htmx",
       "version": "0.0.0",
       "tarball": "bundar-htmx-0.0.0.tgz",
-      "sha256": "150194a9fe5e8839a7fabde3b1825cf179e65ce9b76a8a45dd6c6195c900fab8",
+      "sha256": "1f079c5a0fe3b5e6c3ed18e4cf24bb08d9b58f0dbc0c1d4915f080acc310135e",
       "fileCount": 26,
       "files": [
         "src/script.ts",
@@ -182,14 +186,13 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 207293,
-      "packedBytes": 62747,
+      "unpackedBytes": 210301,
+      "packedBytes": 63769,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
-        "@bundar/core": "workspace:*",
-        "@bundar/jsx": "workspace:*",
-        "@bundar/schema": "workspace:*"
+        "@bundar/forms": "workspace:*",
+        "@bundar/jsx": "workspace:*"
       },
       "findings": []
     },
@@ -224,23 +227,26 @@
       "name": "@bundar/cli",
       "version": "0.0.0",
       "tarball": "bundar-cli-0.0.0.tgz",
-      "sha256": "b6bd6a3f1ad00ab5e4eef49067ffa878eabd593d66a121e69ffe0dee9edb58a6",
-      "fileCount": 11,
+      "sha256": "cd02cf4a4e48b87272b0146fecd8a8c620563f489f13c8b708a7141c0b0ebff6",
+      "fileCount": 14,
       "files": [
+        "src/machine.ts",
         "src/index.ts",
         "src/bin.ts",
         "src/audit/scan.ts",
         "src/audit/rules.ts",
         "src/commands/dev.ts",
         "src/commands/htmx-audit.ts",
+        "src/commands/inspect.ts",
         "src/commands/routes.ts",
+        "src/commands/agent-context.ts",
         "src/process/child.ts",
         "src/cli.ts",
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 31950,
-      "packedBytes": 10920,
+      "unpackedBytes": 62807,
+      "packedBytes": 19735,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -253,18 +259,20 @@
       "name": "create-bundar",
       "version": "0.0.0",
       "tarball": "create-bundar-0.0.0.tgz",
-      "sha256": "6ab43500831533bcf5a15f8932cbc78fbeebfd8b158cc9ed287305442377a8b5",
-      "fileCount": 6,
+      "sha256": "bd9887a38548f591746f74556d6886bb9732a190629cc371f225e704f59c7761",
+      "fileCount": 8,
       "files": [
         "src/index.ts",
         "src/bin.ts",
         "src/cli.ts",
         "README.md",
+        "templates/shared.ts",
         "templates/minimal.ts",
+        "templates/feature.ts",
         "package.json"
       ],
-      "unpackedBytes": 18513,
-      "packedBytes": 6473,
+      "unpackedBytes": 33469,
+      "packedBytes": 9678,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -273,8 +281,8 @@
   ],
   "summary": {
     "packages": 8,
-    "totalUnpackedBytes": 517426,
-    "totalPackedBytes": 157501,
+    "totalUnpackedBytes": 632983,
+    "totalPackedBytes": 190691,
     "findings": 0
   }
 }

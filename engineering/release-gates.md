@@ -30,3 +30,18 @@ A milestone closes only when every required issue is complete, commands have run
 # Stop-ship examples
 
 Escaping bypass, CSRF failure, route ownership ambiguity, unbounded request buffering, broken no-JS fallback, undocumented version-specific behavior, failed package provenance, or compatibility claims based only on beta after GA.
+
+# Registry publication preconditions (ADR-0021)
+
+Any publication-adjacent gate (canary, beta, stable) requires:
+
+- `bun run release:plan` green — synchronized `0.0.0`/`private` in-repo
+  posture, `workspace:*`-only internal edges, no external runtime deps in
+  core/jsx, and the htmx 4 pin still a prerelease while the M7 descope
+  stands.
+- `bun run package:audit` green — packed manifests carry caret ranges
+  (never `workspace:` or bare `0.0.0`), licenses, and exact file lists.
+- The immutable `v<version>` tag exists BEFORE publish; SBOM, provenance,
+  and checksums bind to that tag's commit.
+- `publish:approved` runs only with `BUNDAR_RELEASE_TOKEN` + npm identity;
+  automation never publishes and never moves `latest`/`next`.
