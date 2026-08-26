@@ -88,7 +88,14 @@ for (const scenario of report.scenarios) {
   const results = byScenario(scenario.id);
   const raw = results.get("raw-bun");
   console.log(`  ${scenario.id} [${scenario.category}]`);
-  for (const name of ["raw-bun", "hono", "bundar"] as const) {
+  for (const name of ["raw-bun", "hono", "bundar", "carno"] as const) {
+    if ((scenario.excluded ?? []).includes(name)) {
+      // Absent comparison by design — never a winner label.
+      console.log(
+        `    ${name.padEnd(7)} excluded (scenario models capabilities this adapter does not have)`,
+      );
+      continue;
+    }
     const result = results.get(name);
     if (result === undefined || raw === undefined) continue;
     const ratio = (result.distribution.p50Ns / raw.distribution.p50Ns).toFixed(

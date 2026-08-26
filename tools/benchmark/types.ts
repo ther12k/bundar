@@ -7,16 +7,25 @@ export type ScenarioId =
   | "escaped-jsx-fragment"
   | "async-jsx-component"
   | "page-fragment-negotiation"
-  | "validated-form";
+  | "validated-form"
+  | "validated-json"
+  | "service-access";
 
 export type BenchmarkScenario = {
   id: ScenarioId;
   category: "micro" | "representative";
   description: string;
   request: () => Request;
+  /**
+   * Adapters that do not model this scenario's capabilities (e.g. the
+   * JSX rendering model is Bundar-specific). Excluded adapters take no
+   * parity snapshot and no timing sample, and the report prints no
+   * winner label for them — an absent comparison, not a zero.
+   */
+  excluded?: readonly AdapterName[];
 };
 
-export type AdapterName = "raw-bun" | "hono" | "bundar";
+export type AdapterName = "raw-bun" | "hono" | "bundar" | "carno";
 
 export type Adapter = {
   name: AdapterName;
@@ -35,7 +44,8 @@ export type ResponseSnapshot = {
 
 export type ParityResult = {
   scenario: ScenarioId;
-  adapters: Record<AdapterName, ResponseSnapshot>;
+  /** Present for every participating adapter; absent for excluded ones. */
+  adapters: Partial<Record<AdapterName, ResponseSnapshot>>;
 };
 
 export type Distribution = {
@@ -60,7 +70,7 @@ export type BenchmarkResult = {
 };
 
 export type StartupDistribution = {
-  mode: "raw-bun" | "bundar";
+  mode: "raw-bun" | "bundar" | "carno";
   samples: number;
   readyMsMin: number;
   readyMsP50: number;

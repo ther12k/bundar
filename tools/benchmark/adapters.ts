@@ -1,16 +1,31 @@
 import { Hono } from "hono";
+import { buildBundarApp } from "./bundar-app";
+import { buildCarnoApp } from "./carno-app";
 import {
-  buildBundarApp,
   FORM_HTML,
   FRAGMENT_HTML,
+  INVALID_HTML,
   PAGE_HTML,
   response,
   STATIC_HTML,
-} from "./bundar-app";
+  textResponse,
+} from "./payloads";
 import type { Adapter, BenchmarkScenario, ResponseSnapshot } from "./types";
 
-function textResponse(body: string, status = 200): Response {
-  return response(body, status, undefined, "text/plain; charset=utf-8");
+const benchmarkService = { owner: () => "Bundar" };
+
+function serviceHtml(): string {
+  return `<p data-service="${benchmarkService.owner()}">service</p>`;
+}
+
+async function jsonBody(request: Request): Promise<Response> {
+  const payload = (await request.json()) as {
+    name?: unknown;
+    email?: unknown;
+  };
+  const valid =
+    payload.name === "Bundar" && payload.email === "team@bundar.invalid";
+  return response(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
 }
 
 async function formBody(request: Request): Promise<Response> {
@@ -18,10 +33,7 @@ async function formBody(request: Request): Promise<Response> {
   const valid =
     values.get("name") === "Bundar" &&
     values.get("email") === "team@bundar.invalid";
-  return response(
-    valid ? FORM_HTML : '<p data-valid="false">invalid</p>',
-    valid ? 200 : 422,
-  );
+  return response(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
 }
 
 async function rawBunRequest(request: Request): Promise<Response> {
@@ -49,6 +61,10 @@ async function rawBunRequest(request: Request): Promise<Response> {
         : response(PAGE_HTML, 200, { vary: "HX-Request" });
     case path === "/form" && request.method === "POST":
       return formBody(request);
+    case path === "/json" && request.method === "POST":
+      return jsonBody(request);
+    case path === "/service":
+      return response(serviceHtml());
     default:
       return textResponse("not-found", 404);
   }
@@ -83,11 +99,15 @@ function createHonoApp(): Hono {
     const values = await c.req.parseBody();
     const valid =
       values.name === "Bundar" && values.email === "team@bundar.invalid";
-    return c.html(
-      valid ? FORM_HTML : '<p data-valid="false">invalid</p>',
-      valid ? 200 : 422,
-    );
+    return c.html(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
   });
+  app.post("/json", async (c) => {
+    const payload = (await c.req.json()) as { name?: unknown; email?: unknown };
+    const valid =
+      payload.name === "Bundar" && payload.email === "team@bundar.invalid";
+    return c.html(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
+  });
+  app.get("/service", (c) => c.html(serviceHtml()));
   return app;
 }
 
@@ -110,10 +130,25 @@ function bundarRequest(request: Request): Response | Promise<Response> {
   return bundarApp.serve(request);
 }
 
+/**
+ * Carno adapter (BR-076): a real @carno.js/core app booted through the
+ * public lifecycle (listen on an ephemeral port, then stop) so the DI
+ * container is constructed and controllers are JIT-compiled exactly as
+ * in production; requests then dispatch in-process over the compiled
+ * Bun-native route table (see carno-app.ts). Pinned to 1.7.0; an
+ * optional reference comparator, never a Bundar dependency.
+ */
+const carnoApp = await buildCarnoApp();
+
+function carnoRequest(request: Request): Response | Promise<Response> {
+  return carnoApp.serve(request);
+}
+
 export const adapters: readonly Adapter[] = [
   { name: "raw-bun", version: Bun.version, request: rawBunRequest },
   { name: "hono", version: "4.13.3", request: honoRequest },
   { name: "bundar", version: "0.0.0", request: bundarRequest },
+  { name: "carno", version: "1.7.0", request: carnoRequest },
 ];
 
 export async function snapshot(

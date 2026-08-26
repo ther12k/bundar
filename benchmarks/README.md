@@ -4,8 +4,10 @@ The harness compares equivalent in-process Request/Response workloads across:
 
 - `raw-bun`: direct Web API handlers representing Bun's native ceiling.
 - `hono`: Hono `4.13.3` on Bun, pinned in the root lockfile.
-- `bundar`: explicit deferred adapter returning `501` until Bundar runtime
-  behavior exists in M1/M2. No Bundar performance claim is made in M0.
+- `bundar`: a real `@bundar/core` app compiled through `compileRoutes`.
+- `carno`: Carno.js `@carno.js/core` `1.7.0` on Bun — the enterprise-model
+  reference (controllers, DI, zod validation) added by BR-076. A root dev
+  dependency only, never a Bundar runtime dependency.
 
 ## Scenarios
 
@@ -20,10 +22,18 @@ The harness compares equivalent in-process Request/Response workloads across:
 | `async-jsx-component` | micro | Asynchronous component-like render |
 | `page-fragment-negotiation` | representative | Full page vs fragment based on `HX-Request` |
 | `validated-form` | representative | URL-encoded form parse and validation |
+| `validated-json` | representative | JSON body parse and validation |
+| `service-access` | micro | Response derived from an application-scoped service |
 
-Parity is checked between raw Bun and Hono before timing. The comparison
-asserts status, body, and normalized content-type/vary semantics. Raw response
-snapshots are stored in the parity section of each report.
+Parity is checked between raw Bun and every other participating adapter
+before timing. The comparison asserts status, body, and normalized
+content-type/vary semantics. Raw response snapshots are stored in the
+parity section of each report.
+
+Scenarios that model capabilities an adapter does not have (the two JSX
+rendering scenarios for Carno) exclude that adapter instead of faking an
+equivalent: no parity snapshot, no timing sample, and no winner label is
+printed for an excluded pairing.
 
 ## Commands
 

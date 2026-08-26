@@ -90,28 +90,31 @@ export function distribution(samplesNs: number[]): Distribution {
   };
 }
 
+/** Adapters that model this scenario (exclusions respect scenario.excluded). */
+export function participatingAdapters(
+  scenario: BenchmarkScenario,
+): readonly Adapter[] {
+  const excluded = scenario.excluded ?? [];
+  return adapters.filter((adapter) => !excluded.includes(adapter.name));
+}
+
 export async function parityCheck(): Promise<readonly ParityResult[]> {
   const raw = adapters.find((adapter) => adapter.name === "raw-bun");
-  const hono = adapters.find((adapter) => adapter.name === "hono");
-  const bundar = adapters.find((adapter) => adapter.name === "bundar");
-  if (raw === undefined || hono === undefined || bundar === undefined)
-    throw new Error("raw-bun, hono, and bundar adapters are required");
+  if (raw === undefined) throw new Error("the raw-bun adapter is required");
 
   const results: ParityResult[] = [];
   for (const scenario of scenarios) {
     const rawSnapshot = await invoke(raw, scenario);
-    const honoSnapshot = await invoke(hono, scenario);
-    const bundarSnapshot = await invoke(bundar, scenario);
-    assertParity(scenario, rawSnapshot, honoSnapshot, "hono");
-    assertParity(scenario, rawSnapshot, bundarSnapshot, "bundar");
-    results.push({
-      scenario: scenario.id,
-      adapters: {
-        "raw-bun": rawSnapshot,
-        hono: honoSnapshot,
-        bundar: bundarSnapshot,
-      },
-    });
+    const snapshots: Partial<
+      Record<(typeof adapters)[number]["name"], ResponseSnapshot>
+    > = { "raw-bun": rawSnapshot };
+    for (const adapter of participatingAdapters(scenario)) {
+      if (adapter.name === "raw-bun") continue;
+      const snapshot = await invoke(adapter, scenario);
+      assertParity(scenario, rawSnapshot, snapshot, adapter.name);
+      snapshots[adapter.name] = snapshot;
+    }
+    results.push({ scenario: scenario.id, adapters: snapshots });
   }
   return results;
 }
@@ -139,7 +142,9 @@ async function measure(
 
 type ProbeSample = { mode: string; readyMs: number; rssBytes: number };
 
-async function probeOnce(mode: "raw" | "bundar"): Promise<ProbeSample> {
+async function probeOnce(
+  mode: "raw" | "bundar" | "carno",
+): Promise<ProbeSample> {
   const proc = Bun.spawn({
     cmd: [process.execPath, join(import.meta.dir, "startup-probe.ts"), mode],
     stdout: "pipe",
@@ -159,7 +164,7 @@ async function measureStartup(
   samples: number,
 ): Promise<readonly StartupDistribution[]> {
   const distributions: StartupDistribution[] = [];
-  for (const mode of ["raw", "bundar"] as const) {
+  for (const mode of ["raw", "bundar", "carno"] as const) {
     const readyMs: number[] = [];
     const rssBytes: number[] = [];
     for (let index = 0; index < samples; index += 1) {
@@ -172,7 +177,7 @@ async function measureStartup(
     const median = (values: readonly number[]): number =>
       values[Math.floor(values.length / 2)] ?? 0;
     distributions.push({
-      mode: mode === "raw" ? "raw-bun" : "bundar",
+      mode: mode === "raw" ? "raw-bun" : mode,
       samples,
       readyMsMin: readyMs[0] ?? 0,
       readyMsP50: median(readyMs),
@@ -194,7 +199,7 @@ export async function runBenchmark(): Promise<BenchmarkReport> {
   const results = [];
 
   for (const scenario of scenarios) {
-    for (const adapter of adapters) {
+    for (const adapter of participatingAdapters(scenario)) {
       results.push({
         scenario: scenario.id,
         category: scenario.category,
@@ -212,7 +217,7 @@ export async function runBenchmark(): Promise<BenchmarkReport> {
 
   const resources: BenchmarkResources = {
     startup: await measureStartup(startupSamples),
-    note: "startup probes run in fresh Bun subprocesses; readyMs is performance.now() read at app-ready, i.e. process-boot → app-ready — raw: hand-rolled 9-route switch handler with no framework; bundar: App registration + compileRoutes + middleware composition; rss is process.memoryUsage.rss() after the build",
+    note: "startup probes run in fresh Bun subprocesses; readyMs is performance.now() read at app-ready, i.e. process-boot → app-ready — raw: hand-rolled 9-route switch handler with no framework; bundar: App registration + compileRoutes + middleware composition; carno: @carno.js/core DI container + controller JIT compilation through the public listen(0)/stop() lifecycle; rss is process.memoryUsage.rss() after the build",
   };
 
   return {

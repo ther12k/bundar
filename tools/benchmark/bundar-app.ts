@@ -1,7 +1,8 @@
 /**
  * Shared Bundar benchmark app (GH-024). Kept free of hono and harness
  * imports so the startup probe can load it in a fresh process and measure
- * App registration + compileRoutes in isolation.
+ * App registration + compileRoutes in isolation. Payload constants live
+ * in payloads.ts (zero imports) so adapter copies cannot drift.
  */
 import {
   App,
@@ -15,25 +16,26 @@ import {
   type Middleware,
 } from "../../packages/core/src/index";
 import { jsx, renderNode, renderNodeAsync } from "../../packages/jsx/src/index";
+import {
+  FORM_HTML,
+  FRAGMENT_HTML,
+  INVALID_HTML,
+  PAGE_HTML,
+  response,
+  STATIC_HTML,
+} from "./payloads";
 
-export const STATIC_HTML = "<p>static</p>";
-export const FRAGMENT_HTML = '<p data-kind="fragment">&lt;benchmark&gt;</p>';
-export const PAGE_HTML = "<!doctype html><html><body><p>page</p></body></html>";
-export const FORM_HTML = '<p data-valid="true">Bundar</p>';
-
-export function response(
-  body: string,
-  status = 200,
-  headers?: Record<string, string>,
-  contentType = "text/html; charset=utf-8",
-): Response {
-  return new Response(body, {
-    status,
-    headers: { "content-type": contentType, ...headers },
-  });
-}
+export {
+  FORM_HTML,
+  FRAGMENT_HTML,
+  PAGE_HTML,
+  response,
+  STATIC_HTML,
+} from "./payloads";
 
 const PARITY_VARY = "HX-Request";
+
+const benchmarkService = { owner: () => "Bundar" };
 
 const syncPass: Middleware = (context, next) => next(context);
 const asyncPass: Middleware = async (context, next) => next(context);
@@ -86,11 +88,20 @@ export function buildBundarApp(): {
     const valid =
       form.get("name") === "Bundar" &&
       form.get("email") === "team@bundar.invalid";
-    return response(
-      valid ? FORM_HTML : '<p data-valid="false">invalid</p>',
-      valid ? 200 : 422,
-    );
+    return response(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
   });
+  app.post("/json", async (context) => {
+    const payload = (await context.request.json()) as {
+      name?: unknown;
+      email?: unknown;
+    };
+    const valid =
+      payload.name === "Bundar" && payload.email === "team@bundar.invalid";
+    return response(valid ? FORM_HTML : INVALID_HTML, valid ? 200 : 422);
+  });
+  app.get("/service", () =>
+    bundarHtml(`<p data-service="${benchmarkService.owner()}">service</p>`),
+  );
 
   const { routes } = compileRoutes(app.manifest().routes);
   const serve = (request: Request): Response | Promise<Response> => {
