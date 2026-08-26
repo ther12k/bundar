@@ -37,6 +37,7 @@ const PUBLISH_ORDER = [
   "@bundar/core",
   "@bundar/jsx",
   "@bundar/schema",
+  "@bundar/forms",
   "@bundar/security",
   "@bundar/htmx",
   "@bundar/testing",

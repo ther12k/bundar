@@ -1,6 +1,6 @@
 # M5 developer-experience cleanroom report (GH-081)
 
-Generated: 2026-08-22T16:19:39.632Z by `bun run test:dx-cleanroom`.
+Generated: 2026-08-26T20:50:41.594Z by `bun run test:dx-cleanroom`.
 
 Simulated fresh checkout: the journey consumes PACKED tarballs via a
 local registry (workspace:* rewritten to file: links — the documented
@@ -11,26 +11,27 @@ and migration guides; htmx 4 remains experimental (no GA claim).
 
 | Step | Latency (ms) | Outcome |
 | --- | ---: | --- |
-| pack @bundar/core | 17 | ok |
-| pack @bundar/jsx | 19 | ok |
-| pack @bundar/schema | 16 | ok |
-| pack @bundar/security | 16 | ok |
-| pack @bundar/htmx | 23 | ok |
-| pack @bundar/testing | 10 | ok |
-| pack @bundar/cli | 12 | ok |
-| registry | 245 | 7 packed tarballs with file: rewrites |
-| generate | 6 | create-bundar app with packed-tarball deps |
-| install | 911 | ok |
-| typecheck | 1036 | ok |
-| test | 34 | ok |
-| build | 25 | ok |
-| routes:generate | 61 | ok |
-| routes:check | 65 | ok |
-| live-http | 5 | health, form PRG, fragment, 422 with clear message |
-| routes:check (drifted) | 95 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
+| pack @bundar/core | 12 | ok |
+| pack @bundar/jsx | 11 | ok |
+| pack @bundar/schema | 6 | ok |
+| pack @bundar/forms | 9 | ok |
+| pack @bundar/security | 9 | ok |
+| pack @bundar/htmx | 14 | ok |
+| pack @bundar/testing | 7 | ok |
+| pack @bundar/cli | 10 | ok |
+| registry | 170 | 8 packed tarballs with file: rewrites |
+| generate | 5 | create-bundar app with packed-tarball deps |
+| install | 36 | ok |
+| typecheck | 1519 | ok |
+| test | 53 | ok |
+| build | 17 | ok |
+| routes:generate | 71 | ok |
+| routes:check | 89 | ok |
+| live-http | 11 | health, form PRG, fragment, 422 with clear message |
+| routes:check (drifted) | 66 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
 bundar routes:check: src/routes.gen.ts is stale (routes changed since generation); re-run routes:gen |
 
-Total scripted steps executed: 17 (all exit-0 except the
+Total scripted steps executed: 18 (all exit-0 except the
 deliberate drift check, which failed AS REQUIRED with a diagnostic
 naming the drifted artifact).
 

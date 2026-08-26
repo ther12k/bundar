@@ -4,14 +4,14 @@ Simulated release: **0.1.0-alpha.1** on dist-tag **alpha**. No registry publish 
 
 ## Plan
 
-- Publish order (dependency-first): @bundar/core → @bundar/jsx → @bundar/schema → @bundar/security → @bundar/htmx → @bundar/testing → @bundar/cli → create-bundar
+- Publish order (dependency-first): @bundar/core → @bundar/jsx → @bundar/schema → @bundar/forms → @bundar/security → @bundar/htmx → @bundar/testing → @bundar/cli → create-bundar
 - Inter-package dependencies synchronized to the simulated version in every packed manifest (the form `npm publish` emits).
 
 ## Verification
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| pack+version-sync | pass | 8/8 tarballs at 0.1.0-alpha.1 |
+| pack+version-sync | pass | 9/9 tarballs at 0.1.0-alpha.1 |
 | no-unpublished-paths @bundar/core | pass | inter-deps synchronized |
 | exports @bundar/core | pass | 1 entry points resolve in-tarball |
 | metadata @bundar/core | pass | license/description/repository present |
@@ -24,6 +24,10 @@ Simulated release: **0.1.0-alpha.1** on dist-tag **alpha**. No registry publish 
 | exports @bundar/schema | pass | 1 entry points resolve in-tarball |
 | metadata @bundar/schema | pass | license/description/repository present |
 | readme @bundar/schema | pass | README ships |
+| no-unpublished-paths @bundar/forms | pass | inter-deps synchronized |
+| exports @bundar/forms | pass | 1 entry points resolve in-tarball |
+| metadata @bundar/forms | pass | license/description/repository present |
+| readme @bundar/forms | pass | README ships |
 | no-unpublished-paths @bundar/security | pass | inter-deps synchronized |
 | exports @bundar/security | pass | 1 entry points resolve in-tarball |
 | metadata @bundar/security | pass | license/description/repository present |

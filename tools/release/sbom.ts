@@ -120,7 +120,7 @@ const sbom = {
       {
         name: "bundar:scope",
         value:
-          "source+packages: 8 workspace release packages + lock-resolved externals (runtime+build)",
+          "source+packages: 9 workspace release packages + lock-resolved externals (runtime+build)",
       },
     ],
   },

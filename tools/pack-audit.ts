@@ -30,6 +30,7 @@ const PACKAGES = [
   "@bundar/core",
   "@bundar/jsx",
   "@bundar/schema",
+  "@bundar/forms",
   "@bundar/security",
   "@bundar/htmx",
   "@bundar/testing",
@@ -51,6 +52,7 @@ const SIZE_BUDGETS: Record<string, number> = {
   "@bundar/core": 220_000,
   "@bundar/jsx": 120_000,
   "@bundar/schema": 60_000,
+  "@bundar/forms": 60_000,
   "@bundar/security": 120_000,
   "@bundar/htmx": 1_200_000, // carries the two pinned htmx vendor assets
   "@bundar/testing": 80_000,

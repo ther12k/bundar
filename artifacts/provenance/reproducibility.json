@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-22T16:19:41.330Z",
+  "generatedAt": "2026-08-26T20:50:42.122Z",
   "method": "two independent `bun pm pack` runs; unpacked trees compared file-by-file (SHA-256)",
   "nondeterministicFields": [
     "tarball gzip bytes embed mtimes — tarballs are not byte-comparable across runs; content trees are"
   ],
   "packages": {
     "packages/core": {
-      "files": 19,
+      "files": 24,
       "identical": true
     },
     "packages/jsx": {
@@ -14,11 +14,15 @@
       "identical": true
     },
     "packages/schema": {
+      "files": 6,
+      "identical": true
+    },
+    "packages/forms": {
       "files": 7,
       "identical": true
     },
     "packages/security": {
-      "files": 9,
+      "files": 12,
       "identical": true
     },
     "packages/htmx": {
@@ -30,11 +34,11 @@
       "identical": true
     },
     "packages/cli": {
-      "files": 11,
+      "files": 14,
       "identical": true
     },
     "create-bundar": {
-      "files": 6,
+      "files": 8,
       "identical": true
     }
   },
