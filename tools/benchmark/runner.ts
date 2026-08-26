@@ -109,7 +109,9 @@ export async function parityCheck(): Promise<readonly ParityResult[]> {
     if (participants.length === 1) {
       results.push({
         scenario: scenario.id,
-        adapters: { [participants[0]!.name]: await invoke(participants[0]!, scenario) },
+        adapters: {
+          [participants[0]!.name]: await invoke(participants[0]!, scenario),
+        },
       });
       continue;
     }
