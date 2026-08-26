@@ -922,3 +922,12 @@ BR-077 is complete: beta budgets reflect real target workloads, verified before 
 - Verified: lane runs above, resolution tests 4/4, tsc/lint/prettier clean.
 
 BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully closed.
+
+## 2026-08-27 — Evidence wave: regression tests pin #145/#147/#148/#149 (BR-093/095/096/097)
+
+- The source fixes for these four audit findings landed in 1126876 without dedicated tests; per the closure discipline (exact committed tree + passing regression tests), this branch pins each behavior before the issues close.
+- BR-096 (#148) got the deepest treatment: a plain-Bun.serve fixture pins native precedence (parameter beats wildcard regardless of static-segment count — the audit counterexample), while Bundar-side tests assert PUT/OPTIONS fallback answers from the parameter group on the same shape, a live-server test proves Bun.serve picks "param" AND still serves the wildcard's own POST below it, and a 4-row corpus keeps category-first Allow/OPTIONS honest. Discovered en route: `compiled.fetch` is only the 404/405 fallback (dispatch is Bun.serve's job, GH-015) and structurally-unmatched param groups correctly do NOT answer Allow.
+- BR-095 (#147): duplicate :param names rejected at normalization and at compile; wildcard+meta.name rejected with guidance; hostile route name (backtick/newline/${}/quote) round-trips through generateRoutesModule via real import with escaped missing-param messages.
+- BR-093 (#145): sessionMiddleware runs validateCookieAttributes AT CONSTRUCTION (__Host- with secure:false throws CookiePolicyError before posture checks run); shared validator contract unit-pinned.
+- BR-097 (#149): source-scan guard keeps packages/core/src free of PROBE/console.error debug branches permanently.
+- Verified: full suite 1140 pass / 0 fail (+25 tests), tsc/lint/prettier clean.
