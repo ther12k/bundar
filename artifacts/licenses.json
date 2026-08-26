@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-26T01:30:08.637Z",
+  "generatedAt": "2026-08-26T20:50:38.751Z",
   "approved": [
     "MIT",
     "ISC",
@@ -21,6 +21,11 @@
     },
     {
       "name": "@bundar/schema",
+      "license": "MIT",
+      "approved": true
+    },
+    {
+      "name": "@bundar/forms",
       "license": "MIT",
       "approved": true
     },

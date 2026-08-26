@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:c764ee4b-5e05-4da6-bf60-e1f2e4abec71",
+  "serialNumber": "urn:uuid:45b0238e-5d55-410b-8051-5104640b8277",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-22T16:19:40.857Z",
+    "timestamp": "2026-08-26T20:50:41.635Z",
     "component": {
       "type": "application",
       "name": "bundar",
@@ -20,11 +20,11 @@
     "properties": [
       {
         "name": "bundar:lockfile:sha256",
-        "value": "c10b445ac0ed8234382c5be4ab6525112119eb22b8755785a0a76db6d118cf7b"
+        "value": "41201b7315f2410ca4ecbb4bb4a14b5524d66a90b7581143415a456fe321b703"
       },
       {
         "name": "bundar:scope",
-        "value": "source+packages: 8 workspace release packages + lock-resolved externals (runtime+build)"
+        "value": "source+packages: 9 workspace release packages + lock-resolved externals (runtime+build)"
       }
     ]
   },
@@ -44,7 +44,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c82adbfb70b2196185a06615661ae1e3dd0eea4e9fd0a037cd84444a4d7fe112"
+          "content": "c3341ce0bfa3c1d4d92752d941f3df34d4ade4f1f4cd60c82f5eb1a9ed90364f"
         }
       ],
       "purl": "pkg:npm/%40bundar/core@0.0.0"
@@ -64,7 +64,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "47b69a332285c6ea647de14ce4d55eb1a9dbfc1ba5940dbc061073fbccaf16e0"
+          "content": "4ab7cb507caa4ce72a27e814cd9e2574d5ef19371bcb1d98b493b4b4373c699c"
         }
       ],
       "purl": "pkg:npm/%40bundar/jsx@0.0.0"
@@ -84,10 +84,30 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d3abf4cf2ded805414a77bb45b516aa0fb0d87916638053fafe57a43e13c1739"
+          "content": "fc829fdf2e7fca5c9527ae849e21a3a1e2f4083e9821dedda3ece5ca269a0133"
         }
       ],
       "purl": "pkg:npm/%40bundar/schema@0.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@bundar/forms@0.0.0",
+      "name": "@bundar/forms",
+      "version": "0.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e6acff1afd684f87012516f8c4c43f2b87d7191d6152c5056083da17d425bedb"
+        }
+      ],
+      "purl": "pkg:npm/%40bundar/forms@0.0.0"
     },
     {
       "type": "library",
@@ -104,7 +124,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "81ed50d31a539c3bcc051a2b5c89a6061c6738b49472b6e8fb4036844b076da6"
+          "content": "5eee3b292c4a1e58585b937ec39257eb03038dfd8ae6192bf75efb9ae465cc97"
         }
       ],
       "purl": "pkg:npm/%40bundar/security@0.0.0"
@@ -124,7 +144,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "150194a9fe5e8839a7fabde3b1825cf179e65ce9b76a8a45dd6c6195c900fab8"
+          "content": "43ece3d0c7edb1c8baa6ec0542f068ac597a05a4322e2137a26a88ac1b0b519e"
         }
       ],
       "purl": "pkg:npm/%40bundar/htmx@0.0.0"
@@ -144,7 +164,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a02347c5454678cfc4d962fd52ee83472d3fe10137012c97b10048d88b992003"
+          "content": "27007bd5696a3ba416bf175c4048318b396bd393600001ed34b2485be4b4194f"
         }
       ],
       "purl": "pkg:npm/%40bundar/testing@0.0.0"
@@ -164,7 +184,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "b6bd6a3f1ad00ab5e4eef49067ffa878eabd593d66a121e69ffe0dee9edb58a6"
+          "content": "cd02cf4a4e48b87272b0146fecd8a8c620563f489f13c8b708a7141c0b0ebff6"
         }
       ],
       "purl": "pkg:npm/%40bundar/cli@0.0.0"
@@ -184,7 +204,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6ab43500831533bcf5a15f8932cbc78fbeebfd8b158cc9ed287305442377a8b5"
+          "content": "2638181fef043d338c6d3eac920b81ce152b1d87b8472a6575bf2f12c88e9824"
         }
       ],
       "purl": "pkg:npm/create-bundar@0.0.0"
@@ -240,6 +260,13 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:npm/%40bundar/forms@workspace:packages/forms",
+      "name": "@bundar/forms",
+      "version": "workspace:packages/forms",
+      "purl": "pkg:npm/%40bundar/forms@workspace:packages/forms"
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:npm/%40bundar/htmx@workspace:packages/htmx",
       "name": "@bundar/htmx",
       "version": "workspace:packages/htmx",
@@ -272,6 +299,13 @@
       "name": "@bundar/testing",
       "version": "workspace:packages/testing",
       "purl": "pkg:npm/%40bundar/testing@workspace:packages/testing"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40carno.js/core@1.7.0",
+      "name": "@carno.js/core",
+      "version": "1.7.0",
+      "purl": "pkg:npm/%40carno.js/core@1.7.0"
     },
     {
       "type": "library",
@@ -363,6 +397,97 @@
       "name": "@humanwhocodes/retry",
       "version": "0.4.3",
       "purl": "pkg:npm/%40humanwhocodes/retry@0.4.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-darwin-aarch64@1.4.0",
+      "name": "@oven/bun-darwin-aarch64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-darwin-aarch64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-darwin-x64@1.4.0",
+      "name": "@oven/bun-darwin-x64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-darwin-x64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-freebsd-aarch64@1.4.0",
+      "name": "@oven/bun-freebsd-aarch64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-freebsd-aarch64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-freebsd-x64@1.4.0",
+      "name": "@oven/bun-freebsd-x64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-freebsd-x64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-aarch64@1.4.0",
+      "name": "@oven/bun-linux-aarch64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-aarch64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-aarch64-android@1.4.0",
+      "name": "@oven/bun-linux-aarch64-android",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-aarch64-android@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-aarch64-musl@1.4.0",
+      "name": "@oven/bun-linux-aarch64-musl",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-aarch64-musl@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-x64@1.4.0",
+      "name": "@oven/bun-linux-x64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-x64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-x64-android@1.4.0",
+      "name": "@oven/bun-linux-x64-android",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-x64-android@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-linux-x64-musl@1.4.0",
+      "name": "@oven/bun-linux-x64-musl",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-linux-x64-musl@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-windows-aarch64@1.4.0",
+      "name": "@oven/bun-windows-aarch64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-windows-aarch64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oven/bun-windows-x64@1.4.0",
+      "name": "@oven/bun-windows-x64",
+      "version": "1.4.0",
+      "purl": "pkg:npm/%40oven/bun-windows-x64@1.4.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40playwright/cli@0.1.18",
+      "name": "@playwright/cli",
+      "version": "0.1.18",
+      "purl": "pkg:npm/%40playwright/cli@0.1.18"
     },
     {
       "type": "library",
@@ -492,6 +617,13 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:npm/axe-core@4.13.0",
+      "name": "axe-core",
+      "version": "4.13.0",
+      "purl": "pkg:npm/axe-core@4.13.0"
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:npm/balanced-match@4.0.4",
       "name": "balanced-match",
       "version": "4.0.4",
@@ -503,6 +635,13 @@
       "name": "brace-expansion",
       "version": "5.0.9",
       "purl": "pkg:npm/brace-expansion@5.0.9"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/bun@1.4.0",
+      "name": "bun",
+      "version": "1.4.0",
+      "purl": "pkg:npm/bun@1.4.0"
     },
     {
       "type": "library",
@@ -674,6 +813,13 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:npm/fsevents@2.3.2",
+      "name": "fsevents",
+      "version": "2.3.2",
+      "purl": "pkg:npm/fsevents@2.3.2"
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:npm/glob-parent@6.0.2",
       "name": "glob-parent",
       "version": "6.0.2",
@@ -828,6 +974,20 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:npm/playwright@1.63.0-alpha-2026-08-05",
+      "name": "playwright",
+      "version": "1.63.0-alpha-2026-08-05",
+      "purl": "pkg:npm/playwright@1.63.0-alpha-2026-08-05"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/playwright-core@1.63.0-alpha-2026-08-05",
+      "name": "playwright-core",
+      "version": "1.63.0-alpha-2026-08-05",
+      "purl": "pkg:npm/playwright-core@1.63.0-alpha-2026-08-05"
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:npm/prelude-ls@1.2.1",
       "name": "prelude-ls",
       "version": "1.2.1",
@@ -846,6 +1006,13 @@
       "name": "punycode",
       "version": "2.3.1",
       "purl": "pkg:npm/punycode@2.3.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/reflect-metadata@0.2.2",
+      "name": "reflect-metadata",
+      "version": "0.2.2",
+      "purl": "pkg:npm/reflect-metadata@0.2.2"
     },
     {
       "type": "library",
@@ -971,7 +1138,14 @@
     },
     {
       "ref": "pkg:npm/%40bundar/schema@0.0.0",
-      "dependsOn": ["pkg:npm/%40bundar/core@0.0.0"]
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:npm/%40bundar/forms@0.0.0",
+      "dependsOn": [
+        "pkg:npm/%40bundar/core@0.0.0",
+        "pkg:npm/%40bundar/schema@0.0.0"
+      ]
     },
     {
       "ref": "pkg:npm/%40bundar/security@0.0.0",
@@ -980,9 +1154,8 @@
     {
       "ref": "pkg:npm/%40bundar/htmx@0.0.0",
       "dependsOn": [
-        "pkg:npm/%40bundar/core@0.0.0",
-        "pkg:npm/%40bundar/jsx@0.0.0",
-        "pkg:npm/%40bundar/schema@0.0.0"
+        "pkg:npm/%40bundar/forms@0.0.0",
+        "pkg:npm/%40bundar/jsx@0.0.0"
       ]
     },
     {
@@ -990,8 +1163,7 @@
       "dependsOn": [
         "pkg:npm/%40bundar/core@0.0.0",
         "pkg:npm/%40bundar/htmx@0.0.0",
-        "pkg:npm/%40bundar/jsx@0.0.0",
-        "pkg:npm/%40bundar/schema@0.0.0"
+        "pkg:npm/%40bundar/jsx@0.0.0"
       ]
     },
     {
@@ -1008,12 +1180,17 @@
     {
       "ref": "pkg:npm/bundar-root@0.0.0",
       "dependsOn": [
+        "pkg:npm/%40carno.js/core@1.7.0",
         "pkg:npm/%40eslint/js@10.0.1",
+        "pkg:npm/%40playwright/cli@0.1.18",
         "pkg:npm/%40types/bun@1.3.14",
+        "pkg:npm/axe-core@4.13.0",
         "pkg:npm/eslint@10.8.1",
         "pkg:npm/eslint-config-prettier@10.1.8",
         "pkg:npm/hono@4.13.3",
+        "pkg:npm/playwright@1.63.0-alpha-2026-08-05",
         "pkg:npm/prettier@3.9.6",
+        "pkg:npm/reflect-metadata@0.2.2",
         "pkg:npm/typescript@6.0.3",
         "pkg:npm/typescript-eslint@8.67.0",
         "pkg:npm/valibot@1.4.2",

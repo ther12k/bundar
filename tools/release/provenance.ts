@@ -53,6 +53,7 @@ const PACKAGES = [
   "packages/core",
   "packages/jsx",
   "packages/schema",
+  "packages/forms",
   "packages/security",
   "packages/htmx",
   "packages/testing",
