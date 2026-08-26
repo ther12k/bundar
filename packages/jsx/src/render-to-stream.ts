@@ -1,16 +1,18 @@
 /**
- * Streaming JSX rendering (GH-034).
+ * Streaming JSX rendering (GH-034 / BR-098).
  *
  * Renders a JSX tree to a UTF-8 ReadableStream without buffering the whole
- * document: the depth-first walker yields segments, awaited children are
- * natural flush points (each segment is enqueued on its own pull, so no
- * output is held while a child resolves), and backpressure is real — the
- * byte-queued stream only pulls while the consumer keeps up, throttling
- * production instead of accumulating unbounded chunks. Cancellation (reader
- * cancel or a caller AbortSignal) stops the walk and settles observably.
- * Mid-stream errors carry `bytesWritten`: once bytes have flushed, the
- * status line is committed and no replacement status can be sent — errors
- * are observable, never faked.
+ * document: the depth-first walker coalesces synchronous segments into
+ * reviewed-size chunk buffers (default 8 KiB), flushes immediately before
+ * awaiting any promised child or async component (guaranteeing instant TTFB
+ * and progressive arrival), and enforces real backpressure — the byte-queued
+ * stream only pulls while the consumer keeps up, throttling production
+ * instead of accumulating unbounded chunks.
+ *
+ * Cancellation (reader cancel or a caller AbortSignal) stops the walk and
+ * settles observably. Mid-stream errors carry `bytesWritten`: once bytes have
+ * flushed, the status line is committed and no replacement status can be sent
+ * — errors are observable, never faked.
  */
 import { Fragment } from "./jsx-runtime";
 import { renderPrimitive } from "./escape";
@@ -107,6 +109,35 @@ function throwIfAborted(signal: AbortSignal | undefined): void {
 }
 
 /**
+ * BR-098: Coalesces consecutive synchronous text fragments into chunk-sized
+ * buffers. Flushes before awaiting async promises to preserve instant TTFB
+ * and progressive delivery, while eliminating per-tag generator suspensions.
+ */
+class ChunkCollector {
+  private buffer = "";
+  public constructor(public readonly limit: number) {}
+
+  public push(text: string): string | null {
+    this.buffer += text;
+    if (this.buffer.length >= this.limit) {
+      const out = this.buffer;
+      this.buffer = "";
+      return out;
+    }
+    return null;
+  }
+
+  public flush(): string | null {
+    if (this.buffer.length > 0) {
+      const out = this.buffer;
+      this.buffer = "";
+      return out;
+    }
+    return null;
+  }
+}
+
+/**
  * Depth-first walker mirroring renderNode semantics segment by segment:
  * primitives escape, arrays/iterables iterate once with cycle detection,
  * components invoke (awaiting promised results — the async case streaming
@@ -119,16 +150,19 @@ async function* walk(
   depth: number,
   seen: Set<unknown>,
   signal: AbortSignal | undefined,
+  collector: ChunkCollector,
 ): AsyncGenerator<string> {
   throwIfAborted(signal);
   if (child === null || child === undefined) return;
 
   // Promised children anywhere in the tree (top level, direct element
-  // children, fragments) are awaited in document order — the flush point
-  // streaming exists for.
+  // children, fragments) are awaited in document order — flush accumulated
+  // chunks before awaiting so the early prefix arrives immediately.
   if (isPromiseLike(child)) {
+    const early = collector.flush();
+    if (early !== null) yield early;
     const resolved = await child;
-    yield* walk(resolved, depth, seen, signal);
+    yield* walk(resolved, depth, seen, signal, collector);
     return;
   }
 
@@ -139,7 +173,8 @@ async function* walk(
     type === "bigint" ||
     type === "boolean"
   ) {
-    yield renderPrimitive(child);
+    const chunk = collector.push(renderPrimitive(child));
+    if (chunk !== null) yield chunk;
     return;
   }
 
@@ -149,10 +184,12 @@ async function* walk(
     try {
       for (const entry of child) {
         if (isPromiseLike(entry)) {
+          const early = collector.flush();
+          if (early !== null) yield early;
           const resolved = await entry;
-          yield* walk(resolved, depth, seen, signal);
+          yield* walk(resolved, depth, seen, signal, collector);
         } else {
-          yield* walk(entry, depth, seen, signal);
+          yield* walk(entry, depth, seen, signal, collector);
         }
       }
     } finally {
@@ -163,7 +200,8 @@ async function* walk(
 
   const node = child as { type?: unknown; props?: unknown };
   if (typeof node !== "object" || typeof node.type === "undefined") {
-    yield renderPrimitive(child);
+    const chunk = collector.push(renderPrimitive(child));
+    if (chunk !== null) yield chunk;
     return;
   }
 
@@ -173,6 +211,7 @@ async function* walk(
       depth,
       seen,
       signal,
+      collector,
     );
     return;
   }
@@ -193,11 +232,13 @@ async function* walk(
       throw new ComponentRenderError(name, cause);
     }
     if (isPromiseLike(result)) {
+      const early = collector.flush();
+      if (early !== null) yield early;
       const resolved = await result;
-      yield* walk(resolved, depth + 1, seen, signal);
+      yield* walk(resolved, depth + 1, seen, signal, collector);
       return;
     }
-    yield* walk(result, depth + 1, seen, signal);
+    yield* walk(result, depth + 1, seen, signal, collector);
     return;
   }
 
@@ -205,32 +246,37 @@ async function* walk(
   const props = (node.props ?? {}) as Record<string, unknown>;
 
   if (isVoidElement(tag)) {
-    yield `<${tag}${renderAttributes(props)}>`;
+    const chunk = collector.push(`<${tag}${renderAttributes(props)}>`);
+    if (chunk !== null) yield chunk;
     return;
   }
 
   if (isRawTextElement(tag)) {
     const text = props.children;
-    yield `<${tag}${renderAttributes(props)}>`;
+    let chunk = collector.push(`<${tag}${renderAttributes(props)}>`);
+    if (chunk !== null) yield chunk;
     if (typeof text === "string") {
-      yield serializeRawText(tag, text);
+      chunk = collector.push(serializeRawText(tag, text));
+      if (chunk !== null) yield chunk;
     } else {
-      yield* walk(text, depth, seen, signal);
+      yield* walk(text, depth, seen, signal, collector);
     }
-    yield `</${tag}>`;
+    chunk = collector.push(`</${tag}>`);
+    if (chunk !== null) yield chunk;
     return;
   }
 
-  yield `<${tag}${renderAttributes(props)}>`;
-  yield* walk(props.children, depth, seen, signal);
-  yield `</${tag}>`;
+  let chunk = collector.push(`<${tag}${renderAttributes(props)}>`);
+  if (chunk !== null) yield chunk;
+  yield* walk(props.children, depth, seen, signal, collector);
+  chunk = collector.push(`</${tag}>`);
+  if (chunk !== null) yield chunk;
 }
 
 /**
  * Renders the tree into a UTF-8 ReadableStream with byte-accounted
- * backpressure: the stream pulls one walker segment at a time and stops
- * pulling while the consumer is behind by more than `chunkBytes`, so a slow
- * consumer throttles rendering rather than growing memory.
+ * backpressure: coalesced chunks are enqueued under `chunkBytes` limits,
+ * pausing production when the consumer is behind.
  */
 export function renderToStream(
   tree: unknown,
@@ -269,9 +315,14 @@ export function renderToStream(
   // `finished` from surfacing as an unhandled rejection.
   finished.catch(() => undefined);
 
-  const iterator = walk(tree, 0, new Set(), internal.signal)[
-    Symbol.asyncIterator
-  ]();
+  const collector = new ChunkCollector(chunkBytes);
+  const generator = (async function* () {
+    yield* walk(tree, 0, new Set(), internal.signal, collector);
+    const tail = collector.flush();
+    if (tail !== null) yield tail;
+  })();
+
+  const iterator = generator[Symbol.asyncIterator]();
 
   const stream = new ReadableStream<Uint8Array>(
     {
