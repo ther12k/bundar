@@ -49,7 +49,7 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
     primary: unknown,
     counts: TodoCounts,
     removeItemId?: number,
-  ): string =>
+  ) =>
     composeFragment(
       {
         primary,

@@ -328,8 +328,9 @@ Start here:
 6. [Security guide](docs/guides/security.md)
 7. [Sessions guide](docs/guides/sessions.md)
 8. [Uploads guide](docs/guides/uploads.md)
-9. [Alpha performance report](docs/performance/alpha.md)
-10. [Alpha release notes](docs/release-notes/alpha.md)
+9. [Accessibility guide](docs/guides/accessibility.md)
+10. [Alpha performance report](docs/performance/alpha.md)
+11. [Alpha release notes](docs/release-notes/alpha.md)
 
 The repository also retains its OKF architecture corpus, ADRs, issue dependency model, gate records, and per-issue evidence. These are engineering records; the README is now the implementation landing page rather than the old design-bundle handoff.
 

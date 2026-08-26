@@ -193,13 +193,20 @@ export async function errorViewResponse(
     typeof tree === "string" ? tree : await renderToStringAsync(tree);
 
   const directives: HtmxResponseDirective[] = [];
-  if (mode === "fragment" && policy.fragmentTarget !== undefined) {
-    // server-known target only — client targets are display context
+  const retargeted = mode === "fragment" && policy.fragmentTarget !== undefined;
+  if (retargeted) {
+    // server-known target only — client targets are display context. The
+    // fragment REPLACES the region element, so pair the retarget with an
+    // explicit outerHTML reswap — otherwise htmx reuses the triggering
+    // element's own swap style (e.g. beforeend) and NESTS the re-rendered
+    // form inside the stale one (BR-075 live-browser evidence).
     directives.push({ kind: "retarget", selector: policy.fragmentTarget });
+    directives.push({ kind: "reswap", strategy: "outerHTML" });
   }
-  if (swapMode === "no-swap") {
+  if (swapMode === "no-swap" && !retargeted) {
     // htmx 4 does not swap error responses by default: explicitly tell it
-    // to swap so the fragment actually reaches the region
+    // to swap so the fragment actually reaches the region. When a retarget
+    // was issued above, its outerHTML pairing already covers this.
     directives.push({ kind: "reswap", strategy: "innerHTML" });
   }
 
