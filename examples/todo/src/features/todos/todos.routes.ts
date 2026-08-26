@@ -121,6 +121,33 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
                 error: render.errors.first[0]?.message ?? "",
               }),
             formTarget: "#todo-form",
+            renderInvalidDocument: (render) =>
+              Layout({
+                title: "Todos",
+                flash: [],
+                children: [
+                  countsRegion(
+                    repository.counts(),
+                    "all",
+                  ) as import("@bundar/jsx").JSXChild,
+                  filterLinks("all") as import("@bundar/jsx").JSXChild,
+                  jsx("ul", {
+                    id: "todo-list",
+                    children: repository.list("all").map((item) =>
+                      todoItem({
+                        item,
+                        token: readCsrfTokenFromRequest(context.request),
+                      }),
+                    ),
+                  }),
+                  todoForm({
+                    token: readCsrfTokenFromRequest(context.request),
+                    title:
+                      (render.submitted["title"] as string | undefined) ?? "",
+                    error: render.errors.first[0]?.message ?? "",
+                  }) as import("@bundar/jsx").JSXChild,
+                ],
+              }),
           },
           dialectOptions,
         ).then((outcome) => outcome.response),
@@ -187,6 +214,33 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
                 error: render.errors.first[0]?.message ?? "",
               }),
             formTarget: "#todo-form",
+            renderInvalidDocument: (render) =>
+              Layout({
+                title: "Todos",
+                flash: [],
+                children: [
+                  countsRegion(
+                    repository.counts(),
+                    "all",
+                  ) as import("@bundar/jsx").JSXChild,
+                  filterLinks("all") as import("@bundar/jsx").JSXChild,
+                  jsx("ul", {
+                    id: "todo-list",
+                    children: repository.list("all").map((item) =>
+                      todoItem({
+                        item,
+                        token: readCsrfTokenFromRequest(context.request),
+                      }),
+                    ),
+                  }),
+                  todoForm({
+                    token: readCsrfTokenFromRequest(context.request),
+                    title:
+                      (render.submitted["title"] as string | undefined) ?? "",
+                    error: render.errors.first[0]?.message ?? "",
+                  }) as import("@bundar/jsx").JSXChild,
+                ],
+              }),
           },
           dialectOptions,
         ).then((outcome) => outcome.response);

@@ -878,3 +878,13 @@ BR-087 is complete: enhanced 4xx errors now work by default in real htmx 2 brows
 - Verified: full security suite 130/130 (312 expects), full repo suite 0 fail, format, lint, typecheck — all exit 0.
 
 BR-089, BR-090, BR-094 are complete; #143/#145/#147/#148/#149 (the concurrent wave's source changes) still need their acceptance evidence before closing.
+
+## 2026-08-26 — BR-088 (#140): ordinary no-JS invalid submissions re-render the application document
+
+- `runFormAction` gained `renderInvalidDocument?: (render, view) => unknown` — the same validation result as the enhanced fragment path, represented as the complete application document for ordinary (no-JS) submissions. The adapter wires it as the error-view document renderer; omitted, the framework generic document is used.
+- The generic default document no longer renders DANGLING field anchors: `ErrorSummary` gained a `links` opt-out and the default sets it — a link to `#title` in a document without the field was the pre-BR-088 defect.
+- Todo (create + edit) and Admin (create + edit) adopt `renderInvalidDocument`/full-form documents: retained safe values, associated field errors (`aria-describedby`/`aria-invalid`), counts/filters/list context preserved, and every re-rendered form carries a valid CSRF token from the request cookie (an early iteration shipped empty item tokens — caught by the no-JS lane when the next mutation 403'd; fixed and pinned by the lane).
+- The no-JS lane now asserts the app document end to end: form present, retained value `x`, associated error text, `aria-invalid`, no JS — replacing the generic-summary assertion. Validation guide documents the option.
+- Verified: form-action contract tests (2 new), examples 27/27, full suite 0 fail, typecheck, lint, format, architecture, docs:check, build, accessibility lane (7 scans 0 blocking), no-JS lane PASS.
+
+BR-088 is complete: both representation modes share one validation result; neither path degrades.

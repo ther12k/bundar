@@ -33,6 +33,12 @@ export interface ErrorSummaryProps {
    * container with its own id prefix.
    */
   readonly targetPrefix?: string;
+  /**
+   * Render per-field anchor links (default). Set false for documents that
+   * do not CONTAIN the fields — a link to a missing target is worse than
+   * plain text (the framework's generic error document does this).
+   */
+  readonly links?: boolean;
 }
 
 /** Maps a dot-path field id to an addressable HTML id. */
@@ -46,16 +52,19 @@ export function ErrorSummary({
   id = "error-summary",
   heading = "There is a problem",
   targetPrefix,
+  links = true,
 }: ErrorSummaryProps): unknown {
   if (errors.empty) return null;
 
   const fieldItems = errors.first.map((error) =>
     jsx("li", {
       key: error.field,
-      children: jsx("a", {
-        href: `#${fieldAnchorId(error.field, targetPrefix)}`,
-        children: error.message,
-      }),
+      children: links
+        ? jsx("a", {
+            href: `#${fieldAnchorId(error.field, targetPrefix)}`,
+            children: error.message,
+          })
+        : error.message,
     }),
   );
   const globalItems = errors.global.map((message, index) =>

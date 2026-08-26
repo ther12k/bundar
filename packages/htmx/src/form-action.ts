@@ -50,6 +50,17 @@ export interface FormActionDefinition<Output> {
   };
   /** Re-renders the form region with errors + retained safe values. */
   readonly renderForm: (render: InvalidFormRender) => unknown;
+  /**
+   * BR-088: re-renders the APPLICATION DOCUMENT for ordinary (no-JS)
+   * invalid submissions — the full page with the form, associated field
+   * errors, and retained safe values. When omitted, the framework's
+   * generic error document is used (announced via a role=alert summary,
+   * WITHOUT field anchor links — the fields are not in that document).
+   */
+  readonly renderInvalidDocument?: (
+    render: InvalidFormRender,
+    view: PublicErrorView,
+  ) => unknown;
   /** Server-known region selector for enhanced error delivery. */
   readonly formTarget?: string;
   /** Optional transaction hooks around the valid path. */
@@ -94,7 +105,9 @@ function htmxAdapter<Output>(
                 children: [
                   jsx("h1", { children: view.message }),
                   view.fieldErrors
-                    ? ErrorSummary({ errors: view.fieldErrors })
+                    ? // links:false — the generic document contains no
+                      // form fields, so field anchors would dangle
+                      ErrorSummary({ errors: view.fieldErrors, links: false })
                     : null,
                 ],
               }),
@@ -104,6 +117,12 @@ function htmxAdapter<Output>(
         // by the workflow (GH-059 model), never the raw submission
         renderFragment: () => definition.renderForm(delivery.render),
         fragmentTarget: delivery.formTarget ?? definition.formTarget,
+        ...(definition.renderInvalidDocument
+          ? {
+              renderDocument: (view: PublicErrorView) =>
+                definition.renderInvalidDocument!(delivery.render, view),
+            }
+          : {}),
       };
       const view: PublicErrorView = {
         status: delivery.status,

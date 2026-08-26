@@ -227,3 +227,86 @@ describe("GH-060 valid submissions", () => {
     expect(body).not.toContain("application/json");
   });
 });
+
+// BR-088 (#140): ordinary invalid submissions re-render the APPLICATION
+// document when renderInvalidDocument is provided; the default document
+// carries NO dangling field anchors.
+describe("BR-088 renderInvalidDocument", () => {
+  const invalidSchema = {
+    "~standard": {
+      version: 1,
+      vendor: "test",
+      validate: (input: unknown) => {
+        const title = String(
+          (input as Record<string, unknown> | null)?.title ?? "",
+        );
+        return title.length >= 2
+          ? { value: { title } }
+          : {
+              issues: [
+                { path: ["title"], message: "Title must be 2+ characters" },
+              ],
+            };
+      },
+    },
+  } as never;
+
+  function contextWith(body: string): ReturnType<typeof createContext> {
+    return createContext(
+      new Request("http://t/todos", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body,
+      }),
+      {},
+    );
+  }
+
+  test("ordinary 422 uses the application document with retained values", async () => {
+    const outcome = await runFormAction(
+      contextWith("title=x") as never,
+      {
+        schema: invalidSchema,
+        action: { fragment: () => "ok", redirectTo: "/" },
+        renderForm: (render: InvalidFormRender) =>
+          jsx("form", {
+            children: render.errors.first[0]?.message ?? "",
+          }),
+        renderInvalidDocument: (render: InvalidFormRender) =>
+          jsx("html", {
+            lang: "en",
+            children: jsx("body", {
+              children: [
+                jsx("input", {
+                  name: "title",
+                  value: render.submitted["title"] ?? "",
+                }),
+              ],
+            }),
+          }),
+      } as never,
+    );
+    const res = (outcome as { response: Response }).response;
+    expect(res.status).toBe(422);
+    const body = await res.text();
+    expect(body).toContain("<html");
+    expect(body).toContain('value="x"'); // retained safe value round-trips
+  });
+
+  test("the default generic document renders NO field anchor links", async () => {
+    const outcome = await runFormAction(
+      contextWith("title=x") as never,
+      {
+        schema: invalidSchema,
+        action: { fragment: () => "ok", redirectTo: "/" },
+        renderForm: () => jsx("form", {}),
+      } as never,
+    );
+    const res = (outcome as { response: Response }).response;
+    expect(res.status).toBe(422);
+    const body = await res.text();
+    expect(body).toContain("error-summary");
+    expect(body).toContain("Title must be 2+ characters");
+    expect(body).not.toContain('href="#title"'); // no dangling anchors
+  });
+});
