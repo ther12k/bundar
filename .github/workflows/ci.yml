@@ -70,12 +70,16 @@ jobs:
       - name: Build packages
         run: bun run build
 
-  # BR-091: the browser lanes are a required release gate. This dedicated
-  # job keeps Chromium failures visible (not masked by `bun test`) and
-  # uploads every lane artifact — axe scans and per-step transcripts —
-  # bound to the run.
+  # BR-091 + BR-100 + BR-156: the browser lanes are a required release
+  # gate. The matrix keeps lane statuses independent — a failure in one leg
+  # can never skip the other — and each leg uploads its own artifacts with
+  # if: always() so failing evidence still binds to the run.
   browser-lanes:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [accessibility, no-js]
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -90,13 +94,15 @@ jobs:
       - name: Install Chromium via the pinned local Playwright
         run: ./node_modules/.bin/playwright install --with-deps chromium
       - name: Accessibility lane (reference apps)
+        if: matrix.lane == 'accessibility'
         run: bun run test:a11y
       - name: No-JS lane (reference apps)
+        if: matrix.lane == 'no-js'
         run: bun run test:no-js
       - name: Upload lane artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: browser-lane-artifacts
+          name: browser-lane-artifacts-${{ matrix.lane }}
           path: output/playwright/
           retention-days: 14
