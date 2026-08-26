@@ -261,6 +261,31 @@ describe("GH-034 Unicode boundaries", () => {
   });
 });
 
+describe("BR-110 byte-aware chunking", () => {
+  test("ChunkCollector bounds chunks by UTF-8 bytes rather than UTF-16 code units", async () => {
+    // Multi-byte Unicode: each 4-byte emoji is 2 code units in JS
+    const emoji = "🎉"; // 4 bytes in UTF-8
+    const tree = jsx("div", {
+      children: Array.from({ length: 50 }, () => emoji),
+    });
+    // Set small byte limit of 32 bytes
+    const chunks: Uint8Array[] = [];
+    const stream = renderToStream(tree, { chunkBytes: 32 }).stream;
+    const reader = stream.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    // Chunks should be segmented based on byte bounds
+    expect(chunks.length).toBeGreaterThan(1);
+    const totalBytes = chunks.reduce((sum, c) => sum + c.byteLength, 0);
+    const expected = await renderToStringAsync(tree);
+    expect(new TextDecoder().decode(Buffer.concat(chunks))).toBe(expected);
+    expect(totalBytes).toBe(Buffer.byteLength(expected, "utf8"));
+  });
+});
+
 describe("GH-034 streamResponse", () => {
   test("streams a text/html response and exposes finished", async () => {
     const response = streamResponse(

@@ -1,11 +1,12 @@
 /**
- * Cookie-jar semantics for the in-process test client (GH-074 / BR-092).
+ * Cookie-jar semantics for the in-process test client (GH-074 / BR-092 / BR-109).
  *
  * The jar models what a real browser does with `Set-Cookie`:
- * - Later assignments of the same name win;
- * - Empty values or expired dates (`Expires` in the past / `Max-Age=0`) clear the cookie;
+ * - Cookie identity is keyed by (name, domain/hostOnly, path);
+ * - Multiple cookies with the same name across different paths/domains coexist;
+ * - Host-only cookies (no Domain attribute) only match the exact originating host;
  * - Path, Domain, Secure, and Expires/Max-Age attributes are parsed and respected;
- * - Requests only receive unexpired cookies matching their Path/Domain/Scheme.
+ * - Output cookie headers sort by longest/most-specific path first (RFC 6265 §5.4).
  *
  * Jars are per-client, so concurrent tests never share login state.
  */
@@ -14,10 +15,12 @@ export interface CookieRecord {
   readonly name: string;
   readonly value: string;
   readonly expiresAtMs?: number;
-  readonly path?: string;
+  readonly path: string;
   readonly domain?: string;
-  readonly secure?: boolean;
-  readonly httpOnly?: boolean;
+  readonly hostOnly: boolean;
+  readonly hostOnlyOrigin?: string;
+  readonly secure: boolean;
+  readonly httpOnly: boolean;
   readonly sameSite?: "Strict" | "Lax" | "None";
 }
 
@@ -80,18 +83,22 @@ function parseSetCookie(
     expiresAtMs = Date.now() + maxAgeSeconds * 1000;
   }
 
-  // Default path if not specified
-  if (!path && requestUrl) {
+  let hostOnlyOrigin: string | undefined;
+  if (requestUrl) {
     try {
       const u =
         typeof requestUrl === "string"
           ? new URL(requestUrl, "http://localhost")
           : requestUrl;
-      const pathname = u.pathname;
-      const lastSlash = pathname.lastIndexOf("/");
-      path = lastSlash <= 0 ? "/" : pathname.slice(0, lastSlash);
+      hostOnlyOrigin = u.hostname.toLowerCase();
+      if (!path) {
+        const pathname = u.pathname;
+        const lastSlash = pathname.lastIndexOf("/");
+        path = lastSlash <= 0 ? "/" : pathname.slice(0, lastSlash);
+      }
     } catch {
-      path = "/";
+      hostOnlyOrigin = "localhost";
+      path = path ?? "/";
     }
   }
 
@@ -101,6 +108,8 @@ function parseSetCookie(
     expiresAtMs,
     path: path ?? "/",
     domain,
+    hostOnly: domain === undefined,
+    hostOnlyOrigin,
     secure,
     httpOnly,
     sameSite,
@@ -116,28 +125,47 @@ function pathMatches(requestPath: string, cookiePath: string): boolean {
   return false;
 }
 
-function domainMatches(requestHost: string, cookieDomain?: string): boolean {
-  if (!cookieDomain) return true;
+function hostMatches(requestHost: string, record: CookieRecord): boolean {
   const host = requestHost.toLowerCase().split(":")[0]!;
-  return host === cookieDomain || host.endsWith(`.${cookieDomain}`);
+  if (record.hostOnly) {
+    // Host-only cookies must strictly match the originating hostname
+    return (
+      record.hostOnlyOrigin === undefined || host === record.hostOnlyOrigin
+    );
+  }
+  if (record.domain) {
+    return host === record.domain || host.endsWith(`.${record.domain}`);
+  }
+  return true;
+}
+
+function cookieKey(record: {
+  name: string;
+  domain?: string;
+  hostOnlyOrigin?: string;
+  path: string;
+}): string {
+  const origin = record.domain ?? record.hostOnlyOrigin ?? "";
+  return `${record.name}\0${origin}\0${record.path}`;
 }
 
 export class CookieJar {
   private readonly records = new Map<string, CookieRecord>();
 
-  /** Absorbs every `Set-Cookie` of a response (last write wins, expired removed). */
+  /** Absorbs every `Set-Cookie` of a response (browser identity keying). */
   public absorb(response: Response, requestUrl?: string | URL): this {
     for (const setCookie of response.headers.getSetCookie()) {
       const record = parseSetCookie(setCookie, requestUrl);
       if (!record) continue;
+      const key = cookieKey(record);
       // Empty value or past expiry immediately removes the cookie
       if (
         record.value.length === 0 ||
         (record.expiresAtMs !== undefined && record.expiresAtMs <= Date.now())
       ) {
-        this.records.delete(record.name);
+        this.records.delete(key);
       } else {
-        this.records.set(record.name, record);
+        this.records.set(key, record);
       }
     }
     return this;
@@ -145,14 +173,14 @@ export class CookieJar {
 
   private purgeExpired(): void {
     const now = Date.now();
-    for (const [name, record] of this.records.entries()) {
+    for (const [key, record] of this.records.entries()) {
       if (record.expiresAtMs !== undefined && record.expiresAtMs <= now) {
-        this.records.delete(name);
+        this.records.delete(key);
       }
     }
   }
 
-  /** The `cookie` header value for the next request ("" when empty). */
+  /** The `cookie` header value for the next request, sorted by path length descending. */
   public header(requestUrl?: string | URL): string {
     this.purgeExpired();
     if (!requestUrl) {
@@ -165,33 +193,44 @@ export class CookieJar {
         ? new URL(requestUrl, "http://localhost")
         : requestUrl;
     const requestPath = url.pathname || "/";
-    const requestHost = url.host || "localhost";
+    const requestHost = url.hostname || "localhost";
     const isSecure = url.protocol === "https:";
     const isLocalTest =
       url.hostname === "localhost" ||
       url.hostname === "127.0.0.1" ||
       url.hostname.endsWith(".invalid");
 
-    const matched: string[] = [];
+    const matched: CookieRecord[] = [];
     for (const record of this.records.values()) {
-      if (record.path && !pathMatches(requestPath, record.path)) continue;
-      if (record.domain && !domainMatches(requestHost, record.domain)) continue;
+      if (!pathMatches(requestPath, record.path)) continue;
+      if (!hostMatches(requestHost, record)) continue;
       if (record.secure && !isSecure && !isLocalTest) {
         continue;
       }
-      matched.push(`${record.name}=${record.value}`);
+      matched.push(record);
     }
-    return matched.join("; ");
+
+    // RFC 6265 §5.4: sort cookies with longer/more-specific paths first
+    matched.sort((a, b) => b.path.length - a.path.length);
+
+    return matched.map((r) => `${r.name}=${r.value}`).join("; ");
   }
 
   public get(name: string): string | undefined {
     this.purgeExpired();
-    return this.records.get(name)?.value;
+    // Return longest path match for this name
+    const matches = [...this.records.values()]
+      .filter((r) => r.name === name)
+      .sort((a, b) => b.path.length - a.path.length);
+    return matches[0]?.value;
   }
 
   public getRecord(name: string): CookieRecord | undefined {
     this.purgeExpired();
-    return this.records.get(name);
+    const matches = [...this.records.values()]
+      .filter((r) => r.name === name)
+      .sort((a, b) => b.path.length - a.path.length);
+    return matches[0];
   }
 
   public set(
@@ -199,20 +238,25 @@ export class CookieJar {
     value: string,
     attributes: Partial<Omit<CookieRecord, "name" | "value">> = {},
   ): this {
+    const record: CookieRecord = {
+      name,
+      value,
+      path: attributes.path ?? "/",
+      hostOnly: attributes.domain === undefined,
+      secure: false,
+      httpOnly: false,
+      ...attributes,
+    };
+    const key = cookieKey(record);
     if (
       value.length === 0 ||
       (attributes.expiresAtMs !== undefined &&
         attributes.expiresAtMs <= Date.now())
     ) {
-      this.records.delete(name);
+      this.records.delete(key);
       return this;
     }
-    this.records.set(name, {
-      name,
-      value,
-      path: attributes.path ?? "/",
-      ...attributes,
-    });
+    this.records.set(key, record);
     return this;
   }
 

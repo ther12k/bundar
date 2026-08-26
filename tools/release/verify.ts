@@ -1,10 +1,9 @@
 /**
- * release:verify (GH-088): the go/no-go preconditions from the release
+ * release:verify (GH-088 / BR-106): the go/no-go preconditions from the release
  * commit, fail-closed —
  *
  * 1. Artifact integrity: fresh tarball hashes match the committed
- *    provenance (checksums.txt) — the release artifacts ARE the
- *    verified artifacts.
+ *    provenance (checksums.txt) across all 9 release packages.
  * 2. Package-name clearance: the @bundar namespace decision recorded
  *    (GH-004 clearance + GH-086 installability proof).
  * 3. Stable lane + no-JS matrix: the release-matrix artifact shows all
@@ -15,6 +14,7 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { PUBLISH_ORDER } from "./pack-release";
 
 const REPO = join(import.meta.dir, "..", "..");
 const failures: string[] = [];
@@ -35,10 +35,12 @@ const verify = spawnSync(
 );
 const verifyOutput = verify.stdout ?? "";
 const okCount = (verifyOutput.match(/: OK/g) ?? []).length;
+const expectedPackageCount = PUBLISH_ORDER.length;
+
 check(
   "artifact-hashes",
-  verify.status === 0 && okCount === 8,
-  `${okCount}/8 committed checksums match the archived tarballs`,
+  verify.status === 0 && okCount === expectedPackageCount,
+  `${okCount}/${expectedPackageCount} committed checksums match the archived tarballs`,
 );
 
 // 2. namespace clearance recorded
@@ -47,9 +49,9 @@ const dryRun = JSON.parse(
 );
 check(
   "package-clearance",
-  dryRun.plan.publishOrder.length === 8 &&
+  dryRun.plan.publishOrder.length === expectedPackageCount &&
     dryRun.plan.publishOrder[0] === "@bundar/core",
-  "@bundar namespace cleared (GH-004) and installability proven (GH-086): dependency-first order recorded",
+  `@bundar namespace cleared (GH-004) and installability proven (GH-086): ${expectedPackageCount} packages in dependency-first order recorded`,
 );
 
 // 3. stable + no-JS matrix from the release artifact
@@ -72,7 +74,7 @@ check(
 const { htmx4Experimental } = await import("@bundar/htmx/4");
 const experimental = htmx4Experimental.maturity === "experimental";
 const scaffoldDefault = readFileSync(
-  join(REPO, "templates", "minimal", "src", "dialect.ts"),
+  join(REPO, "templates", "minimal", "src", "platform", "dialect.ts"),
   "utf8",
 );
 // the template COMMENTS document the htmx4 swap; the default is what

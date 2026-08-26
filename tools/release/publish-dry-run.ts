@@ -29,21 +29,21 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  buildCandidateTarballs,
+  DEFAULT_TAG,
+  DEFAULT_VERSION,
+  PUBLISH_ORDER,
+  REPO,
+} from "./pack-release";
 
-const REPO = join(import.meta.dir, "..", "..");
-const SIM_VERSION = "0.1.0-alpha.1";
-const DIST_TAG = "alpha";
-const PUBLISH_ORDER = [
-  "@bundar/core",
-  "@bundar/jsx",
-  "@bundar/schema",
-  "@bundar/forms",
-  "@bundar/security",
-  "@bundar/htmx",
-  "@bundar/testing",
-  "@bundar/cli",
-  "create-bundar",
-] as const;
+function argument(name: string, fallback: string): string {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
+}
+
+const SIM_VERSION = argument("--version", DEFAULT_VERSION);
+const DIST_TAG = argument("--tag", DEFAULT_TAG);
 
 const registry = mkdtempSync(join(tmpdir(), "bundar-dryrun-"));
 const consumer = mkdtempSync(join(tmpdir(), "bundar-consumer-"));
@@ -56,53 +56,13 @@ const record = (check: string, ok: boolean, detail: string): void => {
 };
 
 // ---- 1. pack + simulate the pre-release version synchronization ----
+const candidates = buildCandidateTarballs({
+  version: SIM_VERSION,
+  outputDir: registry,
+});
 const tarballs = new Map<string, string>();
-for (const pkg of PUBLISH_ORDER) {
-  const dir =
-    pkg === "create-bundar"
-      ? join(REPO, "create-bundar")
-      : join(REPO, "packages", pkg.replace("@bundar/", ""));
-  const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-  const spawned = spawnSync("bun", ["pm", "pack"], { cwd: dir, stdio: "pipe" });
-  if (spawned.status !== 0) {
-    record(`pack ${pkg}`, false, "bun pm pack failed");
-    continue;
-  }
-  const original = join(
-    dir,
-    `${manifest.name.replace("@", "").replace("/", "-")}-${manifest.version}.tgz`,
-  );
-  const target = join(
-    registry,
-    `${manifest.name.replace("@", "").replace("/", "-")}-${SIM_VERSION}.tgz`,
-  );
-
-  // extract → simulate publish-time version sync → repack
-  const extract = join(registry, `${pkg}-x`);
-  mkdirSync(extract, { recursive: true });
-  spawnSync("tar", ["-xzf", original, "-C", extract]);
-  rmSync(original);
-  const pkgJsonPath = join(extract, "package", "package.json");
-  const packed = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
-  packed.version = SIM_VERSION;
-  for (const field of ["dependencies", "devDependencies", "peerDependencies"]) {
-    const deps = packed[field] as Record<string, string> | undefined;
-    if (deps === undefined) continue;
-    for (const [name, spec] of Object.entries(deps)) {
-      // npm publish rewrites workspace ranges to the real version; bun's
-      // pack leaves a bare registry version — simulate the publish form
-      if (
-        name.startsWith("@bundar/") &&
-        (spec === manifest.version || spec.startsWith("workspace:"))
-      ) {
-        deps[name] = SIM_VERSION;
-      }
-    }
-  }
-  writeFileSync(pkgJsonPath, JSON.stringify(packed, null, 2) + "\n");
-  spawnSync("tar", ["-czf", target, "-C", extract, "package"]);
-  rmSync(extract, { recursive: true, force: true });
-  tarballs.set(manifest.name, target);
+for (const [name, cand] of candidates) {
+  tarballs.set(name, cand.tarballPath);
 }
 record(
   "pack+version-sync",
@@ -132,7 +92,10 @@ for (const [name, tarball] of tarballs) {
     string
   >;
   const leaked = Object.entries(deps).filter(
-    ([dep]) => dep.startsWith("@bundar/") && deps[dep] !== SIM_VERSION,
+    ([dep]) =>
+      dep.startsWith("@bundar/") &&
+      deps[dep] !== SIM_VERSION &&
+      deps[dep] !== `^${SIM_VERSION}`,
   );
   record(
     `no-unpublished-paths ${name}`,

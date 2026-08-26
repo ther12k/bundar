@@ -51,13 +51,27 @@ const components = bom.packages.map(
 // ---- external dependencies from the lock (direct + transitive) ----
 // lock "packages" maps name → ["name@version", ...]; the array entries
 // carry the resolved versions for every transitive dependency
+const releasePackageNames = new Set(
+  bom.packages.map((p: { name: string }) => p.name),
+);
 const externals = new Map<string, string>();
 for (const specs of Object.values(lockParsed.packages ?? {})) {
   for (const spec of specs ?? []) {
     if (typeof spec !== "string") continue;
     const at = spec.lastIndexOf("@");
     if (at <= 0) continue;
-    externals.set(spec.slice(0, at), spec.slice(at + 1));
+    const name = spec.slice(0, at);
+    const version = spec.slice(at + 1);
+    // BR-108: filter out internal workspace packages, example apps, and workspace: references
+    if (
+      version.startsWith("workspace:") ||
+      releasePackageNames.has(name) ||
+      name.startsWith("@bundar/example") ||
+      name.startsWith("@bundar/template")
+    ) {
+      continue;
+    }
+    externals.set(name, version);
   }
 }
 for (const [name, version] of externals) {

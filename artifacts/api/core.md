@@ -1,6 +1,6 @@
 # @bundar/core API report
 
-Runtime exports (77):
+Runtime exports (90):
 - `App`
 - `BodyConsumedError`
 - `BodyLimitError`
@@ -15,14 +15,18 @@ Runtime exports (77):
 - `HTTP_METHODS`
 - `HttpError`
 - `InvalidCookieNameError`
+- `Lifecycle`
+- `LifecycleStartError`
 - `MalformedBodyError`
 - `MissingResponseError`
 - `REQUEST_BUDGET`
 - `RequestTimeoutError`
+- `ResponseMutationError`
 - `RouteConflictError`
 - `RoutePathValidationError`
 - `RouteValidationError`
 - `STATIC_ROUTE_FORBIDDEN_META_KEYS`
+- `STATUS_BY_CODE`
 - `StaticRouteMetadataError`
 - `UnsupportedMediaTypeError`
 - `UploadPolicyError`
@@ -42,6 +46,7 @@ Runtime exports (77):
 - `encodePath`
 - `file`
 - `freezeManifest`
+- `generateErrorId`
 - `generateRoutesModule`
 - `getRequestBudget`
 - `handleUploads`
@@ -62,23 +67,37 @@ Runtime exports (77):
 - `normalizeRoutePath`
 - `param`
 - `parseForm`
+- `parseFormCached`
 - `parseJson`
 - `parseText`
 - `pathParams`
 - `queryAdapter`
+- `redactDetails`
 - `redirect`
 - `requestBudget`
 - `requiredParam`
 - `resolveBudget`
 - `routeConflictKey`
 - `sanitizeClientName`
+- `sanitizeStack`
 - `seeOther`
+- `serializeCookie`
 - `text`
 - `uploadFileExists`
 - `validateRouteConflicts`
 - `withCookies`
+- `withHeader`
+- `withHeaderEntries`
 - `withHeaders`
+- `withSetCookie`
+- `withoutHeader`
 
-Type-only exports (0):
+Type-only exports (6):
+- `CookieOptions` (type)
+- `HeaderMode` (type)
+- `LifecycleHooks` (type)
+- `LifecycleOptions` (type)
+- `LifecycleResource` (type)
+- `LifecycleState` (type)
 
-Total public surface: 77
+Total public surface: 96

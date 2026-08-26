@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:45b0238e-5d55-410b-8051-5104640b8277",
+  "serialNumber": "urn:uuid:d5a1f910-eaa9-4475-aa2f-eab248e80906",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-26T20:50:41.635Z",
+    "timestamp": "2026-08-26T23:23:43.378Z",
     "component": {
       "type": "application",
       "name": "bundar",
@@ -64,7 +64,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4ab7cb507caa4ce72a27e814cd9e2574d5ef19371bcb1d98b493b4b4373c699c"
+          "content": "4a73951210c856515fa895ac93c0ebaddf914e72cc212bf27235cb9ce974ec16"
         }
       ],
       "purl": "pkg:npm/%40bundar/jsx@0.0.0"
@@ -164,7 +164,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "27007bd5696a3ba416bf175c4048318b396bd393600001ed34b2485be4b4194f"
+          "content": "3f4d62067b9ad91575a4f246984f40f13a28ae71f43d3e874bdab100d0e1006a"
         }
       ],
       "purl": "pkg:npm/%40bundar/testing@0.0.0"
@@ -208,97 +208,6 @@
         }
       ],
       "purl": "pkg:npm/create-bundar@0.0.0"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/cli@workspace:packages/cli",
-      "name": "@bundar/cli",
-      "version": "workspace:packages/cli",
-      "purl": "pkg:npm/%40bundar/cli@workspace:packages/cli"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/core@workspace:packages/core",
-      "name": "@bundar/core",
-      "version": "workspace:packages/core",
-      "purl": "pkg:npm/%40bundar/core@workspace:packages/core"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/example-admin-crud@workspace:examples/admin-crud",
-      "name": "@bundar/example-admin-crud",
-      "version": "workspace:examples/admin-crud",
-      "purl": "pkg:npm/%40bundar/example-admin-crud@workspace:examples/admin-crud"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/example-dual-dialect-fixture@workspace:examples/dual-dialect-fixture",
-      "name": "@bundar/example-dual-dialect-fixture",
-      "version": "workspace:examples/dual-dialect-fixture",
-      "purl": "pkg:npm/%40bundar/example-dual-dialect-fixture@workspace:examples/dual-dialect-fixture"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/example-minimal@workspace:examples/minimal",
-      "name": "@bundar/example-minimal",
-      "version": "workspace:examples/minimal",
-      "purl": "pkg:npm/%40bundar/example-minimal@workspace:examples/minimal"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/example-todo@workspace:examples/todo",
-      "name": "@bundar/example-todo",
-      "version": "workspace:examples/todo",
-      "purl": "pkg:npm/%40bundar/example-todo@workspace:examples/todo"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/example-workflow-gate@workspace:examples/workflow-gate",
-      "name": "@bundar/example-workflow-gate",
-      "version": "workspace:examples/workflow-gate",
-      "purl": "pkg:npm/%40bundar/example-workflow-gate@workspace:examples/workflow-gate"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/forms@workspace:packages/forms",
-      "name": "@bundar/forms",
-      "version": "workspace:packages/forms",
-      "purl": "pkg:npm/%40bundar/forms@workspace:packages/forms"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/htmx@workspace:packages/htmx",
-      "name": "@bundar/htmx",
-      "version": "workspace:packages/htmx",
-      "purl": "pkg:npm/%40bundar/htmx@workspace:packages/htmx"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/jsx@workspace:packages/jsx",
-      "name": "@bundar/jsx",
-      "version": "workspace:packages/jsx",
-      "purl": "pkg:npm/%40bundar/jsx@workspace:packages/jsx"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/schema@workspace:packages/schema",
-      "name": "@bundar/schema",
-      "version": "workspace:packages/schema",
-      "purl": "pkg:npm/%40bundar/schema@workspace:packages/schema"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/security@workspace:packages/security",
-      "name": "@bundar/security",
-      "version": "workspace:packages/security",
-      "purl": "pkg:npm/%40bundar/security@workspace:packages/security"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/%40bundar/testing@workspace:packages/testing",
-      "name": "@bundar/testing",
-      "version": "workspace:packages/testing",
-      "purl": "pkg:npm/%40bundar/testing@workspace:packages/testing"
     },
     {
       "type": "library",
@@ -649,20 +558,6 @@
       "name": "bun-types",
       "version": "1.3.14",
       "purl": "pkg:npm/bun-types@1.3.14"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/bundar-minimal-starter@workspace:templates/minimal",
-      "name": "bundar-minimal-starter",
-      "version": "workspace:templates/minimal",
-      "purl": "pkg:npm/bundar-minimal-starter@workspace:templates/minimal"
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:npm/create-bundar@workspace:create-bundar",
-      "name": "create-bundar",
-      "version": "workspace:create-bundar",
-      "purl": "pkg:npm/create-bundar@workspace:create-bundar"
     },
     {
       "type": "library",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-26T20:50:38.751Z",
+  "generatedAt": "2026-08-26T23:23:43.346Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -70,7 +70,7 @@
       "name": "@bundar/jsx",
       "version": "0.0.0",
       "tarball": "bundar-jsx-0.0.0.tgz",
-      "sha256": "4ab7cb507caa4ce72a27e814cd9e2574d5ef19371bcb1d98b493b4b4373c699c",
+      "sha256": "4a73951210c856515fa895ac93c0ebaddf914e72cc212bf27235cb9ce974ec16",
       "fileCount": 22,
       "files": [
         "src/jsx-dev-runtime.ts",
@@ -96,8 +96,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 69995,
-      "packedBytes": 20751,
+      "unpackedBytes": 70148,
+      "packedBytes": 20806,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -226,7 +226,7 @@
       "name": "@bundar/testing",
       "version": "0.0.0",
       "tarball": "bundar-testing-0.0.0.tgz",
-      "sha256": "27007bd5696a3ba416bf175c4048318b396bd393600001ed34b2485be4b4194f",
+      "sha256": "3f4d62067b9ad91575a4f246984f40f13a28ae71f43d3e874bdab100d0e1006a",
       "fileCount": 8,
       "files": [
         "src/match.ts",
@@ -238,8 +238,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 42351,
-      "packedBytes": 11958,
+      "unpackedBytes": 43553,
+      "packedBytes": 12298,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -307,8 +307,8 @@
   ],
   "summary": {
     "packages": 9,
-    "totalUnpackedBytes": 676750,
-    "totalPackedBytes": 203794,
+    "totalUnpackedBytes": 678105,
+    "totalPackedBytes": 204189,
     "findings": 0
   }
 }

@@ -1,6 +1,6 @@
 # npm publication dry run (GH-086)
 
-Simulated release: **0.1.0-alpha.1** on dist-tag **alpha**. No registry publish executed.
+Simulated release: **0.1.0-alpha.2** on dist-tag **canary**. No registry publish executed.
 
 ## Plan
 
@@ -11,7 +11,7 @@ Simulated release: **0.1.0-alpha.1** on dist-tag **alpha**. No registry publish 
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| pack+version-sync | pass | 9/9 tarballs at 0.1.0-alpha.1 |
+| pack+version-sync | pass | 9/9 tarballs at 0.1.0-alpha.2 |
 | no-unpublished-paths @bundar/core | pass | inter-deps synchronized |
 | exports @bundar/core | pass | 1 entry points resolve in-tarball |
 | metadata @bundar/core | pass | license/description/repository present |

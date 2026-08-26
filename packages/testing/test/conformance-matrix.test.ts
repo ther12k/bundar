@@ -112,6 +112,15 @@ function buildMatrixApp(): App {
     return text(`landed-post:${body}`);
   });
 
+  // Relative redirect testing (Location: next resolved against request URL)
+  app.get("/nested/start", () => {
+    return new Response(null, {
+      status: 302,
+      headers: { location: "finish" },
+    });
+  });
+  app.get("/nested/finish", () => text("landed-nested-finish"));
+
   // Malformed param test
   app.get("/decode/:value", (ctx) => text(`decoded:${ctx.params.value}`));
 
@@ -234,6 +243,29 @@ function runMatrixSuite(
       const followed308 = await client.follow(res308);
       expect(followed308.status).toBe(200);
       expect(await followed308.text()).toBe("landed-post:payload-308");
+    });
+
+    test("6b. Relative Location header resolves against requesting URL", async () => {
+      const client = getClient();
+      const res = await client.get("/nested/start");
+      expect(res.status).toBe(302);
+      expect(res.headers.get("location")).toBe("finish");
+      const followed = await client.follow(res);
+      expect(followed.status).toBe(200);
+      expect(await followed.text()).toBe("landed-nested-finish");
+    });
+
+    test("6c. Interleaved concurrent requests preserve exact originating request for follow()", async () => {
+      const client = getClient();
+      const reqA = await client.post("/redirect-307", { body: "payload-A" });
+      const reqB = await client.post("/redirect-307", { body: "payload-B" });
+
+      // Follow in reverse order: reqA must still carry payload-A
+      const followB = await client.follow(reqB);
+      expect(await followB.text()).toBe("landed-post:payload-B");
+
+      const followA = await client.follow(reqA);
+      expect(await followA.text()).toBe("landed-post:payload-A");
     });
 
     test("7. Static Response can be read repeatedly without body poisoning", async () => {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { CookieJar, responseCookies } from "../src/cookies";
 
-describe("BR-092 CookieJar browser-aware lifecycle", () => {
+describe("BR-092 / BR-109 CookieJar browser-aware lifecycle", () => {
   test("Max-Age=0 or negative clears the cookie immediately", () => {
     const jar = new CookieJar();
     jar.set("auth", "token123");
@@ -56,6 +56,61 @@ describe("BR-092 CookieJar browser-aware lifecycle", () => {
     expect(usersHeader).toContain("root_cookie=1");
     expect(usersHeader).toContain("api_cookie=2");
     expect(usersHeader).toContain("users_cookie=3");
+  });
+
+  test("Same-name cookies with different paths coexist and order by specificity", () => {
+    const jar = new CookieJar();
+    jar.absorb(
+      new Response(null, {
+        headers: [
+          ["set-cookie", "session=general; Path=/"],
+          ["set-cookie", "session=admin_priv; Path=/admin"],
+        ],
+      }),
+      "http://localhost/",
+    );
+
+    // Both cookies coexist in jar
+    expect(jar.size).toBe(2);
+
+    // Root request only matches Path=/
+    expect(jar.header("http://localhost/")).toBe("session=general");
+
+    // Admin request matches both; RFC 6265 §5.4 orders most specific path (/admin) first
+    const adminHeader = jar.header("http://localhost/admin/dashboard");
+    expect(adminHeader).toBe("session=admin_priv; session=general");
+  });
+
+  test("Host-only cookies strictly match originating host and do not leak", () => {
+    const jar = new CookieJar();
+    // Host-only cookie set from site-a.com
+    jar.absorb(
+      new Response(null, {
+        headers: { "set-cookie": "secret=site-a-only; Path=/" },
+      }),
+      "http://site-a.com/login",
+    );
+
+    // Domain cookie set from example.com
+    jar.absorb(
+      new Response(null, {
+        headers: { "set-cookie": "shared=ok; Domain=example.com; Path=/" },
+      }),
+      "http://example.com/",
+    );
+
+    // Request to site-a receives secret
+    expect(jar.header("http://site-a.com/dashboard")).toContain(
+      "secret=site-a-only",
+    );
+
+    // Request to site-b does NOT receive host-only cookie
+    expect(jar.header("http://site-b.com/dashboard")).not.toContain(
+      "secret=site-a-only",
+    );
+
+    // Subdomain of example.com receives shared domain cookie
+    expect(jar.header("http://sub.example.com/")).toContain("shared=ok");
   });
 
   test("Domain scoping filters cookies based on host", () => {
