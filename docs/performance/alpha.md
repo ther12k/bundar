@@ -64,8 +64,10 @@ shortcut exists that bypasses those checks.
 - No requests-per-second leadership claim (per the issue: synthetic
   rps alone is not a result).
 - No claim beyond this environment; the manifest is the context.
-- No unsafe speedups: parity failures void budgets; every scenario
-  runs the same escaping/negotiation the framework always applies.
+- No unsafe speedups: parity failures void budgets; shared-surface
+  scenarios run the same escaping/negotiation the framework always
+  applies, while the two JSX rows measure Bundar's renderer alone (the
+  excluded adapters would not perform that work).
 
 ## Reproduce
 
@@ -89,7 +91,11 @@ is never a Bundar runtime dependency.
 Two scenarios were added with this reference: `validated-json` (each
 framework's own validation machinery; valid path only, byte-equal
 responses) and `service-access` (module closure vs DI-injected
-singleton). Scenario p50 (µs) from the same recorded run:
+singleton). **BR-103 correction:** the two JSX rendering rows are now
+**Bundar-only** — raw Bun and Hono return prebuilt strings there while
+Bundar builds + escapes + serializes a real node, so those rows carry no
+cross-adapter comparison and no budget ratio against any other adapter.
+Scenario p50 (µs) from the same recorded run:
 
 | Scenario | raw Bun | Hono | Bundar | Carno |
 | --- | ---: | ---: | ---: | ---: |
@@ -98,8 +104,8 @@ singleton). Scenario p50 (µs) from the same recorded run:
 | parameterized route | 1.56 | 1.84 | 1.80 | 1.66 |
 | sync middleware | 1.36 | 1.15 | 1.71 | 2.24 |
 | async middleware | 1.52 | 1.67 | 1.73 | 2.17 |
-| escaped JSX fragment | 1.35 | 1.46 | 2.93 | — |
-| async JSX component | 1.59 | 1.73 | 2.66 | — |
+| escaped JSX fragment | — | — | 2.93 | — |
+| async JSX component | — | — | 2.66 | — |
 | page/fragment negotiation | 1.81 | 2.06 | 2.85 | 1.94 |
 | validated form | 2.44 | 5.08 | 11.27 | 3.64 |
 | validated JSON | 2.06 | 2.31 | 2.10 | 4.07 |
@@ -113,10 +119,11 @@ service access is a property read on a controller resolved once.
 
 Reading rules for this comparison:
 
-- The two JSX rendering scenarios print **no Carno number** — a string
-  concatenation is not equivalent work to Bundar's escaping render
-  model, so the pairing is excluded rather than faked (marked `—`).
-  No winner label is derived from those rows for any adapter.
+- The two JSX rendering scenarios print **no other adapter at all**
+  (`—`) — every non-Bundar adapter returns a prebuilt string there,
+  which is not equivalent work to Bundar's escaping render model, so
+  pairings are excluded rather than faked and no ratio or winner label
+  exists for those rows.
 - Carno's handlers construct `Response` objects explicitly because its
   implicit normalization (string → pre-built `text/plain` static
   Response, object → JSON) cannot produce the byte-exact content types
