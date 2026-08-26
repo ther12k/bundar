@@ -30,6 +30,7 @@ import {
 } from "../cookies";
 import type { ProxyTrustConfig } from "../proxy";
 import { assertProductionPosture } from "../posture";
+import { requireProductionSessionCapabilities } from "./store";
 
 /** Well-known state key; handlers read the session via getSession(). */
 export const SESSION = Symbol.for("bundar.security.session");
@@ -86,6 +87,13 @@ export interface SessionMiddlewareOptions {
   readonly csrfSecret?: string;
   /** BR-062 named overrides — each accepts exactly one documented risk. */
   readonly allowMemorySessionsInProduction?: boolean;
+  /**
+   * BR-089: EXPLICIT degraded-mode escape for production environments —
+   * accepts a store without atomic rotation / sliding touch. Default
+   * false: production fails closed on the documented capability floor.
+   * Named loudly on purpose; intended for short-lived experiments only.
+   */
+  readonly allowDegradedSessionStoreInProduction?: boolean;
   readonly allowInsecureCookies?: boolean;
   readonly allowWeakCsrfSecret?: boolean;
 }
@@ -206,6 +214,16 @@ export function sessionMiddleware(
         allowInsecureCookies: options.allowInsecureCookies === true,
         allowWeakCsrfSecret: options.allowWeakCsrfSecret === true,
       },
+    });
+    // BR-089: the documented production floor includes STORE CAPABILITIES —
+    // atomic rotation and sliding touch. Without this, a store declaring
+    // durable:true but atomicRotate:false passes construction and the
+    // runtime silently degrades (destroy-then-commit rotation, no touch),
+    // violating the documented production contract. Fail closed; the ONLY
+    // escape is the explicit, default-off flag below.
+    requireProductionSessionCapabilities(options.store, {
+      allowDegradedNonProduction:
+        options.allowDegradedSessionStoreInProduction === true,
     });
   }
   if (
@@ -348,6 +366,14 @@ export function sessionMiddleware(
 
     const finalId = rotated ? generateSessionId() : currentId;
     if (dirty || isNew || rotated) {
+      // BR-090: the STORE record carries the SLIDING expiry — the idle
+      // window from now, capped by the absolute deadline. Committing the
+      // absolute deadline here made the idle timeout meaningless for new
+      // sessions (nothing to slide) and desynced the browser cookie.
+      const slidingExpiry = Math.min(
+        absoluteDeadline,
+        Date.now() + idleTimeoutMs,
+      );
       if (
         rotated &&
         !isNew &&
@@ -362,7 +388,7 @@ export function sessionMiddleware(
           id: finalId,
           data,
           createdAtMs,
-          expiresAtMs: absoluteDeadline,
+          expiresAtMs: slidingExpiry,
         });
       } else {
         if (rotated && !isNew && cookieId !== undefined) {
@@ -373,7 +399,7 @@ export function sessionMiddleware(
           id: finalId,
           data,
           createdAtMs,
-          expiresAtMs: absoluteDeadline,
+          expiresAtMs: slidingExpiry,
         });
       }
       headers.append(
@@ -381,7 +407,7 @@ export function sessionMiddleware(
         sessionCookie(
           cookieName,
           finalId,
-          absoluteDeadline,
+          slidingExpiry,
           options,
           secureOverride,
         ),

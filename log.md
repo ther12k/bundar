@@ -869,3 +869,12 @@ BR-075 is complete; BR-085 (beta gate) gains two required lanes.
 - Verified: a11y + no-js lanes, test:template, test:scaffold (both dialects), format, lint, typecheck, architecture:check, docs:check/status-check/issues:check, docs:validate, docs:links, full suite (0 fail), build, release:plan — all exit 0.
 
 BR-087 is complete: enhanced 4xx errors now work by default in real htmx 2 browsers.
+
+## 2026-08-26 — BR-089/BR-090/BR-094: session boundary correction wave (re-audit findings 1, 2, 8)
+
+- **BR-089 (#141)**: `sessionMiddleware({ environment: "production" })` now calls `requireProductionSessionCapabilities(store)` after `assertProductionPosture` — atomic rotation and sliding touch are enforced fail-closed at construction; the only escape is the explicit, default-off `allowDegradedSessionStoreInProduction` flag. 7 construction-matrix tests (declared-capability lies, missing methods, undeclared capabilities, full floor accepted, development unchanged, named escape).
+- **BR-094 (#146)**: the serialization guard is strictly JSON-safe — `undefined`/`bigint` rejected with paths, non-finite numbers rejected with the value in the diagnostic, cycles detected via ancestor-path tracking (shared DAG references stay legal — a global seen-set would false-positive), all as typed `SessionStoreError`s with `session.user.profile.score`-style paths, never recursive `RangeError`.
+- **BR-090 (#142) completed beyond the concurrent wave's cookie refresh**: found and fixed the root inconsistency — fresh/dirty/rotated sessions committed `expiresAtMs: absoluteDeadline`, making the idle window meaningless (nothing could slide: the touch threshold compared absolute remaining against idle/2). Commits now carry the sliding expiry `min(absoluteDeadline, now + idleTimeoutMs)` and the cookie follows it. Expiry-aware jar lifecycle tests (virtual-clock deterministic, 15/15 stable runs): read-only activity refreshes the browser cookie, the session survives past its original parsed idle deadline, the absolute cap stays hard (refresh pins at the deadline, never now+idle), and a failing `touch()` refreshes nothing. Also documented in-test: Set-Cookie `Expires` floors to whole seconds — idle windows near 1s are unrepresentable; margins keep >1s slack.
+- Verified: full security suite 130/130 (312 expects), full repo suite 0 fail, format, lint, typecheck — all exit 0.
+
+BR-089, BR-090, BR-094 are complete; #143/#145/#147/#148/#149 (the concurrent wave's source changes) still need their acceptance evidence before closing.
