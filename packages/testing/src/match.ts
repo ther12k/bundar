@@ -1,10 +1,11 @@
 /**
- * In-process route matching over a compiled route table (GH-074).
+ * In-process route matching over a compiled route table (GH-074 / BR-092).
  *
  * `Bun.serve` owns route matching in production; the in-process client
  * re-implements the supported subset of Bun's route syntax — exact paths,
- * `:param` segments, and `*` wildcard tails — so the same compiled table
- * serves tests without a socket. Method mismatches mirror Bun's 405.
+ * `:param` segments, and `*` wildcard tails — with identical category
+ * precedence (exact > parameter > wildcard > catch-all) and deterministic Allow
+ * computation.
  */
 export type RouteTableEntry = Response | ((request: Request) => unknown);
 
@@ -22,6 +23,8 @@ export type MatchResult =
       readonly kind: "matched";
       readonly entry: RouteTableEntry;
       readonly params: Readonly<Record<string, string>>;
+      /** Set for framework-generated auto-OPTIONS responses (BR-073 review). */
+      readonly optionsResponse?: string;
     }
   | { readonly kind: "method-not-allowed"; readonly allowed: readonly string[] }
   | { readonly kind: "not-found" };
@@ -60,31 +63,76 @@ function compilePattern(path: string): CompiledPattern {
   return compiled;
 }
 
+function patternPrecedence(pattern: string): {
+  rank: number;
+  statics: number;
+  length: number;
+} {
+  const parts = pattern.split("/").filter((seg) => seg !== "");
+  const statics = parts.filter(
+    (seg) => !seg.startsWith(":") && !seg.startsWith("*"),
+  ).length;
+  let rank = 0;
+  if (!parts.some((p) => p.startsWith(":") || p.startsWith("*"))) {
+    rank = 0; // exact static
+  } else if (
+    parts.some((p) => p.startsWith(":")) &&
+    !parts.some((p) => p.startsWith("*"))
+  ) {
+    rank = 1; // parameter
+  } else if (parts.some((p) => p.startsWith("*"))) {
+    rank = parts.length === 1 ? 3 : 2; // wildcard vs catch-all
+  }
+  return { rank, statics, length: parts.length };
+}
+
 /**
- * Matches a method/path against the compiled table. Static `Response`
- * entries and handler functions both surface as `entry`; the caller
- * distinguishes with `instanceof Response`.
+ * Matches a method/path against the compiled table using native Bun
+ * precedence (exact > parameter > wildcard > catch-all).
  */
 export function matchRoute(
   table: CompiledTableLike,
   method: string,
   pathname: string,
 ): MatchResult {
-  const allowed = new Set<string>();
-  let sawPath = false;
-  for (const [pattern, entryShape] of Object.entries(table.routes)) {
+  // Sort candidate patterns by category precedence
+  const sortedEntries = Object.entries(table.routes).sort(
+    ([patternA], [patternB]) => {
+      const a = patternPrecedence(patternA);
+      const b = patternPrecedence(patternB);
+      if (a.rank !== b.rank) return a.rank - b.rank;
+      if (a.statics !== b.statics) return b.statics - a.statics;
+      return b.length - a.length;
+    },
+  );
+
+  for (const [pattern, entryShape] of sortedEntries) {
     const compiled = compilePattern(pattern);
     const match = compiled.regex.exec(pathname);
     if (match === null) continue;
-    sawPath = true;
+
     if (entryShape instanceof Response) {
-      return { kind: "matched", entry: entryShape, params: {} };
+      if (method === "GET" || method === "HEAD") {
+        return { kind: "matched", entry: entryShape, params: {} };
+      }
+      if (method === "OPTIONS") {
+        const allow = "GET, HEAD, OPTIONS";
+        return {
+          kind: "matched",
+          entry: (() =>
+            new Response(null, { status: 204, headers: { allow } })) as never,
+          params: {},
+          optionsResponse: allow,
+        };
+      }
+      return {
+        kind: "method-not-allowed",
+        allowed: ["GET", "HEAD", "OPTIONS"],
+      };
     }
+
     const methods = entryShape as Record<string, RouteTableEntry>;
-    // BR-072 review parity: mirror the production compiler policy.
-    //   HEAD on a GET-registered route runs the GET handler;
-    //   OPTIONS returns 204 with a deterministic Allow header;
-    //   unknown methods return 405 with that same Allow value.
+    const allowed = new Set<string>();
     for (const known of Object.keys(methods)) allowed.add(known.toUpperCase());
     if (methods["GET"] !== undefined) allowed.add("HEAD");
     allowed.add("OPTIONS");
@@ -96,6 +144,7 @@ export function matchRoute(
         ? methods["GET"]
         : undefined) ??
       methods["*"];
+
     if (isOptions && methods["OPTIONS"] === undefined && entry === undefined) {
       const allow = [...allowed].sort().join(", ");
       return {
@@ -104,21 +153,29 @@ export function matchRoute(
           new Response(null, { status: 204, headers: { allow } })) as never,
         params: {},
         optionsResponse: allow,
-      } as MatchResult & { optionsResponse?: string };
+      };
     }
+
     if (entry !== undefined) {
       const params: Record<string, string> = {};
       compiled.names.forEach((name, index) => {
         if (name === "*") return;
-        params[name] = decodeURIComponent(match[index + 1] ?? "");
+        const rawSegment = match[index + 1] ?? "";
+        try {
+          params[name] = decodeURIComponent(rawSegment);
+        } catch {
+          // Bun documents invalid Unicode replacement () on malformed percent sequences
+          params[name] = "\uFFFD";
+        }
       });
       return { kind: "matched", entry, params };
     }
-  }
-  if (sawPath) {
+
+    // The winning route group matched structurally, but does not implement this method
     const sortedAllow = [...allowed].sort((a, b) => a.localeCompare(b));
     return { kind: "method-not-allowed", allowed: sortedAllow };
   }
+
   return { kind: "not-found" };
 }
 

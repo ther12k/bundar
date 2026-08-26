@@ -4,7 +4,10 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { Context } from "@bundar/core";
-import { createMemorySessionStore } from "../../src/session/store";
+import {
+  createMemorySessionStore,
+  type SessionStore,
+} from "../../src/session/store";
 import { generateSessionId } from "../../src/session/id";
 import { sessionMiddleware } from "../../src/session/middleware";
 
@@ -110,5 +113,56 @@ describe("BR-062 review: sliding idle timeout", () => {
 
     // the DEAD id must remain unloadable — activity cannot resurrect it
     expect(await store.load(deadId)).toBeNull();
+  });
+});
+
+describe("BR-063 re-review: failed touch does not refresh cookie", () => {
+  test("touch=false -> no refreshed session cookie", async () => {
+    // Adapter whose touch ALWAYS reports false (session consumed elsewhere).
+    const store = createMemorySessionStore();
+    const id = generateSessionId();
+    await store.commit({
+      id,
+      data: {},
+      createdAtMs: Date.now() - 6 * 60 * 1000,
+      expiresAtMs: Date.now() + 4 * 60 * 1000, // >50% consumed
+    });
+    (store as unknown as { touch: unknown }).touch = async () => false;
+
+    const response = await readOnlyRequest(store, id);
+    expect(response.status).toBe(200);
+    const refreshed = response.headers
+      .getSetCookie()
+      .some((c) => c.startsWith("bundar.session=") && !c.includes("1970"));
+    expect(refreshed).toBe(false); // dead session NOT extended client-side
+  });
+
+  test("concurrent destroy between load and touch -> no cookie refresh", async () => {
+    const store = createMemorySessionStore();
+    const id = generateSessionId();
+    await store.commit({
+      id,
+      data: {},
+      createdAtMs: Date.now(),
+      expiresAtMs: Date.now() + 4 * 60 * 1000,
+    });
+    // Simulate logout racing the read-only request: destroy AFTER middleware
+    // loads but BEFORE touch runs — hook via a wrapper store.
+    const wrapped: SessionStore = {
+      ...store,
+      capabilities: { durable: false, atomicRotate: true, touch: true },
+      async load(loadId: string) {
+        const record = await store.load(loadId);
+        if (record !== null && loadId === id) await store.destroy(id);
+        return record;
+      },
+    };
+
+    const response = await readOnlyRequest(wrapped, id);
+    const refreshed = response.headers
+      .getSetCookie()
+      .some((c) => c.startsWith("bundar.session=") && !c.includes("1970"));
+    expect(refreshed).toBe(false); // touch(false) after concurrent destroy
+    expect(await store.load(id)).toBeNull();
   });
 });
