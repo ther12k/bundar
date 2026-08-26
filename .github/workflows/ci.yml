@@ -95,7 +95,7 @@ jobs:
         run: bun run test:no-js
       - name: Upload lane artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540478e92f5e01e83757ad22
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: browser-lane-artifacts
           path: output/playwright/
