@@ -102,4 +102,15 @@ if (existsSync(paritySource)) {
   );
 }
 
-console.log("bench:release: wrote alpha.json + environment.json");
+// 4. BR-077 beta workloads ride the same recording commit so docs quote
+//    one consistent set of numbers from one SHA.
+const betaRun = spawnSync("bun", ["tools/benchmark/beta-workloads.ts"], {
+  cwd: REPO,
+  stdio: "inherit",
+});
+if (betaRun.status !== 0) {
+  console.error("bench:release: beta workload suite failed");
+  process.exit(1);
+}
+
+console.log("bench:release: wrote alpha.json + environment.json + beta.json");
