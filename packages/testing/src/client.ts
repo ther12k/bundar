@@ -1,5 +1,5 @@
 /**
- * The in-process test client (GH-074).
+ * The in-process test client (GH-074 / BR-092).
  *
  * `createTestClient(app)` serves the app's compiled route table WITHOUT a
  * network port: requests are matched and dispatched in-process, with a
@@ -8,16 +8,12 @@
  * Bun-specific integration cases; both share this interface so a fixture
  * can switch transports without rewriting assertions.
  *
- * In-process semantics differ from Bun.serve deliberately and visibly:
- * route matching is the supported-subset matcher (./match), and a thrown
- * handler error REJECTS the call when no `error` hook is configured —
- * tests see failures instead of Bun's default 500 page. With a hook, the
- * hook's response mirrors the server.
- *
- * `follow()` implements the PRG pattern (301/302/303 → GET the location).
- * 307/308 also fetch the location with GET — the actions composer emits
- * 303 for ordinary submissions, so method-preserving replay is out of
- * scope and documented here.
+ * In-process semantics match Bun.serve closely:
+ * - Route matching adheres to native category precedence (exact > parameter > wildcard > catch-all)
+ * - HEAD requests strip body while preserving GET status and headers
+ * - Cookie jar respects Path, Domain, Secure, and Expires/Max-Age
+ * - Redirect following preserves HTTP method and body on 307/308, and switches to GET on 301/302/303 (PRG)
+ * - Thrown handler errors REJECT when no `error` hook is configured; with a hook, the hook's response is returned.
  */
 import { compileRoutes, App } from "@bundar/core";
 import type { CompiledServerOptions, RouteModule } from "@bundar/core";
@@ -89,7 +85,7 @@ export interface TestClient {
     htmx?: HtmxRequestHeaderOptions,
     init?: RequestInitLike,
   ): Promise<Response>;
-  /** Follows a 3xx chain by GETting each location (PRG pattern). */
+  /** Follows a 3xx chain (301/302/303 -> GET; 307/308 -> preserves method & body). */
   follow(response: Response, maxHops?: number): Promise<Response>;
   /** Releases jar state; a no-op beyond that for in-process clients. */
   dispose(): void;
@@ -159,6 +155,15 @@ function withCookieHeader(
     );
 }
 
+function stripBody(response: Response): Response {
+  // HTTP semantics: HEAD responses carry GET-equivalent headers with NO body.
+  return new Response(null, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
+
 export function createTestClient(
   target: TestClientTarget,
   options: TestClientOptions = {},
@@ -167,18 +172,23 @@ export function createTestClient(
   const jar = new CookieJar();
   const useJar = options.cookies !== false;
   const { dialect } = options;
+  let lastRequest: Request | undefined;
 
   const dispatch = async (incoming: Request): Promise<Response> => {
+    lastRequest = incoming;
     const request =
       useJar && jar.size > 0
-        ? await withCookieHeader(incoming, jar.header())
+        ? await withCookieHeader(incoming, jar.header(incoming.url))
         : incoming;
 
     const url = new URL(request.url);
     const match = matchRoute(compiled, request.method, url.pathname);
     if (match.kind === "not-found") {
-      const response = await compiled.fetch(request);
-      if (useJar) jar.absorb(response);
+      let response = await compiled.fetch(request);
+      if (request.method === "HEAD") {
+        response = stripBody(response);
+      }
+      if (useJar) jar.absorb(response, request.url);
       return response;
     }
     if (match.kind === "method-not-allowed") {
@@ -188,12 +198,23 @@ export function createTestClient(
       });
     }
 
+    const optionsAllow = match.optionsResponse;
+    if (optionsAllow !== undefined) {
+      // Auto-OPTIONS policy parity: 204 + deterministic Allow.
+      return new Response(null, {
+        status: 204,
+        headers: { allow: optionsAllow },
+      });
+    }
     if (match.entry instanceof Response) {
       // BR-073 review: static entries are SHARED objects in the compiled
       // table — hand each caller its own clone so one consumer reading the
       // body cannot poison the next request.
-      const response = match.entry.clone() as Response;
-      if (useJar) jar.absorb(response);
+      const response =
+        request.method === "HEAD"
+          ? stripBody(match.entry.clone() as Response)
+          : (match.entry.clone() as Response);
+      if (useJar) jar.absorb(response, request.url);
       return response;
     }
 
@@ -201,13 +222,19 @@ export function createTestClient(
       const result = (match.entry as (request: Request) => unknown)(
         requestWithParams(request, match.params),
       );
-      const response = await Promise.resolve(result as Response);
-      if (useJar) jar.absorb(response);
+      let response = await Promise.resolve(result as Response);
+      if (request.method === "HEAD") {
+        response = stripBody(response);
+      }
+      if (useJar) jar.absorb(response, request.url);
       return response;
     } catch (error) {
       if (compiled.error !== undefined) {
-        const response = await compiled.error(error as Error);
-        if (useJar) jar.absorb(response);
+        let response = await compiled.error(error as Error);
+        if (request.method === "HEAD") {
+          response = stripBody(response);
+        }
+        if (useJar) jar.absorb(response, request.url);
         return response;
       }
       // In-process semantics: no hook → surface the failure to the test.
@@ -263,7 +290,7 @@ export function createTestClient(
         }),
       ),
     follow: (response, maxHops = 5) =>
-      followRedirects(client, response, maxHops),
+      followRedirects(client, response, lastRequest, maxHops),
     dispose: () => {
       jar.clear();
     },
@@ -273,15 +300,46 @@ export function createTestClient(
 
 async function followRedirects(
   client: TestClient,
-  response: Response,
+  initialResponse: Response,
+  initialRequest: Request | undefined,
   maxHops: number,
 ): Promise<Response> {
-  let current = response;
+  let currentResponse = initialResponse;
+  let currentRequest = initialRequest;
   for (let hop = 0; hop < maxHops; hop += 1) {
-    if (!REDIRECT_STATUSES.has(current.status)) return current;
-    const location = current.headers.get("location");
-    if (location === null) return current;
-    current = await client.fetch(location);
+    if (!REDIRECT_STATUSES.has(currentResponse.status)) return currentResponse;
+    const location = currentResponse.headers.get("location");
+    if (location === null) return currentResponse;
+
+    const status = currentResponse.status;
+    let nextRequest: Request;
+    if (status === 307 || status === 308) {
+      // Preserve method and body
+      const method = currentRequest ? currentRequest.method : "GET";
+      const headers = new Headers(currentRequest?.headers);
+      let body: ArrayBuffer | undefined;
+      if (currentRequest && method !== "GET" && method !== "HEAD") {
+        body = await currentRequest.clone().arrayBuffer();
+      }
+      const targetUrl = location.startsWith("http")
+        ? location
+        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
+      nextRequest = new Request(targetUrl, {
+        method,
+        headers,
+        body,
+      });
+    } else {
+      // 301, 302, 303: PRG pattern -> GET
+      const targetUrl = location.startsWith("http")
+        ? location
+        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
+      nextRequest = new Request(targetUrl, {
+        method: "GET",
+      });
+    }
+    currentRequest = nextRequest;
+    currentResponse = await client.fetch(nextRequest);
   }
   throw new Error(`follow(): exceeded ${maxHops} redirects`);
 }

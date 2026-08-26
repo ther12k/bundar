@@ -1,5 +1,5 @@
 /**
- * Real-server opt-in for Bun integration cases (GH-074).
+ * Real-server opt-in for Bun integration cases (GH-074 / BR-092).
  *
  * In-process dispatch covers route logic without a socket; some behaviors
  * belong to Bun.serve itself (its native route matching, error hook, idle
@@ -35,6 +35,7 @@ export interface TestServer {
   stop(): void;
 }
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 const runningServers = new Set<ReturnType<typeof Bun.serve>>();
 
 /** Starts the app on an ephemeral port with leak-safe registration. */
@@ -66,21 +67,23 @@ export function startTestServer(
   const jar = new CookieJar();
   const useJar = options.cookies !== false;
   const { dialect } = options;
+  let lastRequest: Request | undefined;
 
   const send = async (request: Request): Promise<Response> => {
+    lastRequest = request;
     // requests are built against TEST_ORIGIN; the transport rewrites them
     // onto this server's real origin (path + query preserved)
     const sourceUrl = new URL(request.url);
     const target = `${url}${sourceUrl.pathname}${sourceUrl.search}`;
     const response = await fetch(target, {
       method: request.method,
-      headers: transportHeaders(request.headers),
+      headers: transportHeaders(request.headers, target),
       ...(request.method !== "GET" && request.method !== "HEAD"
         ? { body: await request.clone().arrayBuffer() }
         : {}),
       redirect: "manual",
     });
-    if (useJar) jar.absorb(response);
+    if (useJar) jar.absorb(response, target);
     return response;
   };
 
@@ -89,9 +92,9 @@ export function startTestServer(
    * plus origin/host rewritten onto the real server so CSRF origin checks
    * see a same-origin submission the way a browser on that port would.
    */
-  function transportHeaders(headers: Headers): Headers {
+  function transportHeaders(headers: Headers, targetUrl: string): Headers {
     const merged = new Headers(headers);
-    if (useJar && jar.size > 0) merged.set("cookie", jar.header());
+    if (useJar && jar.size > 0) merged.set("cookie", jar.header(targetUrl));
     if (merged.has("origin")) merged.set("origin", url);
     if (merged.has("host")) merged.set("host", `127.0.0.1:${port}`);
     return merged;
@@ -147,7 +150,8 @@ export function startTestServer(
           },
         }),
       ),
-    follow: (response, maxHops = 5) => followChain(client, response, maxHops),
+    follow: (response, maxHops = 5) =>
+      followChain(client, response, lastRequest, maxHops),
     dispose: () => {
       jar.clear();
     },
@@ -169,15 +173,44 @@ export function startTestServer(
 
 async function followChain(
   client: TestClient,
-  response: Response,
+  initialResponse: Response,
+  initialRequest: Request | undefined,
   maxHops: number,
 ): Promise<Response> {
-  let current = response;
+  let currentResponse = initialResponse;
+  let currentRequest = initialRequest;
   for (let hop = 0; hop < maxHops; hop += 1) {
-    if (![301, 302, 303, 307, 308].includes(current.status)) return current;
-    const location = current.headers.get("location");
-    if (location === null) return current;
-    current = await client.fetch(location);
+    if (!REDIRECT_STATUSES.has(currentResponse.status)) return currentResponse;
+    const location = currentResponse.headers.get("location");
+    if (location === null) return currentResponse;
+
+    const status = currentResponse.status;
+    let nextRequest: Request;
+    if (status === 307 || status === 308) {
+      const method = currentRequest ? currentRequest.method : "GET";
+      const headers = new Headers(currentRequest?.headers);
+      let body: ArrayBuffer | undefined;
+      if (currentRequest && method !== "GET" && method !== "HEAD") {
+        body = await currentRequest.clone().arrayBuffer();
+      }
+      const targetUrl = location.startsWith("http")
+        ? location
+        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
+      nextRequest = new Request(targetUrl, {
+        method,
+        headers,
+        body,
+      });
+    } else {
+      const targetUrl = location.startsWith("http")
+        ? location
+        : `${client.url}${location.startsWith("/") ? "" : "/"}${location}`;
+      nextRequest = new Request(targetUrl, {
+        method: "GET",
+      });
+    }
+    currentRequest = nextRequest;
+    currentResponse = await client.fetch(nextRequest);
   }
   throw new Error(`follow(): exceeded ${maxHops} redirects`);
 }

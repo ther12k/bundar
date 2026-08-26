@@ -329,8 +329,11 @@ export function sessionMiddleware(
         remaining < idleTimeoutMs / 2 &&
         nextExpiry > (loaded.expiresAtMs ?? 0)
       ) {
-        await options.store.touch(currentId, nextExpiry);
-        touchedExpiry = nextExpiry;
+        // BR-063 re-review: a FALSE answer means the session was consumed
+        // concurrently (logout/destroy/expiry sweep) — refreshing the
+        // browser cookie would resurrect a dead session client-side.
+        const touched = await options.store.touch(currentId, nextExpiry);
+        if (touched === true) touchedExpiry = nextExpiry;
       }
     }
 
