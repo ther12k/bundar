@@ -166,19 +166,24 @@ describe("GH-065 dialect error-swap differences", () => {
       policy,
       { dialect: htmx4Experimental },
     );
-    expect(response.headers.get("hx-reswap")).toBe("innerHTML");
+    // no-swap dialects get swap re-enabled with the region-replacing style
+    expect(response.headers.get("hx-reswap")).toBe("outerHTML");
     expect(response.headers.get("hx-retarget")).toBe("#form-card");
   });
 
-  test("v2 fragment errors carry only the server-known retarget", async () => {
+  test("v2 fragment errors pair the retarget with the region-replacing reswap", async () => {
     const response = await errorViewResponse(
       request({ "HX-Request": "true" }),
       { status: 422, code: "unprocessable", message: "fix fields" },
       policy,
       { dialect: htmx2 },
     );
+    // BR-075 live-browser evidence: a retarget WITHOUT a reswap reuses the
+    // triggering element's own swap style (e.g. beforeend) and NESTS the
+    // re-rendered form inside the stale region. The fragment replaces the
+    // region element, so the retarget is always paired with outerHTML.
     expect(response.headers.get("hx-retarget")).toBe("#form-card");
-    expect(response.headers.get("hx-reswap")).toBeNull();
+    expect(response.headers.get("hx-reswap")).toBe("outerHTML");
   });
 });
 

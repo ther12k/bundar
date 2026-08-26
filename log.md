@@ -842,3 +842,18 @@ BR-086 follow-up is complete; CI on main should now reach a fully green run.
 - Verified: release:plan (human+JSON), package:audit, prettier, lint, typecheck, architecture:check, docs:check, docs:status-check (6 facts), issues:check, docs:validate (232 docs), docs:links (1258), full suite 1075/1075, build — all exit 0.
 
 BR-078 is complete; BR-079 (human gate) and BR-080 inherit a fixed publication target.
+
+## 2026-08-26 — BR-075: no-JavaScript and accessibility baseline gates
+
+- Two new browser lanes over the UNMODIFIED reference applications (`tests/browser/lanes/` boots createTodoApp + createAdminApp with the pinned htmx2 asset and axe-core served locally):
+  - **accessibility lane** (`test:a11y`): axe-core WCAG 2.0/2.1 A/AA scans of 7 canonical page states (todo home/validation/after-swap, admin login/list/detail) — **zero critical/serious violations, no waivers** — plus targeted assertions automation cannot prove: exactly one h1, header/main landmarks, aria-live flash, every th scoped, every visible control named, and enhanced validation errors associated (aria-describedby + aria-invalid + role=alert text).
+  - **no-JS lane** (`test:no-js`): the enhancement script never delivered (route-aborted; window.htmx undefined re-verified after every navigation) + keyboard-ONLY flows (Tab order reaches every control; Enter submits): PRG create, 422 announcement, toggle, delete, admin login/list — all through ordinary POST → 303 → document flows.
+- **Two framework defects found by the lanes and fixed** (live-browser evidence; unit tests had passed on substring assertions):
+  1. `composeFragment` returned a plain string that JSX response helpers ESCAPED as text — every enhanced mutation fragment in the examples was double-escaped on the wire (`&lt;li&gt;…`) and rendered as literal text in real browsers. Now returns a `raw()`-wrapped composite (the same boundary `serializeUpdates` already used for string content). BR-052 tests updated to render the composite.
+  2. `errorViewResponse`'s fragment retarget was unpaired with a reswap — htmx reused the triggering element's swap style (beforeend) and NESTED the re-rendered form inside the stale region. Retargets are now always paired with `HX-Reswap: outerHTML`; the no-swap dialect fallback applies only when no retarget was issued. GH-065 tests updated to pin the corrected contract.
+- **Two gaps registered rather than papered over**: #139/BR-087 (htmx 2 default responseHandling drops ALL 4xx bodies — enhanced error fragments never swap without the documented client preset; dialect-owned preset is the deliverable) and #140/BR-088 (ordinary 422s render the generic error document; apps need a public document-re-render option — the default's broken `#field` anchor links are in scope there).
+- Example a11y fix in write set: the todo title input now associates its error region (`aria-describedby="title-error"`, `aria-invalid` when errored) — boost-safe (static attributes on the form element).
+- docs/guides/accessibility.md: the tested baseline, validation-error delivery per mode (with the htmx 2 responseHandling bootstrap snippet), focus-management responsibility table across full navigation/enhanced swaps/history restoration, and explicit out-of-scope posture. browsers.json chromium lanes now include accessibility + no-js.
+- Verified: both lanes PASS (artifacts under output/playwright/{accessibility,no-js}/); format, lint, typecheck, architecture:check, docs:check, docs:status-check, issues:check, docs:validate (232 docs), docs:links (1259), full suite 1075/1075, build, release:plan — all exit 0.
+
+BR-075 is complete; BR-085 (beta gate) gains two required lanes.

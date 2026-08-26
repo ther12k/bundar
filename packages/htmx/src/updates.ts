@@ -8,7 +8,13 @@
  * meaning is explicit per intent and never silently changed by an adapter;
  * duplicate targets and unsupported modes are diagnosed, not approximated.
  */
-import { jsx, raw, renderToString, type JSXChild } from "@bundar/jsx";
+import {
+  jsx,
+  raw,
+  renderToString,
+  type JSXChild,
+  type RawHtml,
+} from "@bundar/jsx";
 import { isUnsupported } from "./capabilities";
 import type { CapabilitySupport } from "./dialect";
 import type { HtmxDialectAdapter } from "./dialect";
@@ -147,7 +153,7 @@ export interface FragmentSpec {
 export function composeFragment(
   spec: FragmentSpec,
   options: { dialect: HtmxDialectAdapter },
-): string {
+): RawHtml {
   if (
     spec.primary !== undefined &&
     typeof spec.primary === "object" &&
@@ -164,7 +170,7 @@ export function composeFragment(
   const primary =
     spec.primary === undefined ? "" : renderToString(spec.primary);
   const updateList = spec.updates ?? [];
-  if (updateList.length === 0) return primary;
+  if (updateList.length === 0) return raw(primary);
   const intents: UpdateIntent[] = updateList.map((update) => {
     const operation = update.operation ?? "replace-element";
     const kind: UpdateOperation =
@@ -186,7 +192,10 @@ export function composeFragment(
     };
     return intent;
   });
-  return primary + serializeUpdates(intents, options.dialect).html;
+  // Raw boundary: the composite is serialized markup by construction —
+  // a plain string would be ESCAPED as text when JSX response helpers
+  // render it (observed double-escaped enhanced fragments in BR-075).
+  return raw(primary + serializeUpdates(intents, options.dialect).html);
 }
 
 export function serializeUpdates(

@@ -91,6 +91,8 @@ export function todoForm({
         value={title}
         placeholder="What needs doing?"
         aria-label="Todo title"
+        aria-describedby="title-error"
+        {...(error ? { "aria-invalid": "true" } : {})}
       />
       <p id="title-error" role="alert">
         {error}

@@ -8,6 +8,7 @@ import { jsx } from "../../jsx/src/index";
 import { htmx2 } from "../src/dialects/v2";
 import { htmx4Experimental } from "../src/dialects/v4";
 import { composeFragment } from "../src/updates";
+import { renderToString } from "../../jsx/src/index";
 
 describe("BR-052 composeFragment", () => {
   const spec = {
@@ -22,7 +23,7 @@ describe("BR-052 composeFragment", () => {
   };
 
   test("renders primary plus OOB intents for htmx 2", () => {
-    const html = composeFragment(spec, { dialect: htmx2 });
+    const html = renderToString(composeFragment(spec, { dialect: htmx2 }));
     expect(html).toContain('id="todo-7"');
     expect(html).toContain("hx-swap-oob");
     expect(html).toContain("2 total");
@@ -31,7 +32,9 @@ describe("BR-052 composeFragment", () => {
   });
 
   test("the same spec works under the experimental htmx 4 adapter", () => {
-    const v4 = composeFragment(spec, { dialect: htmx4Experimental });
+    const v4 = renderToString(
+      composeFragment(spec, { dialect: htmx4Experimental }),
+    );
     expect(v4).toContain('id="todo-7"');
     expect(v4).toContain("todo-counts");
     expect(v4).toContain("todo-9");
@@ -45,10 +48,12 @@ describe("BR-052 composeFragment", () => {
   });
 
   test("empty spec yields empty string; remove-only works", () => {
-    expect(composeFragment({}, { dialect: htmx2 })).toBe("");
-    const removal = composeFragment(
-      { updates: [{ target: "gone", operation: "remove" }] },
-      { dialect: htmx2 },
+    expect(renderToString(composeFragment({}, { dialect: htmx2 }))).toBe("");
+    const removal = renderToString(
+      composeFragment(
+        { updates: [{ target: "gone", operation: "remove" }] },
+        { dialect: htmx2 },
+      ),
     );
     expect(removal).toContain("gone");
   });

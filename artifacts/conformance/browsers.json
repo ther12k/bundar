@@ -11,9 +11,9 @@
     {
       "name": "chromium",
       "version": "playwright bundled (chrome)",
-      "lanes": ["htmx2", "htmx4"],
+      "lanes": ["htmx2", "htmx4", "accessibility", "no-js"],
       "status": "passing-evidence",
-      "notes": "Canonical navigation, forms, validation, redirects/history, OOB/multi-region, errors, CSRF/session, asset/CSP fixtures run per lane via tests/browser/run.ts."
+      "notes": "Canonical navigation, forms, validation, redirects/history, OOB/multi-region, errors, CSRF/session, asset/CSP fixtures run per lane via tests/browser/run.ts; accessibility (axe zero critical/serious + targeted semantics) and no-JS (keyboard-only PRG) lanes run the unmodified reference applications via tests/browser/{accessibility,no-js}/run.ts (BR-075)."
     }
   ],
   "deferredEngines": [
