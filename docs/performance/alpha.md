@@ -74,3 +74,62 @@ bun run bench:release          # suite + environment manifest
 bun run bench:parity           # behavior parity alone
 bun run bench:regression       # budget gate (fail-closed)
 ```
+
+## Carno.js reference (BR-076, recorded 2026-08-26 at `64cc79d`)
+
+Carno.js (`@carno.js/core` `1.7.0`, MIT) is the enterprise-model
+comparator: NestJS-style controllers, constructor DI, zod-backed body
+validation, compiled to Bun-native routes. The fixture boots through
+Carno's public lifecycle (`listen(0)` → `stop()`) and dispatches
+in-process over the compiled route table — the same methodology as
+every other adapter. `@carno.js/core` is pinned as a **root dev
+dependency only** (asserted by `tests/benchmark/benchmark.test.ts`); it
+is never a Bundar runtime dependency.
+
+Two scenarios were added with this reference: `validated-json` (each
+framework's own validation machinery; valid path only, byte-equal
+responses) and `service-access` (module closure vs DI-injected
+singleton). Scenario p50 (µs) from the same recorded run:
+
+| Scenario | raw Bun | Hono | Bundar | Carno |
+| --- | ---: | ---: | ---: | ---: |
+| static response | 1.59 | 2.71 | 1.21 | 1.59 |
+| dynamic text | 1.82 | 1.57 | 2.42 | 1.95 |
+| parameterized route | 1.56 | 1.84 | 1.80 | 1.66 |
+| sync middleware | 1.36 | 1.15 | 1.71 | 2.24 |
+| async middleware | 1.52 | 1.67 | 1.73 | 2.17 |
+| escaped JSX fragment | 1.35 | 1.46 | 2.93 | — |
+| async JSX component | 1.59 | 1.73 | 2.66 | — |
+| page/fragment negotiation | 1.81 | 2.06 | 2.85 | 1.94 |
+| validated form | 2.44 | 5.08 | 11.27 | 3.64 |
+| validated JSON | 2.06 | 2.31 | 2.10 | 4.07 |
+| service access | 1.44 | 1.47 | 1.58 | 1.49 |
+
+Startup/RSS (median of 7 fresh subprocesses): raw Bun 2.5 ms / 15.7 MiB;
+Bundar 21.5 ms / 30.9 MiB; Carno 43.3 ms / 42.2 MiB — Carno's bootstrap
+constructs the DI container and JIT-compiles controllers (plus
+`reflect-metadata` and zod module weight), while its per-request
+service access is a property read on a controller resolved once.
+
+Reading rules for this comparison:
+
+- The two JSX rendering scenarios print **no Carno number** — a string
+  concatenation is not equivalent work to Bundar's escaping render
+  model, so the pairing is excluded rather than faked (marked `—`).
+  No winner label is derived from those rows for any adapter.
+- Carno's handlers construct `Response` objects explicitly because its
+  implicit normalization (string → pre-built `text/plain` static
+  Response, object → JSON) cannot produce the byte-exact content types
+  the parity contract requires. Its pre-built static fast path is
+  therefore not exercised by the static-response row.
+- `validated-json` times each framework's idiomatic validation:
+  Carno runs class-level zod validation (its built-in machinery); the
+  other adapters run inline field checks. Validation-failure shapes are
+  framework-opinionated (Carno normalizes to JSON) and are excluded
+  from parity by design.
+- Feature sets are not comparable — Carno ships DI, lifecycle hooks,
+  queues/schedules infrastructure and an ORM; Bundar ships the
+  HTML/HTMX application model. These numbers price the shared
+  routing/middleware/validation surface only and claim nothing about
+  the rest. Regenerate with `bun run bench:regression -- --generate &&
+  bun run bench:release` on your hardware before drawing conclusions.
