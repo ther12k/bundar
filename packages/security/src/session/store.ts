@@ -114,23 +114,50 @@ const FORBIDDEN_DATA_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 /**
  * Serialization guard: session payloads persist as plain JSON-shaped data.
- * Functions, symbols, and prototype-bearing keys are REJECTED rather than
- * silently dropped (silent drops corrupt round-trip expectations).
+ * Anything outside the JSON value grammar — functions, symbols, undefined,
+ * bigint, non-finite numbers, prototype-bearing keys, and circular
+ * references — is REJECTED with the offending path rather than silently
+ * dropped (silent drops corrupt round-trip expectations; cycles would
+ * otherwise die as recursive RangeError instead of a typed diagnostic).
  */
 export function assertSerializableSessionData(
   data: Record<string, unknown>,
 ): void {
-  checkSerializableValue(data, "(root)");
+  checkSerializableValue(data, "(root)", []);
 }
 
-function checkSerializableValue(value: unknown, path: string): void {
-  if (typeof value === "function" || typeof value === "symbol") {
+function checkSerializableValue(
+  value: unknown,
+  path: string,
+  parents: readonly object[],
+): void {
+  if (
+    typeof value === "function" ||
+    typeof value === "symbol" ||
+    typeof value === "bigint" ||
+    typeof value === "undefined"
+  ) {
     throw new SessionStoreError(
       "serialization",
-      `non-serializable ${typeof value} value at ${path}`,
+      `non-JSON ${String(typeof value)} value at ${path}`,
+    );
+  }
+  if (typeof value === "number" && !Number.isFinite(value)) {
+    throw new SessionStoreError(
+      "serialization",
+      `non-finite number (${value}) at ${path}`,
     );
   }
   if (value === null || typeof value !== "object") return;
+  // Ancestor-path cycle detection: a reference to ANY enclosing container
+  // is a cycle; shared (DAG) references to already-CLOSED containers are
+  // legal JSON and stay accepted.
+  if (parents.includes(value)) {
+    throw new SessionStoreError(
+      "serialization",
+      `circular reference at ${path}`,
+    );
+  }
   const proto = Object.getPrototypeOf(value);
   if (
     proto !== Object.prototype &&
@@ -142,6 +169,7 @@ function checkSerializableValue(value: unknown, path: string): void {
       `prototype-bearing object at ${path}`,
     );
   }
+  const childParents = [...parents, value];
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
     if (FORBIDDEN_DATA_KEYS.has(key)) {
       throw new SessionStoreError(
@@ -149,12 +177,12 @@ function checkSerializableValue(value: unknown, path: string): void {
         `forbidden prototype-like key "${key}" at ${path}.${key}`,
       );
     }
-    checkSerializableValue(child, `${path}.${key}`);
+    checkSerializableValue(child, `${path}.${key}`, childParents);
   }
   // Arrays may carry hostile containers too.
   if (Array.isArray(value)) {
     (value as unknown[]).forEach((child, index) =>
-      checkSerializableValue(child, `${path}[${index}]`),
+      checkSerializableValue(child, `${path}[${index}]`, childParents),
     );
   }
 }
