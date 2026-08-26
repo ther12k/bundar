@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { adapters, invoke } from "../../tools/benchmark/adapters";
 import {
   participatingAdapters,
@@ -7,6 +7,24 @@ import {
   runBenchmark,
 } from "../../tools/benchmark/runner";
 import { scenarios } from "../../tools/benchmark/scenarios";
+
+async function expectManifestClean(directory: string): Promise<void> {
+  const manifestPath = `${directory}/package.json`;
+  if (!existsSync(manifestPath)) return; // glob groups like create-bundar have the manifest at their root only when it exists
+  const manifest = JSON.parse(await Bun.file(manifestPath).text());
+  for (const field of [
+    "dependencies",
+    "devDependencies",
+    "peerDependencies",
+    "optionalDependencies",
+  ]) {
+    expect(
+      (manifest as Record<string, Record<string, unknown>>)[field]?.[
+        "@carno.js/core"
+      ],
+    ).toBeUndefined();
+  }
+}
 
 describe("benchmark parity", () => {
   test("all declared scenarios have equivalent behavior across participating adapters", async () => {
@@ -73,26 +91,39 @@ describe("benchmark parity", () => {
     expect(snapshot.body).toBe('<p data-service="Bundar">service</p>');
   });
 
-  test("Carno stays optional — root dev dependency only, never a package dependency", async () => {
+  test("Carno stays optional — root dev dependency only, never any workspace manifest", async () => {
     const root = JSON.parse(await Bun.file("package.json").text());
     expect(root.devDependencies["@carno.js/core"]).toBe("1.7.0");
     expect(root.dependencies?.["@carno.js/core"]).toBeUndefined();
-    for (const group of ["packages", "examples"]) {
-      for (const entry of readdirSync(group, { withFileTypes: true })) {
-        if (!entry.isDirectory()) continue;
-        const manifest = JSON.parse(
-          await Bun.file(`${group}/${entry.name}/package.json`).text(),
-        );
-        for (const field of [
-          "dependencies",
-          "devDependencies",
-          "peerDependencies",
-          "optionalDependencies",
-        ]) {
-          expect(manifest[field]?.["@carno.js/core"]).toBeUndefined();
+    // BR-102: derive the scanned groups from the root manifest so a new
+    // workspace group is covered automatically instead of two hard-coded
+    // entries out of four.
+    const workspaces: string[] = Array.isArray(root.workspaces)
+      ? root.workspaces
+      : Object.values(root.workspaces ?? {}).flat();
+    expect(workspaces.length).toBeGreaterThanOrEqual(4);
+    const forbiddenDependencyFields = [
+      "dependencies",
+      "devDependencies",
+      "peerDependencies",
+      "optionalDependencies",
+    ];
+    let manifestsScanned = 0;
+    for (const pattern of workspaces) {
+      if (pattern.includes("*")) {
+        const base = pattern.replace(/\*.*$/, "").replace(/\/$/, "");
+        for (const entry of readdirSync(base, { withFileTypes: true })) {
+          if (!entry.isDirectory()) continue;
+          await expectManifestClean(`${base}/${entry.name}`);
+          manifestsScanned += 1;
         }
+      } else {
+        await expectManifestClean(pattern);
+        manifestsScanned += 1;
       }
     }
+    expect(manifestsScanned).toBeGreaterThanOrEqual(12);
+    expect(forbiddenDependencyFields).toHaveLength(4);
   });
 });
 
