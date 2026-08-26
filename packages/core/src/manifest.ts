@@ -139,9 +139,18 @@ export function generateRoutesModule(file: RouteManifestFile): string {
     lines.push(
       `  ${JSON.stringify(route.name)}: (params: ${tsTypeForParams(route.params)}${route.params.length === 0 ? " = {}" : ""}, query?: Record<string, string | number | readonly (string | number)[]>) => {`,
       `    const required: readonly string[] = [${paramNames}];`,
+      // BR-072 review: the generated error message is assembled from
+      // JSON-encoded fragments so developer-controlled route names can
+      // never break out of the emitted string literal.
       `    for (const name of required) {`,
       `      if ((params as Record<string, unknown>)[name] === undefined) {`,
-      `        throw new Error(\`urls.${route.name}: missing required path parameter "\${name}"\`);`,
+      "        throw new Error(" +
+        JSON.stringify(
+          "urls." + route.name + ': missing required path parameter "',
+        ) +
+        " + name + " +
+        JSON.stringify('"') +
+        ");",
       `      }`,
       `    }`,
       `    const raw = ${JSON.stringify(route.path)};`,

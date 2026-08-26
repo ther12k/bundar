@@ -26,6 +26,8 @@ const steps = [
     "test:scaffold (htmx4)",
     ["run", "test:scaffold", "--", "htmx4-experimental"],
   ],
+  ["test:a11y (reference apps)", ["run", "test:a11y"]],
+  ["test:no-js (reference apps)", ["run", "test:no-js"]],
   ["test:e2e:release (dual-dialect matrix)", ["run", "test:e2e:release"]],
   ["test:dx-cleanroom", ["run", "test:dx-cleanroom"]],
   ["bench:release (packed-candidate guard + suite)", ["run", "bench:release"]],

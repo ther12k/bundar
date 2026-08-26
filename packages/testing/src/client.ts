@@ -189,8 +189,12 @@ export function createTestClient(
     }
 
     if (match.entry instanceof Response) {
-      if (useJar) jar.absorb(match.entry);
-      return match.entry;
+      // BR-073 review: static entries are SHARED objects in the compiled
+      // table — hand each caller its own clone so one consumer reading the
+      // body cannot poison the next request.
+      const response = match.entry.clone() as Response;
+      if (useJar) jar.absorb(response);
+      return response;
     }
 
     try {
@@ -202,7 +206,9 @@ export function createTestClient(
       return response;
     } catch (error) {
       if (compiled.error !== undefined) {
-        return await compiled.error(error as Error);
+        const response = await compiled.error(error as Error);
+        if (useJar) jar.absorb(response);
+        return response;
       }
       // In-process semantics: no hook → surface the failure to the test.
       throw error;

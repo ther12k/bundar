@@ -7,6 +7,7 @@ export type RoutePathIssue =
   | "optional parameters are not supported"
   | "wildcard must be a bare final segment"
   | "parameter names must use identifier characters"
+  | "duplicate parameter name"
   | "path contains control characters"
   | "path contains encoded separators (register the decoded form)"
   | "route must declare at least one HTTP method"
@@ -130,8 +131,22 @@ export function normalizeRoutePath(path: string): string {
   }
 
   const final = segments.length - 1;
+  // BR-072 review: duplicate :param names make typed builders ambiguous —
+  // the generator deduplicates, silently reusing the FIRST value for every
+  // occurrence. Reject at normalization instead.
+  const seenParameterNames = new Set<string>();
   segments.forEach((segment, index) => {
     validateSegment(segment, path, index === final);
+    if (segment.startsWith(":")) {
+      const name = segment.slice(1);
+      if (seenParameterNames.has(name)) {
+        throw new RoutePathValidationError(
+          "duplicate parameter name" as const,
+          path,
+        );
+      }
+      seenParameterNames.add(name);
+    }
   });
   return `/${segments.join("/")}`;
 }

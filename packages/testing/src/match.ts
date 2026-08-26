@@ -81,8 +81,31 @@ export function matchRoute(
       return { kind: "matched", entry: entryShape, params: {} };
     }
     const methods = entryShape as Record<string, RouteTableEntry>;
-    const entry = methods[method] ?? methods["*"];
+    // BR-072 review parity: mirror the production compiler policy.
+    //   HEAD on a GET-registered route runs the GET handler;
+    //   OPTIONS returns 204 with a deterministic Allow header;
+    //   unknown methods return 405 with that same Allow value.
     for (const known of Object.keys(methods)) allowed.add(known.toUpperCase());
+    if (methods["GET"] !== undefined) allowed.add("HEAD");
+    allowed.add("OPTIONS");
+
+    const isOptions = method === "OPTIONS";
+    const entry =
+      methods[method] ??
+      (method === "HEAD" && methods["GET"] !== undefined
+        ? methods["GET"]
+        : undefined) ??
+      methods["*"];
+    if (isOptions && methods["OPTIONS"] === undefined && entry === undefined) {
+      const allow = [...allowed].sort().join(", ");
+      return {
+        kind: "matched",
+        entry: (() =>
+          new Response(null, { status: 204, headers: { allow } })) as never,
+        params: {},
+        optionsResponse: allow,
+      } as MatchResult & { optionsResponse?: string };
+    }
     if (entry !== undefined) {
       const params: Record<string, string> = {};
       compiled.names.forEach((name, index) => {
@@ -92,9 +115,11 @@ export function matchRoute(
       return { kind: "matched", entry, params };
     }
   }
-  return sawPath
-    ? { kind: "method-not-allowed", allowed: [...allowed] }
-    : { kind: "not-found" };
+  if (sawPath) {
+    const sortedAllow = [...allowed].sort((a, b) => a.localeCompare(b));
+    return { kind: "method-not-allowed", allowed: sortedAllow };
+  }
+  return { kind: "not-found" };
 }
 
 /** Attaches matched params the way Bun.serve injects them. */

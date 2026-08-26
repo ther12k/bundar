@@ -135,6 +135,17 @@ export function validateRouteConflicts(
     // BR-070: duplicate names would make typed URLs ambiguous — the
     // generator maps name -> URL one-to-one.
     const routeName = (route.meta as { name?: string } | undefined)?.name;
+    if (routeName !== undefined && route.path.includes("*")) {
+      throw new RouteConflictError({
+        kind: "duplicate-route",
+        path: route.path,
+        method: ((route.methods as readonly string[])[0] ??
+          "GET") as HttpMethod,
+        firstSource: "wildcard routes cannot carry meta.name",
+        secondSource:
+          "the typed URL builder cannot fill a splat segment yet (BR-072 review)",
+      });
+    }
     if (routeName !== undefined) {
       const previousName = nameIndex.get(routeName);
       if (previousName !== undefined) {

@@ -199,11 +199,6 @@ export function compileRoutes(
               if (!composed) return await handler(context, context.params);
               return await composed(context);
             } finally {
-              if (process.env.PROBE === "1")
-                console.error(
-                  "ASYNC finally firing; signal aborted?",
-                  scope.signal.aborted,
-                );
               scope.dispose();
             }
           }
@@ -259,11 +254,21 @@ export function compileRoutes(
               parts[parts.length - 1]?.startsWith("*") === true;
             return { pattern, methods, parts, statics, isWildcard };
           })
-          .sort(
-            (a, b) =>
-              b.statics - a.statics ||
-              Number(a.isWildcard) - Number(b.isWildcard),
-          );
+          .sort((a, b) => {
+            // BR-072 review: category precedence first — parameter routes
+            // before wildcard routes before bare catch-all — then static
+            // specificity within a category. Mirrors documented Bun order.
+            const rank = (parts: readonly string[]): number => {
+              const last = parts[parts.length - 1] ?? "";
+              if (!last.startsWith("*")) return 0; // parameter
+              return parts.length === 1 ? 2 : 1; // catch-all / suffix-wildcard
+            };
+            return (
+              rank(a.parts) - rank(b.parts) ||
+              Number(a.isWildcard) - Number(b.isWildcard) ||
+              b.statics - a.statics
+            );
+          });
         outer: for (const { pattern, methods } of candidates) {
           if (!pattern.includes(":") && !pattern.includes("*")) continue;
           const parts = pattern.split("/").filter((seg) => seg !== "");

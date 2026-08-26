@@ -24,6 +24,7 @@ import type { SessionData, SessionStore } from "./store";
 import {
   CookiePolicyError,
   readCookieExact,
+  validateCookieAttributes,
   resolveCookieSecure,
   type CookieEnvironment,
 } from "../cookies";
@@ -177,6 +178,17 @@ export function sessionMiddleware(
   };
   const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_MS;
   const absoluteTimeoutMs = options.absoluteTimeoutMs ?? DEFAULT_ABSOLUTE_MS;
+  // BR-063 review: run the shared cookie-attribute validator ONCE at
+  // construction — __Host-/SameSite=None combinations fail with a clear
+  // startup diagnostic instead of being silently dropped by browsers.
+  validateCookieAttributes({
+    name: options.cookie ?? "bundar.session",
+    sameSite: "Lax",
+    secure: options.secure !== false,
+    path: "/",
+    domain: options.domain,
+  });
+
   if (options.environment === "production") {
     // BR-062: fail BEFORE listening on fixture-only settings. Overrides are
     // explicit named flags; diagnostics never print secret material.
@@ -277,6 +289,7 @@ export function sessionMiddleware(
         ? resolveEffectiveSecure(context.request, options.peer ?? null)
         : undefined;
 
+    let touchedExpiry: number | undefined;
     const response = await next(context);
 
     // BR-063 review fix: SLIDING idle timeout for read-only requests —
@@ -299,10 +312,27 @@ export function sessionMiddleware(
         nextExpiry > (loaded.expiresAtMs ?? 0)
       ) {
         await options.store.touch(currentId, nextExpiry);
+        touchedExpiry = nextExpiry;
       }
     }
 
     const headers = new Headers(response.headers);
+
+    // BR-063 review: the browser cookie must move WITH the store expiry —
+    // otherwise storage slides but the client discards the cookie at the
+    // original deadline. Refresh Set-Cookie using the same threshold.
+    if (touchedExpiry !== undefined) {
+      headers.append(
+        "set-cookie",
+        sessionCookie(
+          cookieName,
+          currentId,
+          touchedExpiry,
+          options,
+          secureOverride,
+        ),
+      );
+    }
     if (destroyed) {
       if (cookieId !== undefined) await options.store.destroy(cookieId);
       headers.append(

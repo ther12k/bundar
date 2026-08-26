@@ -5,7 +5,13 @@ baseline is a property of the markup your handlers render — not of client
 JavaScript. The browser lanes enforce it: `bun run test:a11y` (axe-core
 scan, zero critical/serious violations, no waivers) and `bun run
 test:no-js` (keyboard-only PRG flows) run against the unmodified
-reference applications on every release battery.
+reference applications in the beta/release battery (wired into scripts/release-gate.ts).
+
+Lane scope honesty: the no-JS lane blocks the htmx asset and asserts
+`window.htmx` is absent — it verifies ENHANCEMENT-OFF behavior, not a fully
+JS-disabled browser context. Some submissions use `page.evaluate()` before
+submit; keyboard-pure steps are marked `keyboard-*` in the lane. A true
+`javaScriptEnabled: false` context is a planned follow-up.
 
 ## The tested baseline
 
