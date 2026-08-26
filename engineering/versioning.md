@@ -27,3 +27,16 @@ Experimental exports are clearly marked and may change more quickly. The htmx 4 
 # Deprecation
 
 After 1.0, deprecate before removal where technically feasible, provide runtime/type diagnostics, document replacements, and retain for at least one minor line unless security requires faster action.
+
+# Registry publication (pre-1.0) — ADR-0021
+
+All nine public packages version in synchronized lockstep. The first
+registry version is `0.1.0-alpha.2` (continuing the GitHub source-only
+`v0.1.0-alpha.1` line), dist-tag `alpha`. `latest` stays EMPTY until the
+stable `0.1.0`; `next` is reserved and empty. In-repo manifests remain
+`0.0.0` + `private: true`; the publication pipeline flips version and
+privacy together for all packages at once, on the tag. Internal edges are
+`workspace:*` in-repo and `^<line>` caret ranges when packed. The
+experimental htmx 4 pin must keep its prerelease hyphen while M7 is open;
+`bun run release:plan` fails on any violation. Full policy and
+enforcement list: `decisions/0021-package-versioning-and-publication.md`.
