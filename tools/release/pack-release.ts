@@ -294,13 +294,13 @@ export function writeCandidateManifest(options: {
       encoding: "utf8",
     }).stdout?.trim() ?? "unknown";
 
-  // BR-111: SOURCE files must be clean and bound to an exact commit.
+  // BR-111 / BR-112: SOURCE files must be clean and bound to an exact commit.
   // Self-generated artifacts/ churn is expected mid-pipeline and excluded —
   // the manifest records whatever the artifacts contain, and release:verify
   // re-hashes them independently.
   const dirty = spawnSync(
     "git",
-    ["status", "--porcelain", "--", ".", ":!artifacts", ":!output"],
+    ["status", "--porcelain", "--", ...SOURCE_PATHS],
     { cwd: REPO, encoding: "utf8" },
   ).stdout?.trim();
   if (sourceSha === undefined || dirty !== "") {
