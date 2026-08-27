@@ -1,70 +1,55 @@
 {
-  "sourceSha": "161cb0e2d1cc12515d0fb3784db0c0780b54abaa",
+  "generatedAt": "2026-08-27T11:50:00.078Z",
+  "artifactName": "release-candidate-artifacts-161cb0e2d1cc12515d0fb3784db0c0780b54abaa",
+  "workflowRunSha": "161cb0e2d1cc12515d0fb3784db0c0780b54abaa",
+  "candidateSourceSha": "161cb0e2d1cc12515d0fb3784db0c0780b54abaa",
   "version": "0.1.0-alpha.2",
   "distTag": "canary",
-  "createdAt": "2026-08-27T11:49:42.245Z",
+  "candidateManifestSha256": "126adf0f07e12af2c9aec22b1275d30f866a797b5a0439653b76c2fab0936675",
   "packages": [
     {
       "name": "@bundar/core",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-core-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-core-0.1.0-alpha.2.tgz",
       "sha256": "b6abb4d1216507763ebc71f6ad0eb2786c0343c1691c0a7d80ce48610e617eb6"
     },
     {
       "name": "@bundar/jsx",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-jsx-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-jsx-0.1.0-alpha.2.tgz",
       "sha256": "b842fde927703d3a43f26f43688326397ea084cc9c0db86ca0fc074098e211e8"
     },
     {
       "name": "@bundar/schema",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-schema-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-schema-0.1.0-alpha.2.tgz",
       "sha256": "983bceb4ea585d932f7355b66e7b093d362853d7499b49e13816ba812b4ce0cb"
     },
     {
       "name": "@bundar/forms",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-forms-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-forms-0.1.0-alpha.2.tgz",
       "sha256": "07aac7b852a6c616fe7de5ba6676696acc2d64c8643f98994ec6192c134141a0"
     },
     {
       "name": "@bundar/security",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-security-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-security-0.1.0-alpha.2.tgz",
       "sha256": "ec6f643d2585337b4bf94e9c0ebc2281aa298c217a05250e4c209cb38e3df53c"
     },
     {
       "name": "@bundar/htmx",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-htmx-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-htmx-0.1.0-alpha.2.tgz",
       "sha256": "6b000dde13fc553f58714dcf897ba40a99cb95161777b52d2eb33e045c4ce236"
     },
     {
       "name": "@bundar/testing",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-testing-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-testing-0.1.0-alpha.2.tgz",
       "sha256": "32aa788dfc699ba2855b921961bc2a1de5f1215fd95cd505373728480284e350"
     },
     {
       "name": "@bundar/cli",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-cli-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/bundar-cli-0.1.0-alpha.2.tgz",
       "sha256": "2b827df18c965e7340ca52421760b59f907eab532af4c9e5768361b3b47f999b"
     },
     {
       "name": "create-bundar",
-      "version": "0.1.0-alpha.2",
       "tarballFile": "create-bundar-0.1.0-alpha.2.tgz",
-      "tarballPath": "artifacts/packages/create-bundar-0.1.0-alpha.2.tgz",
       "sha256": "e4a51b544a6cdb4171c220fe2dc7ff454cec959f5142c2b797f118ba7dd3df68"
     }
   ]
