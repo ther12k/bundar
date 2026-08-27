@@ -972,3 +972,12 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - Regression suite: expanded `tests/release/candidate-integrity.test.ts` to 23 passing release tests covering fresh path selection, portable serialization, strict manifest validation, dirty source rejection, dist-tag normalization, canonical PURL formatting, dry-run schema validation, and preflight report generation.
 - Public candidate battery run: workflow run ID `33064663752` (URL https://github.com/ther12k/bundar/actions/runs/33064663752) succeeded on main commit `af545e818e32e380d84e6b00e55cda127d4272b3` with immutable artifact bundle `release-candidate-artifacts-af545e818e32e380d84e6b00e55cda127d4272b3`.
 
+
+## 2026-08-27 — GH-167: single-authority candidate (Model B), canonical dry-run contract, exact publish order, strict manifest loader
+
+- Model B candidate authority: the successful public Candidate Release Battery bundle is the single authoritative candidate. `ci:release` gained step 28 (`release:candidate-identity`) which writes `artifacts/release/candidate-identity.json` pinning workflow SHA, source SHA, manifest SHA-256, artifact name, and all nine tarball digests; the battery uploads it inside the immutable bundle and records the GitHub artifact digest in the run summary.
+- Human-gated `release.yml` now requires `battery_run_id` (plus optional `expected_artifact_digest`); both preflight and publish jobs download that exact bundle, verify digest/identity/version/tag consistency, and publish only the downloaded bytes through the new `--manifest`/`--tarball-root` flags; post-publish byte verification compares the registry against the bundle manifest.
+- Canonical 42-check contract (`tools/release/dry-run-contract.ts`): writer and verifier share one ordered check list; `publish:dry-run` self-checks before emitting; `release:verify` never trusts `expectedCheckCount` from the report JSON and rejects missing, duplicated, unknown, reordered, or failing checks.
+- `publish-order-exact` replaces set equality with exact array equality against `PUBLISH_ORDER`.
+- Shared strict manifest loader (`tools/release/candidate-manifest-loader.ts`) enforces portable schema, version agreement, exact release set, path containment, on-disk SHA-256, and packed tarball identity (name/version/non-private/lockstep) for `release:verify`, `publish:approved`, and `registry:verify`.
+- Regression suite: `tests/release/candidate-authority.test.ts` (12 tests) covers all four audit findings; full suite 1,207 pass / 0 fail across 151 files; OKF corpus 98.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T11:49:42.237Z",
+  "generatedAt": "2026-08-27T11:59:36.340Z",
   "plan": {
     "simulatedVersion": "0.1.0-alpha.2",
     "distTag": "canary",
@@ -26,7 +26,7 @@
     {
       "check": "pack+version-sync",
       "status": "pass",
-      "detail": "9/9 fresh candidate tarballs validated from /tmp/bundar-dryrun-xHQJVh"
+      "detail": "9/9 fresh candidate tarballs validated from /tmp/bundar-dryrun-RsRyXM"
     },
     {
       "check": "no-unpublished-paths @bundar/core",
