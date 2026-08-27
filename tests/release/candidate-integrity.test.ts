@@ -7,8 +7,11 @@ import {
   candidateSourceIdentity,
   freshCandidateTarballPaths,
   toCandidateManifestPackage,
+  validateCandidateManifestPackage,
   type PackedCandidate,
 } from "../../tools/release/pack-release";
+import { normalizeDistTags } from "../../tools/release/registry-verify-utils";
+import { purl } from "../../tools/release/sbom-utils";
 
 describe("BR-112 candidate integrity", () => {
   test("validation selects fresh candidate bytes, never the persisted path", () => {
@@ -58,6 +61,67 @@ describe("BR-112 candidate integrity", () => {
     } finally {
       writeFileSync(sourceFile, original);
     }
+  });
+
+  test("manifest validation rejects machine-specific unknown fields, missing fields, and non-strings", () => {
+    const valid = {
+      name: "@bundar/core",
+      version: "0.1.0-alpha.2",
+      tarballFile: "bundar-core-0.1.0-alpha.2.tgz",
+      tarballPath: "artifacts/packages/bundar-core-0.1.0-alpha.2.tgz",
+      sha256: "candidate-digest",
+    };
+    expect(validateCandidateManifestPackage(valid)).toEqual({
+      ok: true,
+      detail: "exact portable package fields",
+    });
+
+    const withAbsolute = {
+      ...valid,
+      absolutePath: "/home/runner/work/bundar/artifacts/packages/core.tgz",
+    };
+    const unknownRes = validateCandidateManifestPackage(withAbsolute);
+    expect(unknownRes.ok).toBe(false);
+    expect(unknownRes.detail).toContain("unknown fields: absolutePath");
+
+    const missingRes = validateCandidateManifestPackage({
+      name: "@bundar/core",
+      version: "0.1.0-alpha.2",
+    });
+    expect(missingRes.ok).toBe(false);
+    expect(missingRes.detail).toContain(
+      "missing fields: tarballFile, tarballPath, sha256",
+    );
+
+    const nonStringRes = validateCandidateManifestPackage({
+      ...valid,
+      sha256: 12345,
+    });
+    expect(nonStringRes.ok).toBe(false);
+    expect(nonStringRes.detail).toContain("non-string fields: sha256");
+
+    expect(validateCandidateManifestPackage(null).ok).toBe(false);
+  });
+
+  test("candidateSourceIdentity rejects malformed SHAs", () => {
+    expect(candidateSourceIdentity("not-a-sha").ok).toBe(false);
+    expect(candidateSourceIdentity("12345").detail).toContain("malformed");
+  });
+
+  test("normalizes flat and nested npm dist-tag responses", () => {
+    expect(normalizeDistTags({ canary: "0.1.0-alpha.2" })).toEqual({
+      canary: "0.1.0-alpha.2",
+    });
+    expect(
+      normalizeDistTags({ distTags: { canary: "0.1.0-alpha.2" } }),
+    ).toEqual({ canary: "0.1.0-alpha.2" });
+    expect(normalizeDistTags([])).toBeUndefined();
+  });
+
+  test("candidate SBOM references use the canonical encoded npm PURL", () => {
+    expect(purl("@bundar/core", "0.1.0-alpha.2")).toBe(
+      "pkg:npm/%40bundar/core@0.1.0-alpha.2",
+    );
   });
 
   test("manifest serialization omits machine-specific absolute paths", () => {

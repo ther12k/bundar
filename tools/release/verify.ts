@@ -18,7 +18,12 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { candidateSourceIdentity, PUBLISH_ORDER } from "./pack-release";
+import {
+  candidateSourceIdentity,
+  validateCandidateManifestPackage,
+  PUBLISH_ORDER,
+} from "./pack-release";
+import { purl } from "./sbom-utils";
 
 const REPO = join(import.meta.dir, "..", "..");
 const failures: string[] = [];
@@ -77,16 +82,23 @@ if (!existsSync(manifestPath)) {
   // manifests voids candidate identity).
   const identity = candidateSourceIdentity(manifest.sourceSha);
   const shaShapeOk = /^[0-9a-f]{40}$/.test(manifest.sourceSha);
+  const packageShapeResults = manifest.packages.map((pkg) =>
+    validateCandidateManifestPackage(pkg),
+  );
+  const packageShapeOk = packageShapeResults.every((result) => result.ok);
   const pathsOk = manifest.packages.every(
     (p) =>
       p.tarballPath === join("artifacts/packages", p.tarballFile) &&
       !p.tarballPath.startsWith("/") &&
       !p.tarballPath.includes(".."),
   );
+  const packageShapeDetail = packageShapeResults.find(
+    (result) => !result.ok,
+  )?.detail;
   check(
     "candidate-shape",
-    shaShapeOk && pathsOk && identity.ok,
-    `${identity.detail}; repo-relative artifact paths: ${pathsOk}`,
+    shaShapeOk && packageShapeOk && pathsOk && identity.ok,
+    `${identity.detail}; exact portable package fields: ${packageShapeOk}${packageShapeDetail ? ` (${packageShapeDetail})` : ""}; repo-relative artifact paths: ${pathsOk}`,
   );
 
   // 1b. On-disk integrity of every candidate tarball
@@ -180,12 +192,69 @@ if (!existsSync(manifestPath)) {
   }
   sets["sbom"] = sbomRecords;
 
+  const allSbomComponents = [
+    ...(sbom.components ?? []),
+    ...(sbom.metadata?.component ? [sbom.metadata.component] : []),
+  ];
+  const sbomComponentRefs = new Set<string>(
+    allSbomComponents.map(
+      (component: { "bom-ref"?: string; purl?: string }) =>
+        component["bom-ref"] ?? component.purl ?? "",
+    ),
+  );
+  const sbomDependencyRefs = (sbom.dependencies ?? []).flatMap(
+    (dependency: { ref?: string; dependsOn?: string[] }) => [
+      dependency.ref ?? "",
+      ...(dependency.dependsOn ?? []),
+    ],
+  );
+  const danglingSbomRefs = sbomDependencyRefs.filter(
+    (ref: string) => !sbomComponentRefs.has(ref),
+  );
+  const candidateSbomRefs = manifest.packages.map((pkg) =>
+    purl(pkg.name, pkg.version),
+  );
+  const candidateSbomRefsPresent = candidateSbomRefs.every((ref) =>
+    sbomComponentRefs.has(ref),
+  );
+  const candidateSbomVersionsOk = manifest.packages.every((pkg) => {
+    const component = (sbom.components ?? []).find(
+      (candidate: { name?: string }) => candidate.name === pkg.name,
+    );
+    return (
+      component?.version === pkg.version &&
+      component?.purl === purl(pkg.name, pkg.version) &&
+      component?.["bom-ref"] === purl(pkg.name, pkg.version)
+    );
+  });
+  check(
+    "sbom-dependency-integrity",
+    danglingSbomRefs.length === 0 &&
+      candidateSbomRefsPresent &&
+      candidateSbomVersionsOk,
+    danglingSbomRefs.length === 0 &&
+      candidateSbomRefsPresent &&
+      candidateSbomVersionsOk
+      ? `${sbomComponentRefs.size} component refs resolve all dependency edges and candidate refs use publication versions`
+      : `dangling refs: ${danglingSbomRefs.slice(0, 5).join(", ") || "none"}; candidate refs in components: ${candidateSbomRefsPresent}; candidate publication refs valid: ${candidateSbomVersionsOk}`,
+  );
+
   // Provenance subjects
   const provenance = JSON.parse(
     readFileSync(
       join(REPO, "artifacts", "provenance", "provenance.json"),
       "utf8",
     ),
+  );
+  const provenanceSourceSha =
+    provenance.predicate?.invocation?.configSource?.digest?.sha1;
+  const provenanceMaterialSha =
+    provenance.predicate?.materials?.[0]?.digest?.sha1;
+  check(
+    "provenance-source-identity",
+    provenanceSourceSha === manifest.sourceSha &&
+      provenanceMaterialSha === manifest.sourceSha,
+    `configSource.sha1=${String(provenanceSourceSha)}; materials[0].sha1=${String(provenanceMaterialSha)}; candidate sourceSha=${manifest.sourceSha}`,
   );
   const provRecords = new Map<string, ArtifactRecord>();
   for (const subjectEntry of provenance.subject) {

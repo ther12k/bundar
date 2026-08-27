@@ -28,7 +28,7 @@ const REPO = join(import.meta.dir, "..", "..");
 const git = (args: readonly string[]): string =>
   spawnSync("git", args, { cwd: REPO, encoding: "utf8" }).stdout?.trim() ?? "";
 
-const commit = git(["rev-parse", "HEAD"]);
+const headCommit = git(["rev-parse", "HEAD"]);
 const branch = git(["branch", "--show-current"]) || "detached";
 const bunVersion = Bun.version;
 const lockDigest = createHash("sha256")
@@ -58,14 +58,24 @@ const manifestPath = join(
 
 let subjects: { name: string; digest: { sha256: string } }[];
 let buildForm: string;
+let sourceCommit = headCommit;
 if (existsSync(manifestPath)) {
-  // Publication-form subjects come verbatim from the candidate manifest.
+  // Publication-form subjects and source identity come verbatim from the
+  // candidate manifest. A docs/artifacts-only commit may be newer than the
+  // candidate, but provenance must still identify the bytes' source commit.
   const candidate = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+    sourceSha: string;
     packages: ReadonlyArray<{
       tarballFile: string;
       sha256: string;
     }>;
   };
+  if (!/^[0-9a-f]{40}$/.test(candidate.sourceSha)) {
+    throw new Error(
+      `candidate manifest source SHA malformed: ${candidate.sourceSha}`,
+    );
+  }
+  sourceCommit = candidate.sourceSha;
   subjects = candidate.packages.map((p) => ({
     name: p.tarballFile,
     digest: { sha256: p.sha256 },
@@ -125,7 +135,7 @@ const statement = {
     invocation: {
       configSource: {
         uri: "git+https://github.com/ther12k/bundar",
-        digest: { sha1: commit },
+        digest: { sha1: sourceCommit },
         branch,
       },
       environment: { bun: bunVersion, ci },
@@ -148,7 +158,7 @@ const statement = {
     materials: [
       {
         uri: "git+https://github.com/ther12k/bundar",
-        digest: { sha1: commit },
+        digest: { sha1: sourceCommit },
       },
     ],
   },
@@ -158,5 +168,5 @@ writeFileSync(
   JSON.stringify(statement, null, 2) + "\n",
 );
 console.log(
-  `release:provenance: ${subjects.length} subjects bound to ${commit.slice(0, 10)} (${buildForm}; identity: ${ci.system})`,
+  `release:provenance: ${subjects.length} subjects bound to ${sourceCommit.slice(0, 10)} (${buildForm}; identity: ${ci.system})`,
 );

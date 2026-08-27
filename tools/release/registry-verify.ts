@@ -21,6 +21,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { readCandidateManifest, REPO } from "./pack-release";
+import { normalizeDistTags } from "./registry-verify-utils";
 
 const argv = process.argv.slice(2);
 const isPreflight = argv.includes("--preflight");
@@ -163,16 +164,8 @@ for (const pkg of manifest.packages) {
   check(`integrity ${pkg.name}`, integrityOk, integrityDetail);
 
   // Dist-tag points at the candidate version
-  const tagView = npmView([pkg.name, "dist-tags"]) as Record<
-    string,
-    string
-  > | null;
-  const tagsRaw = tagView as unknown as { distTags?: Record<string, string> };
-  const tags =
-    tagView !== null && !Array.isArray(tagView) && tagView !== undefined
-      ? ((tagView as Record<string, unknown>).distTags as
-          Record<string, string> | undefined)
-      : tagsRaw?.distTags;
+  const tagView = npmView([pkg.name, "dist-tags"]);
+  const tags = normalizeDistTags(tagView);
   if (tags && typeof tags === "object") {
     check(
       `dist-tag ${pkg.name}`,

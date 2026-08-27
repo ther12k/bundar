@@ -125,6 +125,45 @@ export interface CandidateManifestPackage {
   readonly sha256: string;
 }
 
+export const CANDIDATE_MANIFEST_PACKAGE_FIELDS = [
+  "name",
+  "version",
+  "tarballFile",
+  "tarballPath",
+  "sha256",
+] as const;
+
+export interface CandidateManifestPackageValidation {
+  readonly ok: boolean;
+  readonly detail: string;
+}
+
+export function validateCandidateManifestPackage(
+  value: unknown,
+): CandidateManifestPackageValidation {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return { ok: false, detail: "package entry is not an object" };
+  }
+
+  const record = value as Record<string, unknown>;
+  const allowed = new Set<string>(CANDIDATE_MANIFEST_PACKAGE_FIELDS);
+  const unknown = Object.keys(record).filter((key) => !allowed.has(key));
+  const missing = CANDIDATE_MANIFEST_PACKAGE_FIELDS.filter(
+    (key) => !(key in record),
+  );
+  const nonString = CANDIDATE_MANIFEST_PACKAGE_FIELDS.filter(
+    (key) => key in record && typeof record[key] !== "string",
+  );
+  const details = [
+    unknown.length > 0 ? `unknown fields: ${unknown.join(", ")}` : "",
+    missing.length > 0 ? `missing fields: ${missing.join(", ")}` : "",
+    nonString.length > 0 ? `non-string fields: ${nonString.join(", ")}` : "",
+  ].filter(Boolean);
+  return details.length === 0
+    ? { ok: true, detail: "exact portable package fields" }
+    : { ok: false, detail: details.join("; ") };
+}
+
 export interface CandidateManifest {
   readonly sourceSha: string;
   readonly version: string;
