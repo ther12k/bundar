@@ -9,6 +9,7 @@
  */
 import { spawnSync } from "node:child_process";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -41,6 +42,14 @@ export interface PackedCandidate {
   readonly tarballFile: string;
   readonly tarballPath: string;
   readonly sha256: string;
+}
+
+export interface CandidateManifest {
+  readonly sourceSha: string;
+  readonly version: string;
+  readonly distTag: string;
+  readonly createdAt: string;
+  readonly packages: readonly PackedCandidate[];
 }
 
 export function buildCandidateTarballs(options: {
@@ -122,4 +131,42 @@ export function buildCandidateTarballs(options: {
   }
 
   return result;
+}
+
+export function writeCandidateManifest(options: {
+  version: string;
+  distTag: string;
+  candidates: Map<string, PackedCandidate>;
+}): CandidateManifest {
+  const sourceSha =
+    spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: REPO,
+      encoding: "utf8",
+    }).stdout?.trim() ?? "unknown";
+
+  const manifest: CandidateManifest = {
+    sourceSha,
+    version: options.version,
+    distTag: options.distTag,
+    createdAt: new Date().toISOString(),
+    packages: [...options.candidates.values()],
+  };
+
+  const dir = join(REPO, "artifacts", "release");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, "candidate-manifest.json"),
+    JSON.stringify(manifest, null, 2) + "\n",
+  );
+  return manifest;
+}
+
+export function readCandidateManifest(): CandidateManifest | null {
+  const path = join(REPO, "artifacts", "release", "candidate-manifest.json");
+  if (!existsSync(path)) return null;
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as CandidateManifest;
+  } catch {
+    return null;
+  }
 }

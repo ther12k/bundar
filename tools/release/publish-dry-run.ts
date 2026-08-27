@@ -20,6 +20,7 @@
  */
 import { spawnSync } from "node:child_process";
 import {
+  copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -35,6 +36,8 @@ import {
   DEFAULT_VERSION,
   PUBLISH_ORDER,
   REPO,
+  writeCandidateManifest,
+  type PackedCandidate,
 } from "./pack-release";
 
 function argument(name: string, fallback: string): string {
@@ -350,6 +353,33 @@ writeFileSync(
     "",
   ].join("\n"),
 );
+
+// Persist candidate artifacts and write candidate-manifest.json
+const artifactsPackagesDir = join(REPO, "artifacts", "packages");
+mkdirSync(artifactsPackagesDir, { recursive: true });
+const persistedCandidates = new Map<string, PackedCandidate>();
+
+for (const [name, cand] of candidates) {
+  const targetPath = join(artifactsPackagesDir, cand.tarballFile);
+  copyFileSync(cand.tarballPath, targetPath);
+  persistedCandidates.set(name, {
+    ...cand,
+    tarballPath: targetPath,
+  });
+}
+
+writeCandidateManifest({
+  version: SIM_VERSION,
+  distTag: DIST_TAG,
+  candidates: persistedCandidates,
+});
+
+// Update artifacts/packages/checksums.txt with the candidate tarball checksums
+const checksumsContent =
+  [...persistedCandidates.values()]
+    .map((c) => `${c.sha256}  artifacts/packages/${c.tarballFile}`)
+    .join("\n") + "\n";
+writeFileSync(join(artifactsPackagesDir, "checksums.txt"), checksumsContent);
 
 rmSync(registry, { recursive: true, force: true });
 rmSync(consumerRegistry, { recursive: true, force: true });

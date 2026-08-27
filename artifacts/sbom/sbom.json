@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:d5a1f910-eaa9-4475-aa2f-eab248e80906",
+  "serialNumber": "urn:uuid:cbe45c06-1f6b-4363-9327-4b2f5d7ef559",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-26T23:23:43.378Z",
+    "timestamp": "2026-08-27T01:46:31.125Z",
     "component": {
       "type": "application",
       "name": "bundar",
@@ -164,7 +164,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "3f4d62067b9ad91575a4f246984f40f13a28ae71f43d3e874bdab100d0e1006a"
+          "content": "954db7ddc4cabc619191e205d146c948109491ca93a7a0af7eeb8d4d5c085ee0"
         }
       ],
       "purl": "pkg:npm/%40bundar/testing@0.0.0"
