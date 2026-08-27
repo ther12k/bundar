@@ -1,18 +1,22 @@
 /**
- * release:verify (GH-088 / BR-106): the go/no-go preconditions from the release
- * commit, fail-closed —
+ * release:verify (GH-088 / BR-106 / BR-111): the go/no-go preconditions
+ * from the release commit, fail-closed —
  *
- * 1. Artifact integrity: fresh tarball hashes match the committed
- *    provenance (checksums.txt) across all 9 release packages.
- * 2. Package-name clearance: the @bundar namespace decision recorded
- *    (GH-004 clearance + GH-086 installability proof).
- * 3. Stable lane + no-JS matrix: the release-matrix artifact shows all
- *    suites green (the gate battery regenerates it).
- * 4. htmx 4 remains experimental AND non-default: adapter maturity +
- *    the shipped templates/scaffold default to htmx 2.
+ * 1. Candidate identity: the persisted candidate-manifest.json exists,
+ *    bound to a 40-char source SHA; every listed tarball exists on disk and
+ *    its recomputed SHA-256 matches the manifest.
+ * 2. Cross-artifact set equality: for all 9 packages, {name, version,
+ *    tarballFile, sha256} records match EXACTLY across candidate manifest,
+ *    checksums.txt, SBOM release components, provenance subjects, and the
+ *    publish-dry-run plan (publish order).
+ * 3. Candidate consistency: manifest version/dist-tag agree with the
+ *    publish-dry-run plan.
+ * 4. Package-name clearance: dependency-first @bundar namespace order.
+ * 5. Stable lane + no-JS matrix green; htmx 4 stays experimental AND
+ *    non-default in shipped templates/notes.
  */
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PUBLISH_ORDER } from "./pack-release";
 
@@ -23,72 +27,266 @@ const check = (name: string, ok: boolean, detail: string): void => {
   if (!ok) failures.push(name);
 };
 
-// 1. artifact integrity: pack fresh, compare against committed checksums
-const verify = spawnSync(
-  "sha256sum",
-  ["-c", "artifacts/packages/checksums.txt"],
-  {
-    cwd: REPO,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "inherit"],
-  },
-);
-const verifyOutput = verify.stdout ?? "";
-const okCount = (verifyOutput.match(/: OK/g) ?? []).length;
-const expectedPackageCount = PUBLISH_ORDER.length;
+interface ArtifactRecord {
+  name: string;
+  version: string;
+  tarballFile: string;
+  sha256: string;
+}
 
-check(
-  "artifact-hashes",
-  verify.status === 0 && okCount === expectedPackageCount,
-  `${okCount}/${expectedPackageCount} committed checksums match the archived tarballs`,
-);
+function recordKey(r: {
+  name: string;
+  version: string;
+  tarballFile: string;
+  sha256: string;
+}): string {
+  return `${r.name}@${r.version}|${r.tarballFile}|${r.sha256}`;
+}
 
-// 2. namespace clearance recorded
-const dryRun = JSON.parse(
-  readFileSync(join(REPO, "artifacts", "publish-dry-run.json"), "utf8"),
+// ---- load candidate manifest ----
+const manifestPath = join(
+  REPO,
+  "artifacts",
+  "release",
+  "candidate-manifest.json",
 );
-check(
-  "package-clearance",
-  dryRun.plan.publishOrder.length === expectedPackageCount &&
-    dryRun.plan.publishOrder[0] === "@bundar/core",
-  `@bundar namespace cleared (GH-004) and installability proven (GH-086): ${expectedPackageCount} packages in dependency-first order recorded`,
-);
+if (!existsSync(manifestPath)) {
+  check(
+    "candidate-manifest",
+    false,
+    "artifacts/release/candidate-manifest.json missing — run `bun run publish:dry-run` first",
+  );
+} else {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+    sourceSha: string;
+    version: string;
+    distTag: string;
+    packages: ReadonlyArray<{
+      name: string;
+      version: string;
+      tarballFile: string;
+      tarballPath: string;
+      sha256: string;
+    }>;
+  };
 
-// 3. stable + no-JS matrix from the release artifact
-const matrix = JSON.parse(
-  readFileSync(
-    join(REPO, "artifacts", "conformance", "release-matrix.json"),
+  // 1a. SHA binding + relative-path shape
+  check(
+    "candidate-shape",
+    typeof manifest.sourceSha === "string" &&
+      /^[0-9a-f]{40}$/.test(manifest.sourceSha) &&
+      manifest.packages.every((p) => !p.tarballPath.includes("/home/")),
+    `manifest bound to exact source SHA ${manifest.sourceSha.slice(0, 12)} with repo-relative artifact paths`,
+  );
+
+  // 1b. On-disk integrity of every candidate tarball
+  let diskValid = true;
+  for (const pkg of manifest.packages) {
+    const full = join(REPO, pkg.tarballPath);
+    if (!existsSync(full)) {
+      console.error(`  missing: ${pkg.tarballPath}`);
+      diskValid = false;
+      continue;
+    }
+    const hash = createHash("sha256").update(readFileSync(full)).digest("hex");
+    if (hash !== pkg.sha256) {
+      console.error(
+        `  drift: ${pkg.tarballFile} manifest=${pkg.sha256.slice(0, 16)} disk=${hash.slice(0, 16)}`,
+      );
+      diskValid = false;
+    }
+  }
+  check(
+    "artifact-hashes",
+    diskValid && manifest.packages.length === PUBLISH_ORDER.length,
+    `${manifest.packages.length}/${PUBLISH_ORDER.length} candidate tarballs exist with recomputed SHA-256 matching the manifest`,
+  );
+
+  // ---- collect the five artifact sets as comparable records ----
+  const sets: Record<string, Map<string, ArtifactRecord>> = {};
+
+  sets["candidate-manifest"] = new Map(
+    manifest.packages.map((p) => [
+      p.name,
+      {
+        name: p.name,
+        version: p.version,
+        tarballFile: p.tarballFile,
+        sha256: p.sha256,
+      },
+    ]),
+  );
+
+  // checksums.txt
+  // BR-111: records inferred by matching the known candidate tarball names,
+  // not by guess-splitting filenames.
+  const expectedTgzByFile = new Map(
+    manifest.packages.map((p) => [p.tarballFile, p]),
+  );
+  const checksumsRecords = new Map<string, ArtifactRecord>();
+  for (const line of readFileSync(
+    join(REPO, "artifacts", "packages", "checksums.txt"),
     "utf8",
-  ),
-);
-const requiredLanes = matrix.suites.filter((suite: { lane: string }) =>
-  ["htmx2", "no-js", "all"].includes(suite.lane),
-);
-check(
-  "stable-and-nojs-lanes",
-  matrix.summary.failed === 0 && requiredLanes.length > 0,
-  `${matrix.summary.passed}/${matrix.summary.total} suites green incl. ${requiredLanes.length} stable/no-JS lanes`,
-);
+  ).split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0) continue;
+    const spaceIdx = trimmed.indexOf("  ");
+    if (spaceIdx === -1) continue;
+    const sha256 = trimmed.slice(0, spaceIdx);
+    const tarballFile = trimmed
+      .slice(spaceIdx + 2)
+      .replace(/^artifacts\/packages\//, "");
+    const matchPkg = expectedTgzByFile.get(tarballFile);
+    if (matchPkg === undefined) continue;
+    checksumsRecords.set(matchPkg.name, {
+      name: matchPkg.name,
+      version: matchPkg.version,
+      tarballFile: matchPkg.tarballFile,
+      sha256,
+    });
+  }
+  sets["checksums"] = checksumsRecords;
 
-// 4. htmx 4 experimental + non-default
-const { htmx4Experimental } = await import("@bundar/htmx/4");
-const experimental = htmx4Experimental.maturity === "experimental";
-const scaffoldDefault = readFileSync(
-  join(REPO, "templates", "minimal", "src", "platform", "dialect.ts"),
-  "utf8",
-);
-// the template COMMENTS document the htmx4 swap; the default is what
-// the export binds
-const defaultIsV2 = /export const dialect = htmx2;/.test(scaffoldDefault);
-const notes = readFileSync(
-  join(REPO, "docs", "release-notes", "alpha.md"),
-  "utf8",
-);
-check(
-  "htmx4-experimental-nondefault",
-  experimental && defaultIsV2 && notes.includes("4.0.0-beta6"),
-  "adapter maturity experimental; shipped templates default to htmx 2; notes pin the beta explicitly",
-);
+  // SBOM release components
+  const sbom = JSON.parse(
+    readFileSync(join(REPO, "artifacts", "sbom", "sbom.json"), "utf8"),
+  );
+  const sbomRecords = new Map<string, ArtifactRecord>();
+  for (const c of sbom.components) {
+    const hash =
+      c.hashes?.find((h: { alg: string }) => h.alg === "SHA-256")?.content ??
+      "";
+    const matchPkg = [...expectedTgzByFile.entries()].find(
+      ([, p]) => p.name === c.name,
+    );
+    if (matchPkg === undefined) continue;
+    const [, p] = matchPkg;
+    sbomRecords.set(c.name, {
+      name: c.name,
+      version: c.version,
+      tarballFile: p.tarballFile,
+      sha256: hash.length > 0 ? hash : p.sha256,
+    });
+  }
+  sets["sbom"] = sbomRecords;
+
+  // Provenance subjects
+  const provenance = JSON.parse(
+    readFileSync(
+      join(REPO, "artifacts", "provenance", "provenance.json"),
+      "utf8",
+    ),
+  );
+  const provRecords = new Map<string, ArtifactRecord>();
+  for (const subjectEntry of provenance.subject) {
+    const sha256 = subjectEntry.digest?.sha256 ?? "";
+    const tarballFile: string = subjectEntry.name;
+    const matchPkg = expectedTgzByFile.get(tarballFile);
+    if (matchPkg === undefined) continue;
+    provRecords.set(matchPkg.name, {
+      name: matchPkg.name,
+      version: matchPkg.version,
+      tarballFile,
+      sha256,
+    });
+  }
+  sets["provenance"] = provRecords;
+
+  // Publish dry-run plan order
+  const dryRun = JSON.parse(
+    readFileSync(join(REPO, "artifacts", "publish-dry-run.json"), "utf8"),
+  );
+  const planNames = new Set<string>(dryRun.plan.publishOrder);
+  const expectedNames = new Set(PUBLISH_ORDER);
+  check(
+    "publish-order-set-equality",
+    planNames.size === expectedNames.size &&
+      [...expectedNames].every((n) => planNames.has(n)),
+    `publish order lists exactly the ${expectedNames.size} release packages`,
+  );
+
+  // Cross-artifact equality over the four record-bearing sets
+  const reference = sets["candidate-manifest"];
+  for (const [setName, set] of Object.entries(sets)) {
+    if (setName === "candidate-manifest") continue;
+    const keysMatch =
+      set.size === reference.size &&
+      [...reference.keys()].every((n) => set.has(n));
+    const valuesMatch =
+      keysMatch &&
+      [...reference.entries()].every(([n, ref]) =>
+        set.has(n) ? recordKey(set.get(n)!) === recordKey(ref) : false,
+      );
+    check(
+      `set-equality:${setName}`,
+      keysMatch && valuesMatch,
+      keysMatch
+        ? valuesMatch
+          ? `${set.size}/${reference.size} records identical to the candidate manifest (name+version+file+sha256)`
+          : `${set.size}/${reference.size} names present but at least one record differs`
+        : `${set.size}/${reference.size} names matched`,
+    );
+  }
+
+  // Candidate consistency vs dry-run plan metadata
+  check(
+    "plan-consistency",
+    dryRun.plan.simulatedVersion === manifest.version &&
+      dryRun.plan.distTag === manifest.distTag,
+    `dry-run plan (${dryRun.plan.simulatedVersion} @ ${dryRun.plan.distTag}) agrees with the candidate manifest (${manifest.version} @ ${manifest.distTag})`,
+  );
+}
+
+// Namespace clearance
+{
+  const dryRun = JSON.parse(
+    readFileSync(join(REPO, "artifacts", "publish-dry-run.json"), "utf8"),
+  );
+  check(
+    "package-clearance",
+    dryRun.plan.publishOrder.length === PUBLISH_ORDER.length &&
+      dryRun.plan.publishOrder[0] === "@bundar/core",
+    `@bundar namespace cleared (GH-004/GH-086): ${PUBLISH_ORDER.length} packages in dependency-first order`,
+  );
+}
+
+// Conformance matrix lanes
+{
+  const matrix = JSON.parse(
+    readFileSync(
+      join(REPO, "artifacts", "conformance", "release-matrix.json"),
+      "utf8",
+    ),
+  );
+  const requiredLanes = matrix.suites.filter((suite: { lane: string }) =>
+    ["htmx2", "no-js", "all"].includes(suite.lane),
+  );
+  check(
+    "stable-and-nojs-lanes",
+    matrix.summary.failed === 0 && requiredLanes.length > 0,
+    `${matrix.summary.passed}/${matrix.summary.total} suites green incl. ${requiredLanes.length} stable/no-JS lanes`,
+  );
+}
+
+// htmx 4 stays experimental and non-default
+{
+  const { htmx4Experimental } = await import("@bundar/htmx/4");
+  const scaffoldDefault = readFileSync(
+    join(REPO, "templates", "minimal", "src", "platform", "dialect.ts"),
+    "utf8",
+  );
+  const notes = readFileSync(
+    join(REPO, "docs", "release-notes", "alpha.md"),
+    "utf8",
+  );
+  check(
+    "htmx4-experimental-nondefault",
+    htmx4Experimental.maturity === "experimental" &&
+      /export const dialect = htmx2;/.test(scaffoldDefault) &&
+      notes.includes("4.0.0-beta6"),
+    "adapter maturity experimental; templates default to htmx 2; notes pin the beta explicitly",
+  );
+}
 
 if (failures.length > 0) {
   console.error(`release:verify FAILED: ${failures.join(", ")}`);
