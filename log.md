@@ -967,4 +967,5 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - Registry verification: `registry:verify` normalizes flat and nested npm `dist-tags` responses, and requires `--download` for byte-for-byte post-publish proof instead of accepting bare SRI strings.
 - Release workflow hardening: `.github/workflows/release.yml` checks requested version against the candidate manifest, requires `--download` for post-publish verification, and uploads verification failure artifacts with `if: always()`.
 - Regression suite: expanded `tests/release/candidate-integrity.test.ts` to cover fresh path selection, portable serialization, strict manifest validation, dirty source rejection, dist-tag normalization, and canonical PURL formatting.
+- Public candidate battery run: workflow run ID `33057865140` (URL https://github.com/ther12k/bundar/actions/runs/33057865140) succeeded on main commit `7d0f8b53967b1bbbaba10ae7138b314dc83a8451` with immutable artifact bundle `release-candidate-artifacts-7d0f8b53967b1bbbaba10ae7138b314dc83a8451`.
 
