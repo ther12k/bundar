@@ -957,3 +957,14 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - SBOM + provenance: both read candidate-manifest.json when present, so they describe publication-form 0.1.0-alpha.2 artifacts instead of source-form 0.0.0.
 - Registry verifier: preflight recomputes on-disk hashes (no length-only shortcuts); post-publish asserts version/license/dist-tag→candidate/lockstep internal deps/deprecation, with optional --download byte-for-byte comparison.
 - Public full-battery evidence: new manual workflow `candidate-release.yml` runs the complete ci:release on exact main and uploads manifest/checksums/tarballs/SBOM/provenance/dry-run report as immutable artifacts.
+
+## 2026-08-27 — BR-112 (#164): Fix validate-stale/persist-fresh candidate gap, tighten identity, and post-publish integrity
+
+- Fixed fresh-vs-persisted candidate gap: `publish:dry-run` validates freshly packed candidate tarballs in temporary storage before persisting them to `artifacts/packages/` and re-hashing each file independently.
+- Portable candidate manifest: `candidate-manifest.json` serializes only portable fields (`{name, version, tarballFile, tarballPath, sha256}`) and excludes machine-local `absolutePath`. `release:verify` strictly validates candidate package object schemas.
+- Candidate source identity: `candidateSourceIdentity()` verifies the candidate manifest is bound to `HEAD` or a clean ancestor without package-affecting changes, rejecting dirty source trees.
+- Cross-artifact verifier enhancements: `release:verify` enforces provenance source binding (`configSource` and `materials[0]` match manifest `sourceSha`), removes SBOM self-fill on missing digests, and asserts full SBOM dependency graph integrity across 126 component refs.
+- Registry verification: `registry:verify` normalizes flat and nested npm `dist-tags` responses, and requires `--download` for byte-for-byte post-publish proof instead of accepting bare SRI strings.
+- Release workflow hardening: `.github/workflows/release.yml` checks requested version against the candidate manifest, requires `--download` for post-publish verification, and uploads verification failure artifacts with `if: always()`.
+- Regression suite: expanded `tests/release/candidate-integrity.test.ts` to cover fresh path selection, portable serialization, strict manifest validation, dirty source rejection, dist-tag normalization, and canonical PURL formatting.
+
