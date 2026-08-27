@@ -7,6 +7,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { startJsxServer } from "./server";
+import { resolvePlaywrightCli } from "../lanes/cli";
 
 const repositoryRoot = resolve(import.meta.dir, "..", "..", "..");
 const artifactDirectory = join(repositoryRoot, "output", "playwright", "jsx");
@@ -15,15 +16,7 @@ await mkdir(artifactDirectory, { recursive: true });
 const server = await startJsxServer();
 const baseUrl = `http://127.0.0.1:${server.port}`;
 const session = `bundar-jsx`;
-const home = process.env.HOME ?? "/tmp";
-const codexHome = process.env.CODEX_HOME ?? join(home, ".codex");
-const pwcli = join(
-  codexHome,
-  "skills",
-  "playwright",
-  "scripts",
-  "playwright_cli.sh",
-);
+const pwcli = resolvePlaywrightCli(process.env).path;
 
 async function run(name: string, args: string[]): Promise<number> {
   const command = [pwcli, `-s=${session}`, ...args];

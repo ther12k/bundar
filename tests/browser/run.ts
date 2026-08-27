@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { startFixtureServer, fixtureVersion, type BrowserLane } from "./server";
+import { resolvePlaywrightCli } from "./lanes/cli";
 
 const lane = process.argv[2] as BrowserLane | undefined;
 if (lane !== "htmx2" && lane !== "htmx4") {
@@ -16,15 +17,7 @@ await mkdir(artifactDirectory, { recursive: true });
 const server = await startFixtureServer(lane);
 const baseUrl = `http://127.0.0.1:${server.port}`;
 const session = `bundar-${lane}`;
-const home = process.env.HOME ?? "/tmp";
-const codexHome = process.env.CODEX_HOME ?? join(home, ".codex");
-const pwcli = join(
-  codexHome,
-  "skills",
-  "playwright",
-  "scripts",
-  "playwright_cli.sh",
-);
+const pwcli = resolvePlaywrightCli(process.env).path;
 
 async function run(
   name: string,

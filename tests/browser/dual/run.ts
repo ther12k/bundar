@@ -11,20 +11,13 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { startDualServer } from "../../../examples/dual-dialect-fixture/server";
+import { resolvePlaywrightCli } from "../lanes/cli";
 
 const repositoryRoot = resolve(import.meta.dir, "..", "..", "..");
 const outputDir = join(repositoryRoot, "output", "playwright", "dual");
 await mkdir(outputDir, { recursive: true });
 
-const home = process.env.HOME ?? "/tmp";
-const codexHome = process.env.CODEX_HOME ?? join(home, ".codex");
-const pwcli = join(
-  codexHome,
-  "skills",
-  "playwright",
-  "scripts",
-  "playwright_cli.sh",
-);
+const pwcli = resolvePlaywrightCli(process.env).path;
 
 async function runCli(session: string, args: string[]): Promise<number> {
   const command = [pwcli, `-s=${session}`, ...args];
