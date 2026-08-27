@@ -83,7 +83,7 @@ function parseSetCookie(
     expiresAtMs = Date.now() + maxAgeSeconds * 1000;
   }
 
-  let hostOnlyOrigin: string | undefined;
+  let hostOnlyOrigin = "localhost";
   if (requestUrl) {
     try {
       const u =
@@ -129,9 +129,8 @@ function hostMatches(requestHost: string, record: CookieRecord): boolean {
   const host = requestHost.toLowerCase().split(":")[0]!;
   if (record.hostOnly) {
     // Host-only cookies must strictly match the originating hostname
-    return (
-      record.hostOnlyOrigin === undefined || host === record.hostOnlyOrigin
-    );
+    const expected = (record.hostOnlyOrigin ?? "localhost").toLowerCase();
+    return host === expected;
   }
   if (record.domain) {
     return host === record.domain || host.endsWith(`.${record.domain}`);
@@ -243,6 +242,7 @@ export class CookieJar {
       value,
       path: attributes.path ?? "/",
       hostOnly: attributes.domain === undefined,
+      hostOnlyOrigin: attributes.hostOnlyOrigin ?? "localhost",
       secure: false,
       httpOnly: false,
       ...attributes,

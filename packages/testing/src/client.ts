@@ -92,7 +92,15 @@ export interface TestClient {
 }
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
-export const responseRequestMap = new WeakMap<Response, Request>();
+
+export interface RequestReplaySnapshot {
+  readonly method: string;
+  readonly url: string;
+  readonly headers: Headers;
+  readonly bodyBuffer?: ArrayBuffer;
+}
+
+export const responseReplayMap = new WeakMap<Response, RequestReplaySnapshot>();
 
 function isApp(target: TestClientTarget): target is App {
   return target instanceof App;
@@ -175,13 +183,28 @@ export function createTestClient(
   const { dialect } = options;
 
   const dispatch = async (incoming: Request): Promise<Response> => {
+    let bodyBuffer: ArrayBuffer | undefined;
+    if (incoming.method !== "GET" && incoming.method !== "HEAD") {
+      try {
+        bodyBuffer = await incoming.clone().arrayBuffer();
+      } catch {
+        bodyBuffer = undefined;
+      }
+    }
+    const replaySnapshot: RequestReplaySnapshot = {
+      method: incoming.method,
+      url: incoming.url,
+      headers: new Headers(incoming.headers),
+      bodyBuffer,
+    };
+
     const request =
       useJar && jar.size > 0
         ? await withCookieHeader(incoming, jar.header(incoming.url))
         : incoming;
 
     const record = (res: Response): Response => {
-      responseRequestMap.set(res, incoming);
+      responseReplayMap.set(res, replaySnapshot);
       if (useJar) jar.absorb(res, incoming.url);
       return res;
     };
@@ -298,7 +321,7 @@ export function createTestClient(
       followRedirects(
         client,
         response,
-        responseRequestMap.get(response),
+        responseReplayMap.get(response),
         maxHops,
       ),
     dispose: () => {
@@ -311,33 +334,31 @@ export function createTestClient(
 async function followRedirects(
   client: TestClient,
   initialResponse: Response,
-  initialRequest: Request | undefined,
+  initialReplay: RequestReplaySnapshot | undefined,
   maxHops: number,
 ): Promise<Response> {
   let currentResponse = initialResponse;
-  let currentRequest = initialRequest;
+  let currentReplay = initialReplay;
   for (let hop = 0; hop < maxHops; hop += 1) {
     if (!REDIRECT_STATUSES.has(currentResponse.status)) return currentResponse;
     const location = currentResponse.headers.get("location");
     if (location === null) return currentResponse;
 
     const status = currentResponse.status;
-    const base = currentRequest ? currentRequest.url : client.url;
+    const base = currentReplay ? currentReplay.url : client.url;
     const targetUrl = new URL(location, base).toString();
 
     let nextRequest: Request;
     if (status === 307 || status === 308) {
-      // Preserve method and body
-      const method = currentRequest ? currentRequest.method : "GET";
-      const headers = new Headers(currentRequest?.headers);
-      let body: ArrayBuffer | undefined;
-      if (currentRequest && method !== "GET" && method !== "HEAD") {
-        body = await currentRequest.clone().arrayBuffer();
-      }
+      // Preserve method and body from the pre-dispatch snapshot
+      const method = currentReplay ? currentReplay.method : "GET";
+      const headers = new Headers(currentReplay?.headers);
       nextRequest = new Request(targetUrl, {
         method,
         headers,
-        body,
+        body: currentReplay?.bodyBuffer
+          ? currentReplay.bodyBuffer.slice(0)
+          : undefined,
       });
     } else {
       // 301, 302, 303: PRG pattern -> GET
@@ -345,8 +366,8 @@ async function followRedirects(
         method: "GET",
       });
     }
-    currentRequest = nextRequest;
     currentResponse = await client.fetch(nextRequest);
+    currentReplay = responseReplayMap.get(currentResponse);
   }
   throw new Error(`follow(): exceeded ${maxHops} redirects`);
 }

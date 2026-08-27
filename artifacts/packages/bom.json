@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-26T23:23:43.346Z",
+  "generatedAt": "2026-08-27T01:46:31.097Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -226,7 +226,7 @@
       "name": "@bundar/testing",
       "version": "0.0.0",
       "tarball": "bundar-testing-0.0.0.tgz",
-      "sha256": "3f4d62067b9ad91575a4f246984f40f13a28ae71f43d3e874bdab100d0e1006a",
+      "sha256": "954db7ddc4cabc619191e205d146c948109491ca93a7a0af7eeb8d4d5c085ee0",
       "fileCount": 8,
       "files": [
         "src/match.ts",
@@ -238,8 +238,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 43553,
-      "packedBytes": 12298,
+      "unpackedBytes": 44608,
+      "packedBytes": 12657,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -307,8 +307,8 @@
   ],
   "summary": {
     "packages": 9,
-    "totalUnpackedBytes": 678105,
-    "totalPackedBytes": 204189,
+    "totalUnpackedBytes": 679160,
+    "totalPackedBytes": 204548,
     "findings": 0
   }
 }

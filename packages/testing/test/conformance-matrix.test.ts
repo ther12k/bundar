@@ -99,6 +99,15 @@ function buildMatrixApp(): App {
     });
   });
 
+  // 307 redirect where handler consumed the request body
+  app.post("/redirect-307-consumed", async (ctx) => {
+    await ctx.request.text(); // handler drains body!
+    return new Response(null, {
+      status: 307,
+      headers: { location: "/redirect-target-post" },
+    });
+  });
+
   app.post("/redirect-308", () => {
     return new Response(null, {
       status: 308,
@@ -266,6 +275,17 @@ function runMatrixSuite(
 
       const followA = await client.follow(reqA);
       expect(await followA.text()).toBe("landed-post:payload-A");
+    });
+
+    test("6d. 307 redirect preserves body even if the initial handler consumed it", async () => {
+      const client = getClient();
+      const res = await client.post("/redirect-307-consumed", {
+        body: "consumed-and-replayed",
+      });
+      expect(res.status).toBe(307);
+      const followed = await client.follow(res);
+      expect(followed.status).toBe(200);
+      expect(await followed.text()).toBe("landed-post:consumed-and-replayed");
     });
 
     test("7. Static Response can be read repeatedly without body poisoning", async () => {

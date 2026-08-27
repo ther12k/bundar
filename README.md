@@ -257,6 +257,7 @@ The current htmx 4 profile is pinned to `4.0.0-beta6`. The M7 GA chain is **clos
 | [`@bundar/jsx`](docs/api/jsx.md) | Secure server-only JSX/TSX runtime, document and fragment rendering, and streaming |
 | [`@bundar/htmx`](docs/api/htmx.md) | Version-neutral hypermedia model, htmx 2/4 adapters, assets, views, actions, updates, events, and navigation |
 | [`@bundar/schema`](docs/api/schema.md) | Standard Schema adapters and structured validation results; no validator bundled |
+| [`@bundar/forms`](docs/api/forms.md) | Progressive form parsing orchestration, validation result adaptation, and field error rendering |
 | [`@bundar/security`](docs/api/security.md) | Sessions, flash, CSRF, origin policy, headers/CSP, uploads, and request budgets |
 | [`@bundar/testing`](docs/api/testing.md) | In-process clients and helpers for ordinary and enhanced request flows |
 | [`@bundar/cli`](docs/api/cli.md) | Development server, route generation/checking, environment diagnostics, and HTMX migration auditing |

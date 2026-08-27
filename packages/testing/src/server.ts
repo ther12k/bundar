@@ -13,7 +13,8 @@ import type { RouteModule } from "@bundar/core";
 import { CookieJar } from "./cookies";
 import {
   compileForTest,
-  responseRequestMap,
+  responseReplayMap,
+  type RequestReplaySnapshot,
   type TestClient,
   type TestClientOptions,
   type TestClientTarget,
@@ -69,6 +70,21 @@ export function startTestServer(
   const useJar = options.cookies !== false;
   const { dialect } = options;
   const send = async (request: Request): Promise<Response> => {
+    let bodyBuffer: ArrayBuffer | undefined;
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      try {
+        bodyBuffer = await request.clone().arrayBuffer();
+      } catch {
+        bodyBuffer = undefined;
+      }
+    }
+    const replaySnapshot: RequestReplaySnapshot = {
+      method: request.method,
+      url: request.url,
+      headers: new Headers(request.headers),
+      bodyBuffer,
+    };
+
     // requests are built against TEST_ORIGIN; the transport rewrites them
     // onto this server's real origin (path + query preserved)
     const sourceUrl = new URL(request.url);
@@ -81,7 +97,7 @@ export function startTestServer(
         : {}),
       redirect: "manual",
     });
-    responseRequestMap.set(response, request);
+    responseReplayMap.set(response, replaySnapshot);
     if (useJar) jar.absorb(response, target);
     return response;
   };
@@ -150,7 +166,7 @@ export function startTestServer(
         }),
       ),
     follow: (response, maxHops = 5) =>
-      followChain(client, response, responseRequestMap.get(response), maxHops),
+      followChain(client, response, responseReplayMap.get(response), maxHops),
     dispose: () => {
       jar.clear();
     },
@@ -173,40 +189,38 @@ export function startTestServer(
 async function followChain(
   client: TestClient,
   initialResponse: Response,
-  initialRequest: Request | undefined,
+  initialReplay: RequestReplaySnapshot | undefined,
   maxHops: number,
 ): Promise<Response> {
   let currentResponse = initialResponse;
-  let currentRequest = initialRequest;
+  let currentReplay = initialReplay;
   for (let hop = 0; hop < maxHops; hop += 1) {
     if (!REDIRECT_STATUSES.has(currentResponse.status)) return currentResponse;
     const location = currentResponse.headers.get("location");
     if (location === null) return currentResponse;
 
     const status = currentResponse.status;
-    const base = currentRequest ? currentRequest.url : client.url;
+    const base = currentReplay ? currentReplay.url : client.url;
     const targetUrl = new URL(location, base).toString();
 
     let nextRequest: Request;
     if (status === 307 || status === 308) {
-      const method = currentRequest ? currentRequest.method : "GET";
-      const headers = new Headers(currentRequest?.headers);
-      let body: ArrayBuffer | undefined;
-      if (currentRequest && method !== "GET" && method !== "HEAD") {
-        body = await currentRequest.clone().arrayBuffer();
-      }
+      const method = currentReplay ? currentReplay.method : "GET";
+      const headers = new Headers(currentReplay?.headers);
       nextRequest = new Request(targetUrl, {
         method,
         headers,
-        body,
+        body: currentReplay?.bodyBuffer
+          ? currentReplay.bodyBuffer.slice(0)
+          : undefined,
       });
     } else {
       nextRequest = new Request(targetUrl, {
         method: "GET",
       });
     }
-    currentRequest = nextRequest;
     currentResponse = await client.fetch(nextRequest);
+    currentReplay = responseReplayMap.get(currentResponse);
   }
   throw new Error(`follow(): exceeded ${maxHops} redirects`);
 }

@@ -72,6 +72,7 @@
     "release:reproduce": "bun tools/release/reproduce.ts",
     "release:sbom": "bun tools/release/sbom.ts",
     "release:verify": "bun tools/release/verify.ts",
+    "registry:verify": "bun tools/release/registry-verify.ts",
     "routes:check": "bun packages/cli/src/bin.ts routes check --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "routes:generate": "bun packages/cli/src/bin.ts routes generate --entry tests/consumer/routes/entry.ts --out tests/consumer/routes/routes.gen.ts",
     "secrets:scan": "bun tools/pack-audit.ts",
