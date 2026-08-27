@@ -1,3 +1,18 @@
+---
+type: Release Gate
+title: Registry Human Approval Gate
+description: Maintainer-only npm namespace, credential, and guarded-publication approval gate — packages, prerequisites, identity check, publish command, revocation, and approval record.
+tags:
+- release
+- registry
+- npm
+- human-gate
+status: blocked
+generated:
+  by: BR-079 implementation pass
+  at: '2026-08-27T00:00:00+07:00'
+---
+
 # Registry human approval gate (BR-079)
 
 **Status:** BLOCKED — maintainer action required before any publication.
