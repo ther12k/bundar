@@ -120,9 +120,58 @@ inside the artifact bundle) is the record the human publish job verifies.
 - [x] No credential value is committed, printed, uploaded, or included in
       an artifact; no npm publication is executed by this wave.
 
-## Public release battery run
+## Public release battery run (authoritative candidate)
 
-(To be recorded after the merged-main run completes — see appendix.)
+- **Workflow**: `candidate-release.yml` (Candidate Release Battery)
+- **Run ID**: `33079660969`
+- **Run URL**: https://github.com/ther12k/bundar/actions/runs/33079660969
+- **Head commit (workflow run SHA = candidate source SHA)**:
+  `67518bf6bc9ec8bf717181394d2c8364b5f19b50`
+- **Conclusion**: `success`
+- **Bundle artifact**:
+  `release-candidate-artifacts-67518bf6bc9ec8bf717181394d2c8364b5f19b50`
+- **GitHub artifact digest**:
+  `sha256:1301cbc08c946d712e9812eab630aed2d7305fa8fe7123d95adce67b34af5638`
+- **candidateManifestSha256**:
+  `9d902f35f1135dc66bd0062ed3fbf8f34d700f0003778143840a0f77deca50be`
+- **version @ dist-tag**: `0.1.0-alpha.2` @ `canary`
+- **Tarball SHA-256** (from `candidate-identity.json`, re-verified by the
+  shared loader on the downloaded bundle):
+  - `@bundar/core`: `bf288fef07b56241f4bd8c0bdff317a757c7d750da008272dd8ce74339014284`
+  - `@bundar/jsx`: `c83799becb0be47ea3fd746cc0ed90ee16f0a74f007f41be7bea774e66a1c761`
+  - `@bundar/schema`: `eb38926f50f612b5c3a7dca0901c1fb73b31d59eb3a74a8d35acdbd8722ddf52`
+  - `@bundar/forms`: `9c233a041d55c2e1167b059892191c73efe7f0b48f1f224a8a23c95a39b2d5f2`
+  - `@bundar/security`: `b207835bf9257b21878d4f847e7972702839e3dffc86f685b4c26d435683e206`
+  - `@bundar/htmx`: `28d61abc1f1f580656cb187e3f9fcd0a9ec0270b5de849ffd98a89f62c391adb`
+  - `@bundar/testing`: `da081d28fa855d8b4cff51604972d2c78165ae23ba7dd202a5f46bd33188c3bf`
+  - `@bundar/cli`: `40055225d0469cb301583e9678a9d876a9871ff9c2cc8702ae542411505e15b8`
+  - `create-bundar`: `e73bba76adda9db58e19c5f138b575d20828cc38fc95211b2ebcde0493402219`
+
+### Model B end-to-end rehearsal (from the downloaded public bundle)
+
+The bundle was downloaded via `gh run download` (run `33079660969`) and
+the maintainer publish path was rehearsed offline:
+
+1. `publish:approved --dry-run --manifest
+   <bundle>/artifacts/release/candidate-manifest.json --tarball-root
+   <bundle>` — exit 0; shared-loader verification passed (schema, exact
+   set, containment under the bundle root, byte-hash equality, packed
+   identity); plan printed in dependency-first order; nothing published.
+2. `registry:verify --preflight --manifest <bundle>/... --root-dir
+   <bundle>` — 9/9 on-disk SHA-256 matches.
+
+This rehearsal caught one real integration bug before any maintainer
+touchpoint: upload-artifact v4 stores entries relative to the least
+common ancestor of the search paths, so the first battery bundle
+(run `33078743333` at `aeeaf26`) extracted at the `artifacts/` level and
+the publish job's `candidate-bundle/artifacts/...` layout would have
+failed at first real use. Fixed on main (`67518bf`) by listing
+root-level `package.json` in the upload so the bundle mirrors the repo
+layout; the succeeding run above is from the fixed workflow.
+
+All five identity components — candidate source SHA, workflow run SHA,
+manifest SHA-256, GitHub artifact digest, and the nine tarball SHA-256
+values — point at this single bundle.
 
 ## Residual risks and gates
 

@@ -981,3 +981,10 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - `publish-order-exact` replaces set equality with exact array equality against `PUBLISH_ORDER`.
 - Shared strict manifest loader (`tools/release/candidate-manifest-loader.ts`) enforces portable schema, version agreement, exact release set, path containment, on-disk SHA-256, and packed tarball identity (name/version/non-private/lockstep) for `release:verify`, `publish:approved`, and `registry:verify`.
 - Regression suite: `tests/release/candidate-authority.test.ts` (12 tests) covers all four audit findings; full suite 1,207 pass / 0 fail across 151 files; OKF corpus 98.
+
+## 2026-08-27 — GH-167 close-out: authoritative bundle proven publicly, Model B rehearsal, halotec CI
+
+- Public battery run 33079660969 on main 67518bf: success; bundle artifact release-candidate-artifacts-67518bf6bc9ec8bf717181394d2c8364b5f19b50 with GitHub digest sha256:1301cbc08c946d712e9812eab630aed2d7305fa8fe7123d95adce67b34af5638; candidate-identity.json pins manifest sha256 9d902f35f1135dc66bd0062ed3fbf8f34d700f0003778143840a0f77deca50be and nine tarball digests.
+- Model B rehearsal from the downloaded bundle: publish:approved --dry-run with --manifest/--tarball-root exit 0 through the shared loader; registry:verify --preflight against the bundle 9/9; nothing published.
+- Rehearsal caught upload-artifact v4 LCA flattening (first bundle extracted at artifacts/ level); fixed on main 67518bf by listing root-level package.json so the bundle mirrors the repo layout.
+- Repo CI moved to self-hosted halotec runners (two containers, ubuntu-noble base, Node 22 + gh + Chrome wrapped with --no-sandbox); ci.yml retargeted; test job checkout gained fetch-depth 0 (latent main-CI failure since af545e8); PR #168 checks and merged-main CI green on halotec.
