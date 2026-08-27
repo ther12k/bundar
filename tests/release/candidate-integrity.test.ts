@@ -144,4 +144,69 @@ describe("BR-112 candidate integrity", () => {
     expect(JSON.stringify(serialized)).not.toContain("absolutePath");
     expect(JSON.stringify(serialized)).not.toContain("/home/runner");
   });
+
+  test("publish-dry-run records expectedCheckCount and success flag", async () => {
+    const reportPath = join(
+      import.meta.dir,
+      "../../artifacts/publish-dry-run.json",
+    );
+    if (await Bun.file(reportPath).exists()) {
+      const data = await Bun.file(reportPath).json();
+      expect(data.success).toBe(true);
+      expect(data.expectedCheckCount).toBe(42);
+      expect(Array.isArray(data.checks)).toBe(true);
+      expect(data.checks.length).toBe(42);
+      expect(
+        data.checks.every((c: { status: string }) => c.status === "pass"),
+      ).toBe(true);
+    }
+  });
+
+  test("registry:verify preflight writes structured report", () => {
+    const preflightResult = spawnSync(
+      "bun",
+      ["tools/release/registry-verify.ts", "--preflight"],
+      {
+        cwd: join(import.meta.dir, "../.."),
+        encoding: "utf8",
+      },
+    );
+    expect(preflightResult.status).toBe(0);
+    const reportPath = join(
+      import.meta.dir,
+      "../../artifacts/registry-verify.json",
+    );
+    const report = JSON.parse(
+      spawnSync("cat", [reportPath], { encoding: "utf8" }).stdout,
+    );
+    expect(report.mode).toBe("preflight");
+    expect(report.success).toBe(true);
+    expect(Array.isArray(report.packages)).toBe(true);
+    expect(report.packages.length).toBe(9);
+    expect(report.packages[0].status).toBe("pass");
+  });
+
+  test("release:verify fails when dry-run report indicates failure", async () => {
+    const reportPath = join(
+      import.meta.dir,
+      "../../artifacts/publish-dry-run.json",
+    );
+    const original = await Bun.file(reportPath).text();
+    const mutated = JSON.parse(original);
+    mutated.success = false;
+    mutated.checks[0].status = "fail";
+    try {
+      writeFileSync(reportPath, JSON.stringify(mutated, null, 2));
+      const verifyResult = spawnSync("bun", ["tools/release/verify.ts"], {
+        cwd: join(import.meta.dir, "../.."),
+        encoding: "utf8",
+      });
+      expect(verifyResult.status).not.toBe(0);
+      expect(verifyResult.stdout + verifyResult.stderr).toContain(
+        "dry-run-checks-pass",
+      );
+    } finally {
+      writeFileSync(reportPath, original);
+    }
+  });
 });

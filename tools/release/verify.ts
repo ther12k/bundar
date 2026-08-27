@@ -314,6 +314,21 @@ if (!existsSync(manifestPath)) {
       dryRun.plan.distTag === manifest.distTag,
     `dry-run plan (${dryRun.plan.simulatedVersion} @ ${dryRun.plan.distTag}) agrees with the candidate manifest (${manifest.version} @ ${manifest.distTag})`,
   );
+
+  // Publish dry-run validation checks status
+  const dryRunChecks = Array.isArray(dryRun.checks) ? dryRun.checks : [];
+  const expectedCheckCount = dryRun.expectedCheckCount ?? 42;
+  const allChecksPassed =
+    dryRun.success === true &&
+    dryRunChecks.length === expectedCheckCount &&
+    dryRunChecks.every((c: { status?: string }) => c.status === "pass");
+  check(
+    "dry-run-checks-pass",
+    allChecksPassed,
+    allChecksPassed
+      ? `all ${dryRunChecks.length}/${expectedCheckCount} publication dry-run validation checks passed with success=true`
+      : `dry-run success=${dryRun.success}; passed ${dryRunChecks.filter((c: { status?: string }) => c.status === "pass").length}/${expectedCheckCount} checks`,
+  );
 }
 
 // Namespace clearance
