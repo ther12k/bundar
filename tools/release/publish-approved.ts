@@ -13,15 +13,16 @@
  *    dist-tag "latest" is rejected without `--allow-latest-tag` (ADR-0021).
  */
 import { spawnSync } from "node:child_process";
-import { createHash, existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { PUBLISH_ORDER, REPO } from "./pack-release";
 
 interface Options {
-  readonly dryRun: boolean;
-  readonly allowLatestTag: boolean;
-  readonly tag?: string;
-  readonly manifest?: string;
+  dryRun: boolean;
+  allowLatestTag: boolean;
+  tag?: string;
+  manifest?: string;
 }
 
 const KNOWN_FLAGS = new Set([

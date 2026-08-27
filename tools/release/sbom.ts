@@ -45,7 +45,7 @@ interface ReleaseComponent {
   name: string;
   version: string;
   licenses?: { license: { id: string } }[];
-  hashes: { alg: string; content: string }[];
+  hashes?: { alg: string; content: string }[];
   purl: string;
 }
 
