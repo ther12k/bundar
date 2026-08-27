@@ -38,7 +38,37 @@ If using an automation token, it must be a **publish-scoped granular token**
 restricted to the `@bundar` scope and `create-bundar`, valid for ≤ 7 days,
 with 2FA required on the account.
 
-### Candidate preparation
+### The authoritative candidate (Model B)
+
+The **successful public Candidate Release Battery bundle is the single
+authoritative candidate**. Nothing is rebuilt at publish time; the
+human-gated workflow downloads and publishes the exact bytes the public
+battery validated.
+
+1. Trigger **Candidate Release Battery** (workflow_dispatch) on the merged
+   main commit. It runs the 28-step `ci:release`, then writes
+   `artifacts/release/candidate-identity.json` pinning the workflow SHA,
+   candidate source SHA, manifest SHA-256, artifact name, and all nine
+   tarball SHA-256 digests, uploads them as the immutable artifact
+   `release-candidate-artifacts-<sha>`, and records the GitHub artifact
+   digest in the run summary.
+2. Copy the run ID and artifact digest from the successful run.
+3. Trigger **Release (human-gated)** with:
+   - `tag` — dist-tag (`canary`; never `latest`)
+   - `version` — exact candidate version
+   - `battery_run_id` — the successful battery run whose bundle is the
+     candidate (required)
+   - `expected_artifact_digest` — the `sha256:…` digest recorded by the
+     battery (recommended; the job aborts on mismatch)
+   - `dry_run_only` — verify the bundle without publishing
+
+Both jobs download the named artifact from that run, verify the digest and
+`candidate-identity.json` (workflow SHA = battery head SHA, artifact name,
+dist-tag, 9 packages), then run `publish:approved` with
+`--manifest <bundle>/artifacts/release/candidate-manifest.json
+--tarball-root <bundle>` so only the downloaded bytes are ever published.
+
+## Candidate preparation (local inspection)
 
 The candidate pipeline runs once on a clean, committed working tree:
 
@@ -91,7 +121,10 @@ The publisher enforces in order:
 1. `--dry-run` (if present) → always exits before publish regardless of credentials.
 2. `BUNDAR_RELEASE_TOKEN` must be set.
 3. `npm whoami` must succeed.
-4. Candidate manifest must exist and every tarball's SHA-256 must match.
+4. The shared strict manifest loader must accept the candidate: exact
+   portable schema, exact 9-package release set, contained repo-relative
+   paths, on-disk SHA-256 equality, and packed tarball identity (exact
+   name/version, not private, lockstep internal ranges).
 5. `npm publish <file.tgz> --tag canary --access public` for each package in dependency-first order.
 
 ## Publish order

@@ -7,7 +7,8 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
+    runs-on: [self-hosted, halotec]
     permissions:
       contents: read
       issues: read
@@ -43,10 +44,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   test:
-    runs-on: ubuntu-latest
+    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
+    runs-on: [self-hosted, halotec]
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # GH-167: the publisher-safety tests resolve the candidate
+          # manifest's source SHA against HEAD (ancestor rule, Model B);
+          # a shallow clone cannot answer `merge-base --is-ancestor`.
+          fetch-depth: 0
       - name: Set up Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
         with:
@@ -57,7 +64,8 @@ jobs:
         run: bun test
 
   build:
-    runs-on: ubuntu-latest
+    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
+    runs-on: [self-hosted, halotec]
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -75,7 +83,8 @@ jobs:
   # can never skip the other — and each leg uploads its own artifacts with
   # if: always() so failing evidence still binds to the run.
   browser-lanes:
-    runs-on: ubuntu-latest
+    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
+    runs-on: [self-hosted, halotec]
     strategy:
       fail-fast: false
       matrix:

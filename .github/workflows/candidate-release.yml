@@ -2,9 +2,16 @@ name: Candidate Release Battery
 
 # BR-111: public, immutable evidence that the FULL release-candidate
 # battery runs on an exact merged main commit. Standard CI covers
-# verify/test/build/browser-lanes; this workflow adds the 27-step
+# verify/test/build/browser-lanes; this workflow adds the 28-step
 # ci:release (cleanroom, benchmarks, pack audit, SBOM, provenance,
-# reproducibility, publication dry-run, cross-artifact verification).
+# reproducibility, publication dry-run, cross-artifact verification,
+# single-authority candidate identity record).
+#
+# Wave 8 (Model B): the bundle this workflow uploads IS the authoritative
+# candidate. Its candidate-identity.json pins the workflow SHA, the
+# manifest digest, and all nine tarball SHA-256 values together with the
+# artifact name — and after upload the job records the GitHub artifact
+# digest so the human-gated publish job can download exactly this bundle.
 #
 # Manual trigger only — never publishes anything.
 on:
@@ -26,17 +33,18 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Install Chromium via the pinned local Playwright
         run: ./node_modules/.bin/playwright install --with-deps chromium
-      - name: Full release-candidate battery (27 steps)
+      - name: Full release-candidate battery (28 steps)
         env:
           GH_TOKEN: ${{ github.token }}
         run: bun run ci:release
-      - name: Upload candidate artifacts
+      - name: Upload candidate artifacts (the authoritative candidate)
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-candidate-artifacts-${{ github.sha }}
           path: |
             artifacts/release/candidate-manifest.json
+            artifacts/release/candidate-identity.json
             artifacts/packages/checksums.txt
             artifacts/packages/bundar-*-0.1.0-alpha.2.tgz
             artifacts/packages/create-bundar-0.1.0-alpha.2.tgz
@@ -44,3 +52,27 @@ jobs:
             artifacts/provenance/provenance.json
             artifacts/publish-dry-run.json
           retention-days: 90
+      - name: Record the immutable artifact digest
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: release-candidate-artifacts-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          digest=""
+          for attempt in 1 2 3 4 5; do
+            digest="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+              --jq ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .digest // empty")"
+            [ -n "$digest" ] && break
+            echo "attempt $attempt: artifact not visible yet"; sleep 10
+          done
+          if [ -z "$digest" ]; then
+            echo "ERROR: could not read artifact digest for $ARTIFACT_NAME" >&2
+            exit 1
+          fi
+          {
+            echo "### Authoritative candidate bundle"
+            echo "- Artifact: \`$ARTIFACT_NAME\`"
+            echo "- Digest: \`$digest\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Artifact digest recorded: $digest"

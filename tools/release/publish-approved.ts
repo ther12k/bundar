@@ -1,28 +1,33 @@
 /**
- * publish:approved (GH-088 / BR-081 / BR-105 / BR-111): the guarded publish step.
+ * publish:approved (GH-088 / BR-081 / BR-105 / BR-111 / wave 8): the
+ * guarded publish step.
  *
  * Safety invariants:
  * 1. `--dry-run` ALWAYS short-circuits before any credential check and can
  *    NEVER invoke npm publish, regardless of tokens or authentication.
- * 2. Publishes ONLY the exact `.tgz` files recorded in the persisted
- *    candidate manifest (`artifacts/release/candidate-manifest.json` or an
- *    explicit `--manifest <path>`). The publisher never builds tarballs.
- * 3. Verifies each tarball's SHA-256 against the manifest, and validates
- *    that name/version/tag are consistent with it.
+ * 2. Publishes ONLY the exact `.tgz` files recorded in a candidate manifest
+ *    (`artifacts/release/candidate-manifest.json`, an explicit
+ *    `--manifest <path>`, or an uploaded candidate bundle resolved through
+ *    `--tarball-root <dir>`). The publisher never builds tarballs.
+ * 3. The shared strict manifest loader (wave 8) verifies schema, exact
+ *    release-set equality, path containment, SHA-256 bytes, AND packed
+ *    tarball identity (name/version/non-private/lockstep ranges) before
+ *    anything else runs.
  * 4. Strict argument parsing: unknown flags exit non-zero; publishing with
  *    dist-tag "latest" is rejected without `--allow-latest-tag` (ADR-0021).
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { candidateSourceIdentity, PUBLISH_ORDER, REPO } from "./pack-release";
+import { loadAndVerifyCandidateManifest } from "./candidate-manifest-loader";
 
 interface Options {
   dryRun: boolean;
   allowLatestTag: boolean;
   tag?: string;
   manifest?: string;
+  tarballRoot?: string;
 }
 
 const KNOWN_FLAGS = new Set([
@@ -30,6 +35,7 @@ const KNOWN_FLAGS = new Set([
   "--allow-latest-tag",
   "--tag",
   "--manifest",
+  "--tarball-root",
 ]);
 
 function parseOptions(argv: readonly string[]): Options {
@@ -49,14 +55,16 @@ function parseOptions(argv: readonly string[]): Options {
         options.allowLatestTag = true;
         break;
       case "--tag":
-      case "--manifest": {
+      case "--manifest":
+      case "--tarball-root": {
         const value = argv[index + 1];
         if (value === undefined || value.startsWith("--")) {
           console.error(`publish:approved: ${arg} requires a value`);
           process.exit(2);
         }
         if (arg === "--tag") options.tag = value;
-        else options.manifest = value;
+        else if (arg === "--manifest") options.manifest = value;
+        else options.tarballRoot = value;
         index += 1;
         break;
       }
@@ -82,34 +90,35 @@ if (!existsSync(manifestPath)) {
   process.exit(1);
 }
 
-interface ManifestPackage {
-  readonly name: string;
-  readonly version: string;
-  readonly tarballFile: string;
-  readonly tarballPath: string; // relative to REPO root
-  readonly sha256: string;
-}
-interface CandidateManifest {
-  readonly sourceSha: string;
-  readonly version: string;
-  readonly distTag: string;
-  readonly packages: readonly ManifestPackage[];
-}
-
-let manifest: CandidateManifest;
-try {
-  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-} catch (error) {
+// Wave 8: one shared strict loader for every consumer of a candidate
+// manifest — exact portable schema, exact PUBLISH_ORDER set equality,
+// path containment (also under --tarball-root), SHA-256 re-hash of the
+// actual bytes, and packed-tarball identity inspection.
+const loaded = loadAndVerifyCandidateManifest({
+  manifestPath,
+  rootDir: options.tarballRoot ?? REPO,
+});
+if (!loaded.ok || loaded.manifest === undefined) {
   console.error(
-    `publish:approved: failed to parse ${manifestPath}: ${error instanceof Error ? error.message : String(error)}`,
+    `publish:approved: candidate manifest rejected (${manifestPath}):`,
   );
+  for (const error of loaded.errors.slice(0, 10)) {
+    console.error(`  [${error.stage}] ${error.detail}`);
+  }
+  if (loaded.errors.length > 10) {
+    console.error(`  …and ${loaded.errors.length - 10} more`);
+  }
   process.exit(1);
 }
-
-if (typeof manifest.version !== "string" || !Array.isArray(manifest.packages)) {
-  console.error("publish:approved: malformed candidate manifest");
-  process.exit(1);
-}
+const manifest = loaded.manifest;
+// Publish strictly in dependency-first order regardless of manifest order.
+const verified = PUBLISH_ORDER.map((name) => {
+  const entry = loaded.entries.find((e) => e.name === name)!;
+  return {
+    pkg: entry,
+    absoluteTarball: entry.absoluteTarball!,
+  };
+});
 
 const sourceIdentity = candidateSourceIdentity(manifest.sourceSha);
 if (!sourceIdentity.ok) {
@@ -131,51 +140,12 @@ if (
   process.exit(1);
 }
 
-// Verify every package entry BEFORE any credential or publish step.
-interface VerifiedCandidate {
-  readonly pkg: ManifestPackage;
-  readonly absoluteTarball: string;
-}
-const verified: VerifiedCandidate[] = [];
-for (const expectedName of PUBLISH_ORDER) {
-  const pkg = manifest.packages.find((p) => p.name === expectedName);
-  if (pkg === undefined) {
-    console.error(
-      `publish:approved: candidate manifest has no entry for ${expectedName}`,
-    );
-    process.exit(1);
-  }
-  if (pkg.version !== manifest.version) {
-    console.error(
-      `publish:approved: ${pkg.name} version ${pkg.version} does not match manifest version ${manifest.version}`,
-    );
-    process.exit(1);
-  }
-  const absoluteTarball = join(REPO, pkg.tarballPath);
-  if (!existsSync(absoluteTarball)) {
-    console.error(
-      `publish:approved: candidate tarball missing on disk: ${pkg.tarballPath}`,
-    );
-    process.exit(1);
-  }
-  const actualSha = createHash("sha256")
-    .update(readFileSync(absoluteTarball))
-    .digest("hex");
-  if (actualSha !== pkg.sha256) {
-    console.error(
-      `publish:approved: SHA-256 mismatch for ${pkg.name} — manifest=${pkg.sha256}, disk=${actualSha}`,
-    );
-    process.exit(1);
-  }
-  verified.push({ pkg, absoluteTarball });
-}
-
 function printPlan(): void {
   console.log(
     `Candidate plan (NOT published in this mode unless the live branch below runs):\n` +
-      `  version : ${manifest!.version}\n` +
+      `  version : ${manifest.version}\n` +
       `  dist-tag: ${distTag}\n` +
-      `  source  : ${manifest!.sourceSha}\n` +
+      `  source  : ${manifest.sourceSha}\n` +
       `  order   : ${verified.map((v) => v.pkg.name).join(" → ")}\n` +
       `  tarballs:\n${verified
         .map(

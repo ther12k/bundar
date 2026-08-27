@@ -20,7 +20,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { readCandidateManifest, REPO } from "./pack-release";
+import { REPO } from "./pack-release";
+import { loadAndVerifyCandidateManifest } from "./candidate-manifest-loader";
 import { normalizeDistTags } from "./registry-verify-utils";
 
 export interface RegistryPackageReport {
@@ -55,18 +56,41 @@ const isPreflight = argv.includes("--preflight");
 const downloadCompare = argv.includes("--download");
 const tagArgIndex = argv.indexOf("--tag");
 const distTagOverride = tagArgIndex >= 0 ? argv[tagArgIndex + 1] : undefined;
+const manifestArgIndex = argv.indexOf("--manifest");
+const manifestOverride =
+  manifestArgIndex >= 0 ? argv[manifestArgIndex + 1] : undefined;
+const rootDirArgIndex = argv.indexOf("--root-dir");
+const rootDirOverride =
+  rootDirArgIndex >= 0 ? argv[rootDirArgIndex + 1] : undefined;
 
-const manifest = readCandidateManifest();
-if (!manifest) {
+// Wave 8: registry verification consumes the SAME shared strict loader as
+// the publisher and release:verify — so --manifest/--root-dir can point at
+// the authoritative candidate bundle and still get schema, exact-set,
+// containment, byte-hash, and packed-identity verification.
+const DEFAULT_MANIFEST = join(
+  REPO,
+  "artifacts",
+  "release",
+  "candidate-manifest.json",
+);
+const loaded = loadAndVerifyCandidateManifest({
+  manifestPath: manifestOverride ?? DEFAULT_MANIFEST,
+  rootDir: rootDirOverride ?? REPO,
+});
+if (!loaded.ok || loaded.manifest === undefined) {
   console.error(
-    "registry:verify: artifacts/release/candidate-manifest.json missing — run `bun run publish:dry-run` first",
+    `registry:verify: candidate manifest rejected (${manifestOverride ?? "artifacts/release/candidate-manifest.json"}):`,
   );
+  for (const error of loaded.errors.slice(0, 10)) {
+    console.error(`  [${error.stage}] ${error.detail}`);
+  }
   process.exit(1);
 }
+const manifest = loaded.manifest;
 const distTag = distTagOverride ?? manifest.distTag;
 
 console.log(
-  `registry:verify: ${isPreflight ? "preflight" : "post-publish"} verification of ${manifest.packages.length} packages (version ${manifest.version}, tag ${distTag})`,
+  `registry:verify: ${isPreflight ? "preflight" : "post-publish"} verification of ${loaded.entries.length} packages (version ${manifest.version}, tag ${distTag})`,
 );
 
 const failures: string[] = [];
@@ -91,11 +115,11 @@ function npmView(args: readonly string[]): unknown | null {
 
 const packageReports: RegistryPackageReport[] = [];
 
-for (const pkg of manifest.packages) {
+for (const pkg of loaded.entries) {
   if (isPreflight) {
-    // Verify the tarball ACTUALLY exists and hash matches — length checks alone are not evidence.
-    const full = join(REPO, pkg.tarballPath);
-    if (!existsSync(full)) {
+    // Loader already enforced containment, existence, byte-hash equality,
+    // and packed identity; surface the same evidence per package.
+    if (pkg.absoluteTarball === undefined || !existsSync(pkg.absoluteTarball)) {
       check(
         `preflight ${pkg.name}`,
         false,
@@ -110,9 +134,7 @@ for (const pkg of manifest.packages) {
       });
       continue;
     }
-    const actualSha = createHash("sha256")
-      .update(readFileSync(full))
-      .digest("hex");
+    const actualSha = pkg.actualSha256!;
     const onDiskMatches = actualSha === pkg.sha256;
     check(
       `preflight ${pkg.name}`,
@@ -314,5 +336,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `\nregistry:verify: all checks passed for ${manifest.packages.length} packages (${manifest.version})`,
+  `\nregistry:verify: all checks passed for ${loaded.entries.length} packages (${manifest.version})`,
 );

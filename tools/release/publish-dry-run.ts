@@ -2,11 +2,11 @@
  * publish:dry-run (GH-086): publication simulation without any registry
  * publish —
  *
- * 1. Simulate the pre-release plan: version 0.1.0-alpha.1, dist-tag
- *    `alpha`, dependency-first publish order, and inter-package version
+ * 1. Simulate the pre-release plan: version 0.1.0-alpha.2, dist-tag
+ *    `canary`, dependency-first publish order, and inter-package version
  *    synchronization (every packed manifest's @bundar deps rewritten to
  *    the same pre-release version — the form npm publish would emit).
- * 2. Pack all 8 packages, rewrite workspace/0.0.0 specs to the
+ * 2. Pack all 9 packages, rewrite workspace/0.0.0 specs to the
  *    simulated version, install them as file: tarballs in a CLEAN
  *    consumer, and import EVERY documented entry point: core, jsx,
  *    schema, security, htmx (root + /2 + /4 subpaths), testing — plus
@@ -42,6 +42,10 @@ import {
   writeCandidateManifest,
   type PackedCandidate,
 } from "./pack-release";
+import {
+  EXPECTED_DRY_RUN_CHECK_COUNT,
+  validateDryRunChecks,
+} from "./dry-run-contract";
 
 function argument(name: string, fallback: string): string {
   const index = process.argv.indexOf(name);
@@ -331,7 +335,27 @@ rmSync(consumerRegistry, { recursive: true, force: true });
 rmSync(consumer, { recursive: true, force: true });
 
 const success = failures.length === 0;
-const expectedCheckCount = 42;
+const expectedCheckCount = EXPECTED_DRY_RUN_CHECK_COUNT;
+
+// Writer-side contract guard (wave 8): the report this pipeline emits is
+// the exact object release:verify will enforce against the canonical
+// check list. If the emit sequence ever drifts from that list, fail here
+// rather than publishing a report the verifier would reject downstream.
+if (success) {
+  const contract = validateDryRunChecks({
+    success,
+    expectedCheckCount,
+    checks,
+  });
+  if (!contract.ok) {
+    console.error(
+      "publish:dry-run: internal contract violation — emitted checks deviate from the canonical dry-run check list:",
+    );
+    for (const problem of contract.problems) console.error(`  - ${problem}`);
+    rmSync(registry, { recursive: true, force: true });
+    process.exit(1);
+  }
+}
 
 mkdirSync(join(REPO, "artifacts"), { recursive: true });
 writeFileSync(
