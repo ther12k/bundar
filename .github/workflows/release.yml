@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Validate inputs (reject latest without explicit override)
+      - name: Validate inputs (reject latest; assert version matches manifest)
         run: |
           TAG="${{ github.event.inputs.tag }}"
           if [ "$TAG" = "latest" ]; then
@@ -59,6 +59,14 @@ jobs:
             echo "Use 'canary', 'alpha', or 'beta'." >&2
             exit 1
           fi
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+          MANIFEST_VERSION="$(python3 -c "import json;print(json.load(open('artifacts/release/candidate-manifest.json'))['version'])")"
+          if [ "$INPUT_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "ERROR: input version ($INPUT_VERSION) does not match candidate manifest version ($MANIFEST_VERSION)." >&2
+            echo "Regenerate candidates at the desired SHA first: bun run publish:dry-run" >&2
+            exit 1
+          fi
+          echo "Version confirmed: $MANIFEST_VERSION"
 
       - name: Run full CI battery
         run: bun run ci:m4
@@ -108,10 +116,11 @@ jobs:
           BUNDAR_RELEASE_TOKEN: ${{ secrets.BUNDAR_RELEASE_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Post-publish registry verification
-        run: bun run registry:verify -- --tag "${{ github.event.inputs.tag }}"
+      - name: Post-publish registry verification (byte-for-byte)
+        run: bun run registry:verify -- --tag "${{ github.event.inputs.tag }}" --download
 
       - name: Upload publish report
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: publish-report-${{ github.sha }}

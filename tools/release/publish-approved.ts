@@ -16,7 +16,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { PUBLISH_ORDER, REPO } from "./pack-release";
+import { candidateSourceIdentity, PUBLISH_ORDER, REPO } from "./pack-release";
 
 interface Options {
   dryRun: boolean;
@@ -108,6 +108,14 @@ try {
 
 if (typeof manifest.version !== "string" || !Array.isArray(manifest.packages)) {
   console.error("publish:approved: malformed candidate manifest");
+  process.exit(1);
+}
+
+const sourceIdentity = candidateSourceIdentity(manifest.sourceSha);
+if (!sourceIdentity.ok) {
+  console.error(
+    `publish:approved: candidate source identity rejected — ${sourceIdentity.detail}`,
+  );
   process.exit(1);
 }
 

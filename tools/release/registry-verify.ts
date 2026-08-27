@@ -21,6 +21,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { readCandidateManifest, REPO } from "./pack-release";
+import { normalizeDistTags } from "./registry-verify-utils";
 
 const argv = process.argv.slice(2);
 const isPreflight = argv.includes("--preflight");
@@ -153,29 +154,18 @@ for (const pkg of manifest.packages) {
     }
     // cleanup happens by OS temp policy; keep output quiet
   } else {
-    const sriParts = (info.dist?.integrity ?? "").split("-");
-    const expectedBase64 = Buffer.from(pkg.sha256, "hex").toString("base64");
-    integrityOk =
-      sriParts[0] === "sha512"
-        ? true // Algorithm differs; can't compare directly without unpacking — rely on --download for byte proof
-        : sriParts[1] === expectedBase64;
-    integrityDetail = integrityOk
-      ? `dist.integrity corresponds to candidate SHA-256`
-      : `algorithm mismatch — rerun with --download for byte-for-byte proof`;
+    // BR-112: a bare "sha512-*" algorithm match is NOT integrity evidence —
+    // the digest bytes were never compared to the candidate. Post-publish
+    // verification REQUIRES --download for byte-level proof.
+    integrityOk = false;
+    integrityDetail =
+      "no --download: SRI algorithm presence is not byte-level proof — rerun with --download";
   }
   check(`integrity ${pkg.name}`, integrityOk, integrityDetail);
 
   // Dist-tag points at the candidate version
-  const tagView = npmView([pkg.name, "dist-tags"]) as Record<
-    string,
-    string
-  > | null;
-  const tagsRaw = tagView as unknown as { distTags?: Record<string, string> };
-  const tags =
-    tagView !== null && !Array.isArray(tagView) && tagView !== undefined
-      ? ((tagView as Record<string, unknown>).distTags as
-          Record<string, string> | undefined)
-      : tagsRaw?.distTags;
+  const tagView = npmView([pkg.name, "dist-tags"]);
+  const tags = normalizeDistTags(tagView);
   if (tags && typeof tags === "object") {
     check(
       `dist-tag ${pkg.name}`,

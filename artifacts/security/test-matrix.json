@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-27T01:46:20.540Z",
+  "generatedAt": "2026-08-27T09:07:01.776Z",
   "total": 9,
   "passed": 9,
   "failed": 0,
@@ -8,47 +8,47 @@
     {
       "name": "security:raw-html-audit",
       "exitCode": 0,
-      "durationMs": 42
+      "durationMs": 37
     },
     {
       "name": "security:validation-redaction",
       "exitCode": 0,
-      "durationMs": 21
+      "durationMs": 24
     },
     {
       "name": "security:jsx",
       "exitCode": 0,
-      "durationMs": 34
+      "durationMs": 24
     },
     {
       "name": "security:csrf",
       "exitCode": 0,
-      "durationMs": 66
+      "durationMs": 46
     },
     {
       "name": "security:cookies",
       "exitCode": 0,
-      "durationMs": 31
+      "durationMs": 27
     },
     {
       "name": "security:uploads",
       "exitCode": 0,
-      "durationMs": 32
+      "durationMs": 39
     },
     {
       "name": "security:cache",
       "exitCode": 0,
-      "durationMs": 43
+      "durationMs": 28
     },
     {
       "name": "security:redirects",
       "exitCode": 0,
-      "durationMs": 37
+      "durationMs": 29
     },
     {
       "name": "security:headers",
       "exitCode": 0,
-      "durationMs": 27
+      "durationMs": 26
     }
   ]
 }

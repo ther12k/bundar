@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { purl } from "./sbom-utils";
 
 const REPO = join(import.meta.dir, "..", "..");
 const bom = JSON.parse(
@@ -25,10 +26,6 @@ const lockParsed = JSON.parse(lockJson) as {
   packages?: Record<string, string[]>;
 };
 const rootPkg = JSON.parse(readFileSync(join(REPO, "package.json"), "utf8"));
-
-function purl(name: string, version: string): string {
-  return `pkg:npm/${name.replace("@", "%40").replace("/", "/")}@${version}`;
-}
 
 // ---- workspace components (the release packages themselves) ----
 // BR-111: when a persisted candidate manifest exists, the SBOM release
@@ -51,6 +48,7 @@ const manifestPath = join(
   "candidate-manifest.json",
 );
 let releaseComponents: ReleaseComponent[];
+let candidateVersionByName = new Map<string, string>();
 if (existsSync(manifestPath)) {
   const candidateManifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
     packages: ReadonlyArray<{
@@ -59,6 +57,9 @@ if (existsSync(manifestPath)) {
       sha256: string;
     }>;
   };
+  candidateVersionByName = new Map(
+    candidateManifest.packages.map((pkg) => [pkg.name, pkg.version]),
+  );
   // License identity comes from the audited BOM (same package names).
   const licenseByName = new Map(
     (bom.packages as { name: string; license: string }[]).map((p) => [
@@ -68,7 +69,7 @@ if (existsSync(manifestPath)) {
   );
   releaseComponents = candidateManifest.packages.map((pkg) => ({
     type: "library",
-    "bom-ref": `pkg:npm/${pkg.name}@${pkg.version}`,
+    "bom-ref": purl(pkg.name, pkg.version),
     name: pkg.name,
     version: pkg.version,
     licenses: [{ license: { id: licenseByName.get(pkg.name) ?? "MIT" } }],
@@ -84,7 +85,7 @@ if (existsSync(manifestPath)) {
       license: string;
     }) => ({
       type: "library",
-      "bom-ref": `pkg:npm/${pkg.name}@${pkg.version}`,
+      "bom-ref": purl(pkg.name, pkg.version),
       name: pkg.name,
       version: pkg.version,
       licenses: [{ license: { id: pkg.license } }],
@@ -137,19 +138,24 @@ const dependencies = bom.packages.map(
     name: string;
     version: string;
     runtimeDependencies: Record<string, string>;
-  }) => ({
-    ref: purl(pkg.name, pkg.version),
-    dependsOn: Object.keys(pkg.runtimeDependencies ?? {})
-      .filter((dep) =>
-        bom.packages.some((p: { name: string }) => p.name === dep),
-      )
-      .map((dep) => {
-        const target = bom.packages.find(
-          (p: { name: string }) => p.name === dep,
-        );
-        return purl(dep, target.version);
-      }),
-  }),
+  }) => {
+    const version = candidateVersionByName.get(pkg.name) ?? pkg.version;
+    return {
+      ref: purl(pkg.name, version),
+      dependsOn: Object.keys(pkg.runtimeDependencies ?? {})
+        .filter((dep) =>
+          bom.packages.some((p: { name: string }) => p.name === dep),
+        )
+        .map((dep) => {
+          const target = bom.packages.find(
+            (p: { name: string }) => p.name === dep,
+          );
+          const targetVersion =
+            candidateVersionByName.get(dep) ?? target.version;
+          return purl(dep, targetVersion);
+        }),
+    };
+  },
 );
 // root build dependencies (declared devDependencies, resolved by lock)
 dependencies.push({
@@ -169,6 +175,7 @@ const sbom = {
     timestamp: new Date().toISOString(),
     component: {
       type: "application",
+      "bom-ref": purl("bundar-root", rootPkg.version),
       name: "bundar",
       version: rootPkg.version,
     },

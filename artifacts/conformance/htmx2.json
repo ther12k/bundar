@@ -3,7 +3,7 @@
   "lane": "htmx2",
   "status": "stable-conformance-verified",
   "disclaimer": "Local stable browser conformance verified under pinned htmx 2.0.10.",
-  "generatedAt": "2026-08-27T01:41:04.027Z",
+  "generatedAt": "2026-08-27T09:11:20.009Z",
   "profile": {
     "testedVersion": "2.0.10",
     "assetSha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de",
@@ -84,7 +84,7 @@
       "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
     },
     "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-    "baseUrl": "http://127.0.0.1:43309",
+    "baseUrl": "http://127.0.0.1:37647",
     "scenarios": [
       "smoke-page",
       "fragment-swap",

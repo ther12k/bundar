@@ -80,10 +80,7 @@ publication.
 # Only after dry-run passes cleanly:
 bun run publish:approved -- --tag canary
 
-# Post-publication registry verification
-bun run registry:verify -- --tag canary
-
-# Optional: byte-for-byte download verification
+# Post-publication registry verification with required byte-for-byte proof
 bun run registry:verify -- --tag canary --download
 
 # Unset the sentinel

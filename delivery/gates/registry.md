@@ -87,8 +87,8 @@ bun run publish:approved -- --dry-run
 # STEP 4 — live publish (only after steps 1-3 are confirmed)
 bun run publish:approved -- --tag canary
 
-# STEP 5 — verify registry
-bun run registry:verify -- --tag canary
+# STEP 5 — verify registry with byte-for-byte download proof
+bun run registry:verify -- --tag canary --download
 
 # STEP 6 — unset the sentinel
 unset BUNDAR_RELEASE_TOKEN

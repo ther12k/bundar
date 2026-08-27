@@ -36,6 +36,76 @@ export const PUBLISH_ORDER = [
   "create-bundar",
 ] as const;
 
+const SOURCE_PATHS = [
+  "packages/",
+  "create-bundar/",
+  "tools/release/",
+  "package.json",
+  "bun.lock",
+] as const;
+
+export interface CandidateSourceIdentity {
+  readonly ok: boolean;
+  readonly detail: string;
+}
+
+export function candidateSourceIdentity(
+  sourceSha: string,
+): CandidateSourceIdentity {
+  if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+    return { ok: false, detail: `manifest source SHA malformed: ${sourceSha}` };
+  }
+
+  const git = (args: readonly string[]): string =>
+    spawnSync("git", args, { cwd: REPO, encoding: "utf8" }).stdout?.trim() ??
+    "";
+  const headSha = git(["rev-parse", "HEAD"]);
+  const dirtySource = git(["status", "--porcelain", "--", ...SOURCE_PATHS]);
+  if (dirtySource !== "") {
+    return {
+      ok: false,
+      detail: `SOURCE has uncommitted package-affecting changes:\n${dirtySource}`,
+    };
+  }
+  if (sourceSha === headSha) {
+    return {
+      ok: true,
+      detail: `manifest bound to exact HEAD ${headSha.slice(0, 12)}`,
+    };
+  }
+
+  const isAncestor =
+    spawnSync("git", ["merge-base", "--is-ancestor", sourceSha, "HEAD"], {
+      cwd: REPO,
+    }).status === 0;
+  if (!isAncestor) {
+    return { ok: false, detail: "manifest SHA is not an ancestor of HEAD" };
+  }
+  const changedSource = git([
+    "diff",
+    "--name-only",
+    `${sourceSha}..HEAD`,
+    "--",
+    ...SOURCE_PATHS,
+  ]);
+  if (changedSource !== "") {
+    return {
+      ok: false,
+      detail: `SOURCE CHANGED since manifest SHA:\n${changedSource
+        .split("\n")
+        .slice(0, 10)
+        .join("\n")}`,
+    };
+  }
+  return {
+    ok: true,
+    detail: `package source unchanged between manifest SHA ${sourceSha.slice(
+      0,
+      12,
+    )} and HEAD ${headSha.slice(0, 12)}`,
+  };
+}
+
 export interface PackedCandidate {
   readonly name: string;
   readonly version: string;
@@ -47,12 +117,59 @@ export interface PackedCandidate {
   readonly sha256: string;
 }
 
+export interface CandidateManifestPackage {
+  readonly name: string;
+  readonly version: string;
+  readonly tarballFile: string;
+  readonly tarballPath: string;
+  readonly sha256: string;
+}
+
+export const CANDIDATE_MANIFEST_PACKAGE_FIELDS = [
+  "name",
+  "version",
+  "tarballFile",
+  "tarballPath",
+  "sha256",
+] as const;
+
+export interface CandidateManifestPackageValidation {
+  readonly ok: boolean;
+  readonly detail: string;
+}
+
+export function validateCandidateManifestPackage(
+  value: unknown,
+): CandidateManifestPackageValidation {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return { ok: false, detail: "package entry is not an object" };
+  }
+
+  const record = value as Record<string, unknown>;
+  const allowed = new Set<string>(CANDIDATE_MANIFEST_PACKAGE_FIELDS);
+  const unknown = Object.keys(record).filter((key) => !allowed.has(key));
+  const missing = CANDIDATE_MANIFEST_PACKAGE_FIELDS.filter(
+    (key) => !(key in record),
+  );
+  const nonString = CANDIDATE_MANIFEST_PACKAGE_FIELDS.filter(
+    (key) => key in record && typeof record[key] !== "string",
+  );
+  const details = [
+    unknown.length > 0 ? `unknown fields: ${unknown.join(", ")}` : "",
+    missing.length > 0 ? `missing fields: ${missing.join(", ")}` : "",
+    nonString.length > 0 ? `non-string fields: ${nonString.join(", ")}` : "",
+  ].filter(Boolean);
+  return details.length === 0
+    ? { ok: true, detail: "exact portable package fields" }
+    : { ok: false, detail: details.join("; ") };
+}
+
 export interface CandidateManifest {
   readonly sourceSha: string;
   readonly version: string;
   readonly distTag: string;
   readonly createdAt: string;
-  readonly packages: readonly PackedCandidate[];
+  readonly packages: readonly CandidateManifestPackage[];
 }
 
 export function buildCandidateTarballs(options: {
@@ -139,6 +256,33 @@ export function buildCandidateTarballs(options: {
   return result;
 }
 
+export function freshCandidateTarballPaths(
+  candidates: ReadonlyMap<string, Pick<PackedCandidate, "absolutePath">>,
+): Map<string, string> {
+  const paths = new Map<string, string>();
+  for (const [name, candidate] of candidates) {
+    if (!existsSync(candidate.absolutePath)) {
+      throw new Error(
+        `fresh candidate for ${name} missing at ${candidate.absolutePath}`,
+      );
+    }
+    paths.set(name, candidate.absolutePath);
+  }
+  return paths;
+}
+
+export function toCandidateManifestPackage(
+  candidate: PackedCandidate,
+): CandidateManifestPackage {
+  return {
+    name: candidate.name,
+    version: candidate.version,
+    tarballFile: candidate.tarballFile,
+    tarballPath: candidate.tarballPath,
+    sha256: candidate.sha256,
+  };
+}
+
 export function writeCandidateManifest(options: {
   version: string;
   distTag: string;
@@ -150,13 +294,13 @@ export function writeCandidateManifest(options: {
       encoding: "utf8",
     }).stdout?.trim() ?? "unknown";
 
-  // BR-111: SOURCE files must be clean and bound to an exact commit.
+  // BR-111 / BR-112: SOURCE files must be clean and bound to an exact commit.
   // Self-generated artifacts/ churn is expected mid-pipeline and excluded —
   // the manifest records whatever the artifacts contain, and release:verify
   // re-hashes them independently.
   const dirty = spawnSync(
     "git",
-    ["status", "--porcelain", "--", ".", ":!artifacts", ":!output"],
+    ["status", "--porcelain", "--", ...SOURCE_PATHS],
     { cwd: REPO, encoding: "utf8" },
   ).stdout?.trim();
   if (sourceSha === undefined || dirty !== "") {
@@ -174,7 +318,7 @@ export function writeCandidateManifest(options: {
     version: options.version,
     distTag: options.distTag,
     createdAt: new Date().toISOString(),
-    packages: [...options.candidates.values()],
+    packages: [...options.candidates.values()].map(toCandidateManifestPackage),
   };
 
   const dir = join(REPO, "artifacts", "release");
