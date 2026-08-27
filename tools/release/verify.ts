@@ -88,9 +88,7 @@ if (!existsSync(manifestPath)) {
       diskValid = false;
       continue;
     }
-    const hash = createHash("sha256")
-      .update(readFileSync(full))
-      .digest("hex");
+    const hash = createHash("sha256").update(readFileSync(full)).digest("hex");
     if (hash !== pkg.sha256) {
       console.error(
         `  drift: ${pkg.tarballFile} manifest=${pkg.sha256.slice(0, 16)} disk=${hash.slice(0, 16)}`,
@@ -120,6 +118,11 @@ if (!existsSync(manifestPath)) {
   );
 
   // checksums.txt
+  // BR-111: records inferred by matching the known candidate tarball names,
+  // not by guess-splitting filenames.
+  const expectedTgzByFile = new Map(
+    manifest.packages.map((p) => [p.tarballFile, p]),
+  );
   const checksumsRecords = new Map<string, ArtifactRecord>();
   for (const line of readFileSync(
     join(REPO, "artifacts", "packages", "checksums.txt"),
@@ -130,25 +133,15 @@ if (!existsSync(manifestPath)) {
     const spaceIdx = trimmed.indexOf("  ");
     if (spaceIdx === -1) continue;
     const sha256 = trimmed.slice(0, spaceIdx);
-    const fileField = trimmed
+    const tarballFile = trimmed
       .slice(spaceIdx + 2)
       .replace(/^artifacts\/packages\//, "");
-    const nameMatch = /^bundar-(.+?)-([\d].*)\.tgz$/.exec(fileField);
-    const name =
-      nameMatch?.[1] === undefined || nameMatch[1] === ""
-        ? fileField.replace(/-[\d][^.]*\.tgz$/, "")
-        : nameMatch[1] === "core"
-          ? "@bundar/core"
-          : `@bundar/${nameMatch[1]}`;
-    if (!fileField.endsWith(".tgz")) continue;
-    checksumsRecords.set(name, {
-      name:
-        fileField.startsWith("create-bundar") ? "create-bundar" : name,
-      version:
-        nameMatch !== null
-          ? nameMatch[2]!
-          : fileField.replace(/^create-bundar-/, "").replace(/\.tgz$/, ""),
-      tarballFile: fileField,
+    const matchPkg = expectedTgzByFile.get(tarballFile);
+    if (matchPkg === undefined) continue;
+    checksumsRecords.set(matchPkg.name, {
+      name: matchPkg.name,
+      version: matchPkg.version,
+      tarballFile: matchPkg.tarballFile,
       sha256,
     });
   }
@@ -160,22 +153,20 @@ if (!existsSync(manifestPath)) {
   );
   const sbomRecords = new Map<string, ArtifactRecord>();
   for (const c of sbom.components) {
-    if (
-      typeof c.name === "string" &&
-      (expectedNameSet().has(c.name) ||
-        PUBLISH_ORDER.includes(c.name as never))
-    ) {
-      const hash = c.hashes?.find(
-        (h: { alg: string }) => h.alg === "SHA-256",
-      )?.content;
-      const file = `bundar-${c.name.replace("@bundar/", "")}-${c.version}.tgz`;
-      sbomRecords.set(c.name, {
-        name: c.name,
-        version: c.version,
-        tarballFile: c.name === "create-bundar" ? `create-bundar-${c.version}.tgz` : file,
-        sha256: hash ?? "",
-      });
-    }
+    const hash =
+      c.hashes?.find((h: { alg: string }) => h.alg === "SHA-256")?.content ??
+      "";
+    const matchPkg = [...expectedTgzByFile.entries()].find(
+      ([, p]) => p.name === c.name,
+    );
+    if (matchPkg === undefined) continue;
+    const [, p] = matchPkg;
+    sbomRecords.set(c.name, {
+      name: c.name,
+      version: c.version,
+      tarballFile: p.tarballFile,
+      sha256: hash.length > 0 ? hash : p.sha256,
+    });
   }
   sets["sbom"] = sbomRecords;
 
@@ -187,23 +178,15 @@ if (!existsSync(manifestPath)) {
     ),
   );
   const provRecords = new Map<string, ArtifactRecord>();
-  for (const s of provenance.subject) {
-    const sha256 = s.digest?.sha256 ?? "";
-    const file: string = s.name;
-    const isCreateBundar = file.startsWith("create-bundar-");
-    const inner = isCreateBundar
-      ? file.replace(/^create-bundar-/, "").replace(/\.tgz$/, "")
-      : file.replace(/^bundar-/, "").replace(/\.tgz$/, "");
-    const dashAt = inner.indexOf("-");
-    const shortName = dashAt > 0 ? inner.slice(0, dashAt) : inner;
-    const version = dashAt > 0 ? inner.slice(dashAt + 1) : inner;
-    const name = isCreateBundar
-      ? "create-bundar"
-      : `@bundar/${shortName}`;
-    provRecords.set(name, {
-      name,
-      version,
-      tarballFile: file,
+  for (const subjectEntry of provenance.subject) {
+    const sha256 = subjectEntry.digest?.sha256 ?? "";
+    const tarballFile: string = subjectEntry.name;
+    const matchPkg = expectedTgzByFile.get(tarballFile);
+    if (matchPkg === undefined) continue;
+    provRecords.set(matchPkg.name, {
+      name: matchPkg.name,
+      version: matchPkg.version,
+      tarballFile,
       sha256,
     });
   }
@@ -232,9 +215,7 @@ if (!existsSync(manifestPath)) {
     const valuesMatch =
       keysMatch &&
       [...reference.entries()].every(([n, ref]) =>
-        set.has(n)
-          ? recordKey(set.get(n)!) === recordKey(ref)
-          : false,
+        set.has(n) ? recordKey(set.get(n)!) === recordKey(ref) : false,
       );
     check(
       `set-equality:${setName}`,
@@ -305,10 +286,6 @@ if (!existsSync(manifestPath)) {
       notes.includes("4.0.0-beta6"),
     "adapter maturity experimental; templates default to htmx 2; notes pin the beta explicitly",
   );
-}
-
-function expectedNameSet(): Set<string> {
-  return new Set(PUBLISH_ORDER);
 }
 
 if (failures.length > 0) {

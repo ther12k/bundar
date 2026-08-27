@@ -5,12 +5,7 @@
  * internal at alpha) and build/dev (typescript, eslint, hono parity
  * fixture, validators, yaml, prettier).
  */
-import {
-  existsSync,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-} from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -49,12 +44,15 @@ interface ReleaseComponent {
   purl: string;
 }
 
-const manifestPath = join(REPO, "artifacts", "release", "candidate-manifest.json");
+const manifestPath = join(
+  REPO,
+  "artifacts",
+  "release",
+  "candidate-manifest.json",
+);
 let releaseComponents: ReleaseComponent[];
 if (existsSync(manifestPath)) {
-  const candidateManifest = JSON.parse(
-    readFileSync(manifestPath, "utf8"),
-  ) as {
+  const candidateManifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
     packages: ReadonlyArray<{
       name: string;
       version: string;

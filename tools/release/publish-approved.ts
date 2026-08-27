@@ -38,9 +38,7 @@ function parseOptions(argv: readonly string[]): Options {
     const arg = argv[index]!;
     if (!KNOWN_FLAGS.has(arg)) {
       console.error(`publish:approved: unknown argument "${arg}"`);
-      console.error(
-        `Known flags: ${[...KNOWN_FLAGS].join(", ")}`,
-      );
+      console.error(`Known flags: ${[...KNOWN_FLAGS].join(", ")}`);
       process.exit(2);
     }
     switch (arg) {
@@ -172,7 +170,9 @@ function printPlan(): void {
       `  source  : ${manifest!.sourceSha}\n` +
       `  order   : ${verified.map((v) => v.pkg.name).join(" → ")}\n` +
       `  tarballs:\n${verified
-        .map((v) => `    - ${v.pkg.tarballFile} (${v.pkg.sha256.slice(0, 16)}…)`)
+        .map(
+          (v) => `    - ${v.pkg.tarballFile} (${v.pkg.sha256.slice(0, 16)}…)`,
+        )
         .join("\n")}`,
   );
 }

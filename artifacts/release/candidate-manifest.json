@@ -1,71 +1,80 @@
 {
-  "sourceSha": "f290c7c026089553b40d80350bf1c0ebbb05b75b",
+  "sourceSha": "e09dc6daba5b5f9c1f5b8fd9bd5bc5e4625852ca",
   "version": "0.1.0-alpha.2",
   "distTag": "canary",
-  "createdAt": "2026-08-27T01:46:33.817Z",
+  "createdAt": "2026-08-27T04:13:16.571Z",
   "packages": [
     {
       "name": "@bundar/core",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-core-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-core-0.1.0-alpha.2.tgz",
-      "sha256": "3d84e8c66a6defc2a35b6f016c7823dbefa16eb68d7350d510c2ed97547f7703"
+      "tarballPath": "artifacts/packages/bundar-core-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-core-0.1.0-alpha.2.tgz",
+      "sha256": "8c69f858dbcb8d34f7ab75d919947c99e239faadb6dc8ecd8f3ad16119c19d80"
     },
     {
       "name": "@bundar/jsx",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-jsx-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-jsx-0.1.0-alpha.2.tgz",
-      "sha256": "e8b1ff2f6b48753ac038bef93631487ec757d05acfa315b34e5c139cd1f819f9"
+      "tarballPath": "artifacts/packages/bundar-jsx-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-jsx-0.1.0-alpha.2.tgz",
+      "sha256": "d1d69fbfee10ddd50f4a703ba330ceb6a6478510d5531308a35e5c832ee3f624"
     },
     {
       "name": "@bundar/schema",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-schema-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-schema-0.1.0-alpha.2.tgz",
-      "sha256": "3262534a51bb38a7dc8a6e8e811fd785f86310e3f5fffa1138dadded95340ae7"
+      "tarballPath": "artifacts/packages/bundar-schema-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-schema-0.1.0-alpha.2.tgz",
+      "sha256": "5877a85b83cf260a0916e4c222adcecda4861db556cb1b4c3f464c2d5238239e"
     },
     {
       "name": "@bundar/forms",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-forms-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-forms-0.1.0-alpha.2.tgz",
-      "sha256": "bcd0ff639362fae497053bde779eac66fb2e9ed784e9df4be20e247a68c1a79c"
+      "tarballPath": "artifacts/packages/bundar-forms-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-forms-0.1.0-alpha.2.tgz",
+      "sha256": "7ea2be1bd2eb5f08238bdbd6ca91886e396d6a0b04b479aeebf89bf609747420"
     },
     {
       "name": "@bundar/security",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-security-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-security-0.1.0-alpha.2.tgz",
-      "sha256": "049c814fbf1831af6f9ae0462fb8fda422a5d054c18c52bf7e46d23f48e4f376"
+      "tarballPath": "artifacts/packages/bundar-security-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-security-0.1.0-alpha.2.tgz",
+      "sha256": "2c1a979fe3aba15263d53215b7934497050e1d87c35920ac4715b87239707a10"
     },
     {
       "name": "@bundar/htmx",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-htmx-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-htmx-0.1.0-alpha.2.tgz",
-      "sha256": "aebcbc8aa3e7c88cfce49be06b9ca86aeaa7b57c0190c7338ede26a6018d58ba"
+      "tarballPath": "artifacts/packages/bundar-htmx-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-htmx-0.1.0-alpha.2.tgz",
+      "sha256": "b31c7e3439d44a00ca4074c092a274ae9894be4a74bd7550d74eaa55b0f2fb0b"
     },
     {
       "name": "@bundar/testing",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-testing-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-testing-0.1.0-alpha.2.tgz",
-      "sha256": "b8c840c7591e6ea353a5ea888ea7dd3c460392cac68cb985ae0452683a9a8935"
+      "tarballPath": "artifacts/packages/bundar-testing-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-testing-0.1.0-alpha.2.tgz",
+      "sha256": "2a61b6a34688b39741313ed0f069c261ce2739af624cb53abcc9f3721c5b9fb4"
     },
     {
       "name": "@bundar/cli",
       "version": "0.1.0-alpha.2",
       "tarballFile": "bundar-cli-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/bundar-cli-0.1.0-alpha.2.tgz",
-      "sha256": "2e9f5d7e7cc7e441a83443daf1b753863e28d5504e5b960c593a4b194a1856bc"
+      "tarballPath": "artifacts/packages/bundar-cli-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/bundar-cli-0.1.0-alpha.2.tgz",
+      "sha256": "7d2c276a36db2b15e81c2841a3ffb88bb0f29967887016f74513cfcf9122eb9d"
     },
     {
       "name": "create-bundar",
       "version": "0.1.0-alpha.2",
       "tarballFile": "create-bundar-0.1.0-alpha.2.tgz",
-      "tarballPath": "/home/ther12k/Workspace/Learning/bundar-gh-163/artifacts/packages/create-bundar-0.1.0-alpha.2.tgz",
-      "sha256": "24b3270635facb3af8e6a755c3f163cd47cdd29084f1723d1b785015505b4d4c"
+      "tarballPath": "artifacts/packages/create-bundar-0.1.0-alpha.2.tgz",
+      "absolutePath": "/home/ther12k/Workspace/Learning/bundar-gh-163b/artifacts/packages/create-bundar-0.1.0-alpha.2.tgz",
+      "sha256": "f9d42a28a34d3bed1b14513a641af48dc035f23722271f86ab2d6537b480f95a"
     }
   ]
 }

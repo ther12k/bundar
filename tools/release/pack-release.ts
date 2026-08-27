@@ -158,8 +158,7 @@ export function writeCandidateManifest(options: {
     "git",
     ["status", "--porcelain", "--", ".", ":!artifacts", ":!output"],
     { cwd: REPO, encoding: "utf8" },
-  )
-    .stdout?.trim();
+  ).stdout?.trim();
   if (sourceSha === undefined || dirty !== "") {
     throw new Error(
       "candidate manifest generation requires a clean SOURCE tree bound to an exact commit (BR-111):\n" +

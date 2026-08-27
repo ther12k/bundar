@@ -35,10 +35,7 @@ const steps = [
   // BR-111 ordering: the candidate pipeline builds the publication-form
   // 0.1.0-alpha.2 tarballs and writes candidate-manifest.json FIRST, so
   // SBOM/provenance/verify describe the exact files that would be published.
-  [
-    "publish:dry-run (candidate build + 42 checks)",
-    ["run", "publish:dry-run"],
-  ],
+  ["publish:dry-run (candidate build + 42 checks)", ["run", "publish:dry-run"]],
   ["pack:audit (contents/licenses/sizes)", ["run", "pack:audit"]],
   ["release:sbom", ["run", "release:sbom"]],
   ["release:provenance", ["run", "release:provenance"]],

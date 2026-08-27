@@ -1,0 +1,44 @@
+name: Candidate Release Battery
+
+# BR-111: public, immutable evidence that the FULL release-candidate
+# battery runs on an exact merged main commit. Standard CI covers
+# verify/test/build/browser-lanes; this workflow adds the 27-step
+# ci:release (cleanroom, benchmarks, pack audit, SBOM, provenance,
+# reproducibility, publication dry-run, cross-artifact verification).
+#
+# Manual trigger only — never publishes anything.
+on:
+  workflow_dispatch:
+
+jobs:
+  candidate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.0
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Full release-candidate battery (27 steps)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bun run ci:release
+      - name: Upload candidate artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-candidate-artifacts-${{ github.sha }}
+          path: |
+            artifacts/release/candidate-manifest.json
+            artifacts/packages/checksums.txt
+            artifacts/packages/bundar-*-0.1.0-alpha.2.tgz
+            artifacts/packages/create-bundar-0.1.0-alpha.2.tgz
+            artifacts/sbom/sbom.json
+            artifacts/provenance/provenance.json
+            artifacts/publish-dry-run.json
+          retention-days: 90

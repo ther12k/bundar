@@ -7,7 +7,13 @@
  */
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 const REPO = join(import.meta.dir, "..", "..");
@@ -62,8 +68,12 @@ function runPublisher(
 
 describe("BR-111 publish:approved safety", () => {
   test("--dry-run verifies candidates and NEVER calls npm publish even when authenticated", () => {
-    if (!existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))) {
-      console.warn("skipping — candidate manifest not present (run publish:dry-run)");
+    if (
+      !existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))
+    ) {
+      console.warn(
+        "skipping — candidate manifest not present (run publish:dry-run)",
+      );
       return;
     }
     writeFakeNpm();
@@ -80,7 +90,9 @@ describe("BR-111 publish:approved safety", () => {
   });
 
   test("--tag latest is rejected without --allow-latest-tag", () => {
-    if (!existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))) {
+    if (
+      !existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))
+    ) {
       console.warn("skipping — candidate manifest not present");
       return;
     }

@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:cbe45c06-1f6b-4363-9327-4b2f5d7ef559",
+  "serialNumber": "urn:uuid:cee192d3-95c5-454d-9d54-14b553e182fd",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-27T01:46:31.125Z",
+    "timestamp": "2026-08-27T04:13:16.674Z",
     "component": {
       "type": "application",
       "name": "bundar",
@@ -31,9 +31,9 @@
   "components": [
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/core@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/core@0.1.0-alpha.2",
       "name": "@bundar/core",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -44,16 +44,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c3341ce0bfa3c1d4d92752d941f3df34d4ade4f1f4cd60c82f5eb1a9ed90364f"
+          "content": "8c69f858dbcb8d34f7ab75d919947c99e239faadb6dc8ecd8f3ad16119c19d80"
         }
       ],
-      "purl": "pkg:npm/%40bundar/core@0.0.0"
+      "purl": "pkg:npm/%40bundar/core@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/jsx@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/jsx@0.1.0-alpha.2",
       "name": "@bundar/jsx",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -64,16 +64,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4a73951210c856515fa895ac93c0ebaddf914e72cc212bf27235cb9ce974ec16"
+          "content": "d1d69fbfee10ddd50f4a703ba330ceb6a6478510d5531308a35e5c832ee3f624"
         }
       ],
-      "purl": "pkg:npm/%40bundar/jsx@0.0.0"
+      "purl": "pkg:npm/%40bundar/jsx@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/schema@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/schema@0.1.0-alpha.2",
       "name": "@bundar/schema",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -84,16 +84,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "fc829fdf2e7fca5c9527ae849e21a3a1e2f4083e9821dedda3ece5ca269a0133"
+          "content": "5877a85b83cf260a0916e4c222adcecda4861db556cb1b4c3f464c2d5238239e"
         }
       ],
-      "purl": "pkg:npm/%40bundar/schema@0.0.0"
+      "purl": "pkg:npm/%40bundar/schema@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/forms@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/forms@0.1.0-alpha.2",
       "name": "@bundar/forms",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -104,16 +104,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e6acff1afd684f87012516f8c4c43f2b87d7191d6152c5056083da17d425bedb"
+          "content": "7ea2be1bd2eb5f08238bdbd6ca91886e396d6a0b04b479aeebf89bf609747420"
         }
       ],
-      "purl": "pkg:npm/%40bundar/forms@0.0.0"
+      "purl": "pkg:npm/%40bundar/forms@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/security@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/security@0.1.0-alpha.2",
       "name": "@bundar/security",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -124,16 +124,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "5eee3b292c4a1e58585b937ec39257eb03038dfd8ae6192bf75efb9ae465cc97"
+          "content": "2c1a979fe3aba15263d53215b7934497050e1d87c35920ac4715b87239707a10"
         }
       ],
-      "purl": "pkg:npm/%40bundar/security@0.0.0"
+      "purl": "pkg:npm/%40bundar/security@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/htmx@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/htmx@0.1.0-alpha.2",
       "name": "@bundar/htmx",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -144,16 +144,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "43ece3d0c7edb1c8baa6ec0542f068ac597a05a4322e2137a26a88ac1b0b519e"
+          "content": "b31c7e3439d44a00ca4074c092a274ae9894be4a74bd7550d74eaa55b0f2fb0b"
         }
       ],
-      "purl": "pkg:npm/%40bundar/htmx@0.0.0"
+      "purl": "pkg:npm/%40bundar/htmx@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/testing@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/testing@0.1.0-alpha.2",
       "name": "@bundar/testing",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -164,16 +164,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "954db7ddc4cabc619191e205d146c948109491ca93a7a0af7eeb8d4d5c085ee0"
+          "content": "2a61b6a34688b39741313ed0f069c261ce2739af624cb53abcc9f3721c5b9fb4"
         }
       ],
-      "purl": "pkg:npm/%40bundar/testing@0.0.0"
+      "purl": "pkg:npm/%40bundar/testing@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/@bundar/cli@0.0.0",
+      "bom-ref": "pkg:npm/@bundar/cli@0.1.0-alpha.2",
       "name": "@bundar/cli",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -184,16 +184,16 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "cd02cf4a4e48b87272b0146fecd8a8c620563f489f13c8b708a7141c0b0ebff6"
+          "content": "7d2c276a36db2b15e81c2841a3ffb88bb0f29967887016f74513cfcf9122eb9d"
         }
       ],
-      "purl": "pkg:npm/%40bundar/cli@0.0.0"
+      "purl": "pkg:npm/%40bundar/cli@0.1.0-alpha.2"
     },
     {
       "type": "library",
-      "bom-ref": "pkg:npm/create-bundar@0.0.0",
+      "bom-ref": "pkg:npm/create-bundar@0.1.0-alpha.2",
       "name": "create-bundar",
-      "version": "0.0.0",
+      "version": "0.1.0-alpha.2",
       "licenses": [
         {
           "license": {
@@ -204,10 +204,10 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2638181fef043d338c6d3eac920b81ce152b1d87b8472a6575bf2f12c88e9824"
+          "content": "f9d42a28a34d3bed1b14513a641af48dc035f23722271f86ab2d6537b480f95a"
         }
       ],
-      "purl": "pkg:npm/create-bundar@0.0.0"
+      "purl": "pkg:npm/create-bundar@0.1.0-alpha.2"
     },
     {
       "type": "library",

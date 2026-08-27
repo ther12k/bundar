@@ -26,8 +26,7 @@ const argv = process.argv.slice(2);
 const isPreflight = argv.includes("--preflight");
 const downloadCompare = argv.includes("--download");
 const tagArgIndex = argv.indexOf("--tag");
-const distTagOverride =
-  tagArgIndex >= 0 ? argv[tagArgIndex + 1] : undefined;
+const distTagOverride = tagArgIndex >= 0 ? argv[tagArgIndex + 1] : undefined;
 
 const manifest = readCandidateManifest();
 if (!manifest) {
@@ -67,7 +66,11 @@ for (const pkg of manifest.packages) {
     // Verify the tarball ACTUALLY exists and hash matches — length checks alone are not evidence.
     const full = join(REPO, pkg.tarballPath);
     if (!existsSync(full)) {
-      check(`preflight ${pkg.name}`, false, `${pkg.tarballPath} missing on disk`);
+      check(
+        `preflight ${pkg.name}`,
+        false,
+        `${pkg.tarballPath} missing on disk`,
+      );
       continue;
     }
     const actualSha = createHash("sha256")
@@ -84,11 +87,19 @@ for (const pkg of manifest.packages) {
   }
 
   // Post-publish: does this exact version exist?
-  const versionInfo = npmView([`${pkg.name}@${pkg.version}`]) as
-    | { version?: string; license?: string; deprecated?: string | false; dist?: { integrity?: string; shasum?: string }; dependencies?: Record<string, string> }
-    | null;
+  const versionInfo = npmView([`${pkg.name}@${pkg.version}`]) as {
+    version?: string;
+    license?: string;
+    deprecated?: string | false;
+    dist?: { integrity?: string; shasum?: string };
+    dependencies?: Record<string, string>;
+  } | null;
   if (versionInfo === null) {
-    check(`published ${pkg.name}`, false, `${pkg.name}@${pkg.version} not found on registry`);
+    check(
+      `published ${pkg.name}`,
+      false,
+      `${pkg.name}@${pkg.version} not found on registry`,
+    );
     continue;
   }
   const info = Array.isArray(versionInfo) ? versionInfo[0] : versionInfo;
@@ -155,15 +166,15 @@ for (const pkg of manifest.packages) {
   check(`integrity ${pkg.name}`, integrityOk, integrityDetail);
 
   // Dist-tag points at the candidate version
-  const tagView = npmView([pkg.name, "dist-tags"]) as
-    | Record<string, string>
-    | null;
+  const tagView = npmView([pkg.name, "dist-tags"]) as Record<
+    string,
+    string
+  > | null;
   const tagsRaw = tagView as unknown as { distTags?: Record<string, string> };
   const tags =
     tagView !== null && !Array.isArray(tagView) && tagView !== undefined
       ? ((tagView as Record<string, unknown>).distTags as
-          | Record<string, string>
-          | undefined)
+          Record<string, string> | undefined)
       : tagsRaw?.distTags;
   if (tags && typeof tags === "object") {
     check(
