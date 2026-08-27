@@ -373,7 +373,12 @@ for (const [name, cand] of candidates) {
       `persisted candidate ${cand.tarballFile} hash drift: expected ${cand.sha256}, got ${persistedSha}`,
     );
   }
-  persistedCandidates.set(name, { ...cand, tarballPath: targetPath });
+  // Manifest records the repo-root RELATIVE path (BR-111 portability).
+  persistedCandidates.set(name, {
+    ...cand,
+    tarballPath: join("artifacts/packages", cand.tarballFile),
+    absolutePath: targetPath,
+  });
 }
 
 writeCandidateManifest({
