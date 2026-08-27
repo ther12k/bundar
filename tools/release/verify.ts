@@ -15,6 +15,7 @@
  * 5. Stable lane + no-JS matrix green; htmx 4 stays experimental AND
  *    non-default in shipped templates/notes.
  */
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -70,13 +71,68 @@ if (!existsSync(manifestPath)) {
     }>;
   };
 
-  // 1a. SHA binding + relative-path shape
+  // 1a. SHA binding: sourceSha must be HEAD, or an ancestor of HEAD whose
+  // package-affecting SOURCE tree is unchanged since (BR-112 Model B —
+  // artifacts/docs-only commits after the candidate build are allowed;
+  // any change under packages/, create-bundar/, tools/release/, or the root
+  // manifests voids candidate identity).
+  const git = (args: readonly string[]): string =>
+    spawnSync("git", args, { cwd: REPO, encoding: "utf8" }).stdout?.trim() ??
+    "";
+  const headSha = git(["rev-parse", "HEAD"]);
+  const shaShapeOk =
+    typeof manifest.sourceSha === "string" &&
+    /^[0-9a-f]{40}$/.test(manifest.sourceSha);
+  const pathsOk = manifest.packages.every(
+    (p) =>
+      p.tarballPath === join("artifacts/packages", p.tarballFile) &&
+      !p.tarballPath.startsWith("/") &&
+      !p.tarballPath.includes(".."),
+  );
+  let identityOk = false;
+  let identityDetail = "";
+  if (shaShapeOk) {
+    if (manifest.sourceSha === headSha) {
+      identityOk = true;
+      identityDetail = `manifest bound to exact HEAD ${headSha.slice(0, 12)}`;
+    } else {
+      const isAncestor =
+        spawnSync(
+          "git",
+          ["merge-base", "--is-ancestor", manifest.sourceSha, "HEAD"],
+          {
+            cwd: REPO,
+          },
+        ).status === 0;
+      const changedSource = spawnSync(
+        "git",
+        [
+          "diff",
+          "--name-only",
+          `${manifest.sourceSha}..HEAD`,
+          "--",
+          "packages/",
+          "create-bundar/",
+          "tools/release/",
+          "package.json",
+          "bun.lock",
+        ],
+        { cwd: REPO, encoding: "utf8" },
+      ).stdout?.trim();
+      if (!isAncestor) {
+        identityDetail = `manifest SHA is not an ancestor of HEAD`;
+      } else if (changedSource !== "") {
+        identityDetail = `SOURCE CHANGED since manifest SHA:\n${changedSource.split("\n").slice(0, 10).join("\n")}`;
+      } else {
+        identityOk = true;
+        identityDetail = `package source unchanged between manifest SHA ${manifest.sourceSha.slice(0, 12)} and HEAD ${headSha.slice(0, 12)}`;
+      }
+    }
+  }
   check(
     "candidate-shape",
-    typeof manifest.sourceSha === "string" &&
-      /^[0-9a-f]{40}$/.test(manifest.sourceSha) &&
-      manifest.packages.every((p) => !p.tarballPath.includes("/home/")),
-    `manifest bound to exact source SHA ${manifest.sourceSha.slice(0, 12)} with repo-relative artifact paths`,
+    shaShapeOk && pathsOk && identityOk,
+    `${identityDetail}; repo-relative artifact paths: ${pathsOk}`,
   );
 
   // 1b. On-disk integrity of every candidate tarball
@@ -165,7 +221,7 @@ if (!existsSync(manifestPath)) {
       name: c.name,
       version: c.version,
       tarballFile: p.tarballFile,
-      sha256: hash.length > 0 ? hash : p.sha256,
+      sha256: hash,
     });
   }
   sets["sbom"] = sbomRecords;

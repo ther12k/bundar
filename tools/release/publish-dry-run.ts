@@ -35,6 +35,7 @@ import { join } from "node:path";
 import {
   buildCandidateTarballs,
   DEFAULT_TAG,
+  freshCandidateTarballPaths,
   DEFAULT_VERSION,
   PUBLISH_ORDER,
   REPO,
@@ -65,14 +66,15 @@ const candidates = buildCandidateTarballs({
   version: SIM_VERSION,
   outputDir: registry,
 });
-const tarballs = new Map<string, string>();
-for (const [name, cand] of candidates) {
-  tarballs.set(name, cand.tarballPath);
-}
+// BR-112: the validation map MUST point at the FRESHLY built temp tarballs
+// (absolutePath), never at previously persisted artifacts/packages files.
+// Testing old bytes and then persisting new ones is exactly the bug class
+// this line prevents.
+const tarballs = freshCandidateTarballPaths(candidates);
 record(
   "pack+version-sync",
   tarballs.size === PUBLISH_ORDER.length,
-  `${tarballs.size}/${PUBLISH_ORDER.length} tarballs at ${SIM_VERSION}`,
+  `${tarballs.size}/${PUBLISH_ORDER.length} fresh candidate tarballs validated from ${registry}`,
 );
 
 // ---- 2. export-map verification over the simulated tarballs ----

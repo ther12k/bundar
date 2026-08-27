@@ -47,12 +47,20 @@ export interface PackedCandidate {
   readonly sha256: string;
 }
 
+export interface CandidateManifestPackage {
+  readonly name: string;
+  readonly version: string;
+  readonly tarballFile: string;
+  readonly tarballPath: string;
+  readonly sha256: string;
+}
+
 export interface CandidateManifest {
   readonly sourceSha: string;
   readonly version: string;
   readonly distTag: string;
   readonly createdAt: string;
-  readonly packages: readonly PackedCandidate[];
+  readonly packages: readonly CandidateManifestPackage[];
 }
 
 export function buildCandidateTarballs(options: {
@@ -139,6 +147,33 @@ export function buildCandidateTarballs(options: {
   return result;
 }
 
+export function freshCandidateTarballPaths(
+  candidates: ReadonlyMap<string, Pick<PackedCandidate, "absolutePath">>,
+): Map<string, string> {
+  const paths = new Map<string, string>();
+  for (const [name, candidate] of candidates) {
+    if (!existsSync(candidate.absolutePath)) {
+      throw new Error(
+        `fresh candidate for ${name} missing at ${candidate.absolutePath}`,
+      );
+    }
+    paths.set(name, candidate.absolutePath);
+  }
+  return paths;
+}
+
+export function toCandidateManifestPackage(
+  candidate: PackedCandidate,
+): CandidateManifestPackage {
+  return {
+    name: candidate.name,
+    version: candidate.version,
+    tarballFile: candidate.tarballFile,
+    tarballPath: candidate.tarballPath,
+    sha256: candidate.sha256,
+  };
+}
+
 export function writeCandidateManifest(options: {
   version: string;
   distTag: string;
@@ -174,7 +209,7 @@ export function writeCandidateManifest(options: {
     version: options.version,
     distTag: options.distTag,
     createdAt: new Date().toISOString(),
-    packages: [...options.candidates.values()],
+    packages: [...options.candidates.values()].map(toCandidateManifestPackage),
   };
 
   const dir = join(REPO, "artifacts", "release");
