@@ -1,0 +1,122 @@
+name: Release (human-gated)
+
+# This workflow is MANUALLY triggered by the maintainer after completing all
+# pre-publication checks documented in delivery/gates/registry.md and
+# docs/maintainers/publishing.md.
+#
+# Safety invariants:
+# - The publish step requires BOTH a GitHub Environment protection rule
+#   (requiring maintainer review) AND the BUNDAR_RELEASE_TOKEN secret.
+# - publish:approved -- --dry-run is always run first and exits 0 before
+#   any npm publish call.
+# - The workflow never prints or logs the npm token value.
+# - Emergency revocation: deprecate the bad release with `npm deprecate`,
+#   then publish a fixed version on the same dist-tag.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "npm dist-tag (canary | alpha | beta — never latest)"
+        required: true
+        default: "canary"
+      version:
+        description: "Exact semver candidate (e.g. 0.1.0-alpha.2)"
+        required: true
+        default: "0.1.0-alpha.2"
+      dry_run_only:
+        description: "Only perform dry-run verification (no actual npm publish)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  preflight:
+    name: Preflight checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout at exact HEAD
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate inputs (reject latest without explicit override)
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ "$TAG" = "latest" ]; then
+            echo "ERROR: dist-tag 'latest' is forbidden during pre-1.0 (ADR-0021)." >&2
+            echo "Use 'canary', 'alpha', or 'beta'." >&2
+            exit 1
+          fi
+
+      - name: Run full CI battery
+        run: bun run ci:m4
+
+      - name: Candidate dry-run (verifies tarballs, manifest, cross-artifact equality)
+        run: bun run publish:approved -- --dry-run --tag "${{ github.event.inputs.tag }}"
+
+      - name: Cross-artifact verification
+        run: bun run release:verify
+
+  publish:
+    name: Publish ${{ github.event.inputs.version }} @ ${{ github.event.inputs.tag }}
+    needs: preflight
+    if: github.event.inputs.dry_run_only != 'true'
+    runs-on: ubuntu-latest
+    # BR-079: This environment must have a manual review rule configured in
+    # GitHub → Settings → Environments → "npm-publish" so a human maintainer
+    # must approve before the job starts.
+    environment: npm-publish
+    steps:
+      - name: Checkout at exact HEAD
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Authenticate npm
+        # Uses NODE_AUTH_TOKEN, the standard convention; npm login is
+        # not required when an appropriate automation token is configured
+        # via the environment secret.
+        run: |
+          npm config set //registry.npmjs.org/:_authToken "${NODE_AUTH_TOKEN}"
+          npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish candidate (guarded)
+        run: bun run publish:approved -- --tag "${{ github.event.inputs.tag }}"
+        env:
+          # BUNDAR_RELEASE_TOKEN is the session approval sentinel; the real npm
+          # credential travels through NODE_AUTH_TOKEN above.
+          BUNDAR_RELEASE_TOKEN: ${{ secrets.BUNDAR_RELEASE_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Post-publish registry verification
+        run: bun run registry:verify -- --tag "${{ github.event.inputs.tag }}"
+
+      - name: Upload publish report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: publish-report-${{ github.sha }}
+          path: |
+            artifacts/release/candidate-manifest.json
+            artifacts/packages/checksums.txt
+            artifacts/publish-dry-run.json
+          retention-days: 365
