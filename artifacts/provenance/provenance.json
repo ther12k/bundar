@@ -4,55 +4,55 @@
     {
       "name": "bundar-core-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "1edc6daae3b9ef00e27f0619986324ac6043e30c85b166b5db6d8eafaedb2d62"
+        "sha256": "e44a5320dc36ac0780c4ee32a36ad30e55d5cf185e9ba14bf2049a05ebc6773b"
       }
     },
     {
       "name": "bundar-jsx-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "14372e7137c8a00b6adbf69d71e76116af92094f9a06ea15c4c7899de6a70be5"
+        "sha256": "98f9427add91ebf92a3aece2b894b7e5dc0bdaa6601bb2e75767d757ddbb8688"
       }
     },
     {
       "name": "bundar-schema-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "c8c5f29a1298430e739fc8ca6be5e5f21e7084922f290a62ddcc62394b2a3fdb"
+        "sha256": "3c73cbfc2d958152a1888106e63e9bf5643e7c0374f34100ea8f550c46934c8e"
       }
     },
     {
       "name": "bundar-forms-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "3e9a10ea7830e186b85b2670792e959574b05de4b09920894258bc2c9f712379"
+        "sha256": "dd73639842571a226f9e06d925d47c7af98f20ead525beaf58eb3fe58d05fc27"
       }
     },
     {
       "name": "bundar-security-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "9b99785f51ba4e9dc963939311c7cdc8b79226aa9980a7be64317c52e5ecce1d"
+        "sha256": "dfbdabf5c83c69ee8d67c26516874764d3a67736a03521c42ed1f31414557c7e"
       }
     },
     {
       "name": "bundar-htmx-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "71341c7e4a069ffd832a3f39f57c3ffa30502115ea4f194bf6df5fbc1b30863f"
+        "sha256": "b7c8e67b5d37ef9b6a709a8691af6dd263a844464ca47d317f24e57a3c1a73a0"
       }
     },
     {
       "name": "bundar-testing-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "0491a95739e4582ed6d47691307c7ef2c2c68ac367beb36d88f1635322e70448"
+        "sha256": "cd4a51c3d96725701838c1414c383e358dcc4227134fc9b1650927dd5a77a6f0"
       }
     },
     {
       "name": "bundar-cli-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "b82642688034a2821c8418cfabe2dee848961c5f6ecf4d3d47bbfdecbcd2bdb2"
+        "sha256": "d00766949de78dda9b3bbcf28d72f12c4066597026c76121f1ee1315edb8a14b"
       }
     },
     {
       "name": "create-bundar-0.1.0-alpha.2.tgz",
       "digest": {
-        "sha256": "fa463043295030043b4f8701cd2f2012feffdef11347df131cb4ae643e191089"
+        "sha256": "9161d8eaaad35630449213acedeb7007e764001786b7285462dc218f5534d412"
       }
     }
   ],
@@ -66,9 +66,9 @@
       "configSource": {
         "uri": "git+https://github.com/ther12k/bundar",
         "digest": {
-          "sha1": "4658d4bec257d332d1d7606de09cc3ee827e6390"
+          "sha1": "255614cf68607cb4ae364257967267dd34922995"
         },
-        "branch": "gh-164-candidate-integrity"
+        "branch": "gh-164-candidate-hardening"
       },
       "environment": {
         "bun": "1.4.0",
@@ -84,8 +84,8 @@
       "typescript": "6.0.3"
     },
     "metadata": {
-      "buildInvocationId": "local-1787821903335",
-      "buildStartedOn": "2026-08-27T09:11:43.335Z",
+      "buildInvocationId": "local-1787827133820",
+      "buildStartedOn": "2026-08-27T10:38:53.820Z",
       "reproducible": true,
       "completeness": {
         "parameters": true,
@@ -97,7 +97,7 @@
       {
         "uri": "git+https://github.com/ther12k/bundar",
         "digest": {
-          "sha1": "4658d4bec257d332d1d7606de09cc3ee827e6390"
+          "sha1": "255614cf68607cb4ae364257967267dd34922995"
         }
       }
     ]

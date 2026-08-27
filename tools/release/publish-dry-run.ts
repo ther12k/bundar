@@ -326,11 +326,24 @@ const plan = {
     `Planned command shape: npm publish --tag ${DIST_TAG} per package, in order.`,
   ],
 };
+
+rmSync(consumerRegistry, { recursive: true, force: true });
+rmSync(consumer, { recursive: true, force: true });
+
+const success = failures.length === 0;
+const expectedCheckCount = 42;
+
 mkdirSync(join(REPO, "artifacts"), { recursive: true });
 writeFileSync(
   join(REPO, "artifacts", "publish-dry-run.json"),
   JSON.stringify(
-    { generatedAt: new Date().toISOString(), plan, checks },
+    {
+      generatedAt: new Date().toISOString(),
+      plan,
+      success,
+      expectedCheckCount,
+      checks,
+    },
     null,
     2,
   ) + "\n",
@@ -340,7 +353,7 @@ writeFileSync(
   [
     "# npm publication dry run (GH-086)",
     "",
-    `Simulated release: **${SIM_VERSION}** on dist-tag **${DIST_TAG}**. No registry publish executed.`,
+    `Simulated release: **${SIM_VERSION}** on dist-tag **${DIST_TAG}**. Status: **${success ? "PASSED" : "FAILED"}**.`,
     "",
     "## Plan",
     "",
@@ -358,7 +371,14 @@ writeFileSync(
   ].join("\n"),
 );
 
-// Persist candidate artifacts and write candidate-manifest.json
+if (!success) {
+  rmSync(registry, { recursive: true, force: true });
+  console.error(`publish:dry-run FAILED (${failures.length}):`);
+  for (const failure of failures) console.error(`  - ${failure}`);
+  process.exit(1);
+}
+
+// Persist candidate artifacts and write candidate-manifest.json ONLY after 100% check success
 const artifactsPackagesDir = join(REPO, "artifacts", "packages");
 mkdirSync(artifactsPackagesDir, { recursive: true });
 const persistedCandidates = new Map<string, PackedCandidate>();
@@ -371,6 +391,7 @@ for (const [name, cand] of candidates) {
     .update(readFileSync(targetPath))
     .digest("hex");
   if (persistedSha !== cand.sha256) {
+    rmSync(registry, { recursive: true, force: true });
     throw new Error(
       `persisted candidate ${cand.tarballFile} hash drift: expected ${cand.sha256}, got ${persistedSha}`,
     );
@@ -382,6 +403,9 @@ for (const [name, cand] of candidates) {
     absolutePath: targetPath,
   });
 }
+
+// Cleanup temporary candidates directory after successful copy
+rmSync(registry, { recursive: true, force: true });
 
 writeCandidateManifest({
   version: SIM_VERSION,
@@ -407,15 +431,6 @@ const checksumsContent =
     .join("\n") + "\n";
 writeFileSync(join(artifactsPackagesDir, "checksums.txt"), checksumsContent);
 
-rmSync(registry, { recursive: true, force: true });
-rmSync(consumerRegistry, { recursive: true, force: true });
-rmSync(consumer, { recursive: true, force: true });
-
-if (failures.length > 0) {
-  console.error(`publish:dry-run FAILED (${failures.length}):`);
-  for (const failure of failures) console.error(`  - ${failure}`);
-  process.exit(1);
-}
 console.log(
   `publish:dry-run: ${checks.length} checks passed for ${SIM_VERSION} @ ${DIST_TAG} (no publish executed)`,
 );

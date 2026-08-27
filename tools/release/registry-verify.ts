@@ -17,11 +17,38 @@
  * SHA-256 byte-for-byte against the candidate manifest.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { readCandidateManifest, REPO } from "./pack-release";
 import { normalizeDistTags } from "./registry-verify-utils";
+
+export interface RegistryPackageReport {
+  readonly name: string;
+  readonly candidateVersion: string;
+  readonly candidateSha256: string;
+  readonly onDiskSha256?: string;
+  readonly onDiskMatches?: boolean;
+  readonly registryVersion?: string;
+  readonly versionMatches?: boolean;
+  readonly license?: string;
+  readonly licenseMatches?: boolean;
+  readonly downloadedSha256?: string;
+  readonly downloadedMatches?: boolean;
+  readonly distTag?: string;
+  readonly tagMatches?: boolean;
+  readonly lockstepDependencies?: boolean;
+  readonly deprecated?: string | boolean;
+  readonly status: "pass" | "fail";
+}
+
+export interface RegistryVerifyReport {
+  readonly mode: "preflight" | "post-publish";
+  readonly version: string;
+  readonly distTag: string;
+  readonly success: boolean;
+  readonly packages: readonly RegistryPackageReport[];
+}
 
 const argv = process.argv.slice(2);
 const isPreflight = argv.includes("--preflight");
@@ -62,6 +89,8 @@ function npmView(args: readonly string[]): unknown | null {
   }
 }
 
+const packageReports: RegistryPackageReport[] = [];
+
 for (const pkg of manifest.packages) {
   if (isPreflight) {
     // Verify the tarball ACTUALLY exists and hash matches — length checks alone are not evidence.
@@ -72,18 +101,34 @@ for (const pkg of manifest.packages) {
         false,
         `${pkg.tarballPath} missing on disk`,
       );
+      packageReports.push({
+        name: pkg.name,
+        candidateVersion: pkg.version,
+        candidateSha256: pkg.sha256,
+        onDiskMatches: false,
+        status: "fail",
+      });
       continue;
     }
     const actualSha = createHash("sha256")
       .update(readFileSync(full))
       .digest("hex");
+    const onDiskMatches = actualSha === pkg.sha256;
     check(
       `preflight ${pkg.name}`,
-      actualSha === pkg.sha256,
-      actualSha === pkg.sha256
+      onDiskMatches,
+      onDiskMatches
         ? `${pkg.tarballFile} on-disk SHA-256 matches manifest`
         : `manifest=${pkg.sha256.slice(0, 16)}… disk=${actualSha.slice(0, 16)}…`,
     );
+    packageReports.push({
+      name: pkg.name,
+      candidateVersion: pkg.version,
+      candidateSha256: pkg.sha256,
+      onDiskSha256: actualSha,
+      onDiskMatches,
+      status: onDiskMatches ? "pass" : "fail",
+    });
     continue;
   }
 
@@ -101,23 +146,39 @@ for (const pkg of manifest.packages) {
       false,
       `${pkg.name}@${pkg.version} not found on registry`,
     );
+    packageReports.push({
+      name: pkg.name,
+      candidateVersion: pkg.version,
+      candidateSha256: pkg.sha256,
+      versionMatches: false,
+      status: "fail",
+    });
     continue;
   }
   const info = Array.isArray(versionInfo) ? versionInfo[0] : versionInfo;
   if (info === undefined || info === null) {
     check(`published ${pkg.name}`, false, `no metadata returned`);
+    packageReports.push({
+      name: pkg.name,
+      candidateVersion: pkg.version,
+      candidateSha256: pkg.sha256,
+      versionMatches: false,
+      status: "fail",
+    });
     continue;
   }
 
+  const versionMatches = info.version === pkg.version;
   check(
     `version ${pkg.name}`,
-    info.version === pkg.version,
+    versionMatches,
     `registry reports ${info.version}`,
   );
 
+  const licenseMatches = info.license === "MIT";
   check(
     `license ${pkg.name}`,
-    info.license === "MIT",
+    licenseMatches,
     `license is ${String(info.license)}`,
   );
 
@@ -125,6 +186,7 @@ for (const pkg of manifest.packages) {
   // The strongest byte-level proof is downloading and hashing the tarball.
   let integrityOk = false;
   let integrityDetail = "not compared";
+  let downloadedSha: string | undefined;
   if (downloadCompare) {
     const tmpDirResult = spawnSync("mktemp", ["-d"], { encoding: "utf8" });
     const tmpDir = tmpDirResult.stdout?.trim();
@@ -141,7 +203,7 @@ for (const pkg of manifest.packages) {
         downloadedFile.length > 0 &&
         existsSync(downloadedPath)
       ) {
-        const downloadedSha = createHash("sha256")
+        downloadedSha = createHash("sha256")
           .update(readFileSync(downloadedPath))
           .digest("hex");
         integrityOk = downloadedSha === pkg.sha256;
@@ -152,7 +214,6 @@ for (const pkg of manifest.packages) {
         integrityDetail = "npm pack failed";
       }
     }
-    // cleanup happens by OS temp policy; keep output quiet
   } else {
     // BR-112: a bare "sha512-*" algorithm match is NOT integrity evidence —
     // the digest bytes were never compared to the candidate. Post-publish
@@ -166,10 +227,12 @@ for (const pkg of manifest.packages) {
   // Dist-tag points at the candidate version
   const tagView = npmView([pkg.name, "dist-tags"]);
   const tags = normalizeDistTags(tagView);
+  let tagMatches = false;
   if (tags && typeof tags === "object") {
+    tagMatches = tags[distTag] === pkg.version;
     check(
       `dist-tag ${pkg.name}`,
-      tags[distTag] === pkg.version,
+      tagMatches,
       `dist-tags.${distTag} = ${tags[distTag]}`,
     );
   } else {
@@ -184,10 +247,11 @@ for (const pkg of manifest.packages) {
   const lockstepBad = internalDeps.filter(
     ([, spec]) => spec !== `^${pkg.version}` && spec !== pkg.version,
   );
+  const lockstepMatches = lockstepBad.length === 0;
   check(
     `lockstep-deps ${pkg.name}`,
-    lockstepBad.length === 0,
-    lockstepBad.length === 0
+    lockstepMatches,
+    lockstepMatches
       ? internalDeps.length === 0
         ? "no internal dependencies"
         : `${internalDeps.length}/${internalDeps.length} internal deps at ^${pkg.version}`
@@ -195,14 +259,53 @@ for (const pkg of manifest.packages) {
   );
 
   // Not deprecated
+  const notDeprecated =
+    info.deprecated === undefined || info.deprecated === false;
   check(
     `deprecation ${pkg.name}`,
-    info.deprecated === undefined || info.deprecated === false,
-    info.deprecated === undefined || info.deprecated === false
-      ? "not deprecated"
-      : String(info.deprecated).slice(0, 120),
+    notDeprecated,
+    notDeprecated ? "not deprecated" : String(info.deprecated).slice(0, 120),
   );
+
+  const pkgPass =
+    versionMatches &&
+    licenseMatches &&
+    integrityOk &&
+    tagMatches &&
+    lockstepMatches &&
+    notDeprecated;
+
+  packageReports.push({
+    name: pkg.name,
+    candidateVersion: pkg.version,
+    candidateSha256: pkg.sha256,
+    registryVersion: info.version,
+    versionMatches,
+    license: info.license,
+    licenseMatches,
+    downloadedSha256: downloadedSha,
+    downloadedMatches: integrityOk,
+    distTag,
+    tagMatches,
+    lockstepDependencies: lockstepMatches,
+    deprecated: info.deprecated ?? false,
+    status: pkgPass ? "pass" : "fail",
+  });
 }
+
+const report: RegistryVerifyReport = {
+  mode: isPreflight ? "preflight" : "post-publish",
+  version: manifest.version,
+  distTag,
+  success: failures.length === 0,
+  packages: packageReports,
+};
+
+mkdirSync(join(REPO, "artifacts"), { recursive: true });
+writeFileSync(
+  join(REPO, "artifacts", "registry-verify.json"),
+  JSON.stringify(report, null, 2) + "\n",
+);
 
 if (failures.length > 0) {
   console.error(`\nregistry:verify FAILED (${failures.length}):`);
