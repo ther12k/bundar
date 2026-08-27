@@ -15,11 +15,10 @@
  * 5. Stable lane + no-JS matrix green; htmx 4 stays experimental AND
  *    non-default in shipped templates/notes.
  */
-import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { PUBLISH_ORDER } from "./pack-release";
+import { candidateSourceIdentity, PUBLISH_ORDER } from "./pack-release";
 
 const REPO = join(import.meta.dir, "..", "..");
 const failures: string[] = [];
@@ -76,63 +75,18 @@ if (!existsSync(manifestPath)) {
   // artifacts/docs-only commits after the candidate build are allowed;
   // any change under packages/, create-bundar/, tools/release/, or the root
   // manifests voids candidate identity).
-  const git = (args: readonly string[]): string =>
-    spawnSync("git", args, { cwd: REPO, encoding: "utf8" }).stdout?.trim() ??
-    "";
-  const headSha = git(["rev-parse", "HEAD"]);
-  const shaShapeOk =
-    typeof manifest.sourceSha === "string" &&
-    /^[0-9a-f]{40}$/.test(manifest.sourceSha);
+  const identity = candidateSourceIdentity(manifest.sourceSha);
+  const shaShapeOk = /^[0-9a-f]{40}$/.test(manifest.sourceSha);
   const pathsOk = manifest.packages.every(
     (p) =>
       p.tarballPath === join("artifacts/packages", p.tarballFile) &&
       !p.tarballPath.startsWith("/") &&
       !p.tarballPath.includes(".."),
   );
-  let identityOk = false;
-  let identityDetail = "";
-  if (shaShapeOk) {
-    if (manifest.sourceSha === headSha) {
-      identityOk = true;
-      identityDetail = `manifest bound to exact HEAD ${headSha.slice(0, 12)}`;
-    } else {
-      const isAncestor =
-        spawnSync(
-          "git",
-          ["merge-base", "--is-ancestor", manifest.sourceSha, "HEAD"],
-          {
-            cwd: REPO,
-          },
-        ).status === 0;
-      const changedSource = spawnSync(
-        "git",
-        [
-          "diff",
-          "--name-only",
-          `${manifest.sourceSha}..HEAD`,
-          "--",
-          "packages/",
-          "create-bundar/",
-          "tools/release/",
-          "package.json",
-          "bun.lock",
-        ],
-        { cwd: REPO, encoding: "utf8" },
-      ).stdout?.trim();
-      if (!isAncestor) {
-        identityDetail = `manifest SHA is not an ancestor of HEAD`;
-      } else if (changedSource !== "") {
-        identityDetail = `SOURCE CHANGED since manifest SHA:\n${changedSource.split("\n").slice(0, 10).join("\n")}`;
-      } else {
-        identityOk = true;
-        identityDetail = `package source unchanged between manifest SHA ${manifest.sourceSha.slice(0, 12)} and HEAD ${headSha.slice(0, 12)}`;
-      }
-    }
-  }
   check(
     "candidate-shape",
-    shaShapeOk && pathsOk && identityOk,
-    `${identityDetail}; repo-relative artifact paths: ${pathsOk}`,
+    shaShapeOk && pathsOk && identity.ok,
+    `${identity.detail}; repo-relative artifact paths: ${pathsOk}`,
   );
 
   // 1b. On-disk integrity of every candidate tarball

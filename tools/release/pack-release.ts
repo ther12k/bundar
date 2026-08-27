@@ -36,6 +36,76 @@ export const PUBLISH_ORDER = [
   "create-bundar",
 ] as const;
 
+const SOURCE_PATHS = [
+  "packages/",
+  "create-bundar/",
+  "tools/release/",
+  "package.json",
+  "bun.lock",
+] as const;
+
+export interface CandidateSourceIdentity {
+  readonly ok: boolean;
+  readonly detail: string;
+}
+
+export function candidateSourceIdentity(
+  sourceSha: string,
+): CandidateSourceIdentity {
+  if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+    return { ok: false, detail: `manifest source SHA malformed: ${sourceSha}` };
+  }
+
+  const git = (args: readonly string[]): string =>
+    spawnSync("git", args, { cwd: REPO, encoding: "utf8" }).stdout?.trim() ??
+    "";
+  const headSha = git(["rev-parse", "HEAD"]);
+  const dirtySource = git(["status", "--porcelain", "--", ...SOURCE_PATHS]);
+  if (dirtySource !== "") {
+    return {
+      ok: false,
+      detail: `SOURCE has uncommitted package-affecting changes:\n${dirtySource}`,
+    };
+  }
+  if (sourceSha === headSha) {
+    return {
+      ok: true,
+      detail: `manifest bound to exact HEAD ${headSha.slice(0, 12)}`,
+    };
+  }
+
+  const isAncestor =
+    spawnSync("git", ["merge-base", "--is-ancestor", sourceSha, "HEAD"], {
+      cwd: REPO,
+    }).status === 0;
+  if (!isAncestor) {
+    return { ok: false, detail: "manifest SHA is not an ancestor of HEAD" };
+  }
+  const changedSource = git([
+    "diff",
+    "--name-only",
+    `${sourceSha}..HEAD`,
+    "--",
+    ...SOURCE_PATHS,
+  ]);
+  if (changedSource !== "") {
+    return {
+      ok: false,
+      detail: `SOURCE CHANGED since manifest SHA:\n${changedSource
+        .split("\n")
+        .slice(0, 10)
+        .join("\n")}`,
+    };
+  }
+  return {
+    ok: true,
+    detail: `package source unchanged between manifest SHA ${sourceSha.slice(
+      0,
+      12,
+    )} and HEAD ${headSha.slice(0, 12)}`,
+  };
+}
+
 export interface PackedCandidate {
   readonly name: string;
   readonly version: string;

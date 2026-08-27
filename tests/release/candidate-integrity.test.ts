@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  candidateSourceIdentity,
   freshCandidateTarballPaths,
   toCandidateManifestPackage,
   type PackedCandidate,
@@ -33,6 +35,28 @@ describe("BR-112 candidate integrity", () => {
       expect(selected.get(candidate.name)).not.toBe(persistedPath);
     } finally {
       rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("current source identity rejects uncommitted package-affecting changes", async () => {
+    const sourceSha = spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: join(import.meta.dir, "../.."),
+      encoding: "utf8",
+    }).stdout.trim();
+    const sourceFile = join(
+      import.meta.dir,
+      "../../packages/core/src/index.ts",
+    );
+    const original = await Bun.file(sourceFile).text();
+    try {
+      writeFileSync(sourceFile, `${original}\n// BR-112 test mutation\n`);
+      const identity = candidateSourceIdentity(sourceSha);
+      expect(identity.ok).toBe(false);
+      expect(identity.detail).toContain(
+        "uncommitted package-affecting changes",
+      );
+    } finally {
+      writeFileSync(sourceFile, original);
     }
   });
 
