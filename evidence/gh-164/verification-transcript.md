@@ -2,7 +2,7 @@
 
 Issue #164 · branch `gh-164-candidate-integrity` · source implementation commits
 `535c43f4b83743b07357215ecb41251a8ed4dcea` and
-`98581e72e11ae7f6c335136566034c9ae3921944`.
+`4658d4bec257d332d1d7606de09cc3ee827e6390`.
 
 ## Scope
 
@@ -44,7 +44,7 @@ release pipeline:
 
 ## Verification commands and results
 
-All commands were run from the committed `98581e72e11ae7f6c335136566034c9ae3921944`
+All commands were run from the committed `4658d4bec257d332d1d7606de09cc3ee827e6390`
 tree unless noted.
 
 1. `bun test tests/release/` — **20 pass, 0 fail, 54 assertions**.
@@ -55,7 +55,7 @@ tree unless noted.
    - `bun run release:sbom` — 125 components (9 release packages + 116
      lock-resolved externals), 10 dependency nodes.
    - `bun run release:provenance` — 9 subjects bound to source SHA
-     `98581e72e11ae7f6c335136566034c9ae3921944`.
+     `4658d4bec257d332d1d7606de09cc3ee827e6390`.
    - `bun run release:reproduce` — 9 packages reproducible; unpacked trees
      byte-identical across independent runs.
 4. `bun run release:verify` — **all go/no-go preconditions hold**:
@@ -74,32 +74,25 @@ tree unless noted.
 11. `bun run architecture:check` — **pass** (104 source files, 126 test files,
     9 package rules).
 12. `bun run build` — **pass** for all 9 workspace packages.
-13. `bun test` — the first parallel full-suite run had two unrelated,
-    load-sensitive failures (`GH-072` dev-loop timeout and `BR-058` socket
-    cancellation). Each was rerun in isolation and passed:
-    - `bun test ./packages/cli/test/dev/loop.test.ts` — 1 pass, 0 fail.
-    - `bun test ./packages/core/test/integration/abort-runtime.test.ts` — 6
-      pass, 0 fail.
-    No BR-112 test failed; no mandatory failure was hidden or converted to a
-    warning.
+13. `bun test` — 1,192 tests pass across 150 files.
 
 ## Artifact identity
 
 `artifacts/release/candidate-manifest.json` records source SHA
-`98581e72e11ae7f6c335136566034c9ae3921944`, version `0.1.0-alpha.2`, tag
+`4658d4bec257d332d1d7606de09cc3ee827e6390`, version `0.1.0-alpha.2`, tag
 `canary`, 9 packages, repo-relative paths only, and no `absolutePath` keys.
 The manifest, checksums, SBOM, provenance, and dry-run plan contain identical
 `{name, version, tarballFile, sha256}` records:
 
-- `@bundar/core`: `bundar-core-0.1.0-alpha.2.tgz` (`61faad4917f8ecac3270e1cae4ba081da0db6b265d809d0b43757432bf5a3f5d`)
-- `@bundar/jsx`: `bundar-jsx-0.1.0-alpha.2.tgz` (`ad9d181638897a9092789fe7c6c13559d3f66ca70b759213c9d643392adedd8d`)
-- `@bundar/schema`: `bundar-schema-0.1.0-alpha.2.tgz` (`9835eacb1f05ce2100e861db0c4e822a629b22719dd0542fb8afd1dbe8391909`)
-- `@bundar/forms`: `bundar-forms-0.1.0-alpha.2.tgz` (`022ee6adea81f76deb5fde287a990da63dab0661d5ebe304772247479b261917`)
-- `@bundar/security`: `bundar-security-0.1.0-alpha.2.tgz` (`fc9c2ea61247a0d0f4a73c7c6010758fa6e6074e56ffe730073afa1f5fcf7d7a`)
-- `@bundar/htmx`: `bundar-htmx-0.1.0-alpha.2.tgz` (`58e9886f4fc5579f11858eb5bdc394c0add8edaa304272e95bb28601854a5488`)
-- `@bundar/testing`: `bundar-testing-0.1.0-alpha.2.tgz` (`0a977fa03b8282dfa11d71347a0e047e242e2e417c20406c93178a760fef0135`)
-- `@bundar/cli`: `bundar-cli-0.1.0-alpha.2.tgz` (`d49e9abed6c35624be538196d196215b90a9009cf06b5af278163573d6003da4`)
-- `create-bundar`: `create-bundar-0.1.0-alpha.2.tgz` (`c283ac859bf91bbbe9d343ee63d787fde7eeab55b3402f3e239a7b3b74be25db`)
+- `@bundar/core`: `bundar-core-0.1.0-alpha.2.tgz` (`1edc6daae3b9ef00e27f0619986324ac6043e30c85b166b5db6d8eafaedb2d62`)
+- `@bundar/jsx`: `bundar-jsx-0.1.0-alpha.2.tgz` (`14372e7137c8a00b6adbf69d71e76116af92094f9a06ea15c4c7899de6a70be5`)
+- `@bundar/schema`: `bundar-schema-0.1.0-alpha.2.tgz` (`c8c5f29a1298430e739fc8ca6be5e5f21e7084922f290a62ddcc62394b2a3fdb`)
+- `@bundar/forms`: `bundar-forms-0.1.0-alpha.2.tgz` (`3e9a10ea7830e186b85b2670792e959574b05de4b09920894258bc2c9f712379`)
+- `@bundar/security`: `bundar-security-0.1.0-alpha.2.tgz` (`9b99785f51ba4e9dc963939311c7cdc8b79226aa9980a7be64317c52e5ecce1d`)
+- `@bundar/htmx`: `bundar-htmx-0.1.0-alpha.2.tgz` (`71341c7e4a069ffd832a3f39f57c3ffa30502115ea4f194bf6df5fbc1b30863f`)
+- `@bundar/testing`: `bundar-testing-0.1.0-alpha.2.tgz` (`0491a95739e4582ed6d47691307c7ef2c2c68ac367beb36d88f1635322e70448`)
+- `@bundar/cli`: `bundar-cli-0.1.0-alpha.2.tgz` (`b82642688034a2821c8418cfabe2dee848961c5f6ecf4d3d47bbfdecbcd2bdb2`)
+- `create-bundar`: `create-bundar-0.1.0-alpha.2.tgz` (`fa463043295030043b4f8701cd2f2012feffdef11347df131cb4ae643e191089`)
 
 ## Acceptance criteria
 
@@ -121,9 +114,6 @@ The manifest, checksums, SBOM, provenance, and dry-run plan contain identical
   perform the read-only namespace check, configure the protected environment and
   secrets, and approve any live publish. This issue does not authorize or perform
   that action.
-- The two unrelated full-suite integration tests are timing-sensitive under
-  concurrent load but passed independently; their existing behavior was not
-  changed in this issue.
 
 - The official `candidate-release.yml` workflow has not yet been run from the
   merged main commit; its run ID must be recorded after merge.

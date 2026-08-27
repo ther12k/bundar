@@ -3,7 +3,7 @@
   "lane": "htmx4",
   "status": "experimental-provisional",
   "disclaimer": "Local experimental browser conformance evidence only. htmx 4 is beta/provisional and GA revalidation is mandatory.",
-  "generatedAt": "2026-08-27T08:55:13.497Z",
+  "generatedAt": "2026-08-27T09:11:20.026Z",
   "profile": {
     "testedVersion": "4.0.0-beta6",
     "assetSha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25",
@@ -43,7 +43,10 @@
       "lifecycle": {
         "observedAfterRequest": false,
         "eventPhases": "phases renamed/reworked in v4 [provisional]",
-        "emulatedEvents": ["trigger-after-swap", "trigger-after-settle"]
+        "emulatedEvents": [
+          "trigger-after-swap",
+          "trigger-after-settle"
+        ]
       },
       "history": {
         "pushUrlDefault": true,
@@ -111,7 +114,7 @@
       "sha256": "28fae7bbe8e8142b702debb9d5234a9a436d9435a4b5165b195aa1a7ed840d25"
     },
     "browser": "Chrome for Testing 152.0.7977.8 / Playwright Chromium 1237",
-    "baseUrl": "http://127.0.0.1:36185",
+    "baseUrl": "http://127.0.0.1:33835",
     "scenarios": [
       "smoke-page",
       "fragment-swap",
