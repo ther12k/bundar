@@ -988,3 +988,12 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - Model B rehearsal from the downloaded bundle: publish:approved --dry-run with --manifest/--tarball-root exit 0 through the shared loader; registry:verify --preflight against the bundle 9/9; nothing published.
 - Rehearsal caught upload-artifact v4 LCA flattening (first bundle extracted at artifacts/ level); fixed on main 67518bf by listing root-level package.json so the bundle mirrors the repo layout.
 - Repo CI moved to self-hosted halotec runners (two containers, ubuntu-noble base, Node 22 + gh + Chrome wrapped with --no-sandbox); ci.yml retargeted; test job checkout gained fetch-depth 0 (latent main-CI failure since af545e8); PR #168 checks and merged-main CI green on halotec.
+
+## 2026-08-27 — GH-169: workflow-security wave (battery metadata gate, input isolation, PR runner split, Model B-only docs)
+
+- release.yml: both jobs fail closed on battery-run metadata (completed/success, workflow_dispatch, candidate-release path, exact head SHA) before any artifact access — failed batteries (uploaded with if: always()) can no longer supply the candidate.
+- Workflow inputs enter only via env: mappings; tag allowlist canary|alpha|beta, exact-semver version, numeric run ID, and MANDATORY sha256 digest validated in both jobs; publish job's shell reads $INPUT_TAG only.
+- ci.yml trust split: pull_request → GitHub-hosted ubuntu-latest (verified empirically: all five PR jobs on runner "GitHub Actions"); push main → halotec (verified: landed on halotec-runner-b). Least-privilege permissions declared on ci.yml, candidate-release.yml (contents:read + actions:write), and the publish job.
+- publishing.md + registry gate: Model B-only publication; local commands labeled DIAGNOSTIC REHEARSAL ONLY; rollback routes through the same flow; ref-alignment rule documented.
+- Static guards: tests/release/workflow-security.test.ts (10 tests); full suite 1,217 pass / 0 fail; OKF corpus 99.
+- Public battery 33107916170 on final ref 386f60e: success; artifact digest sha256:c364f916ba51064a8aee345201496bfbcfedeb6c987b10e92e1f09d5a8b21193; candidateManifestSha256 076d6d9b505a426a80f04078c93bc934923d65b08ca3efcd7a8eddfb4c16a6c1; publish-gate metadata check ACCEPTED; loader dry-run + registry preflight 9/9 from the downloaded bundle.
