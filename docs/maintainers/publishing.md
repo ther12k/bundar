@@ -1,3 +1,18 @@
+---
+type: Operations Guide
+title: Publishing Guide for Maintainers
+description: End-to-end npm publication procedure — authentication, candidate preparation, dry-run verification, dependency-first publish order, dist-tag policy, rollback, and credential hygiene.
+tags:
+- release
+- publishing
+- npm
+- maintainers
+status: draft
+generated:
+  by: BR-079 implementation pass
+  at: '2026-08-27T00:00:00+07:00'
+---
+
 # Publishing guide for maintainers
 
 This guide documents the complete publication procedure for Bundar packages.
