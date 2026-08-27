@@ -5,10 +5,16 @@ on:
     branches: [main]
   pull_request:
 
+# GH-169: least privilege — jobs get the workflow default (contents: read);
+# only the verify job elevates issues: read for its live issues:check step.
+permissions:
+  contents: read
+
 jobs:
   verify:
-    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
-    runs-on: [self-hosted, halotec]
+    # GH-169 trust split: PRs (untrusted code) → ephemeral GitHub-hosted
+    # VMs; push-to-main (trusted) → the maintainer-hosted halotec runner.
+    runs-on: ${{ github.event_name == 'push' && fromJSON('["self-hosted", "halotec"]') || 'ubuntu-latest' }}
     permissions:
       contents: read
       issues: read
@@ -44,8 +50,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   test:
-    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
-    runs-on: [self-hosted, halotec]
+    # GH-169 trust split: PRs (untrusted code) → ephemeral GitHub-hosted
+    # VMs; push-to-main (trusted) → the maintainer-hosted halotec runner.
+    runs-on: ${{ github.event_name == 'push' && fromJSON('["self-hosted", "halotec"]') || 'ubuntu-latest' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -64,8 +71,9 @@ jobs:
         run: bun test
 
   build:
-    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
-    runs-on: [self-hosted, halotec]
+    # GH-169 trust split: PRs (untrusted code) → ephemeral GitHub-hosted
+    # VMs; push-to-main (trusted) → the maintainer-hosted halotec runner.
+    runs-on: ${{ github.event_name == 'push' && fromJSON('["self-hosted", "halotec"]') || 'ubuntu-latest' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -83,8 +91,9 @@ jobs:
   # can never skip the other — and each leg uploads its own artifacts with
   # if: always() so failing evidence still binds to the run.
   browser-lanes:
-    # GH-167 wave: repo CI executes on the maintainer-hosted runner.
-    runs-on: [self-hosted, halotec]
+    # GH-169 trust split: PRs (untrusted code) → ephemeral GitHub-hosted
+    # VMs; push-to-main (trusted) → the maintainer-hosted halotec runner.
+    runs-on: ${{ github.event_name == 'push' && fromJSON('["self-hosted", "halotec"]') || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:

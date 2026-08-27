@@ -59,17 +59,27 @@ battery validated.
    - `battery_run_id` — the successful battery run whose bundle is the
      candidate (required)
    - `expected_artifact_digest` — the `sha256:…` digest recorded by the
-     battery (recommended; the job aborts on mismatch)
+     battery (**mandatory**; both jobs abort on mismatch)
    - `dry_run_only` — verify the bundle without publishing
 
-Both jobs download the named artifact from that run, verify the digest and
-`candidate-identity.json` (workflow SHA = battery head SHA, artifact name,
-dist-tag, 9 packages), then run `publish:approved` with
+Both jobs first fail closed on the battery run's metadata — conclusion
+`success`, event `workflow_dispatch`, workflow path
+`.github/workflows/candidate-release.yml`, and head SHA equal to the
+Release dispatch's SHA — then download the named artifact from that run,
+verify the mandatory digest and `candidate-identity.json` (workflow SHA =
+battery head SHA, artifact name, dist-tag, 9 packages), and run
+`publish:approved` with
 `--manifest <bundle>/artifacts/release/candidate-manifest.json
 --tarball-root <bundle>` so only the downloaded bytes are ever published.
 
-## Candidate preparation (local inspection)
+Ref alignment: dispatch the Release workflow on the SAME ref the battery
+ran on. Docs/evidence commits merged in between change the SHA and the
+gate will reject the battery run — rerun the battery on the final ref
+instead.
 
+## Candidate preparation (local inspection — diagnostic only)
+
+These commands diagnose a checkout; they are never a publication path.
 The candidate pipeline runs once on a clean, committed working tree:
 
 ```bash
@@ -89,9 +99,10 @@ The candidate manifest (`artifacts/release/candidate-manifest.json`) records:
 - 9 package names, versions, relative tarball paths, SHA-256 digests
 - dist-tag (`canary` for pre-releases)
 
-## Dry-run verification (always safe, always first)
+## Dry-run verification (always safe, always first — diagnostic rehearsal only)
 
 ```bash
+# DIAGNOSTIC REHEARSAL ONLY — must never be used for live publication.
 # Set the approval sentinel in your terminal — NEVER commit this value
 export BUNDAR_RELEASE_TOKEN="your-session-sentinel"
 
@@ -104,17 +115,24 @@ automated tests to be incapable of reaching `npm publish`. Running it with the
 above sentinel set and `npm whoami` succeeding is the final safety check before
 publication.
 
-## Live publication
+## Live publication (Model B only — no local live-publish path)
 
-```bash
-# Only after dry-run passes cleanly:
-bun run publish:approved -- --tag canary
+Live publication happens ONLY through the human-gated **Release**
+workflow publishing the authoritative battery bundle. There is no local
+live-publish command: the strict loader can prove a tarball against its
+own manifest, but only the workflow's run-metadata gate and artifact
+digest prove the bytes are the public battery's candidate.
 
-# Post-publication registry verification with required byte-for-byte proof
-bun run registry:verify -- --tag canary --download
-
-# Unset the sentinel
-unset BUNDAR_RELEASE_TOKEN
+```text
+1. Trigger Candidate Release Battery on the exact release ref.
+2. Copy the run ID and the artifact digest (sha256:…) from the run summary.
+3. Trigger Release (human-gated) on the SAME ref with
+     tag=canary  version=<semver>  battery_run_id=<run ID>
+     expected_artifact_digest=<sha256:…>
+   and dry_run_only=true; review the preflight report.
+4. Repeat step 3 with dry_run_only=false and approve the npm-publish
+   environment. The workflow publishes the downloaded bundle bytes and
+   verifies the registry byte-for-byte against them.
 ```
 
 The publisher enforces in order:
@@ -125,7 +143,9 @@ The publisher enforces in order:
    portable schema, exact 9-package release set, contained repo-relative
    paths, on-disk SHA-256 equality, and packed tarball identity (exact
    name/version, not private, lockstep internal ranges).
-5. `npm publish <file.tgz> --tag canary --access public` for each package in dependency-first order.
+5. `npm publish <file.tgz> --tag canary --access public` for each package
+   in dependency-first order — in the Release workflow these are the
+   downloaded bundle tarballs, never local builds.
 
 ## Publish order
 
@@ -161,8 +181,9 @@ bad release:
 npm deprecate @bundar/core@<bad-version> "DO NOT USE — see advisory GHSA-XXXX"
 # Repeat for each affected package
 
-# Publish a fixed version on the same dist-tag
-bun run publish:approved -- --tag canary
+# Publish the fixed version through the SAME Model B flow: battery run on
+# the fix ref → Release (human-gated) with that run ID + digest. There is
+# no local live-publish command.
 ```
 
 ## Credential hygiene

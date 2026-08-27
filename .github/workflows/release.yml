@@ -7,11 +7,23 @@ name: Release (human-gated)
 # Safety invariants:
 # - Wave 8 (Model B): the authoritative candidate is the SUCCESSFUL public
 #   Candidate Release Battery bundle — identified by its exact run ID. Both
-#   jobs download that exact artifact (`release-candidate-artifacts-<sha>`),
-#   optionally pin the immutable GitHub artifact digest, re-verify every
-#   tarball SHA-256 and packed identity through the shared strict loader,
-#   and publish those downloaded bytes. Nothing is rebuilt or taken from the
-#   working tree.
+#   jobs first fail closed on the run's metadata (conclusion == success,
+#   head_sha == this SHA, event == workflow_dispatch, workflow path ==
+#   candidate-release.yml, status == completed), then download that exact
+#   artifact, pin the immutable GitHub artifact digest (mandatory input),
+#   re-verify every tarball SHA-256 and packed identity through the shared
+#   strict loader, and publish those downloaded bytes. Nothing is rebuilt
+#   or taken from the working tree.
+# - Ref alignment: dispatch this workflow on the SAME ref the battery ran
+#   on. Docs/evidence commits after the battery change GITHUB_SHA and the
+#   metadata gate will reject the battery run — rerun the battery on the
+#   final ref instead.
+# - Wave 9 input hygiene: workflow_dispatch inputs NEVER appear inside
+#   run: shell bodies (GitHub interpolates ${{ }} before the shell parses
+#   the script, which is a shell-injection vector in this secret-bearing
+#   job). They enter only through env: mappings and are validated against
+#   strict allowlists (tag: canary|alpha|beta; version: exact semver;
+#   digest: sha256:<64 hex>).
 # - The publish step requires BOTH a GitHub Environment protection rule
 #   (requiring maintainer review) AND the BUNDAR_RELEASE_TOKEN secret.
 # - publish:approved -- --dry-run is always run first and exits 0 before
@@ -36,9 +48,8 @@ on:
         required: true
         type: string
       expected_artifact_digest:
-        description: "Optional sha256:<digest> of the bundle recorded at battery time; publish aborts on mismatch"
-        required: false
-        default: ""
+        description: "Mandatory sha256:<digest> of the battery bundle; both jobs abort on mismatch"
+        required: true
         type: string
       dry_run_only:
         description: "Only perform dry-run verification (no actual npm publish)"
@@ -48,6 +59,10 @@ on:
         options:
           - "true"
           - "false"
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
   preflight:
@@ -67,6 +82,75 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Validate inputs and the authoritative battery run (fail closed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          BATTERY_RUN: ${{ github.event.inputs.battery_run_id }}
+          EXPECTED_DIGEST: ${{ github.event.inputs.expected_artifact_digest }}
+        run: |
+          set -euo pipefail
+
+          case "$INPUT_TAG" in
+            canary|alpha|beta) ;;
+            *)
+              echo "ERROR: dist-tag must be exactly canary, alpha, or beta (ADR-0021 pre-1.0 policy; 'latest' and arbitrary values are forbidden)." >&2
+              exit 1
+              ;;
+          esac
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "ERROR: version must be exact semver (e.g. 0.1.0-alpha.2); got '$INPUT_VERSION'." >&2
+            exit 1
+          fi
+          if ! [[ "$BATTERY_RUN" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: battery_run_id must be a numeric workflow run ID; got '$BATTERY_RUN'." >&2
+            exit 1
+          fi
+          if ! [[ "$EXPECTED_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "ERROR: expected_artifact_digest must be 'sha256:<64 lowercase hex chars>'; got '$EXPECTED_DIGEST'." >&2
+            exit 1
+          fi
+
+          # GH-169: only a SUCCESSFUL Candidate Release Battery run on this
+          # exact ref may supply the candidate. Failed/cancelled batteries
+          # upload their bundle with if: always() — existence alone is not
+          # authority.
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BATTERY_RUN" > /tmp/battery-run.json
+          BATTERY_RUN_JSON=/tmp/battery-run.json python3 - <<'PY'
+          import json, os, sys
+          meta = json.load(open(os.environ["BATTERY_RUN_JSON"]))
+          problems = []
+          if meta.get("status") != "completed":
+              problems.append(f"status={meta.get('status')} — run must be completed")
+          if meta.get("conclusion") != "success":
+              problems.append(
+                  f"conclusion={meta.get('conclusion')} — only a SUCCESSFUL "
+                  "Candidate Release Battery is an authoritative candidate"
+              )
+          if meta.get("event") != "workflow_dispatch":
+              problems.append(f"event={meta.get('event')} — manual dispatch required")
+          if meta.get("path") != ".github/workflows/candidate-release.yml":
+              problems.append(
+                  f"path={meta.get('path')} — not the Candidate Release Battery workflow"
+              )
+          if meta.get("head_sha") != os.environ.get("GITHUB_SHA", ""):
+              problems.append(
+                  f"head_sha={meta.get('head_sha')} != this workflow's SHA "
+                  f"{os.environ.get('GITHUB_SHA', '')} — dispatch the release on the "
+                  "same ref the battery ran on (or rerun the battery on the final ref)"
+              )
+          if problems:
+              print("Battery run rejected:", file=sys.stderr)
+              for problem in problems:
+                  print(f"  - {problem}", file=sys.stderr)
+              sys.exit(1)
+          print(
+              f"Battery run accepted: {meta.get('name')} #{meta.get('run_number')} "
+              f"({meta.get('conclusion')}) on {meta.get('head_sha', '')[:12]}"
+          )
+          PY
+
       - name: Download the authoritative candidate bundle (digest-pinned)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -81,17 +165,11 @@ jobs:
             echo "ERROR: no candidate bundle artifact $ARTIFACT_NAME found on run $BATTERY_RUN." >&2
             exit 1
           fi
-          if [ -n "$EXPECTED_DIGEST" ] && [ "$EXPECTED_DIGEST" != "$observed" ]; then
+          if [ "$EXPECTED_DIGEST" != "$observed" ]; then
             echo "ERROR: artifact digest mismatch — expected '$EXPECTED_DIGEST', observed '$observed'." >&2
             exit 1
           fi
-          echo "Candidate bundle digest: $observed"
-
-          head_sha="$(gh run view "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" --json headSha --jq .headSha)"
-          if [ "$head_sha" != "${GITHUB_SHA}" ]; then
-            echo "ERROR: battery run $BATTERY_RUN executed on $head_sha, not this commit ${GITHUB_SHA}." >&2
-            exit 1
-          fi
+          echo "Candidate bundle digest confirmed: $observed"
 
           rm -rf candidate-bundle && mkdir -p candidate-bundle
           gh run download "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" \
@@ -102,15 +180,12 @@ jobs:
             || { echo "ERROR: bundle lacks candidate-identity.json (pre-wave-8 bundle)" >&2; exit 1; }
           echo "BUNDLE_DIR=$PWD/candidate-bundle" >> "$GITHUB_ENV"
 
-      - name: Validate inputs (reject latest; pinned identity must match bundle)
+      - name: Confirm pinned identity matches the bundle
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         run: |
-          TAG="${{ github.event.inputs.tag }}"
-          if [ "$TAG" = "latest" ]; then
-            echo "ERROR: dist-tag 'latest' is forbidden during pre-1.0 (ADR-0021)." >&2
-            echo "Use 'canary', 'alpha', or 'beta'." >&2
-            exit 1
-          fi
-          INPUT_VERSION="${{ github.event.inputs.version }}"
+          set -euo pipefail
           MANIFEST_VERSION="$(python3 -c "import json;print(json.load(open('artifacts/release/candidate-manifest.json'))['version'])")"
           BUNDLE_VERSION="$(python3 -c "import json;print(json.load(open('candidate-bundle/artifacts/release/candidate-manifest.json'))['version'])")"
           IDENTITY_VERSION="$(python3 -c "import json;print(json.load(open('candidate-bundle/artifacts/release/candidate-identity.json'))['version'])")"
@@ -120,7 +195,7 @@ jobs:
           fi
           echo "Version confirmed across input/committed/bundle: $INPUT_VERSION"
 
-          INPUT_TAG="$TAG" python3 - <<'PY'
+          INPUT_TAG="$INPUT_TAG" python3 - <<'PY'
           import json, os, sys
           identity = json.load(
               open("candidate-bundle/artifacts/release/candidate-identity.json")
@@ -150,10 +225,12 @@ jobs:
         run: bun run ci:m4
 
       - name: Candidate dry-run against the DOWNLOADED bundle
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
           bun run publish:approved -- \
             --dry-run \
-            --tag "${{ github.event.inputs.tag }}" \
+            --tag "$INPUT_TAG" \
             --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
             --tarball-root "$BUNDLE_DIR"
 
@@ -161,10 +238,13 @@ jobs:
         run: bun run release:verify
 
   publish:
-    name: Publish ${{ github.event.inputs.version }} @ ${{ github.event.inputs.tag }}
+    name: Publish the authoritative bundle
     needs: preflight
     if: github.event.inputs.dry_run_only != 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     # BR-079: This environment must have a manual review rule configured in
     # GitHub → Settings → Environments → "npm-publish" so a human maintainer
     # must approve before the job starts.
@@ -183,6 +263,60 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Validate inputs and the authoritative battery run (fail closed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          BATTERY_RUN: ${{ github.event.inputs.battery_run_id }}
+          EXPECTED_DIGEST: ${{ github.event.inputs.expected_artifact_digest }}
+        run: |
+          set -euo pipefail
+
+          case "$INPUT_TAG" in
+            canary|alpha|beta) ;;
+            *)
+              echo "ERROR: dist-tag must be exactly canary, alpha, or beta (ADR-0021)." >&2
+              exit 1
+              ;;
+          esac
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "ERROR: version must be exact semver; got '$INPUT_VERSION'." >&2
+            exit 1
+          fi
+          if ! [[ "$BATTERY_RUN" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: battery_run_id must be numeric; got '$BATTERY_RUN'." >&2
+            exit 1
+          fi
+          if ! [[ "$EXPECTED_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "ERROR: expected_artifact_digest must be 'sha256:<64 hex>'; got '$EXPECTED_DIGEST'." >&2
+            exit 1
+          fi
+
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BATTERY_RUN" > /tmp/battery-run.json
+          BATTERY_RUN_JSON=/tmp/battery-run.json python3 - <<'PY'
+          import json, os, sys
+          meta = json.load(open(os.environ["BATTERY_RUN_JSON"]))
+          problems = []
+          if meta.get("status") != "completed":
+              problems.append(f"status={meta.get('status')} — run must be completed")
+          if meta.get("conclusion") != "success":
+              problems.append(f"conclusion={meta.get('conclusion')} — only a SUCCESSFUL battery is authoritative")
+          if meta.get("event") != "workflow_dispatch":
+              problems.append(f"event={meta.get('event')} — manual dispatch required")
+          if meta.get("path") != ".github/workflows/candidate-release.yml":
+              problems.append(f"path={meta.get('path')} — not the Candidate Release Battery workflow")
+          if meta.get("head_sha") != os.environ.get("GITHUB_SHA", ""):
+              problems.append(
+                  f"head_sha={meta.get('head_sha')} != {os.environ.get('GITHUB_SHA', '')}"
+              )
+          if problems:
+              print("Battery run rejected:", file=sys.stderr)
+              for problem in problems:
+                  print(f"  - {problem}", file=sys.stderr)
+              sys.exit(1)
+          PY
+
       - name: Download the authoritative candidate bundle (digest-pinned)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -197,17 +331,19 @@ jobs:
             echo "ERROR: no candidate bundle artifact $ARTIFACT_NAME found on run $BATTERY_RUN." >&2
             exit 1
           fi
-          if [ -n "$EXPECTED_DIGEST" ] && [ "$EXPECTED_DIGEST" != "$observed" ]; then
+          if [ "$EXPECTED_DIGEST" != "$observed" ]; then
             echo "ERROR: artifact digest mismatch — expected '$EXPECTED_DIGEST', observed '$observed'." >&2
             exit 1
           fi
-          echo "Publishing bundle digest: $observed"
+          echo "Publishing bundle digest confirmed: $observed"
 
           rm -rf candidate-bundle && mkdir -p candidate-bundle
           gh run download "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" \
             -n "$ARTIFACT_NAME" -D candidate-bundle
           test -f candidate-bundle/artifacts/release/candidate-manifest.json \
             || { echo "ERROR: unexpected bundle layout" >&2; exit 1; }
+          test -f candidate-bundle/artifacts/release/candidate-identity.json \
+            || { echo "ERROR: bundle lacks candidate-identity.json" >&2; exit 1; }
           echo "BUNDLE_DIR=$PWD/candidate-bundle" >> "$GITHUB_ENV"
 
       - name: Authenticate npm
@@ -221,21 +357,24 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish candidate (guarded — publishes ONLY the downloaded bundle)
-        run: |
-          bun run publish:approved -- \
-            --tag "${{ github.event.inputs.tag }}" \
-            --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
-            --tarball-root "$BUNDLE_DIR"
         env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
           # BUNDAR_RELEASE_TOKEN is the session approval sentinel; the real npm
           # credential travels through NODE_AUTH_TOKEN above.
           BUNDAR_RELEASE_TOKEN: ${{ secrets.BUNDAR_RELEASE_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          bun run publish:approved -- \
+            --tag "$INPUT_TAG" \
+            --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
+            --tarball-root "$BUNDLE_DIR"
 
       - name: Post-publish registry verification (byte-for-byte vs the bundle)
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
           bun run registry:verify -- \
-            --tag "${{ github.event.inputs.tag }}" \
+            --tag "$INPUT_TAG" \
             --download \
             --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
             --root-dir "$BUNDLE_DIR"

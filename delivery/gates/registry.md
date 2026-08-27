@@ -48,8 +48,8 @@ Before running the live publish:
 3. **Authentication**: log in with `npm login` (or `npm login --auth-type=web`). Confirm with `npm whoami`; it must return your username.
 4. **2FA policy**: the `@bundar` org should have publish-time OTP or trusted publishing (npm Attestations / GitHub Actions OIDC) enforced. Do not configure write-capable tokens without 2FA.
 5. **Approval token**: set `BUNDAR_RELEASE_TOKEN` to any non-empty secret value in your terminal session. **Do not commit this value.** It is a session-scoped sentinel; the publish script checks for its presence.
-6. **Candidate manifest**: run `bun run publish:dry-run` on a clean, committed working tree to regenerate `artifacts/release/candidate-manifest.json` bound to the exact release SHA. Verify: `bun run release:verify` must pass all checks including cross-artifact set equality.
-7. **Dry-run confirmed**: `bun run publish:approved -- --dry-run` must print the 9-package plan and exit 0 without touching the registry.
+6. **Authoritative candidate bundle (Model B)**: run the **Candidate Release Battery** workflow on the exact release ref and record its run ID + artifact digest. The battery's uploaded bundle (manifest, identity record, checksums, tarballs) IS the candidate. Local `publish:dry-run` regeneration is diagnostic only.
+7. **Dry-run confirmed**: `bun run publish:approved -- --dry-run` (diagnostic rehearsal) must print the 9-package plan and exit 0 without touching the registry; the Release workflow's preflight repeats this against the downloaded bundle.
 
 ## Read-only identity check (agent-safe)
 
@@ -68,33 +68,37 @@ for pkg in @bundar/core @bundar/jsx @bundar/schema @bundar/forms \
   npm view "$pkg" version 2>/dev/null || echo "404 (available)"
 done
 
-# Verify candidate manifest is bound to a clean commit
+# Verify the committed candidate artifacts are self-consistent (diagnostic)
 bun run release:verify
 ```
 
-## Guarded publish command (maintainer only)
+## Guarded publication (maintainer only — Model B workflow)
 
-```bash
-# STEP 1 — set the approval sentinel in your terminal (do not commit)
-export BUNDAR_RELEASE_TOKEN="your-session-approval-sentinel"
+There is no local live-publish command. Publication happens through the
+human-gated **Release** workflow, which fails closed unless the battery
+run concluded `success`, was manually dispatched, ran the
+candidate-release workflow, and executed on the same SHA:
 
-# STEP 2 — confirm npm identity
-npm whoami
+```text
+STEP 1 — Candidate Release Battery on the exact release ref
+          (workflow_dispatch on main tip). Copy run ID + sha256:… digest.
 
-# STEP 3 — dry-run (must pass; does NOT publish)
-bun run publish:approved -- --dry-run
+STEP 2 — Release (human-gated) on the SAME ref:
+          tag=canary version=<semver>
+          battery_run_id=<run ID> expected_artifact_digest=<sha256:…>
+          dry_run_only=true → review the preflight report.
 
-# STEP 4 — live publish (only after steps 1-3 are confirmed)
-bun run publish:approved -- --tag canary
-
-# STEP 5 — verify registry with byte-for-byte download proof
-bun run registry:verify -- --tag canary --download
-
-# STEP 6 — unset the sentinel
-unset BUNDAR_RELEASE_TOKEN
+STEP 3 — Repeat STEP 2 with dry_run_only=false and approve the
+          npm-publish environment. The workflow authenticates npm from
+          repo secrets, publishes ONLY the downloaded bundle tarballs in
+          dependency-first order, and verifies the registry
+          byte-for-byte against the bundle manifest.
 ```
 
-The publisher refuses to run without both `BUNDAR_RELEASE_TOKEN` and a successful `npm whoami`. `--dry-run` is always safe and can never call `npm publish` (proven by fake-npm tests in `tests/release/publisher-safety.test.ts`).
+The workflow's publisher refuses to run without the environment approval,
+`BUNDAR_RELEASE_TOKEN`, and a successful `npm whoami`. `--dry-run` inside
+the workflow is always safe and can never call `npm publish` (proven by
+fake-npm tests in `tests/release/publisher-safety.test.ts`).
 
 ## Emergency revocation
 
@@ -109,9 +113,9 @@ npm deprecate @bundar/core@0.1.0-alpha.2 "DO NOT USE — revoked; see advisory #
 
 | Role | Required action |
 |------|----------------|
-| **npm account owner** | `npm login`, `npm whoami`, scope ownership check |
-| **Human maintainer** | Set `BUNDAR_RELEASE_TOKEN` in terminal; run the publish command; record approval identity below |
-| **Autonomous agent** | BLOCKED — must not supply credentials, authenticate npm, or invoke the live publish step |
+| **npm account owner** | `npm login`, `npm whoami`, scope ownership check; configure the `NPM_TOKEN`/`BUNDAR_RELEASE_TOKEN` repo secrets and the protected `npm-publish` environment |
+| **Human maintainer** | Run the Candidate Release Battery; trigger the Release workflow with run ID + digest; approve the npm-publish environment; record approval identity below |
+| **Autonomous agent** | BLOCKED — must not supply credentials, authenticate npm, configure secrets, or trigger the live publish |
 
 ## Approval record (to be filled by the maintainer)
 
