@@ -17,6 +17,11 @@ name: Candidate Release Battery
 on:
   workflow_dispatch:
 
+# GH-169: least privilege — read the repo, write the evidence bundle.
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   candidate-release:
     runs-on: ubuntu-latest
