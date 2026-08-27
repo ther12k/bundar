@@ -1,17 +1,20 @@
 # GH-164 verification transcript — candidate integrity and post-publish proof (BR-112)
 
-Issue #164 · branch `gh-164-candidate-integrity` · source implementation commits
+Issue #164 · branch `gh-164-candidate-hardening` · source implementation commits
 `535c43f4b83743b07357215ecb41251a8ed4dcea` and
-`4658d4bec257d332d1d7606de09cc3ee827e6390`.
+`255614cf68607cb4ae364257967267dd34922995`.
 
 ## Scope
 
-This correction wave closes the sixth re-audit findings against the BR-111
-release pipeline:
+This correction wave closes the sixth and seventh re-audit findings against the
+BR-111/BR-112 release pipeline:
 
 - `publish:dry-run` validates the freshly packed temporary tarballs through all
   export, metadata, clean-install, entry-point, JSX, TSX, and CLI checks before
   copying those exact bytes to `artifacts/packages/`.
+- `publish:dry-run` promotion is atomic: validation failures write a failure
+  report (`success: false`) and exit immediately without modifying `artifacts/packages/`,
+  `candidate-manifest.json`, or `checksums.txt`.
 - `candidate-manifest.json` serializes only the portable fields
   `{name, version, tarballFile, tarballPath, sha256}`; machine-local
   `absolutePath` is internal only.
@@ -21,16 +24,20 @@ release pipeline:
   SHA-256 values instead of filling them from the manifest.
 - `release:verify` validates provenance source binding (`configSource` and
   `materials[0]` match manifest `sourceSha`), candidate manifest field shapes,
-  and SBOM dependency graph referential integrity across all 126 components.
-- `registry:verify` supports flat and nested npm `dist-tags` responses and
-  requires `--download` for byte-level post-publish proof; SRI algorithm
-  presence alone is not treated as a SHA-256 match.
-- The human-gated workflow asserts the input version matches the candidate
-  manifest, invokes post-publish verification with `--download`, and uploads
-  its report even after a verification failure.
+  publication dry-run status (`success: true` and 42/42 checks passed), and
+  SBOM dependency graph referential integrity across all 126 components.
+- `registry:verify` supports flat and nested npm `dist-tags` responses, generates
+  structured `artifacts/registry-verify.json`, and requires `--download` for
+  byte-level post-publish proof; SRI algorithm presence alone is not treated as
+  a SHA-256 match.
+- The human-gated workflow (`.github/workflows/release.yml`) uses `fetch-depth: 0`
+  in both preflight and publish jobs (enabling ancestor resolution), asserts the
+  input version matches the candidate manifest, invokes post-publish verification
+  with `--download`, and uploads publish and registry verification reports even
+  after a verification failure.
 - Regression tests cover fresh-path selection, portable manifest serialization,
-  strict field validation, PURL normalization, and rejection of uncommitted
-  package-affecting source changes.
+  strict field validation, PURL normalization, atomic non-promotion, and
+  rejection of uncommitted package-affecting source changes.
 
 ## Environment
 
@@ -44,10 +51,10 @@ release pipeline:
 
 ## Verification commands and results
 
-All commands were run from the committed `4658d4bec257d332d1d7606de09cc3ee827e6390`
+All commands were run from the committed `255614cf68607cb4ae364257967267dd34922995`
 tree unless noted.
 
-1. `bun test tests/release/` — **20 pass, 0 fail, 54 assertions**.
+1. `bun test tests/release/` — **23 pass, 0 fail, 67 assertions**.
 2. `bun run publish:dry-run` — **42 checks passed**; all checks consumed the
    fresh temporary candidates and the persisted copies were independently
    re-hashed before manifest generation.
@@ -55,15 +62,16 @@ tree unless noted.
    - `bun run release:sbom` — 125 components (9 release packages + 116
      lock-resolved externals), 10 dependency nodes.
    - `bun run release:provenance` — 9 subjects bound to source SHA
-     `4658d4bec257d332d1d7606de09cc3ee827e6390`.
+     `255614cf68607cb4ae364257967267dd34922995`.
    - `bun run release:reproduce` — 9 packages reproducible; unpacked trees
      byte-identical across independent runs.
 4. `bun run release:verify` — **all go/no-go preconditions hold**:
    candidate SHA/clean-source identity, on-disk hashes, publish order,
-   checksums/SBOM/provenance set equality, SBOM graph integrity (126 component refs),
-   plan consistency, namespace clearance, stable/no-JS lanes, and experimental
-   non-default htmx 4.
-5. `bun run registry:verify -- --preflight` — **9/9** on-disk SHA-256 matches.
+   checksums/SBOM/provenance set equality, dry-run 42/42 checks status,
+   SBOM graph integrity (126 component refs), plan consistency, namespace
+   clearance, stable/no-JS lanes, and experimental non-default htmx 4.
+5. `bun run registry:verify -- --preflight` — **9/9** on-disk SHA-256 matches;
+   writes structured report to `artifacts/registry-verify.json`.
 6. `bun run publish:approved -- --dry-run` — **exit 0**; candidate plan
    verified and no publication executed.
 7. `bun run format:check` — **pass** after formatting the generated SBOM.
@@ -79,41 +87,37 @@ tree unless noted.
 ## Artifact identity
 
 `artifacts/release/candidate-manifest.json` records source SHA
-`4658d4bec257d332d1d7606de09cc3ee827e6390`, version `0.1.0-alpha.2`, tag
+`255614cf68607cb4ae364257967267dd34922995`, version `0.1.0-alpha.2`, tag
 `canary`, 9 packages, repo-relative paths only, and no `absolutePath` keys.
 The manifest, checksums, SBOM, provenance, and dry-run plan contain identical
 `{name, version, tarballFile, sha256}` records:
 
-- `@bundar/core`: `bundar-core-0.1.0-alpha.2.tgz` (`1edc6daae3b9ef00e27f0619986324ac6043e30c85b166b5db6d8eafaedb2d62`)
-- `@bundar/jsx`: `bundar-jsx-0.1.0-alpha.2.tgz` (`14372e7137c8a00b6adbf69d71e76116af92094f9a06ea15c4c7899de6a70be5`)
-- `@bundar/schema`: `bundar-schema-0.1.0-alpha.2.tgz` (`c8c5f29a1298430e739fc8ca6be5e5f21e7084922f290a62ddcc62394b2a3fdb`)
-- `@bundar/forms`: `bundar-forms-0.1.0-alpha.2.tgz` (`3e9a10ea7830e186b85b2670792e959574b05de4b09920894258bc2c9f712379`)
-- `@bundar/security`: `bundar-security-0.1.0-alpha.2.tgz` (`9b99785f51ba4e9dc963939311c7cdc8b79226aa9980a7be64317c52e5ecce1d`)
-- `@bundar/htmx`: `bundar-htmx-0.1.0-alpha.2.tgz` (`71341c7e4a069ffd832a3f39f57c3ffa30502115ea4f194bf6df5fbc1b30863f`)
-- `@bundar/testing`: `bundar-testing-0.1.0-alpha.2.tgz` (`0491a95739e4582ed6d47691307c7ef2c2c68ac367beb36d88f1635322e70448`)
-- `@bundar/cli`: `bundar-cli-0.1.0-alpha.2.tgz` (`b82642688034a2821c8418cfabe2dee848961c5f6ecf4d3d47bbfdecbcd2bdb2`)
-- `create-bundar`: `create-bundar-0.1.0-alpha.2.tgz` (`fa463043295030043b4f8701cd2f2012feffdef11347df131cb4ae643e191089`)
+- `@bundar/core`: `bundar-core-0.1.0-alpha.2.tgz` (`e44a5320dc36ac0780c4ee32a36ad30e55d5cf185e9ba14bf2049a05ebc6773b`)
+- `@bundar/jsx`: `bundar-jsx-0.1.0-alpha.2.tgz` (`98f9427add91ebf92a3aece2b894b7e5dc0bdaa6601bb2e75767d757ddbb8688`)
+- `@bundar/schema`: `bundar-schema-0.1.0-alpha.2.tgz` (`3c73cbfc2d958152a1888106e63e9bf5643e7c0374f34100ea8f550c46934c8e`)
+- `@bundar/forms`: `bundar-forms-0.1.0-alpha.2.tgz` (`dd73639842571a226f9e06d925d47c7af98f20ead525beaf58eb3fe58d05fc27`)
+- `@bundar/security`: `bundar-security-0.1.0-alpha.2.tgz` (`dfbdabf5c83c69ee8d67c26516874764d3a67736a03521c42ed1f31414557c7e`)
+- `@bundar/htmx`: `bundar-htmx-0.1.0-alpha.2.tgz` (`b7c8e67b5d37ef9b6a709a8691af6dd263a844464ca47d317f24e57a3c1a73a0`)
+- `@bundar/testing`: `bundar-testing-0.1.0-alpha.2.tgz` (`cd4a51c3d96725701838c1414c383e358dcc4227134fc9b1650927dd5a77a6f0`)
+- `@bundar/cli`: `bundar-cli-0.1.0-alpha.2.tgz` (`d00766949de78dda9b3bbcf28d72f12c4066597026c76121f1ee1315edb8a14b`)
+- `create-bundar`: `create-bundar-0.1.0-alpha.2.tgz` (`9161d8eaaad35630449213acedeb7007e764001786b7285462dc218f5534d412`)
 
 ## Acceptance criteria
 
 - [x] Fresh candidate bytes are validated before persistence; stale persisted
       tarballs cannot mask a broken fresh candidate.
+- [x] Validation failures in `publish:dry-run` fail closed without persisting
+      tarballs or altering candidate manifests.
 - [x] Candidate manifest is portable and excludes machine-local paths.
 - [x] Candidate identity is commit-bound and rejects dirty package source.
 - [x] Missing SBOM digests fail cross-artifact equality.
-- [x] Registry post-publish proof is byte-for-byte via required `--download`.
-- [x] Workflow version input matches manifest and failure evidence is retained.
+- [x] Release verification checks `publish-dry-run.json` success and all 42 checks.
+- [x] Registry post-publish proof is byte-for-byte via required `--download`,
+      generating structured `artifacts/registry-verify.json`.
+- [x] Workflow version input matches manifest, `fetch-depth: 0` is used for
+      all jobs, and failure evidence is retained.
 - [x] No credential value was committed, printed, uploaded, or included in an
       artifact; no npm publication was executed.
-
-## Public release battery run
-
-- **Workflow**: `candidate-release.yml` (Candidate Release Battery)
-- **Run ID**: `33057865140`
-- **Run URL**: https://github.com/ther12k/bundar/actions/runs/33057865140
-- **Head commit**: `7d0f8b53967b1bbbaba10ae7138b314dc83a8451`
-- **Conclusion**: `success` (all 27 release steps passed in 8m12s)
-- **Artifacts**: `release-candidate-artifacts-7d0f8b53967b1bbbaba10ae7138b314dc83a8451`
 
 ## Residual risks and gates
 
@@ -121,6 +125,3 @@ The manifest, checksums, SBOM, provenance, and dry-run plan contain identical
   perform the read-only namespace check, configure the protected environment and
   secrets, and approve any live publish. This issue does not authorize or perform
   that action.
-- The two unrelated full-suite integration tests are timing-sensitive under
-  concurrent load but passed independently; their existing behavior was not
-  changed in this issue.

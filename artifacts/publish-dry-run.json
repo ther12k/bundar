@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T09:11:43.125Z",
+  "generatedAt": "2026-08-27T10:38:53.464Z",
   "plan": {
     "simulatedVersion": "0.1.0-alpha.2",
     "distTag": "canary",
@@ -20,11 +20,13 @@
       "Planned command shape: npm publish --tag canary per package, in order."
     ]
   },
+  "success": true,
+  "expectedCheckCount": 42,
   "checks": [
     {
       "check": "pack+version-sync",
       "status": "pass",
-      "detail": "9/9 fresh candidate tarballs validated from /tmp/bundar-dryrun-r6v3jH"
+      "detail": "9/9 fresh candidate tarballs validated from /tmp/bundar-dryrun-abRTJ7"
     },
     {
       "check": "no-unpublished-paths @bundar/core",
