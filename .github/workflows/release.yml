@@ -5,6 +5,13 @@ name: Release (human-gated)
 # docs/maintainers/publishing.md.
 #
 # Safety invariants:
+# - Wave 8 (Model B): the authoritative candidate is the SUCCESSFUL public
+#   Candidate Release Battery bundle — identified by its exact run ID. Both
+#   jobs download that exact artifact (`release-candidate-artifacts-<sha>`),
+#   optionally pin the immutable GitHub artifact digest, re-verify every
+#   tarball SHA-256 and packed identity through the shared strict loader,
+#   and publish those downloaded bytes. Nothing is rebuilt or taken from the
+#   working tree.
 # - The publish step requires BOTH a GitHub Environment protection rule
 #   (requiring maintainer review) AND the BUNDAR_RELEASE_TOKEN secret.
 # - publish:approved -- --dry-run is always run first and exits 0 before
@@ -24,6 +31,15 @@ on:
         description: "Exact semver candidate (e.g. 0.1.0-alpha.2)"
         required: true
         default: "0.1.0-alpha.2"
+      battery_run_id:
+        description: "Run ID of the successful Candidate Release Battery whose artifact bundle IS the candidate"
+        required: true
+        type: string
+      expected_artifact_digest:
+        description: "Optional sha256:<digest> of the bundle recorded at battery time; publish aborts on mismatch"
+        required: false
+        default: ""
+        type: string
       dry_run_only:
         description: "Only perform dry-run verification (no actual npm publish)"
         required: false
@@ -51,7 +67,42 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Validate inputs (reject latest; assert version matches manifest)
+      - name: Download the authoritative candidate bundle (digest-pinned)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BATTERY_RUN: ${{ github.event.inputs.battery_run_id }}
+          EXPECTED_DIGEST: ${{ github.event.inputs.expected_artifact_digest }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="release-candidate-artifacts-${GITHUB_SHA}"
+          observed="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BATTERY_RUN/artifacts" \
+            --jq ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .digest // empty")"
+          if [ -z "$observed" ]; then
+            echo "ERROR: no candidate bundle artifact $ARTIFACT_NAME found on run $BATTERY_RUN." >&2
+            exit 1
+          fi
+          if [ -n "$EXPECTED_DIGEST" ] && [ "$EXPECTED_DIGEST" != "$observed" ]; then
+            echo "ERROR: artifact digest mismatch — expected '$EXPECTED_DIGEST', observed '$observed'." >&2
+            exit 1
+          fi
+          echo "Candidate bundle digest: $observed"
+
+          head_sha="$(gh run view "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" --json headSha --jq .headSha)"
+          if [ "$head_sha" != "${GITHUB_SHA}" ]; then
+            echo "ERROR: battery run $BATTERY_RUN executed on $head_sha, not this commit ${GITHUB_SHA}." >&2
+            exit 1
+          fi
+
+          rm -rf candidate-bundle && mkdir -p candidate-bundle
+          gh run download "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" \
+            -n "$ARTIFACT_NAME" -D candidate-bundle
+          test -f candidate-bundle/artifacts/release/candidate-manifest.json \
+            || { echo "ERROR: unexpected bundle layout" >&2; exit 1; }
+          test -f candidate-bundle/artifacts/release/candidate-identity.json \
+            || { echo "ERROR: bundle lacks candidate-identity.json (pre-wave-8 bundle)" >&2; exit 1; }
+          echo "BUNDLE_DIR=$PWD/candidate-bundle" >> "$GITHUB_ENV"
+
+      - name: Validate inputs (reject latest; pinned identity must match bundle)
         run: |
           TAG="${{ github.event.inputs.tag }}"
           if [ "$TAG" = "latest" ]; then
@@ -61,18 +112,50 @@ jobs:
           fi
           INPUT_VERSION="${{ github.event.inputs.version }}"
           MANIFEST_VERSION="$(python3 -c "import json;print(json.load(open('artifacts/release/candidate-manifest.json'))['version'])")"
-          if [ "$INPUT_VERSION" != "$MANIFEST_VERSION" ]; then
-            echo "ERROR: input version ($INPUT_VERSION) does not match candidate manifest version ($MANIFEST_VERSION)." >&2
-            echo "Regenerate candidates at the desired SHA first: bun run publish:dry-run" >&2
+          BUNDLE_VERSION="$(python3 -c "import json;print(json.load(open('candidate-bundle/artifacts/release/candidate-manifest.json'))['version'])")"
+          IDENTITY_VERSION="$(python3 -c "import json;print(json.load(open('candidate-bundle/artifacts/release/candidate-identity.json'))['version'])")"
+          if [ "$INPUT_VERSION" != "$MANIFEST_VERSION" ] || [ "$INPUT_VERSION" != "$BUNDLE_VERSION" ] || [ "$INPUT_VERSION" != "$IDENTITY_VERSION" ]; then
+            echo "ERROR: input version ($INPUT_VERSION) does not match candidate manifests (committed=$MANIFEST_VERSION bundle=$BUNDLE_VERSION identity=$IDENTITY_VERSION)." >&2
             exit 1
           fi
-          echo "Version confirmed: $MANIFEST_VERSION"
+          echo "Version confirmed across input/committed/bundle: $INPUT_VERSION"
+
+          INPUT_TAG="$TAG" python3 - <<'PY'
+          import json, os, sys
+          identity = json.load(
+              open("candidate-bundle/artifacts/release/candidate-identity.json")
+          )
+          problems = []
+          if identity["workflowRunSha"] != os.environ.get("GITHUB_SHA", ""):
+              problems.append(
+                  "candidate-identity.workflowRunSha does not match the battery run commit"
+              )
+          expected_name = f"release-candidate-artifacts-{os.environ.get('GITHUB_SHA', '')}"
+          if identity["artifactName"] != expected_name:
+              problems.append(f"unexpected artifactName {identity['artifactName']}")
+          if identity["distTag"] != os.environ["INPUT_TAG"]:
+              problems.append(
+                  f"candidate-identity distTag {identity['distTag']} != requested tag"
+              )
+          if len(identity["packages"]) != 9:
+              problems.append(f"expected 9 packages, got {len(identity['packages'])}")
+          if problems:
+              print("Bundle identity check FAILED:", file=sys.stderr)
+              for problem in problems:
+                  print(f"  - {problem}", file=sys.stderr)
+              sys.exit(1)
+          PY
 
       - name: Run full CI battery
         run: bun run ci:m4
 
-      - name: Candidate dry-run (verifies tarballs, manifest, cross-artifact equality)
-        run: bun run publish:approved -- --dry-run --tag "${{ github.event.inputs.tag }}"
+      - name: Candidate dry-run against the DOWNLOADED bundle
+        run: |
+          bun run publish:approved -- \
+            --dry-run \
+            --tag "${{ github.event.inputs.tag }}" \
+            --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
+            --tarball-root "$BUNDLE_DIR"
 
       - name: Cross-artifact verification
         run: bun run release:verify
@@ -100,6 +183,33 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Download the authoritative candidate bundle (digest-pinned)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BATTERY_RUN: ${{ github.event.inputs.battery_run_id }}
+          EXPECTED_DIGEST: ${{ github.event.inputs.expected_artifact_digest }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="release-candidate-artifacts-${GITHUB_SHA}"
+          observed="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BATTERY_RUN/artifacts" \
+            --jq ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .digest // empty")"
+          if [ -z "$observed" ]; then
+            echo "ERROR: no candidate bundle artifact $ARTIFACT_NAME found on run $BATTERY_RUN." >&2
+            exit 1
+          fi
+          if [ -n "$EXPECTED_DIGEST" ] && [ "$EXPECTED_DIGEST" != "$observed" ]; then
+            echo "ERROR: artifact digest mismatch — expected '$EXPECTED_DIGEST', observed '$observed'." >&2
+            exit 1
+          fi
+          echo "Publishing bundle digest: $observed"
+
+          rm -rf candidate-bundle && mkdir -p candidate-bundle
+          gh run download "$BATTERY_RUN" --repo "$GITHUB_REPOSITORY" \
+            -n "$ARTIFACT_NAME" -D candidate-bundle
+          test -f candidate-bundle/artifacts/release/candidate-manifest.json \
+            || { echo "ERROR: unexpected bundle layout" >&2; exit 1; }
+          echo "BUNDLE_DIR=$PWD/candidate-bundle" >> "$GITHUB_ENV"
+
       - name: Authenticate npm
         # Uses NODE_AUTH_TOKEN, the standard convention; npm login is
         # not required when an appropriate automation token is configured
@@ -110,16 +220,25 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish candidate (guarded)
-        run: bun run publish:approved -- --tag "${{ github.event.inputs.tag }}"
+      - name: Publish candidate (guarded — publishes ONLY the downloaded bundle)
+        run: |
+          bun run publish:approved -- \
+            --tag "${{ github.event.inputs.tag }}" \
+            --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
+            --tarball-root "$BUNDLE_DIR"
         env:
           # BUNDAR_RELEASE_TOKEN is the session approval sentinel; the real npm
           # credential travels through NODE_AUTH_TOKEN above.
           BUNDAR_RELEASE_TOKEN: ${{ secrets.BUNDAR_RELEASE_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Post-publish registry verification (byte-for-byte)
-        run: bun run registry:verify -- --tag "${{ github.event.inputs.tag }}" --download
+      - name: Post-publish registry verification (byte-for-byte vs the bundle)
+        run: |
+          bun run registry:verify -- \
+            --tag "${{ github.event.inputs.tag }}" \
+            --download \
+            --manifest "$BUNDLE_DIR/artifacts/release/candidate-manifest.json" \
+            --root-dir "$BUNDLE_DIR"
 
       - name: Upload publish report
         if: always()
@@ -127,8 +246,9 @@ jobs:
         with:
           name: publish-report-${{ github.sha }}
           path: |
-            artifacts/release/candidate-manifest.json
-            artifacts/packages/checksums.txt
             artifacts/publish-dry-run.json
             artifacts/registry-verify.json
+            candidate-bundle/artifacts/release/candidate-manifest.json
+            candidate-bundle/artifacts/release/candidate-identity.json
+            candidate-bundle/artifacts/packages/checksums.txt
           retention-days: 365

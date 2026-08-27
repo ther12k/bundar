@@ -45,6 +45,13 @@ const steps = [
     "release:verify (cross-artifact set equality & preconditions)",
     ["run", "release:verify"],
   ],
+  [
+    // Wave 8 (Model B): record the single authoritative candidate identity
+    // (workflow SHA, source SHA, manifest digest, tarball digests) that the
+    // human-gated publish job later downloads and byte-verifies.
+    "release:candidate-identity (single-authority record)",
+    ["run", "release:candidate-identity"],
+  ],
 ] as const;
 
 function runStep(name: string, args: readonly string[]): Promise<number> {
