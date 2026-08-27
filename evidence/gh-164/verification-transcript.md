@@ -119,6 +119,15 @@ The manifest, checksums, SBOM, provenance, and dry-run plan contain identical
 - [x] No credential value was committed, printed, uploaded, or included in an
       artifact; no npm publication was executed.
 
+## Public release battery run
+
+- **Workflow**: `candidate-release.yml` (Candidate Release Battery)
+- **Run ID**: `33064663752`
+- **Run URL**: https://github.com/ther12k/bundar/actions/runs/33064663752
+- **Head commit**: `af545e818e32e380d84e6b00e55cda127d4272b3`
+- **Conclusion**: `success` (all 27 release steps passed in 8m39s)
+- **Artifacts**: `release-candidate-artifacts-af545e818e32e380d84e6b00e55cda127d4272b3`
+
 ## Residual risks and gates
 
 - Live npm publication remains blocked by human gate #130. A maintainer must
