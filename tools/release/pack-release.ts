@@ -40,7 +40,10 @@ export interface PackedCandidate {
   readonly name: string;
   readonly version: string;
   readonly tarballFile: string;
+  /** Repo-root-relative path recorded in candidate-manifest.json. */
   readonly tarballPath: string;
+  /** Absolute path on this machine for in-process I/O (never serialized). */
+  readonly absolutePath: string;
   readonly sha256: string;
 }
 
@@ -125,7 +128,10 @@ export function buildCandidateTarballs(options: {
       name: pkg,
       version,
       tarballFile,
-      tarballPath: targetTarballPath,
+      // BR-111: manifest paths are repo-root RELATIVE so the manifest is
+      // portable across machines and runtimes.
+      tarballPath: join("artifacts/packages", tarballFile),
+      absolutePath: targetTarballPath,
       sha256,
     });
   }
@@ -143,6 +149,26 @@ export function writeCandidateManifest(options: {
       cwd: REPO,
       encoding: "utf8",
     }).stdout?.trim() ?? "unknown";
+
+  // BR-111: SOURCE files must be clean and bound to an exact commit.
+  // Self-generated artifacts/ churn is expected mid-pipeline and excluded —
+  // the manifest records whatever the artifacts contain, and release:verify
+  // re-hashes them independently.
+  const dirty = spawnSync(
+    "git",
+    ["status", "--porcelain", "--", ".", ":!artifacts", ":!output"],
+    { cwd: REPO, encoding: "utf8" },
+  )
+    .stdout?.trim();
+  if (sourceSha === undefined || dirty !== "") {
+    throw new Error(
+      "candidate manifest generation requires a clean SOURCE tree bound to an exact commit (BR-111):\n" +
+        String(dirty ?? ""),
+    );
+  }
+  if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+    throw new Error(`candidate manifest source SHA malformed: ${sourceSha}`);
+  }
 
   const manifest: CandidateManifest = {
     sourceSha,

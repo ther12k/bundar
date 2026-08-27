@@ -25,9 +25,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -361,11 +363,17 @@ const persistedCandidates = new Map<string, PackedCandidate>();
 
 for (const [name, cand] of candidates) {
   const targetPath = join(artifactsPackagesDir, cand.tarballFile);
-  copyFileSync(cand.tarballPath, targetPath);
-  persistedCandidates.set(name, {
-    ...cand,
-    tarballPath: targetPath,
-  });
+  copyFileSync(cand.absolutePath, targetPath);
+  // Verify the persisted copy is byte-identical before recording it
+  const persistedSha = createHash("sha256")
+    .update(readFileSync(targetPath))
+    .digest("hex");
+  if (persistedSha !== cand.sha256) {
+    throw new Error(
+      `persisted candidate ${cand.tarballFile} hash drift: expected ${cand.sha256}, got ${persistedSha}`,
+    );
+  }
+  persistedCandidates.set(name, { ...cand, tarballPath: targetPath });
 }
 
 writeCandidateManifest({
@@ -373,6 +381,17 @@ writeCandidateManifest({
   distTag: DIST_TAG,
   candidates: persistedCandidates,
 });
+
+// Prune stale tarballs that are not part of the candidate manifest, so
+// artifacts/packages contains exactly the audited publication set.
+const manifestFiles = new Set(
+  [...persistedCandidates.values()].map((c) => c.tarballFile),
+);
+for (const entry of readdirSync(artifactsPackagesDir)) {
+  if (entry.endsWith(".tgz") && !manifestFiles.has(entry)) {
+    rmSync(join(artifactsPackagesDir, entry), { force: true });
+  }
+}
 
 // Update artifacts/packages/checksums.txt with the candidate tarball checksums
 const checksumsContent =

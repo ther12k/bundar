@@ -5,7 +5,12 @@
  * internal at alpha) and build/dev (typescript, eslint, hono parity
  * fixture, validators, yaml, prettier).
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+} from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -31,22 +36,66 @@ function purl(name: string, version: string): string {
 }
 
 // ---- workspace components (the release packages themselves) ----
-const components = bom.packages.map(
-  (pkg: {
-    name: string;
-    version: string;
-    sha256: string;
-    license: string;
-  }) => ({
+// BR-111: when a persisted candidate manifest exists, the SBOM release
+// components describe the PUBLICATION FORM (candidate version + candidate
+// tarball hashes), not the source-form 0.0.0 tarballs.
+interface ReleaseComponent {
+  type: string;
+  "bom-ref": string;
+  name: string;
+  version: string;
+  licenses?: { license: { id: string } }[];
+  hashes: { alg: string; content: string }[];
+  purl: string;
+}
+
+const manifestPath = join(REPO, "artifacts", "release", "candidate-manifest.json");
+let releaseComponents: ReleaseComponent[];
+if (existsSync(manifestPath)) {
+  const candidateManifest = JSON.parse(
+    readFileSync(manifestPath, "utf8"),
+  ) as {
+    packages: ReadonlyArray<{
+      name: string;
+      version: string;
+      sha256: string;
+    }>;
+  };
+  // License identity comes from the audited BOM (same package names).
+  const licenseByName = new Map(
+    (bom.packages as { name: string; license: string }[]).map((p) => [
+      p.name,
+      p.license,
+    ]),
+  );
+  releaseComponents = candidateManifest.packages.map((pkg) => ({
     type: "library",
     "bom-ref": `pkg:npm/${pkg.name}@${pkg.version}`,
     name: pkg.name,
     version: pkg.version,
-    licenses: [{ license: { id: pkg.license } }],
+    licenses: [{ license: { id: licenseByName.get(pkg.name) ?? "MIT" } }],
     hashes: [{ alg: "SHA-256", content: pkg.sha256 }],
     purl: purl(pkg.name, pkg.version),
-  }),
-);
+  }));
+} else {
+  releaseComponents = bom.packages.map(
+    (pkg: {
+      name: string;
+      version: string;
+      sha256: string;
+      license: string;
+    }) => ({
+      type: "library",
+      "bom-ref": `pkg:npm/${pkg.name}@${pkg.version}`,
+      name: pkg.name,
+      version: pkg.version,
+      licenses: [{ license: { id: pkg.license } }],
+      hashes: [{ alg: "SHA-256", content: pkg.sha256 }],
+      purl: purl(pkg.name, pkg.version),
+    }),
+  );
+}
+const components = releaseComponents;
 
 // ---- external dependencies from the lock (direct + transitive) ----
 // lock "packages" maps name → ["name@version", ...]; the array entries

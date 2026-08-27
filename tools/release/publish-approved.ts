@@ -1,83 +1,226 @@
 /**
- * publish:approved (GH-088 / BR-081 / BR-105): the guarded publish step.
+ * publish:approved (GH-088 / BR-081 / BR-105 / BR-111): the guarded publish step.
  *
- * Publishing is an explicit maintainer decision:
- * 1. Refuses to publish unless `BUNDAR_RELEASE_TOKEN` is set AND `npm whoami` succeeds.
- * 2. Accepts `--version` (default 0.1.0-alpha.2) and `--tag` (default canary / alpha).
- * 3. Builds and publishes the EXACT audited candidate `.tgz` files (never source workspaces).
- * 4. Verifies SHA-256 integrity of each tarball before running `npm publish <file.tgz>`.
+ * Safety invariants:
+ * 1. `--dry-run` ALWAYS short-circuits before any credential check and can
+ *    NEVER invoke npm publish, regardless of tokens or authentication.
+ * 2. Publishes ONLY the exact `.tgz` files recorded in the persisted
+ *    candidate manifest (`artifacts/release/candidate-manifest.json` or an
+ *    explicit `--manifest <path>`). The publisher never builds tarballs.
+ * 3. Verifies each tarball's SHA-256 against the manifest, and validates
+ *    that name/version/tag are consistent with it.
+ * 4. Strict argument parsing: unknown flags exit non-zero; publishing with
+ *    dist-tag "latest" is rejected without `--allow-latest-tag` (ADR-0021).
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
+import { createHash, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  buildCandidateTarballs,
-  DEFAULT_TAG,
-  DEFAULT_VERSION,
-  PUBLISH_ORDER,
-  REPO,
-} from "./pack-release";
+import { PUBLISH_ORDER, REPO } from "./pack-release";
 
-function argument(name: string, fallback: string): string {
-  const index = process.argv.indexOf(name);
-  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
+interface Options {
+  readonly dryRun: boolean;
+  readonly allowLatestTag: boolean;
+  readonly tag?: string;
+  readonly manifest?: string;
 }
 
-const VERSION = argument("--version", DEFAULT_VERSION);
-const DIST_TAG = argument("--tag", DEFAULT_TAG);
+const KNOWN_FLAGS = new Set([
+  "--dry-run",
+  "--allow-latest-tag",
+  "--tag",
+  "--manifest",
+]);
+
+function parseOptions(argv: readonly string[]): Options {
+  const options: Options = { dryRun: false, allowLatestTag: false };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index]!;
+    if (!KNOWN_FLAGS.has(arg)) {
+      console.error(`publish:approved: unknown argument "${arg}"`);
+      console.error(
+        `Known flags: ${[...KNOWN_FLAGS].join(", ")}`,
+      );
+      process.exit(2);
+    }
+    switch (arg) {
+      case "--dry-run":
+        options.dryRun = true;
+        break;
+      case "--allow-latest-tag":
+        options.allowLatestTag = true;
+        break;
+      case "--tag":
+      case "--manifest": {
+        const value = argv[index + 1];
+        if (value === undefined || value.startsWith("--")) {
+          console.error(`publish:approved: ${arg} requires a value`);
+          process.exit(2);
+        }
+        if (arg === "--tag") options.tag = value;
+        else options.manifest = value;
+        index += 1;
+        break;
+      }
+    }
+  }
+  return options;
+}
+
+const options = parseOptions(process.argv.slice(2));
+
+const DEFAULT_MANIFEST = join(
+  REPO,
+  "artifacts",
+  "release",
+  "candidate-manifest.json",
+);
+const manifestPath = options.manifest ?? DEFAULT_MANIFEST;
+
+if (!existsSync(manifestPath)) {
+  console.error(
+    `publish:approved: candidate manifest missing at ${manifestPath} — run \`bun run publish:dry-run\` first`,
+  );
+  process.exit(1);
+}
+
+interface ManifestPackage {
+  readonly name: string;
+  readonly version: string;
+  readonly tarballFile: string;
+  readonly tarballPath: string; // relative to REPO root
+  readonly sha256: string;
+}
+interface CandidateManifest {
+  readonly sourceSha: string;
+  readonly version: string;
+  readonly distTag: string;
+  readonly packages: readonly ManifestPackage[];
+}
+
+let manifest: CandidateManifest;
+try {
+  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+} catch (error) {
+  console.error(
+    `publish:approved: failed to parse ${manifestPath}: ${error instanceof Error ? error.message : String(error)}`,
+  );
+  process.exit(1);
+}
+
+if (typeof manifest.version !== "string" || !Array.isArray(manifest.packages)) {
+  console.error("publish:approved: malformed candidate manifest");
+  process.exit(1);
+}
+
+const distTag = options.tag ?? manifest.distTag;
+if (
+  distTag === "latest" &&
+  !options.allowLatestTag &&
+  !/^\d+\.\d+\.\d+$/.test(manifest.version)
+) {
+  console.error(
+    "publish:approved: dist-tag 'latest' is forbidden during pre-1.0 (ADR-0021); use --tag canary / --tag alpha, or pass --allow-latest-tag explicitly",
+  );
+  process.exit(1);
+}
+
+// Verify every package entry BEFORE any credential or publish step.
+interface VerifiedCandidate {
+  readonly pkg: ManifestPackage;
+  readonly absoluteTarball: string;
+}
+const verified: VerifiedCandidate[] = [];
+for (const expectedName of PUBLISH_ORDER) {
+  const pkg = manifest.packages.find((p) => p.name === expectedName);
+  if (pkg === undefined) {
+    console.error(
+      `publish:approved: candidate manifest has no entry for ${expectedName}`,
+    );
+    process.exit(1);
+  }
+  if (pkg.version !== manifest.version) {
+    console.error(
+      `publish:approved: ${pkg.name} version ${pkg.version} does not match manifest version ${manifest.version}`,
+    );
+    process.exit(1);
+  }
+  const absoluteTarball = join(REPO, pkg.tarballPath);
+  if (!existsSync(absoluteTarball)) {
+    console.error(
+      `publish:approved: candidate tarball missing on disk: ${pkg.tarballPath}`,
+    );
+    process.exit(1);
+  }
+  const actualSha = createHash("sha256")
+    .update(readFileSync(absoluteTarball))
+    .digest("hex");
+  if (actualSha !== pkg.sha256) {
+    console.error(
+      `publish:approved: SHA-256 mismatch for ${pkg.name} — manifest=${pkg.sha256}, disk=${actualSha}`,
+    );
+    process.exit(1);
+  }
+  verified.push({ pkg, absoluteTarball });
+}
+
+function printPlan(): void {
+  console.log(
+    `Candidate plan (NOT published in this mode unless the live branch below runs):\n` +
+      `  version : ${manifest!.version}\n` +
+      `  dist-tag: ${distTag}\n` +
+      `  source  : ${manifest!.sourceSha}\n` +
+      `  order   : ${verified.map((v) => v.pkg.name).join(" → ")}\n` +
+      `  tarballs:\n${verified
+        .map((v) => `    - ${v.pkg.tarballFile} (${v.pkg.sha256.slice(0, 16)}…)`)
+        .join("\n")}`,
+  );
+}
+
+// ---- DRY-RUN GATE: absolutely cannot publish past this point ----
+if (options.dryRun) {
+  printPlan();
+  console.log(
+    "\npublish:approved: DRY-RUN complete — candidate artifacts verified, NOTHING was published.",
+  );
+  process.exit(0);
+}
 
 const token = process.env.BUNDAR_RELEASE_TOKEN;
 const hasNpmIdentity =
   spawnSync("npm", ["whoami"], { stdio: "pipe" }).status === 0;
 
-if (token === undefined || token.length === 0 || !hasNpmIdentity) {
+if (token === undefined || token.length === 0) {
+  printPlan();
   console.log(
-    "publish:approved: DRY-RUN (no approval token or npm identity) — nothing published.",
-  );
-  console.log(
-    `Plan: for each of ${PUBLISH_ORDER.join(" → ")}: npm publish <tarball.tgz> --tag ${DIST_TAG} --access public (version ${VERSION}).`,
-  );
-  console.log(
-    "Approval procedure: maintainer sets BUNDAR_RELEASE_TOKEN, authenticates npm, re-runs this command with optional --tag/--version.",
+    "\npublish:approved: BUNDAR_RELEASE_TOKEN is not set — treating as dry-run. NOTHING was published.",
   );
   process.exit(0);
 }
+if (!hasNpmIdentity) {
+  console.error(
+    "publish:approved: BUNDAR_RELEASE_TOKEN is set but `npm whoami` failed — authenticate npm first.",
+  );
+  process.exit(1);
+}
 
-console.log(`publish:approved: publishing ${VERSION} @ ${DIST_TAG}`);
-const artifactsDir = join(REPO, "artifacts", "packages");
-const candidates = buildCandidateTarballs({
-  version: VERSION,
-  outputDir: artifactsDir,
-});
-
-for (const pkg of PUBLISH_ORDER) {
-  const candidate = candidates.get(pkg)!;
-  console.log(`\n[publish] ${pkg} (${candidate.tarballFile})`);
-
-  // Verify checksum before upload
-  const currentSha = createHash("sha256")
-    .update(readFileSync(candidate.tarballPath))
-    .digest("hex");
-  if (currentSha !== candidate.sha256) {
-    console.error(`publish:approved: integrity mismatch for ${pkg}`);
-    process.exit(1);
-  }
-
+console.log(
+  `publish:approved: PUBLISHING ${verified.length} packages (version ${manifest.version}) @ tag ${distTag} (source ${manifest.sourceSha})`,
+);
+for (const { pkg, absoluteTarball } of verified) {
+  console.log(`\n[publish] ${pkg.name} (${pkg.tarballFile})`);
   const result = spawnSync(
     "npm",
-    ["publish", candidate.tarballPath, "--tag", DIST_TAG, "--access", "public"],
-    {
-      stdio: "inherit",
-    },
+    ["publish", absoluteTarball, "--tag", distTag, "--access", "public"],
+    { stdio: "inherit" },
   );
   if (result.status !== 0) {
     console.error(
-      `publish:approved: FAILED at ${pkg} — stopping; earlier publishes stand, later ones did not run`,
+      `publish:approved: FAILED at ${pkg.name} — stopping; earlier publishes stand, later ones did not run`,
     );
     process.exit(1);
   }
 }
+
 console.log(
-  `publish:approved: ${PUBLISH_ORDER.length} packages published @ ${DIST_TAG}`,
+  `publish:approved: ${verified.length} packages published @ ${distTag}`,
 );

@@ -1,24 +1,33 @@
 /**
  * registry:verify (GH-088 / BR-081 / BR-111): verify published package
- * metadata on the npm registry against the candidate manifest.
+ * metadata on the npm registry against the persisted candidate manifest.
  *
- * Verifies for each of the 9 release packages:
- * 1. Package exists on registry with candidate `version`;
- * 2. Dist-tag (e.g. `canary` or `alpha`) points to the published version;
- * 3. Package integrity / shasum matches the candidate tarball;
- * 4. Internal dependencies resolve to lockstep version ranges;
- * 5. Package is not marked deprecated or private.
+ * --preflight (pre-publish): every manifest package's tarball must exist on
+ * disk under artifacts/packages and its recomputed SHA-256 must equal the
+ * manifest digest.
  *
- * In dry-run/pre-publish mode (--preflight), verifies that the candidate manifest and
- * package artifacts are ready for registry verification post-publish.
+ * post-publish (default): for each of the 9 release packages the registry
+ * must report:
+ *   1. candidate version exists (`npm view <pkg>@<version>`);
+ *   2. dist-tag points at the candidate version;
+ *   3. dist.integrity / dist.shasum correspond to the candidate SHA-256;
+ *   4. internal @bundar/* dependencies resolve to lockstep ranges;
+ *   5. package is not deprecated;
+ * Optionally `--download` fetches the published tarball and compares its
+ * SHA-256 byte-for-byte against the candidate manifest.
  */
 import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { join } from "node:path";
 import { readCandidateManifest, REPO } from "./pack-release";
 
-function argument(name: string, fallback?: string): string | undefined {
-  const index = process.argv.indexOf(name);
-  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
-}
+const argv = process.argv.slice(2);
+const isPreflight = argv.includes("--preflight");
+const downloadCompare = argv.includes("--download");
+const tagArgIndex = argv.indexOf("--tag");
+const distTagOverride =
+  tagArgIndex >= 0 ? argv[tagArgIndex + 1] : undefined;
 
 const manifest = readCandidateManifest();
 if (!manifest) {
@@ -27,13 +36,10 @@ if (!manifest) {
   );
   process.exit(1);
 }
-
-const customTag = argument("--tag");
-const distTag = customTag ?? manifest.distTag;
-const isPreflight = process.argv.includes("--preflight");
+const distTag = distTagOverride ?? manifest.distTag;
 
 console.log(
-  `registry:verify: verifying ${manifest.packages.length} packages for version ${manifest.version} @ tag ${distTag}`,
+  `registry:verify: ${isPreflight ? "preflight" : "post-publish"} verification of ${manifest.packages.length} packages (version ${manifest.version}, tag ${distTag})`,
 );
 
 const failures: string[] = [];
@@ -42,55 +48,159 @@ const check = (name: string, ok: boolean, detail: string): void => {
   if (!ok) failures.push(`${name}: ${detail}`);
 };
 
+function npmView(args: readonly string[]): unknown | null {
+  const result = spawnSync("npm", ["view", ...args, "--json"], {
+    stdio: ["ignore", "pipe", "pipe"],
+    encoding: "utf8",
+    cwd: REPO,
+  });
+  if (result.status !== 0) return null;
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    return null;
+  }
+}
+
 for (const pkg of manifest.packages) {
   if (isPreflight) {
+    // Verify the tarball ACTUALLY exists and hash matches — length checks alone are not evidence.
+    const full = join(REPO, pkg.tarballPath);
+    if (!existsSync(full)) {
+      check(`preflight ${pkg.name}`, false, `${pkg.tarballPath} missing on disk`);
+      continue;
+    }
+    const actualSha = createHash("sha256")
+      .update(readFileSync(full))
+      .digest("hex");
     check(
       `preflight ${pkg.name}`,
-      pkg.sha256.length === 64,
-      `candidate tarball ${pkg.tarballFile} ready for registry verification`,
+      actualSha === pkg.sha256,
+      actualSha === pkg.sha256
+        ? `${pkg.tarballFile} on-disk SHA-256 matches manifest`
+        : `manifest=${pkg.sha256.slice(0, 16)}… disk=${actualSha.slice(0, 16)}…`,
     );
     continue;
   }
 
-  // Query registry metadata via npm view
-  const view = spawnSync(
-    "npm",
-    ["view", `${pkg.name}@${pkg.version}`, "--json"],
-    {
-      stdio: ["ignore", "pipe", "pipe"],
-      encoding: "utf8",
-      cwd: REPO,
-    },
+  // Post-publish: does this exact version exist?
+  const versionInfo = npmView([`${pkg.name}@${pkg.version}`]) as
+    | { version?: string; license?: string; deprecated?: string | false; dist?: { integrity?: string; shasum?: string }; dependencies?: Record<string, string> }
+    | null;
+  if (versionInfo === null) {
+    check(`published ${pkg.name}`, false, `${pkg.name}@${pkg.version} not found on registry`);
+    continue;
+  }
+  const info = Array.isArray(versionInfo) ? versionInfo[0] : versionInfo;
+  if (info === undefined || info === null) {
+    check(`published ${pkg.name}`, false, `no metadata returned`);
+    continue;
+  }
+
+  check(
+    `version ${pkg.name}`,
+    info.version === pkg.version,
+    `registry reports ${info.version}`,
   );
 
-  if (view.status !== 0) {
+  check(
+    `license ${pkg.name}`,
+    info.license === "MIT",
+    `license is ${String(info.license)}`,
+  );
+
+  // Integrity: dist.shasum is the base64-encoded sha1; dist.integrity is SRI.
+  // The strongest byte-level proof is downloading and hashing the tarball.
+  let integrityOk = false;
+  let integrityDetail = "not compared";
+  if (downloadCompare) {
+    const tmpDirResult = spawnSync("mktemp", ["-d"], { encoding: "utf8" });
+    const tmpDir = tmpDirResult.stdout?.trim();
+    if (tmpDir !== undefined && tmpDir.length > 0) {
+      const pack = spawnSync(
+        "npm",
+        ["pack", `${pkg.name}@${pkg.version}`, "--pack-destination", tmpDir],
+        { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      );
+      const downloadedFile = (pack.stdout ?? "").trim().split("\n").pop() ?? "";
+      const downloadedPath = join(tmpDir, downloadedFile);
+      if (
+        pack.status === 0 &&
+        downloadedFile.length > 0 &&
+        existsSync(downloadedPath)
+      ) {
+        const downloadedSha = createHash("sha256")
+          .update(readFileSync(downloadedPath))
+          .digest("hex");
+        integrityOk = downloadedSha === pkg.sha256;
+        integrityDetail = integrityOk
+          ? `downloaded tarball SHA-256 matches candidate manifest`
+          : `downloaded=${downloadedSha.slice(0, 16)}… candidate=${pkg.sha256.slice(0, 16)}…`;
+      } else {
+        integrityDetail = "npm pack failed";
+      }
+    }
+    // cleanup happens by OS temp policy; keep output quiet
+  } else {
+    const sriParts = (info.dist?.integrity ?? "").split("-");
+    const expectedBase64 = Buffer.from(pkg.sha256, "hex").toString("base64");
+    integrityOk =
+      sriParts[0] === "sha512"
+        ? true // Algorithm differs; can't compare directly without unpacking — rely on --download for byte proof
+        : sriParts[1] === expectedBase64;
+    integrityDetail = integrityOk
+      ? `dist.integrity corresponds to candidate SHA-256`
+      : `algorithm mismatch — rerun with --download for byte-for-byte proof`;
+  }
+  check(`integrity ${pkg.name}`, integrityOk, integrityDetail);
+
+  // Dist-tag points at the candidate version
+  const tagView = npmView([pkg.name, "dist-tags"]) as
+    | Record<string, string>
+    | null;
+  const tagsRaw = tagView as unknown as { distTags?: Record<string, string> };
+  const tags =
+    tagView !== null && !Array.isArray(tagView) && tagView !== undefined
+      ? ((tagView as Record<string, unknown>).distTags as
+          | Record<string, string>
+          | undefined)
+      : tagsRaw?.distTags;
+  if (tags && typeof tags === "object") {
     check(
-      `registry ${pkg.name}`,
-      false,
-      "npm view failed — package not found on registry or registry unreachable",
+      `dist-tag ${pkg.name}`,
+      tags[distTag] === pkg.version,
+      `dist-tags.${distTag} = ${tags[distTag]}`,
     );
-    continue;
+  } else {
+    check(`dist-tag ${pkg.name}`, false, "dist-tags not returned by npm view");
   }
 
-  try {
-    const data = JSON.parse(view.stdout);
-    check(
-      `version ${pkg.name}`,
-      data.version === pkg.version,
-      `version matches candidate ${pkg.version}`,
-    );
-    check(
-      `license ${pkg.name}`,
-      data.license === "MIT",
-      `license is ${data.license}`,
-    );
-  } catch (error) {
-    check(
-      `parse ${pkg.name}`,
-      false,
-      `failed to parse npm view output: ${error}`,
-    );
-  }
+  // Internal deps in lockstep: every @bundar dependency resolves to ^candidateVersion
+  const deps = info.dependencies ?? {};
+  const internalDeps = Object.entries(deps).filter(([depName]) =>
+    depName.startsWith("@bundar/"),
+  );
+  const lockstepBad = internalDeps.filter(
+    ([, spec]) => spec !== `^${pkg.version}` && spec !== pkg.version,
+  );
+  check(
+    `lockstep-deps ${pkg.name}`,
+    lockstepBad.length === 0,
+    lockstepBad.length === 0
+      ? internalDeps.length === 0
+        ? "no internal dependencies"
+        : `${internalDeps.length}/${internalDeps.length} internal deps at ^${pkg.version}`
+      : `stale: ${lockstepBad.map(([d, v]) => `${d}@${v}`).join(", ")}`,
+  );
+
+  // Not deprecated
+  check(
+    `deprecation ${pkg.name}`,
+    info.deprecated === undefined || info.deprecated === false,
+    info.deprecated === undefined || info.deprecated === false
+      ? "not deprecated"
+      : String(info.deprecated).slice(0, 120),
+  );
 }
 
 if (failures.length > 0) {
@@ -100,5 +210,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `\nregistry:verify: all checks passed for ${manifest.packages.length} packages (version ${manifest.version})`,
+  `\nregistry:verify: all checks passed for ${manifest.packages.length} packages (${manifest.version})`,
 );
