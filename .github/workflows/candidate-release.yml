@@ -42,7 +42,13 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-candidate-artifacts-${{ github.sha }}
+          # upload-artifact v4 stores entries relative to the least common
+          # ancestor of the search paths. Listing root-level package.json
+          # pins the LCA to the repo root, so the downloaded bundle mirrors
+          # the repo layout (artifacts/release/..., artifacts/packages/...)
+          # that the human-gated publish job's --tarball-root expects.
           path: |
+            package.json
             artifacts/release/candidate-manifest.json
             artifacts/release/candidate-identity.json
             artifacts/packages/checksums.txt
