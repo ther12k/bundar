@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:35:07.181Z",
+  "generatedAt": "2026-08-28T16:28:55.299Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -128,7 +128,7 @@
       "name": "@bundar/forms",
       "version": "0.0.0",
       "tarball": "bundar-forms-0.0.0.tgz",
-      "sha256": "8904aac31cc6cd5526539e284342c17141a34423d5aea5b1dc53f1e6a26f7e41",
+      "sha256": "ae59da2f2460dcd2c35ff2bcd27ce71f8a367934cbba8bcfcf1fb8808510b011",
       "fileCount": 9,
       "files": [
         "src/contracts.ts",
@@ -141,8 +141,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 31165,
-      "packedBytes": 8572,
+      "unpackedBytes": 31388,
+      "packedBytes": 8627,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -184,8 +184,8 @@
       "name": "@bundar/htmx",
       "version": "0.0.0",
       "tarball": "bundar-htmx-0.0.0.tgz",
-      "sha256": "43ece3d0c7edb1c8baa6ec0542f068ac597a05a4322e2137a26a88ac1b0b519e",
-      "fileCount": 26,
+      "sha256": "27b0bde22ea84b99b47ea8d49d152a3ce070579da6bb79806cfdd7e5da27f787",
+      "fileCount": 28,
       "files": [
         "src/script.ts",
         "src/assets.ts",
@@ -208,14 +208,16 @@
         "src/vendor/htmx4.min.js",
         "src/vendor/htmx2.min.js",
         "src/events.ts",
+        "src/error-document.ts",
         "src/request.ts",
         "src/directives.ts",
         "src/navigation.ts",
+        "src/form-action-facade.ts",
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 214566,
-      "packedBytes": 65187,
+      "unpackedBytes": 224110,
+      "packedBytes": 67514,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -309,8 +311,8 @@
   ],
   "summary": {
     "packages": 9,
-    "totalUnpackedBytes": 690286,
-    "totalPackedBytes": 206523,
+    "totalUnpackedBytes": 700053,
+    "totalPackedBytes": 208905,
     "findings": 0
   }
 }
