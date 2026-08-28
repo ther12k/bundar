@@ -95,6 +95,52 @@ export interface FormActionDefinition<Output> {
   readonly transaction?: FormTransaction;
 }
 
+/**
+ * Additive second contract (GH-180): separates VALIDATED INPUT from the
+ * DOMAIN RESULT of business execution. The legacy {@link FormActionDefinition}
+ * collapses both into `Output` and asks `buildFragment` to perform the entire
+ * success path; here `run()` executes the business action exactly once on the
+ * validated input, and success rendering receives the domain result. The
+ * workflow context is passed to every lifecycle hook so the definition can
+ * observe the request without re-deriving it. Still wire-ignorant: delivery
+ * stays an opaque adapter-owned record and no HTMX concept enters this
+ * package.
+ */
+export interface ExecutableFormActionDefinition<Input, Result> {
+  /** The Standard Schema the submission is validated against. */
+  readonly schema: StandardSchema<unknown, Input>;
+  /**
+   * Optional custom validation port. When present it REPLACES the default
+   * Standard Schema path, mirroring the legacy contract.
+   */
+  readonly validation?: FormValidationAdapter<Input>;
+  /**
+   * Runs the business action exactly once on the validated input, inside the
+   * transaction hooks. Its return value is the domain result handed to
+   * success rendering.
+   */
+  readonly run: (
+    input: Input,
+    context: FormWorkflowContext,
+  ) => Result | Promise<Result>;
+  /** Builds the success fragment from the DOMAIN RESULT, not the input. */
+  readonly buildFragment: (
+    result: Result,
+    context: FormWorkflowContext,
+  ) => unknown | Promise<unknown>;
+  /** Adapter-owned delivery options for the valid path. */
+  readonly delivery?: Readonly<Record<string, unknown>>;
+  /** Re-renders the form region with errors + retained safe values. */
+  readonly renderForm: (
+    render: InvalidFormRender,
+    context: FormWorkflowContext,
+  ) => unknown;
+  /** Server-known region selector for enhanced error delivery. */
+  readonly formTarget?: string;
+  /** Optional transaction hooks around the valid path. */
+  readonly transaction?: FormTransaction;
+}
+
 /** The composed result of running a form action. */
 export type FormActionOutcome =
   | { readonly kind: "invalid"; readonly response: Response }

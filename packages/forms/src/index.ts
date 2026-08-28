@@ -11,6 +11,7 @@
  */
 export {
   INVALID_SUBMISSION_STATUS,
+  type ExecutableFormActionDefinition,
   type FormActionDefinition,
   type FormActionOutcome,
   type FormResponseAdapter,
@@ -39,4 +40,4 @@ export {
 } from "./sources";
 
 /** Contract version of this surface; bumps when a contract shape changes. */
-export const FORMS_CONTRACT_VERSION = "1.1.0";
+export const FORMS_CONTRACT_VERSION = "1.2.0";
