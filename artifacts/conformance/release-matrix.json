@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-27T11:59:27.571Z",
+  "generated": "2026-08-28T14:31:43.714Z",
   "pinned": {
     "htmx2": "2.0.10 (stable)",
     "htmx4": "4.0.0-beta6 (experimental — no GA claim)"
@@ -9,133 +9,133 @@
       "suite": "template/minimal",
       "lane": "htmx2",
       "status": "pass",
-      "ms": 1564,
+      "ms": 3431,
       "detail": "exit 0"
     },
     {
       "suite": "template/minimal",
       "lane": "htmx4",
       "status": "pass",
-      "ms": 1897,
+      "ms": 3733,
       "detail": "exit 0"
     },
     {
       "suite": "examples/todo",
       "lane": "htmx2",
       "status": "pass",
-      "ms": 367,
+      "ms": 601,
       "detail": "exit 0"
     },
     {
       "suite": "examples/todo",
       "lane": "htmx4",
       "status": "pass",
-      "ms": 388,
+      "ms": 549,
       "detail": "exit 0"
     },
     {
       "suite": "examples/todo",
       "lane": "no-js",
       "status": "pass",
-      "ms": 366,
+      "ms": 465,
       "detail": "exit 0"
     },
     {
       "suite": "examples/admin-crud",
       "lane": "htmx2",
       "status": "pass",
-      "ms": 391,
+      "ms": 863,
       "detail": "exit 0"
     },
     {
       "suite": "examples/admin-crud",
       "lane": "htmx4",
       "status": "pass",
-      "ms": 431,
+      "ms": 626,
       "detail": "exit 0"
     },
     {
       "suite": "examples/admin-crud",
       "lane": "no-js",
       "status": "pass",
-      "ms": 386,
+      "ms": 559,
       "detail": "exit 0"
     },
     {
       "suite": "examples/workflow-gate",
       "lane": "all",
       "status": "pass",
-      "ms": 127,
+      "ms": 200,
       "detail": "exit 0"
     },
     {
       "suite": "scaffold",
       "lane": "htmx2",
       "status": "pass",
-      "ms": 1611,
+      "ms": 4595,
       "detail": "exit 0"
     },
     {
       "suite": "scaffold",
       "lane": "htmx4",
       "status": "pass",
-      "ms": 1598,
+      "ms": 3184,
       "detail": "exit 0"
     },
     {
       "suite": "browser-lanes",
       "lane": "htmx2",
       "status": "pass",
-      "ms": 89705,
+      "ms": 107507,
       "detail": "exit 0"
     },
     {
       "suite": "browser-lanes",
       "lane": "htmx4",
       "status": "pass",
-      "ms": 84786,
+      "ms": 110994,
       "detail": "exit 0"
     },
     {
       "suite": "browser-lanes",
       "lane": "dual-parity",
       "status": "pass",
-      "ms": 27664,
+      "ms": 39411,
       "detail": "exit 0"
     },
     {
       "suite": "security",
       "lane": "matrix",
       "status": "pass",
-      "ms": 322,
+      "ms": 939,
       "detail": "exit 0"
     },
     {
       "suite": "security",
       "lane": "workflow",
       "status": "pass",
-      "ms": 116,
+      "ms": 209,
       "detail": "exit 0"
     },
     {
       "suite": "security",
       "lane": "example-admin",
       "status": "pass",
-      "ms": 106,
+      "ms": 170,
       "detail": "exit 0"
     },
     {
       "suite": "shared-source",
       "lane": "guard",
       "status": "pass",
-      "ms": 18,
+      "ms": 37,
       "detail": "exit 0"
     },
     {
       "suite": "accessibility",
       "lane": "smoke",
       "status": "pass",
-      "ms": 79,
+      "ms": 131,
       "detail": "exit 0"
     }
   ],
