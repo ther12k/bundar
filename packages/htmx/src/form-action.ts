@@ -10,8 +10,6 @@
  *
  * Public API is unchanged; behavior is identical to the pre-move module.
  */
-import { jsx } from "@bundar/jsx";
-import { ErrorSummary } from "@bundar/jsx";
 import {
   executeFormAction,
   INVALID_SUBMISSION_STATUS,
@@ -24,6 +22,7 @@ import type {
   InvalidFormRender,
 } from "@bundar/forms";
 import { actionResponse, action, type ActionOptions } from "./action";
+import { genericErrorDocument } from "./error-document";
 import {
   errorViewResponse,
   type ErrorPresentationPolicy,
@@ -94,25 +93,7 @@ function htmxAdapter<Output>(
   return {
     invalid(request, delivery) {
       const policy: ErrorPresentationPolicy = {
-        renderDocument: (view: PublicErrorView) =>
-          jsx("html", {
-            lang: "en",
-            children: [
-              jsx("head", {
-                children: jsx("title", { children: `Error ${view.status}` }),
-              }),
-              jsx("body", {
-                children: [
-                  jsx("h1", { children: view.message }),
-                  view.fieldErrors
-                    ? // links:false — the generic document contains no
-                      // form fields, so field anchors would dangle
-                      ErrorSummary({ errors: view.fieldErrors, links: false })
-                    : null,
-                ],
-              }),
-            ],
-          }),
+        renderDocument: genericErrorDocument,
         // the form renderer receives the REDACTED retained values computed
         // by the workflow (GH-059 model), never the raw submission
         renderFragment: () => definition.renderForm(delivery.render),
