@@ -52,9 +52,9 @@ declared in `@bundar/forms`; how it reaches the browser differs by mode:
   with the retained form and field-associated errors: form actions accept
   a `renderInvalidDocument` hook that receives the same validation result
   as the enhanced fragment path, and the reference applications ship it
-  out of the box (BR-088, closed). Without the hook the generic 422
+  out of the box. Without the hook the generic 422
   document announces errors through a linkless `role="alert"` summary.
-- **htmx 2 (BR-087, closed)**: htmx 2.x does not swap 4xx response bodies
+- **htmx 2**: htmx 2.x does not swap 4xx response bodies
   by default, so `HtmxScript` ships the dialect-owned preset
   automatically — a CSP-safe `<meta name="htmx-config">` (static tag, no
   inline script) rendered in `<head>` before the asset script. Reference

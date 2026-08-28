@@ -9,6 +9,8 @@ export default tseslint.config(
       "**/dist/**",
       "coverage/**",
       "node_modules/**",
+      "website/.astro/**",
+      "website/src/content/docs/**",
       "fixtures/htmx2/htmx.min.js",
       "fixtures/htmx4/htmx.min.js",
       "**/*.min.js",

@@ -1,7 +1,7 @@
 # Sessions guide
 
 Bundar sessions attach through a narrow, storage-agnostic interface with
-secure cookie defaults — and no built-in database coupling (GH-062).
+secure cookie defaults — and no built-in database coupling.
 
 ## The store contract
 
@@ -29,7 +29,7 @@ backend behind them; Bundar never queries storage directly.
 `HttpOnly; SameSite=Lax; Path=/; Secure` with an `Expires` aligned to the
 idle timeout and no `Domain` (host-only). `SameSite=Lax` is deliberate:
 `Strict` breaks top-level login redirects, and strict cross-site protection
-belongs to the CSRF middleware (GH-061), which binds its tokens to this
+belongs to the CSRF middleware, which binds its tokens to this
 session cookie. `Secure` can only be disabled explicitly for local
 development.
 
@@ -50,13 +50,13 @@ development.
 
 ## Why no signed/encrypted cookie payloads
 
-Reviewed and deemed unnecessary (GH-062): all session state lives behind the
+Reviewed and deemed unnecessary: all session state lives behind the
 store, so the cookie has nothing to sign or encrypt — only an opaque id
 generated from `crypto.getRandomValues`. If a stateless id scheme is ever
 added, it requires a superseding review under the same acceptance criteria.
 
 
-## Store contract and production posture (BR-061)
+## Store contract and production posture
 
 Every adapter implements the narrow port (`load`/`commit`/`destroy`) plus
 security capabilities:
@@ -81,7 +81,7 @@ security capabilities:
   acknowledgment in production posture checks.
 
 
-## Secure cookie policy (BR-060)
+## Secure cookie policy
 
 `resolveCookieSecure` derives `Secure` from the NORMALIZED origin
 (ADR-0020): trusted https termination ⇒ `Secure`; production http origin
@@ -92,7 +92,7 @@ security capabilities:
 construction with explicit `secure:false` and no proxy trust.
 
 
-## Lifecycle security guarantees (BR-063)
+## Lifecycle security guarantees
 
 - **Fixation**: authentication/privilege change ROTATES the id; an
   attacker-planted pre-auth cookie is never retained.

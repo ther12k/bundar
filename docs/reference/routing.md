@@ -1,7 +1,7 @@
 # Routing reference
 
 Route registration, parameters, wildcards, modules, and typed URLs are
-covered in the guides. This page pins the HTTP METHOD POLICY (BR-069).
+covered in the guides. This page pins the HTTP method policy.
 
 ## Method semantics
 
@@ -32,14 +32,14 @@ The full request matrix (all route forms × method cases) is pinned in
 that alters any cell fails CI loudly rather than silently changing
 framework semantics.
 
-## Edge-case policy (BR-070)
+## Edge-case policy
 
 - Registration normalizes trailing slashes and empty segments (`//a//` →
   `/a`).
 - **Encoded separators fail closed**: `%2F` / `%5C` in a registered path
   throw `RoutePathValidationError` — Bun matches the DECODED form, so such
   routes would be silently dead. Register the decoded literal instead.
-- Control characters in paths are rejected (BR-068 finding).
+- Control characters in paths are rejected.
 - **Duplicate route names** throw `RouteConflictError` naming BOTH paths —
   typed URLs stay one-to-one.
 - Percent-encoded values inside parameters decode at the VALUE level

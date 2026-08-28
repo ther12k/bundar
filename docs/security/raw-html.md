@@ -28,5 +28,4 @@ for markup you fully control or have sanitized with an audited tool.
 ## Audit
 
 Raw call sites are tracked by `bun run security:raw-html-audit`, and the
-forgery surface is pinned by `packages/jsx/test/security/raw-html-forgery.test.ts`
-(BR-005 reproduction, BR-006 closure).
+forgery surface is pinned by `packages/jsx/test/security/raw-html-forgery.test.ts`.

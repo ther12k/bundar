@@ -12,7 +12,7 @@ updated: '2026-08-23'
 
 # Deployment and lifecycle
 
-## Lifecycle (BR-057)
+## Lifecycle
 
 Register resources in dependency order; `Lifecycle` guarantees deterministic
 startup, rollback on failure, bounded draining, and idempotent stop.
@@ -59,7 +59,7 @@ If any resource fails to start, already-started resources are stopped in
 reverse order before `LifecycleStartError` propagates — no half-open
 databases or queues.
 
-## Cancellation (BR-058)
+## Cancellation
 
 Every request exposes one standard signal: `context.signal` (transport
 disconnect + budget deadline + forced shutdown, first cause wins).

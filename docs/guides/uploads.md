@@ -1,7 +1,6 @@
 # Uploads guide
 
-File uploads are bounded, explicit, and untrusting by construction
-(GH-064).
+File uploads are bounded, explicit, and untrusting by construction.
 
 ## The contract
 

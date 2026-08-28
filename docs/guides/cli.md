@@ -12,8 +12,7 @@ updated: '2026-08-23'
 
 # Bundar CLI
 
-`@bundar/cli` powers `bundar <command>`. Agent-facing behavior is a contract
-(BR-046), not incidental formatting.
+`@bundar/cli` powers `bundar <command>`. Agent-facing behavior is a contract, not incidental formatting.
 
 ## Global flags
 
@@ -61,15 +60,15 @@ Secrets-safe environment diagnostics. `--json` puts the fields under
 
 ### routes generate|check
 
-Typed URL builders from named routes (GH-073). `check` fails on drift.
+Typed URL builders from named routes. `check` fails on drift.
 
 ### htmx-audit <path>…
 
-Static htmx 2→4 migration audit (GH-078). Nonexistent input paths exit `1`.
+Static htmx 2→4 migration audit. Nonexistent input paths exit `1`.
 
 ### inspect
 
-Bounded offline project manifest (BR-047): versions, packages, export maps,
+Bounded offline project manifest: versions, packages, export maps,
 entrypoints, dialect, routes (name/method/path via static scan), feature
 files with layers, focused checks, and a sha256 `inputHash` over scanned
 inputs. Scopes:

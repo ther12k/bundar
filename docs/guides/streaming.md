@@ -13,10 +13,10 @@ updated: '2026-08-23'
 # Streaming
 
 `renderToStream(node, options)` streams server JSX with pull-based
-backpressure. `options`: `signal` (BR-058), `chunkBytes`
+backpressure. `options`: `signal`, `chunkBytes`
 (flush granularity; the consumer is never held hostage to it).
 
-## Policy matrix (BR-072)
+## Policy matrix
 
 | Situation | Behavior |
 | --- | --- |

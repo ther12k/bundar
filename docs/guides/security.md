@@ -13,7 +13,7 @@ primary flows.
 > [`examples/admin-crud`](https://github.com/ther12k/bundar/blob/main/examples/admin-crud/src/security.test.ts)
 > (the posture suite).
 
-## The composition contract (GH-069)
+## The composition contract
 
 ```text
 sessionMiddleware (global, durable store in production)
@@ -50,7 +50,7 @@ interface (see the [sessions guide](sessions.md)).
 ## Validation and redaction
 
 `runFormAction` parses with bounded limits, validates through any
-Standard Schema, and re-renders with the GH-059 field-error model —
+Standard Schema, and re-renders with the standard field-error model —
 which retains safe values only: sensitive keys (passwords, tokens,
 secrets) and upload contents never round-trip into HTML. Invalid
 submissions answer 422 in BOTH worlds with the same messages.
@@ -62,13 +62,13 @@ submissions answer 422 in BOTH worlds with the same messages.
 - Unexpected failures become opaque 500s in production; messages and
   stacks appear only in development.
 - Authorization failures (401/403) render generic documents without
-  protected content even for enhanced requests (GH-065 default) — and
+  protected content even for enhanced requests — and
   authorization reads ONLY the session. HTMX headers never grant
   identity: the [admin posture suite](../examples/admin.md) proves a
   viewer claiming an admin trigger still gets 403, and record identity
   comes from route params, never `hx-target`.
 
-## Headers and CSP (GH-066)
+## Headers and CSP
 
 `securityHeaders()` applies the frozen mandatory baseline per request:
 nonce-based CSP (crypto-random, request-scoped), `X-Content-Type-Options:
@@ -79,7 +79,7 @@ the mandatory policy. Known interaction: htmx injects an inline
 `includeIndicatorStyles` or use the development profile (documented in
 the header tests).
 
-## Uploads (GH-064)
+## Uploads
 
 `handleUploads` enforces a declared policy: allowed MIME types, size
 ceilings, sanitized client filenames, temp files outside web roots,

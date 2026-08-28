@@ -1,6 +1,6 @@
 # Error codes reference
 
-Machine-readable error identities are a **compatibility surface** (BR-067):
+Machine-readable error identities are a **compatibility surface**:
 codes and their status mappings are frozen within a release line; messages
 may change; additions are minor releases; removals require a major.
 
@@ -36,7 +36,7 @@ may change; additions are minor releases; removals require a major.
 | `DirectiveValidationError` | htmx | `internal` (developer bug; dev message shows detail) |
 | `UpdateIntentError` | htmx | `internal` |
 | `BodyConsumedError` | core | `internal` |
-| Cancellation reasons (BR-058) | core internal | `request_timeout` / `server_shutting_down`; disconnect → no response |
+| Cancellation reasons | core internal | `request_timeout` / `server_shutting_down`; disconnect → no response |
 
 ## Redaction policy
 
@@ -48,7 +48,7 @@ Applied at the single error boundary:
 - Stack traces: development only
 - Correlation: every boundary response carries `x-bundar-error-id`
   matching the log entry; headers never alter cache semantics
-- Cancellation is NOT transaction rollback (BR-058)
+- Cancellation is NOT transaction rollback
 
 ## Change policy
 

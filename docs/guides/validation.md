@@ -9,7 +9,7 @@ and Bundar ships — and requires — none. `@bundar/core` never depends on
 
 | helper | input passed to the schema | notes |
 | --- | --- | --- |
-| `validateForm(context, schema)` | form fields as a record; repeated keys become `string[]` | body read once by the bounded parser (GH-057); a second read fails with `BodyConsumedError` |
+| `validateForm(context, schema)` | form fields as a record; repeated keys become `string[]` | body read once by the bounded parser; a second read fails with `BodyConsumedError` |
 | `validateJson(context, schema)` | the parsed JSON value | same single-consumption guarantee |
 | `validateQuery(context, schema)` | query record; repeated keys become `string[]` in submission order | lazy, per request |
 | `validateParams(context, schema)` | the decoded route params record | router-decoded |
@@ -32,7 +32,7 @@ Malformed dialect behavior (a schema without a valid `~standard` object, or
 a `validate` returning a nonconforming result) fails closed with
 `SchemaDialectError` rather than guessing.
 
-## Rendering errors (GH-059)
+## Rendering errors
 
 `toFieldErrors(result, { submitted })` turns a failed result into stable
 rendering data without a JSON round trip: per-field message lists (multiple
@@ -55,7 +55,7 @@ links. It renders nothing for an empty model and escapes every message.
 independent real validators — Zod 4 and Valibot 1 — at both the type level
 (`bunx tsc`) and runtime (`bun run test:consumer:schema`).
 
-## Invalid submissions without JavaScript (BR-088)
+## Invalid submissions without JavaScript
 
 Ordinary (no-JS) invalid submissions re-render your APPLICATION document
 when you pass `renderInvalidDocument` to `runFormAction` — the same
@@ -63,11 +63,11 @@ validation result as the enhanced path, represented as the full page:
 
 ```ts
 runFormAction(context, {
-  schema,
-  action: { fragment, redirectTo },
-  renderForm,                    // enhanced: form region fragment
-  renderInvalidDocument: (render, view) =>
-    myLayout(renderForm(render)), // ordinary: the complete document
+ schema,
+ action: { fragment, redirectTo },
+ renderForm,          // enhanced: form region fragment
+ renderInvalidDocument: (render, view) =>
+  myLayout(renderForm(render)), // ordinary: the complete document
 });
 ```
 
@@ -77,4 +77,4 @@ user keeps the list/context and the forms stay submittable (token from
 the request cookie). Without the option, the framework's generic error
 document is used: announced via a `role="alert"` summary WITHOUT field
 anchor links (the fields are not in that document — dangling anchors
-were the pre-BR-088 defect).
+were the pre- defect).
