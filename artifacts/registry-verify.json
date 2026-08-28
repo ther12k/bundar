@@ -7,72 +7,72 @@
     {
       "name": "@bundar/core",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "8a21f5c23b25f0bd97ddd9a2af4300634b06ef44ac28acf2a9d89cbe90e6f24b",
-      "onDiskSha256": "8a21f5c23b25f0bd97ddd9a2af4300634b06ef44ac28acf2a9d89cbe90e6f24b",
+      "candidateSha256": "16d7439cde02904735bfba02306a502a22d726d23fbbb443b7b77f7eda84b377",
+      "onDiskSha256": "16d7439cde02904735bfba02306a502a22d726d23fbbb443b7b77f7eda84b377",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/jsx",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "8dd1161490bf2a844add884a0e7500cc10116c7f13d27a24f517acf50f0756c3",
-      "onDiskSha256": "8dd1161490bf2a844add884a0e7500cc10116c7f13d27a24f517acf50f0756c3",
+      "candidateSha256": "b27b055b1879c8b8803dabaf20ed7f5ddafb1174f11a87c8841e8d259239e36b",
+      "onDiskSha256": "b27b055b1879c8b8803dabaf20ed7f5ddafb1174f11a87c8841e8d259239e36b",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/schema",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "249c244953043f28d8f98bbe234e6e39ac46b5636aafd3b7d16758d67e79976c",
-      "onDiskSha256": "249c244953043f28d8f98bbe234e6e39ac46b5636aafd3b7d16758d67e79976c",
+      "candidateSha256": "5aef08f78f4c4318d5994de2503d9e94717870e8db8b1fef89b36d82e0188a03",
+      "onDiskSha256": "5aef08f78f4c4318d5994de2503d9e94717870e8db8b1fef89b36d82e0188a03",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/forms",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "b30f6f8c28806485a67a576ec3287fff517720b737bff07f9b081e48964c12df",
-      "onDiskSha256": "b30f6f8c28806485a67a576ec3287fff517720b737bff07f9b081e48964c12df",
+      "candidateSha256": "b74ccf67e923ffb0141534735933149c9e23d3bf11055ab5bbaa10716a339063",
+      "onDiskSha256": "b74ccf67e923ffb0141534735933149c9e23d3bf11055ab5bbaa10716a339063",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/security",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "783874a65c3ed580fc547fd9c7beff17b4f70c07007891640bb10227a0783ac0",
-      "onDiskSha256": "783874a65c3ed580fc547fd9c7beff17b4f70c07007891640bb10227a0783ac0",
+      "candidateSha256": "80df923a9e6ba1524f480dd90fbc5a6f277ae2757bf51d233e58c7603fc4d0d5",
+      "onDiskSha256": "80df923a9e6ba1524f480dd90fbc5a6f277ae2757bf51d233e58c7603fc4d0d5",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/htmx",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "013d8f3de46d69336b6cd9ca55bb64851fe7e9a427b45eb8f13b8a4b133953d1",
-      "onDiskSha256": "013d8f3de46d69336b6cd9ca55bb64851fe7e9a427b45eb8f13b8a4b133953d1",
+      "candidateSha256": "9e0a6935e1d5a334004c2624ff0667712a9829c954d0f8064205a12243cb7099",
+      "onDiskSha256": "9e0a6935e1d5a334004c2624ff0667712a9829c954d0f8064205a12243cb7099",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/testing",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "804b69e9d59f3607dfed54245c77fdf4e416a0fe514371b04f2b1da2a8ee018b",
-      "onDiskSha256": "804b69e9d59f3607dfed54245c77fdf4e416a0fe514371b04f2b1da2a8ee018b",
+      "candidateSha256": "3d0f6bafec65373c312fb0a67cf248cfca501ed4e926917c907c52ce002cf6b4",
+      "onDiskSha256": "3d0f6bafec65373c312fb0a67cf248cfca501ed4e926917c907c52ce002cf6b4",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "@bundar/cli",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "f2dd97bd82698eb2170b58e10c8e497f50f2c5fbc581b903c8a0c3d0d81215cf",
-      "onDiskSha256": "f2dd97bd82698eb2170b58e10c8e497f50f2c5fbc581b903c8a0c3d0d81215cf",
+      "candidateSha256": "b1334808774020ab4962406721a5a3a1828955d066aec8e4d709d8ce64519a34",
+      "onDiskSha256": "b1334808774020ab4962406721a5a3a1828955d066aec8e4d709d8ce64519a34",
       "onDiskMatches": true,
       "status": "pass"
     },
     {
       "name": "create-bundar",
       "candidateVersion": "0.1.0-alpha.2",
-      "candidateSha256": "93ef2c60933929ecfad86de4488b7631e8d8f4e88fb848ae6bf7fae3fd25b1b9",
-      "onDiskSha256": "93ef2c60933929ecfad86de4488b7631e8d8f4e88fb848ae6bf7fae3fd25b1b9",
+      "candidateSha256": "5b2dcbc03408619a7fe832b59e7956205790ac43426be0270e4bfcf4f27bdc9f",
+      "onDiskSha256": "5b2dcbc03408619a7fe832b59e7956205790ac43426be0270e4bfcf4f27bdc9f",
       "onDiskMatches": true,
       "status": "pass"
     }
