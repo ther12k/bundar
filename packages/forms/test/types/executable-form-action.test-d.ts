@@ -69,9 +69,8 @@ describe("GH-180 ExecutableFormActionDefinition type contract", () => {
         return { userId: input.email.length, ranAt: context.request.url };
       },
       buildFragment: (result, context) => {
-        const resultIsDomainResult: Expect<
-          Equal<typeof result, SignupResult>
-        > = true;
+        const resultIsDomainResult: Expect<Equal<typeof result, SignupResult>> =
+          true;
         const contextIsWorkflowContext: Expect<
           Equal<typeof context, FormWorkflowContext>
         > = true;
