@@ -77,6 +77,13 @@ ran on. Docs/evidence commits merged in between change the SHA and the
 gate will reject the battery run — rerun the battery on the final ref
 instead.
 
+Trusted ref: both jobs refuse to run off `main` (`github.ref` check), and
+the metadata gate requires the battery's `head_branch` to be `main`.
+Before publication, also protect `main` and restrict the `npm-publish`
+environment's deployment branches to protected `main` (see
+`delivery/gates/registry.md` and gate #130) — that policy, not the SHA
+gate, is what makes a ref trustworthy in the first place.
+
 ## Candidate preparation (local inspection — diagnostic only)
 
 These commands diagnose a checkout; they are never a publication path.
