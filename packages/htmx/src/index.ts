@@ -126,6 +126,13 @@ export type {
   InvalidFormRender,
 } from "./form-action";
 export {
+  createFormActions,
+  defineFormAction,
+  type FormActionsFacade,
+  type HtmxFormActionDefinition,
+  type InvalidFormView,
+} from "./form-action-facade";
+export {
   composeFragment,
   auditUpdateMechanisms,
   serializeUpdates,
