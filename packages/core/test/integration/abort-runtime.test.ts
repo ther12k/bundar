@@ -210,18 +210,24 @@ describe("BR-058 runtime cancellation over real sockets", () => {
     app.setAbortScope({ forcedShutdown: forced.signal });
 
     const seenSignals = new Set<AbortSignal>();
+    let victimEntered: () => void;
+    const victimEnteredPromise = new Promise<void>((resolve) => {
+      victimEntered = resolve;
+    });
+
     app.get("/work/:n", async (context) => {
       seenSignals.add(context.signal);
       const n = Number(context.params["n"]);
       if (n === 50) {
+        victimEntered();
         // this one gets cancelled by its own client below
         await new Promise<void>((resolve, reject) => {
           context.signal.addEventListener("abort", reject, { once: true });
-          setTimeout(resolve, 250);
+          setTimeout(resolve, 500);
         });
         return new Response("cancelled-never", { status: 500 });
       }
-      await new Promise((r) => setTimeout(r, 5));
+      await new Promise((r) => setTimeout(r, 20));
       return new Response(`ok-${n}`);
     });
 
@@ -241,9 +247,8 @@ describe("BR-058 runtime cancellation over real sockets", () => {
           text: `aborted:${error.name}`,
         })),
     );
-    // Let every handler enter (and register its own signal) before
-    // cancelling exactly one client.
-    await new Promise((r) => setTimeout(r, 15));
+    // Ensure victim handler has entered and attached listener before aborting
+    await victimEnteredPromise;
     controllers[50]!.abort();
 
     const results = await Promise.all(requests);
