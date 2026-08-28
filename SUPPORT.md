@@ -2,9 +2,11 @@
 
 ## Project status
 
-Bundar is pre-alpha software under active development. APIs change without
-deprecation shims until the first stable alpha (GH-088) and 1.0
-(`project/open-source-strategy.md`, Stability promise).
+Bundar is pre-1.0 alpha software under active development. Published
+candidates ride non-default dist-tags (`canary` / `alpha` — never `latest`
+before 1.0, per ADR-0021). APIs may still change without deprecation shims
+until the public API contract is frozen for 1.0 (milestone M9;
+`project/open-source-strategy.md`, Stability promise).
 
 ## What is supported
 

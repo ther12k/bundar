@@ -2,10 +2,13 @@
 
 ## Supported versions
 
-Bundar is pre-alpha. Only the current `main` branch receives security fixes;
-there are no stable releases, backports, or long-term support promises yet
-(see `SUPPORT.md`). Supported-release expectations will be published here
-when the first alpha ships (GH-088).
+Bundar is pre-1.0 alpha software. Pre-release candidates are published
+through the human-gated release workflow to non-default dist-tags
+(`canary` / `alpha` — never `latest` before 1.0). Only the current `main`
+branch receives security fixes; there are no stable releases, backports,
+or long-term support promises yet (see `SUPPORT.md`). The
+supported-versions and backport policy will be published here ahead of
+`1.0.0-rc.1` (milestone M9).
 
 ## Reporting a vulnerability
 
