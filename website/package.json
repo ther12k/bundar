@@ -1,0 +1,16 @@
+{
+  "name": "bundar-docs-site",
+  "version": "0.1.0-alpha.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.9",
+    "astro": "^7.2.9"
+  }
+}

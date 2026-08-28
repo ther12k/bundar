@@ -36,32 +36,32 @@ Bun.serve (native route tables, compiled once at startup)
 
 - Route matching is Bun's own (the native route table); the compiler
   only composes middleware chains once at compile time.
-- Errors classify at one boundary (GH-020): expected `HttpError`s keep
+- Errors classify at one boundary: expected `HttpError`s keep
   their public envelope; unexpected failures are opaque 500s in
   production — messages and stacks leak only in development.
-- Request budgets (GH-067) bound body size and deadline; composite
+- Request budgets bound body size and deadline; composite
   abort signals classify client disconnects apart from failures.
 
 ## Server-only JSX
 
 JSX renders to HTML strings/streams on the server — there is no VDOM,
-no hydration, no client runtime. Streaming (GH-034) uses async
+no hydration, no client runtime. Streaming uses async
 generators with real backpressure; RCDATA/script escaping is
-grammar-aware (GH-036). If you need rich client state, Bundar is the
+grammar-aware. If you need rich client state, Bundar is the
 wrong tool for that part of your app — keep those islands in something
 else and link them.
 
 ## Progressive enhancement as architecture
 
-- **Negotiation** (GH-048): ordinary → document, enhanced → fragment,
+- **Negotiation**: ordinary → document, enhanced → fragment,
   boosted/history-restore → document.
-- **Actions** (GH-050): one result → 303 PRG for ordinary browsers,
+- **Actions**: one result → 303 PRG for ordinary browsers,
   fragment + directives for enhanced.
-- **Form actions** (GH-060): parse → validate (Standard Schema) → act,
+- **Form actions**: parse → validate (Standard Schema) → act,
   with identical validation for both worlds.
-- **OOB updates** (GH-051): normalized intents — never hand-written
+- **OOB updates**: normalized intents — never hand-written
   swap markup.
-- **Errors** (GH-065): page/fragment negotiation with auth failures
+- **Errors**: page/fragment negotiation with auth failures
   never leaking protected content.
 
 ## Comparison guidance

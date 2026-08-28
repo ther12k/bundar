@@ -1,0 +1,196 @@
+{
+  "$comment": "Curated public developer docs for the website. src is repo-relative under docs/; slug becomes /docs/<slug>/. Titles feed both Starlight frontmatter and the sidebar. Maintainer/engineering docs (maintainers/, okf/, performance/, snippets/, delivery/, decisions/) are deliberately excluded from the developer path.",
+  "groups": [
+    {
+      "label": "Getting started",
+      "items": [
+        {
+          "src": "getting-started.md",
+          "slug": "getting-started",
+          "title": "Getting started"
+        }
+      ]
+    },
+    {
+      "label": "Tutorial",
+      "items": [
+        {
+          "src": "examples/todo.md",
+          "slug": "examples/todo",
+          "title": "Build a todo application"
+        },
+        {
+          "src": "examples/admin.md",
+          "slug": "examples/admin",
+          "title": "Build an admin application"
+        }
+      ]
+    },
+    {
+      "label": "Guides",
+      "items": [
+        {
+          "src": "guides/validation.md",
+          "slug": "guides/validation",
+          "title": "Forms and validation"
+        },
+        {
+          "src": "guides/sessions.md",
+          "slug": "guides/sessions",
+          "title": "Sessions"
+        },
+        {
+          "src": "guides/security.md",
+          "slug": "guides/security",
+          "title": "Security"
+        },
+        {
+          "src": "guides/uploads.md",
+          "slug": "guides/uploads",
+          "title": "File uploads"
+        },
+        {
+          "src": "guides/streaming.md",
+          "slug": "guides/streaming",
+          "title": "Streaming responses"
+        },
+        {
+          "src": "guides/accessibility.md",
+          "slug": "guides/accessibility",
+          "title": "Accessibility"
+        },
+        {
+          "src": "guides/htmx-migration.md",
+          "slug": "guides/htmx-migration",
+          "title": "HTMX migration"
+        },
+        {
+          "src": "guides/deployment.md",
+          "slug": "guides/deployment",
+          "title": "Deployment"
+        },
+        {
+          "src": "guides/project-structure.md",
+          "slug": "guides/project-structure",
+          "title": "Project structure"
+        },
+        { "src": "guides/cli.md", "slug": "guides/cli", "title": "CLI" }
+      ]
+    },
+    {
+      "label": "Concepts",
+      "items": [
+        {
+          "src": "guides/architecture.md",
+          "slug": "concepts/architecture",
+          "title": "Architecture"
+        }
+      ]
+    },
+    {
+      "label": "Reference",
+      "items": [
+        {
+          "src": "api/core.md",
+          "slug": "reference/api/core",
+          "title": "@bundar/core API"
+        },
+        {
+          "src": "api/jsx.md",
+          "slug": "reference/api/jsx",
+          "title": "@bundar/jsx API"
+        },
+        {
+          "src": "api/schema.md",
+          "slug": "reference/api/schema",
+          "title": "@bundar/schema API"
+        },
+        {
+          "src": "api/forms.md",
+          "slug": "reference/api/forms",
+          "title": "@bundar/forms API"
+        },
+        {
+          "src": "api/security.md",
+          "slug": "reference/api/security",
+          "title": "@bundar/security API"
+        },
+        {
+          "src": "api/htmx.md",
+          "slug": "reference/api/htmx",
+          "title": "@bundar/htmx API"
+        },
+        {
+          "src": "api/testing.md",
+          "slug": "reference/api/testing",
+          "title": "@bundar/testing API"
+        },
+        {
+          "src": "api/cli.md",
+          "slug": "reference/api/cli",
+          "title": "@bundar/cli API"
+        },
+        {
+          "src": "reference/routing.md",
+          "slug": "reference/routing",
+          "title": "Routing reference"
+        },
+        {
+          "src": "reference/body.md",
+          "slug": "reference/body",
+          "title": "Body parsing reference"
+        },
+        {
+          "src": "reference/error-codes.md",
+          "slug": "reference/error-codes",
+          "title": "Error codes"
+        },
+        {
+          "src": "security/raw-html.md",
+          "slug": "reference/raw-html",
+          "title": "Raw HTML trust boundary"
+        },
+        {
+          "src": "security/sink-inventory.md",
+          "slug": "reference/sink-inventory",
+          "title": "HTML sink inventory"
+        },
+        {
+          "src": "compatibility/matrix.md",
+          "slug": "reference/compatibility-matrix",
+          "title": "Compatibility matrix"
+        },
+        {
+          "src": "compatibility/browsers.md",
+          "slug": "reference/browsers",
+          "title": "Browser support"
+        },
+        {
+          "src": "compatibility/htmx2.md",
+          "slug": "reference/htmx2",
+          "title": "htmx 2 compatibility"
+        },
+        {
+          "src": "compatibility/htmx4-beta6.md",
+          "slug": "reference/htmx4-beta6",
+          "title": "htmx 4 beta deviations"
+        },
+        {
+          "src": "compatibility/versions.md",
+          "slug": "reference/versions",
+          "title": "Version compatibility"
+        }
+      ]
+    },
+    {
+      "label": "Releases",
+      "items": [
+        {
+          "src": "release-notes/alpha.md",
+          "slug": "releases/alpha",
+          "title": "0.1.0-alpha.2 release notes"
+        }
+      ]
+    }
+  ]
+}

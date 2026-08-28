@@ -33,7 +33,7 @@ hashes. Compatibility is defined by tested profiles, not floating majors.
 > claim may be made. See [htmx4-beta6.md](htmx4-beta6.md) for details.
 
 
-## Upgrade-checker conformance (BR-073)
+## Upgrade-checker conformance
 
 The official htmx upgrade checker is ADVISORY evidence. Its documented
 finding categories map one-to-one onto Bundar dispositions in
@@ -44,7 +44,7 @@ the fixture corpus in `tests/compatibility/`. htmx 4 support stays
 EXPERIMENTAL behind the v4 dialect; no GA compatibility claim.
 
 
-## Browser engine scope (BR-074)
+## Browser engine scope
 
 Browser conformance evidence is **Chromium-only** by explicit maintainer
 decision (well-known-browser policy). Firefox/WebKit are out of scope for

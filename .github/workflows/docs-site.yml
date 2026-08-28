@@ -1,0 +1,61 @@
+name: Docs site
+
+# GH-171 trust split applies: PRs run on ephemeral GitHub-hosted VMs.
+# The docs site is Node tooling, so it stays on GitHub-hosted for push too
+# (it does not need the halotec runner).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "docs/**"
+      - "tools/website/**"
+      - ".github/workflows/docs-site.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - "docs/**"
+      - "tools/website/**"
+      - ".github/workflows/docs-site.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Sync, check, and build the docs site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.0
+
+      - name: Install root dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Regenerate the API reference
+        run: bun run docs:generate
+
+      - name: Sync website content
+        run: bun run docs:site:sync
+
+      - name: Check site hygiene (freshness, evidence separation, links)
+        run: bun run docs:site:check
+
+      - name: Install website dependencies
+        run: cd website && bun install --frozen-lockfile
+
+      - name: Build the static site
+        run: cd website && bun run build
+
+      - name: Upload site preview
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: docs-site-preview
+          path: website/dist/
+          retention-days: 14

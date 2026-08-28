@@ -2,7 +2,6 @@
 
 Updated: 2026-08-25 · Machine-readable source:
 [artifacts/conformance/browsers.json](../../artifacts/conformance/browsers.json)
-(BR-074)
 
 ## Claim (beta)
 

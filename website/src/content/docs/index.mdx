@@ -1,0 +1,89 @@
+---
+title: Introduction
+description: Bundar is an HTML-first, server-only-JSX web framework for Bun — ordinary forms by default, htmx enhancement when you want it.
+banner:
+  content: "Pre-1.0 alpha (0.1.0-alpha.2) — APIs may change. Published releases ride non-default dist-tags."
+---
+
+Bundar is an **HTML-first web framework for [Bun](https://bun.sh)**. You write
+server-rendered HTML with server-only JSX, ship ordinary HTML forms by
+default, and progressively enhance with htmx when a page needs it. There is
+no hydration step and no client JavaScript runtime to ship for ordinary
+pages.
+
+## What is Bundar?
+
+A Bun-native HTTP framework with:
+
+- **Server-only JSX** — components render to HTML on the server; nothing
+  ships a React-style runtime to the browser.
+- **Document and fragment rendering** — the same route serves a full page
+  for ordinary navigation and a fragment for htmx requests.
+- **Ordinary forms first** — POST/Redirect/GET works with JavaScript
+  disabled; htmx enhancement is opt-in per page.
+- **A dual-dialect htmx adapter** — htmx **2** is the stable default;
+  htmx **4** is available as an experimental opt-in and is never the
+  default.
+- **Security defaults** — session handling, CSRF/origin checks, and
+  security headers are part of the framework, not an afterthought.
+
+The `@bundar/core` and `@bundar/jsx` packages have **zero runtime
+dependencies**.
+
+## When should I use it?
+
+Bundar fits server-rendered applications: admin panels, internal tools,
+content-heavy sites, CRUD products, and htmx-style interactive apps where
+most logic lives on the server.
+
+## How does it compare to raw Bun, Hono, or Elysia?
+
+Raw `Bun.serve` gives you the HTTP server and nothing else. Hono and Elysia
+are excellent minimalist routers/middleware layers. Bundar builds the
+application layer on top of that style of runtime: typed routes and
+generated URLs, a server JSX runtime with document/fragment negotiation,
+validated form actions with CSRF, sessions, and security headers wired by
+default, plus testing utilities that exercise the same code paths in-process
+or through a real server. If you want to compose your own everything, a
+router is enough; if you want those application contracts provided and
+tested for you, that is what Bundar is for.
+
+## Run your first app
+
+The documented path today runs from the repository (packages are not yet
+published to npm — publication is gated behind the maintainer registry
+setup):
+
+```bash
+git clone https://github.com/ther12k/bundar
+cd bundar
+bun install
+```
+
+Then follow [Getting started](/docs/getting-started/). Once the canary is
+published, this quickstart becomes the public one:
+
+```bash
+bunx create-bundar@canary my-app
+cd my-app
+bun install
+bun run dev
+```
+
+## Where to go next
+
+- [Getting started](/docs/getting-started/) — app creation, routing,
+  documents and fragments, forms, security, testing, deployment.
+- [Build a todo application](/docs/examples/todo/) — an end-to-end tutorial.
+- [Forms and validation](/docs/guides/validation/) — ordinary and enhanced
+  form flows.
+- [Compatibility matrix](/docs/reference/compatibility-matrix/) — what is
+  stable, what is experimental, and the htmx 4 caveats.
+
+## Status
+
+Bundar is **pre-1.0 alpha** (`0.1.0-alpha.2`). Published releases ride
+non-default dist-tags (`canary` / `alpha` — never `latest`), and APIs may
+still change between releases. See the
+[release notes](/docs/releases/alpha/) for the current state and known
+limitations.

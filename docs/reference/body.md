@@ -1,4 +1,4 @@
-# Body consumption reference (BR-071)
+# Body consumption reference
 
 One request body, one owner. All helpers coordinate through a per-request
 ownership tag so conflicts are actionable instead of engine-specific.
@@ -11,7 +11,7 @@ ownership tag so conflicts are actionable instead of engine-specific.
 | Different helpers (`parseJson` → `parseForm`) | `BodyConsumedError`: "already consumed by parseJson … use parseFormCached". |
 | `parseFormCached` | Lazy cache: first call parses + owns; later calls return the SAME parsed instance. |
 | `request.clone()` | Tees lazily; does NOT consume or reset the original. |
-| Abort mid-body | Truncated payloads are discarded — never parsed as complete forms (BR-066). |
+| Abort mid-body | Truncated payloads are discarded — never parsed as complete forms. |
 
 ## Content-type conformance
 
@@ -20,11 +20,11 @@ ownership tag so conflicts are actionable instead of engine-specific.
 | Missing/other content-type for JSON/form parsers | `415` `UnsupportedMediaTypeError` (header echoed for diagnostics) |
 | JSON with non-UTF8 charset | `415` (RFC 8259: JSON is UTF-8) |
 | Malformed JSON / truncated multipart | `400` `MalformedBodyError` |
-| Limit breaches (BR-066) | `413` maxBytes/maxFileBytes · `408` timeout/abort · `400` other kinds via `bodyLimitToHttpError` |
+| Limit breaches | `413` maxBytes/maxFileBytes · `408` timeout/abort · `400` other kinds via `bodyLimitToHttpError` |
 | Empty urlencoded body | Parses to an empty form |
 | Empty JSON body | `400` malformed |
 
 ## Redaction
 
-Parser errors never echo body values (BR-067): messages contain limits,
+Parser errors never echo body values: messages contain limits,
 kinds, and consumer names only.

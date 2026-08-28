@@ -1,6 +1,6 @@
 # @bundar/core API reference
 
-<sub>Generated from the live public surface by `bun run docs:generate` (GH-079). Drift fails the build — regenerate and commit together with the source change.</sub>
+<sub>Generated from the live public surface by `bun run docs:generate` . Drift fails the build — regenerate and commit together with the source change.</sub>
 
 Routing, context, middleware, errors, budgets — zero runtime dependencies.
 

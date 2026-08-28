@@ -4,8 +4,7 @@ The admin app (`examples/admin-crud`) is the business-application
 reference: authenticated sessions with server-side roles, a searchable/
 filterable/paginated table, inline create/edit forms with optimistic-
 concurrency conflicts, role-gated deletes, an audit feed, and multi-region
-out-of-band updates — one handler set for no-JS and enhanced browsers
-(GH-077).
+out-of-band updates — one handler set for no-JS and enhanced browsers.
 
 ## The moving parts
 

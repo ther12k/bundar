@@ -1,7 +1,6 @@
 # Sink inventory
 
-Machine-checked companion: `bun run security:sinks` (`tools/security/sink-audit.ts`,
-BR-007). The audit fails closed on (A) `HX-*` response-header writes outside
+Machine-checked companion: `bun run security:sinks` (`tools/security/sink-audit.ts`). The audit fails closed on (A) `HX-*` response-header writes outside
 the dialect adapter and (B) production `raw()` call sites missing from the
 registered allowlist. Application code under `examples/`/`templates/` is
 reported, not gated.
@@ -14,7 +13,7 @@ reported, not gated.
 | 4 | `style` serialization | `@bundar/jsx` (`render/attributes.ts`) | StyleValue model | serialized to declaration text, then escaped as attribute value | attribute tests | CSS property injection within one declaration is application input responsibility |
 | 5 | RCDATA + raw-text elements (`script`,`style`,`textarea`,`title`) | `@bundar/jsx` (`render/elements.ts`) | string | `serializeRawText()`: `</` neutralized per language; entities for RCDATA | `jsx-corpus.ts`, conformance lanes | content is trusted-shape text; closing-sequence injection neutralized |
 | 6 | Comments | `@bundar/jsx` renderer | string | rendered as `<!-- … -->`; `--` sequences are application responsibility | corpus coverage | nested-comment tricks out of scope (no conditional-comment era targets) |
-| 7 | Raw values | `@bundar/jsx` `raw()` (`raw.ts`) | caller-sanitized HTML | opaque module-private brand + own-property check (BR-006); unbranded shapes throw | `security/raw-html-forgery.test.ts` | caller owns sanitization by contract — no bundled sanitizer |
+| 7 | Raw values | `@bundar/jsx` `raw()` (`raw.ts`) | caller-sanitized HTML | opaque module-private brand + own-property check; unbranded shapes throw | `security/raw-html-forgery.test.ts` | caller owns sanitization by contract — no bundled sanitizer |
 | 8 | OOB / multi-region serialization | `@bundar/htmx` (`updates.ts`) | framework-rendered fragment strings | single registered raw site; fragments originate from the JSX renderer | browser dual-dialect lanes, htmx tests | applications must not feed untrusted markup into update intents |
 | 9 | Event JSON (`HX-Trigger*`) | `@bundar/htmx` (`directives.ts`) | event names + payloads | `validateEventName`/injection checks + JSON encoding before header write | htmx directive tests | payload JSON is encoded, never spliced |
 | 10 | Redirect URLs (`HX-Redirect`, `HX-Location`, `Location`) | `@bundar/core` (`response.ts`), `@bundar/htmx` (`directives.ts`) | application-provided URLs | structural validation (`validateUrl`, no-injection scan); CRLF guarded by header layer | `security/redirects-audit.ts`, directive tests | open-redirect policy is application concern |
