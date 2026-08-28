@@ -34,6 +34,7 @@ import {
   PUBLISH_ORDER,
   candidateSourceIdentity,
 } from "../../tools/release/pack-release";
+import { withIdentityLock } from "./identity-lock";
 
 const REPO = join(import.meta.dir, "..", "..");
 const DRY_RUN_REPORT = join(REPO, "artifacts", "publish-dry-run.json");
@@ -460,7 +461,7 @@ describe("wave 8: shared strict candidate-manifest loader", () => {
 
   // 30s: the rehearsal shells out to bun and hashes nine tarballs — well
   // under a second on GitHub-hosted hardware, slower on self-hosted CI.
-  test("publisher dry-run accepts the bundle flags and rehearses Model B publishing", () => {
+  test("publisher dry-run accepts the bundle flags and rehearses Model B publishing", async () => {
     if (!hasCandidateManifest()) return;
     const headSha = spawnSync("git", ["rev-parse", "HEAD"], {
       cwd: REPO,
@@ -477,20 +478,22 @@ describe("wave 8: shared strict candidate-manifest loader", () => {
       );
       return;
     }
-    const result = spawnSync(
-      "bun",
-      [
-        "tools/release/publish-approved.ts",
-        "--dry-run",
-        "--manifest",
-        CANDIDATE_MANIFEST,
-        "--tarball-root",
-        REPO,
-      ],
-      { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-    );
-    expect(result.status).toBe(0);
-    expect(`${result.stdout}`).toContain("DRY-RUN complete");
+    await withIdentityLock(() => {
+      const result = spawnSync(
+        "bun",
+        [
+          "tools/release/publish-approved.ts",
+          "--dry-run",
+          "--manifest",
+          CANDIDATE_MANIFEST,
+          "--tarball-root",
+          REPO,
+        ],
+        { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+      );
+      expect(result.status).toBe(0);
+      expect(`${result.stdout}`).toContain("DRY-RUN complete");
+    });
   }, 30_000);
 });
 

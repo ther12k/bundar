@@ -15,6 +15,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
+import { withIdentityLock } from "./identity-lock";
 
 const REPO = join(import.meta.dir, "..", "..");
 const SCRIPT = join(REPO, "tools", "release", "publish-approved.ts");
@@ -67,7 +68,7 @@ function runPublisher(
 }
 
 describe("BR-111 publish:approved safety", () => {
-  test("--dry-run verifies candidates and NEVER calls npm publish even when authenticated", () => {
+  test("--dry-run verifies candidates and NEVER calls npm publish even when authenticated", async () => {
     if (
       !existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))
     ) {
@@ -76,34 +77,38 @@ describe("BR-111 publish:approved safety", () => {
       );
       return;
     }
-    writeFakeNpm();
-    try {
-      const result = runPublisher(["--dry-run"]);
-      expect(result.status).toBe(0);
-      const output = `${result.stdout ?? ""}`;
-      expect(output).toContain("DRY-RUN complete");
-      expect(output).toContain("NOTHING was published");
-      expect(existsSync(join(SHIM_BIN, "tombstones.txt"))).toBe(false);
-    } finally {
-      rmSync(SHIM_BIN, { recursive: true, force: true });
-    }
+    await withIdentityLock(async () => {
+      writeFakeNpm();
+      try {
+        const result = runPublisher(["--dry-run"]);
+        expect(result.status).toBe(0);
+        const output = `${result.stdout ?? ""}`;
+        expect(output).toContain("DRY-RUN complete");
+        expect(output).toContain("NOTHING was published");
+        expect(existsSync(join(SHIM_BIN, "tombstones.txt"))).toBe(false);
+      } finally {
+        rmSync(SHIM_BIN, { recursive: true, force: true });
+      }
+    });
   });
 
-  test("--tag latest is rejected without --allow-latest-tag", () => {
+  test("--tag latest is rejected without --allow-latest-tag", async () => {
     if (
       !existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))
     ) {
       console.warn("skipping — candidate manifest not present");
       return;
     }
-    const result = spawnSync("bun", [SCRIPT, "--tag", "latest"], {
-      cwd: REPO,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env, BUNDAR_RELEASE_TOKEN: undefined },
+    await withIdentityLock(async () => {
+      const result = spawnSync("bun", [SCRIPT, "--tag", "latest"], {
+        cwd: REPO,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, BUNDAR_RELEASE_TOKEN: undefined },
+      });
+      expect(result.status).not.toBe(0);
+      expect(result.stderr ?? "").toContain("forbidden during pre-1.0");
     });
-    expect(result.status).not.toBe(0);
-    expect(result.stderr ?? "").toContain("forbidden during pre-1.0");
   });
 
   test("unknown flags are rejected", () => {

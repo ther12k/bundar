@@ -12,6 +12,7 @@ import {
 } from "../../tools/release/pack-release";
 import { normalizeDistTags } from "../../tools/release/registry-verify-utils";
 import { purl } from "../../tools/release/sbom-utils";
+import { withIdentityLock } from "./identity-lock";
 
 describe("BR-112 candidate integrity", () => {
   test("validation selects fresh candidate bytes, never the persisted path", () => {
@@ -50,17 +51,19 @@ describe("BR-112 candidate integrity", () => {
       import.meta.dir,
       "../../packages/core/src/index.ts",
     );
-    const original = await Bun.file(sourceFile).text();
-    try {
-      writeFileSync(sourceFile, `${original}\n// BR-112 test mutation\n`);
-      const identity = candidateSourceIdentity(sourceSha);
-      expect(identity.ok).toBe(false);
-      expect(identity.detail).toContain(
-        "uncommitted package-affecting changes",
-      );
-    } finally {
-      writeFileSync(sourceFile, original);
-    }
+    await withIdentityLock(async () => {
+      const original = await Bun.file(sourceFile).text();
+      try {
+        writeFileSync(sourceFile, `${original}\n// BR-112 test mutation\n`);
+        const identity = candidateSourceIdentity(sourceSha);
+        expect(identity.ok).toBe(false);
+        expect(identity.detail).toContain(
+          "uncommitted package-affecting changes",
+        );
+      } finally {
+        writeFileSync(sourceFile, original);
+      }
+    });
   });
 
   test("manifest validation rejects machine-specific unknown fields, missing fields, and non-strings", () => {

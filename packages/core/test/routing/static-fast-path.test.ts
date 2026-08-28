@@ -55,8 +55,15 @@ describe("GH-016 static Response fast path", () => {
     expect(bundar.status).toBe(raw.status);
     expect(await bundar.text()).toBe(await raw.text());
     for (const [key, value] of raw.headers) {
+      // The Date header is generated per request (HTTP semantics), so two
+      // fetches straddling a second boundary legitimately differ — assert
+      // well-formedness instead of equality.
+      if (key === "date") continue;
       expect(bundar.headers.get(key)).toBe(value);
     }
+    const bundarDate = bundar.headers.get("date");
+    expect(bundarDate).not.toBeNull();
+    expect(Number.isNaN(Date.parse(bundarDate!))).toBe(false);
     expect(bundar.headers.get("x-static")).toBe("yes");
   });
 
