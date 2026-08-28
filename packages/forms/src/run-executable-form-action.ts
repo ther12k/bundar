@@ -124,8 +124,9 @@ export async function executeExecutableFormAction<Input, Result>(
 
   // 4. valid: exactly-once business execution inside the transaction hooks.
   // The pre-begin checkpoint keeps an abort from stranding an open
-  // transaction; the checkpoint after `run` sends a post-mutation abort
-  // through the rollback path instead of committing partial work.
+  // transaction; the checkpoints after `run` and after fragment resolution
+  // send post-mutation aborts through the rollback path instead of
+  // committing partial work.
   context.signal.throwIfAborted(); // checkpoint: before transaction begin
   let handle: unknown;
   if (definition.transaction !== undefined) {
@@ -136,6 +137,9 @@ export async function executeExecutableFormAction<Input, Result>(
     const value = await definition.run(result.value, context);
     context.signal.throwIfAborted(); // checkpoint: after run, before rendering
     fragment = await definition.buildFragment(value, context);
+    // checkpoint: after async rendering — an abort while a fragment builder
+    // was pending must roll back, not commit a response nobody will see
+    context.signal.throwIfAborted();
   } catch (error) {
     if (definition.transaction !== undefined) {
       await definition.transaction.rollback(handle);

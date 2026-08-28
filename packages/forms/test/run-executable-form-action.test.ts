@@ -368,4 +368,44 @@ describe("GH-181 executable form-action executor", () => {
     expect(runContext).toBe(fragmentContext);
     expect(runContext).toBe(context);
   });
+
+  test("abort during async fragment rendering rolls back (no commit lie)", async () => {
+    const controller = new AbortController();
+    let commits = 0;
+    let rollbacks = 0;
+    const { definition } = trackedDefinition({
+      buildFragment: async () => {
+        await Promise.resolve();
+        controller.abort(new Error("gone during rendering"));
+        return "<li>late</li>";
+      },
+    });
+    const adapter = recordingAdapter();
+    const outcome = await executeExecutableFormAction(
+      postContext("http://test/abort-during-render", {
+        signal: controller.signal,
+      }),
+      {
+        ...definition,
+        transaction: {
+          begin: () => "handle",
+          commit: () => {
+            commits += 1;
+          },
+          rollback: () => {
+            rollbacks += 1;
+          },
+        },
+      },
+      adapter,
+    ).catch((error: unknown) => ({ aborted: String(error) }));
+    // the builder resolved AFTER aborting — the checkpoint between
+    // rendering and commit must still route the abort through rollback
+    expect((outcome as { aborted?: string }).aborted).toContain(
+      "gone during rendering",
+    );
+    expect(commits).toBe(0);
+    expect(rollbacks).toBe(1);
+    expect(adapter.valids).toHaveLength(0);
+  });
 });
