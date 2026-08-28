@@ -8,6 +8,7 @@ describe("BR-014/015 @bundar/forms contracts and orchestration", () => {
     expect(Object.keys(forms).sort()).toEqual([
       "FORMS_CONTRACT_VERSION",
       "INVALID_SUBMISSION_STATUS",
+      "executeExecutableFormAction",
       "executeFormAction",
       "invalidField",
       "isStandardSchemaLike",

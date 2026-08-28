@@ -23,6 +23,7 @@ export {
   type ValidSubmissionDelivery,
 } from "./contracts";
 export { executeFormAction } from "./run-form-action";
+export { executeExecutableFormAction } from "./run-executable-form-action";
 export { invalidField, type InvalidFieldView } from "./invalid-field";
 export {
   isStandardSchemaLike,
