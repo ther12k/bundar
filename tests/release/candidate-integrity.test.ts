@@ -64,7 +64,7 @@ describe("BR-112 candidate integrity", () => {
         writeFileSync(sourceFile, original);
       }
     });
-  });
+  }, 30_000);
 
   test("manifest validation rejects machine-specific unknown fields, missing fields, and non-strings", () => {
     const valid = {

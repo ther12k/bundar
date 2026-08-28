@@ -68,6 +68,8 @@ function runPublisher(
 }
 
 describe("BR-111 publish:approved safety", () => {
+  // 30s: may queue behind the Model B rehearsal holding the identity lock on
+  // a loaded self-hosted runner (bun default timeout is 5s).
   test("--dry-run verifies candidates and NEVER calls npm publish even when authenticated", async () => {
     if (
       !existsSync(join(REPO, "artifacts", "release", "candidate-manifest.json"))
@@ -90,7 +92,7 @@ describe("BR-111 publish:approved safety", () => {
         rmSync(SHIM_BIN, { recursive: true, force: true });
       }
     });
-  });
+  }, 30_000);
 
   test("--tag latest is rejected without --allow-latest-tag", async () => {
     if (
@@ -109,7 +111,7 @@ describe("BR-111 publish:approved safety", () => {
       expect(result.status).not.toBe(0);
       expect(result.stderr ?? "").toContain("forbidden during pre-1.0");
     });
-  });
+  }, 30_000);
 
   test("unknown flags are rejected", () => {
     const result = spawnSync("bun", [SCRIPT, "--definitely-not-a-flag"], {
