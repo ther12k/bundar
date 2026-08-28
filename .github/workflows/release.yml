@@ -18,6 +18,11 @@ name: Release (human-gated)
 #   on. Docs/evidence commits after the battery change GITHUB_SHA and the
 #   metadata gate will reject the battery run — rerun the battery on the
 #   final ref instead.
+# - GH-171: both jobs refuse to run off main (github.ref check), and the
+#   metadata gate requires the battery to have run on head_branch main.
+#   The strongest boundary remains the npm-publish environment deployment
+#   branch policy (see delivery/gates/registry.md and gate #130): protect
+#   main and restrict the environment to it before any publication.
 # - Wave 9 input hygiene: workflow_dispatch inputs NEVER appear inside
 #   run: shell bodies (GitHub interpolates ${{ }} before the shell parses
 #   the script, which is a shell-injection vector in this secret-bearing
@@ -68,6 +73,8 @@ jobs:
   preflight:
     name: Preflight checks
     runs-on: ubuntu-latest
+    # GH-171: release preflight is a main-ref activity only.
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout at exact HEAD
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -139,6 +146,11 @@ jobs:
                   f"head_sha={meta.get('head_sha')} != this workflow's SHA "
                   f"{os.environ.get('GITHUB_SHA', '')} — dispatch the release on the "
                   "same ref the battery ran on (or rerun the battery on the final ref)"
+              )
+          if meta.get("head_branch") != "main":
+              problems.append(
+                  f"head_branch={meta.get('head_branch')} — the battery must run on "
+                  "main, not a feature branch (GH-171)"
               )
           if problems:
               print("Battery run rejected:", file=sys.stderr)
@@ -240,11 +252,15 @@ jobs:
   publish:
     name: Publish the authoritative bundle
     needs: preflight
-    if: github.event.inputs.dry_run_only != 'true'
+    # GH-171: publication only from main (defense-in-depth; the npm-publish
+    # environment deployment branch policy is the primary boundary).
+    if: github.event.inputs.dry_run_only != 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # GH-171 least privilege: the report upload uses the job's runtime
+    # token, not GITHUB_TOKEN write scopes.
     permissions:
       contents: read
-      actions: write
+      actions: read
     # BR-079: This environment must have a manual review rule configured in
     # GitHub → Settings → Environments → "npm-publish" so a human maintainer
     # must approve before the job starts.
@@ -262,6 +278,15 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Clear committed evidence reports (this attempt's evidence only)
+        run: |
+          # GH-171: the checkout carries a preflight registry-verify.json with
+          # "success": true. Remove it so the if: always() upload below can
+          # never publish a stale successful-looking report after a failed
+          # auth/publish; the post-publish verifier writes a fresh one.
+          rm -f artifacts/registry-verify.json
+          test ! -e artifacts/registry-verify.json
 
       - name: Validate inputs and the authoritative battery run (fail closed)
         env:
@@ -309,6 +334,10 @@ jobs:
           if meta.get("head_sha") != os.environ.get("GITHUB_SHA", ""):
               problems.append(
                   f"head_sha={meta.get('head_sha')} != {os.environ.get('GITHUB_SHA', '')}"
+              )
+          if meta.get("head_branch") != "main":
+              problems.append(
+                  f"head_branch={meta.get('head_branch')} — the battery must run on main (GH-171)"
               )
           if problems:
               print("Battery run rejected:", file=sys.stderr)

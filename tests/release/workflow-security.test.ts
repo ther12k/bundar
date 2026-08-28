@@ -23,9 +23,9 @@ import { join } from "node:path";
 const REPO = join(import.meta.dir, "..", "..");
 const read = (rel: string): string => readFileSync(join(REPO, rel), "utf8");
 
-describe("GH-169 release workflow input hygiene", () => {
-  const release = read(".github/workflows/release.yml");
+const release = read(".github/workflows/release.yml");
 
+describe("GH-169 release workflow input hygiene", () => {
   test("workflow_dispatch inputs appear ONLY in env: mappings, never in run bodies", () => {
     // Every reference to github.event.inputs must be an env assignment
     // (UPPER_CASE_KEY: ${{ github.event.inputs.* }}) — those are injected
@@ -129,6 +129,49 @@ describe("GH-169 untrusted PR code never runs on self-hosted runners", () => {
     expect(battery).toMatch(
       /^permissions:\n {2}contents: read\n {2}actions: write$/m,
     );
+  });
+});
+
+describe("GH-171 release hygiene", () => {
+  test("both Release jobs run only on main; battery must have run on main", () => {
+    // Job-level ref guards (defense-in-depth; the environment deployment
+    // branch policy recorded in gate #130 is the primary boundary).
+    expect(release).toMatch(/if: github\.ref == 'refs\/heads\/main'$/m);
+    expect(release).toMatch(
+      /if: github\.event\.inputs\.dry_run_only != 'true' && github\.ref == 'refs\/heads\/main'$/m,
+    );
+    // The metadata gate rejects batteries from non-main branches.
+    expect(release.split('meta.get("head_branch") != "main"').length - 1).toBe(
+      2,
+    );
+  });
+
+  test("the publish job removes the committed preflight report before auth/publish", () => {
+    const clearIndex = release.indexOf("Clear committed evidence reports");
+    const authIndex = release.indexOf("Authenticate npm");
+    expect(clearIndex).toBeGreaterThan(0);
+    expect(authIndex).toBeGreaterThan(clearIndex);
+    expect(release).toMatch(/rm -f artifacts\/registry-verify\.json/);
+    // The report upload remains if: always() — it must only ever pick up
+    // a report written by THIS attempt (the verifier writes it post-publish).
+    expect(release).toMatch(/name: Upload publish report\n {8}if: always\(\)/);
+  });
+
+  test("the publish job holds no GITHUB_TOKEN write escalation", () => {
+    // upload-artifact uses the job's runtime token; actions: write next to
+    // npm credentials is unjustified scope.
+    expect(release).toMatch(
+      /permissions:\n {6}contents: read\n {6}actions: read/m,
+    );
+    expect(release).not.toMatch(/actions: write/);
+  });
+
+  test("docs record the deployment-branch policy as mandatory", () => {
+    const gate = read("delivery/gates/registry.md");
+    expect(gate).toContain("deployment branch policy");
+    expect(gate).toContain("Prevent self-review".toLowerCase());
+    const publishing = read("docs/maintainers/publishing.md");
+    expect(publishing).toContain("deployment branches");
   });
 });
 

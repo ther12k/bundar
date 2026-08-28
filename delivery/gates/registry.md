@@ -48,8 +48,9 @@ Before running the live publish:
 3. **Authentication**: log in with `npm login` (or `npm login --auth-type=web`). Confirm with `npm whoami`; it must return your username.
 4. **2FA policy**: the `@bundar` org should have publish-time OTP or trusted publishing (npm Attestations / GitHub Actions OIDC) enforced. Do not configure write-capable tokens without 2FA.
 5. **Approval token**: set `BUNDAR_RELEASE_TOKEN` to any non-empty secret value in your terminal session. **Do not commit this value.** It is a session-scoped sentinel; the publish script checks for its presence.
-6. **Authoritative candidate bundle (Model B)**: run the **Candidate Release Battery** workflow on the exact release ref and record its run ID + artifact digest. The battery's uploaded bundle (manifest, identity record, checksums, tarballs) IS the candidate. Local `publish:dry-run` regeneration is diagnostic only.
-7. **Dry-run confirmed**: `bun run publish:approved -- --dry-run` (diagnostic rehearsal) must print the 9-package plan and exit 0 without touching the registry; the Release workflow's preflight repeats this against the downloaded bundle.
+6. **Branch protection and environment policy (GH-171)**: protect the `main` branch, then restrict the `npm-publish` environment with a deployment branch policy so ONLY protected `main` can deploy into it; configure a **required reviewer** and **prevent self-review** on the environment. This is the primary "trusted release ref" boundary — the exact-SHA gate proves the battery and release share a SHA, not that the ref is trusted. Record the configuration evidence in gate #130.
+7. **Authoritative candidate bundle (Model B)**: run the **Candidate Release Battery** workflow on the exact release ref and record its run ID + artifact digest. The battery's uploaded bundle (manifest, identity record, checksums, tarballs) IS the candidate. Local `publish:dry-run` regeneration is diagnostic only.
+8. **Dry-run confirmed**: `bun run publish:approved -- --dry-run` (diagnostic rehearsal) must print the 9-package plan and exit 0 without touching the registry; the Release workflow's preflight repeats this against the downloaded bundle.
 
 ## Read-only identity check (agent-safe)
 

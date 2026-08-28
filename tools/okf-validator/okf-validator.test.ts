@@ -150,7 +150,7 @@ describe("okf-validator on the real bundle", () => {
   test("the repository corpus passes full structural validation", () => {
     const corpus = loadCorpus();
     expect(corpus.concepts.length).toBeGreaterThan(100);
-    expect(corpus.issues.length).toBe(99);
+    expect(corpus.issues.length).toBe(100);
     expect(validateRootMetadata()).toEqual([]);
     expect(validateCorpus(corpus)).toEqual([]);
   });
