@@ -23,6 +23,7 @@ export {
   type ValidSubmissionDelivery,
 } from "./contracts";
 export { executeFormAction } from "./run-form-action";
+export { invalidField, type InvalidFieldView } from "./invalid-field";
 export {
   isStandardSchemaLike,
   resolveValidationAdapter,
@@ -40,4 +41,4 @@ export {
 } from "./sources";
 
 /** Contract version of this surface; bumps when a contract shape changes. */
-export const FORMS_CONTRACT_VERSION = "1.2.0";
+export const FORMS_CONTRACT_VERSION = "1.3.0";
