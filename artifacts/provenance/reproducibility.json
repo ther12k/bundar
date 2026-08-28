@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T02:50:33.600Z",
+  "generatedAt": "2026-08-28T06:26:29.262Z",
   "method": "two independent `bun pm pack` runs; unpacked trees compared file-by-file (SHA-256)",
   "nondeterministicFields": [
     "tarball gzip bytes embed mtimes — tarballs are not byte-comparable across runs; content trees are"
