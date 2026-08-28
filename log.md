@@ -997,3 +997,11 @@ BR-091 is complete; the audit finding's docs-vs-wiring divergence is fully close
 - publishing.md + registry gate: Model B-only publication; local commands labeled DIAGNOSTIC REHEARSAL ONLY; rollback routes through the same flow; ref-alignment rule documented.
 - Static guards: tests/release/workflow-security.test.ts (10 tests); full suite 1,217 pass / 0 fail; OKF corpus 99.
 - Public battery 33107916170 on final ref 386f60e: success; artifact digest sha256:c364f916ba51064a8aee345201496bfbcfedeb6c987b10e92e1f09d5a8b21193; candidateManifestSha256 076d6d9b505a426a80f04078c93bc934923d65b08ca3efcd7a8eddfb4c16a6c1; publish-gate metadata check ACCEPTED; loader dry-run + registry preflight 9/9 from the downloaded bundle.
+
+## 2026-08-28 — GH-171: release hygiene (trusted-ref defense-in-depth, stale report removal, publish-job least privilege)
+
+- release.yml: both jobs gate on github.ref == refs/heads/main; battery metadata gate requires head_branch == main (both jobs). npm-publish environment deployment-branch policy documented as mandatory gate #130 acceptance (prerequisite 6 of delivery/gates/registry.md + publishing guide; four acceptance checkboxes posted to #130).
+- Publish job deletes committed artifacts/registry-verify.json before auth/publish so the if: always() upload can never carry a stale preflight success:true report; permissions demoted to actions:read (no write scope next to npm credentials).
+- Deflake follow-ups after the halotec migration: loader retries transient tar-spawn failures (3x, 0.4s) while real archive errors reject immediately (regression-pinned); source-identity mutations and publisher spawns serialize behind a shared identity lock (120s staleness break, 30s test budgets); core static-fast-path Date header asserts well-formedness instead of cross-request byte-equality.
+- Static guards: workflow-security 14 tests; full suite 1,222 pass / 0 fail; OKF corpus 100.
+- Authoritative battery 33137662191 @ 864437b: success; artifact digest sha256:56f892a2ca92ec3be1cc372e54a501a64391516b9c5b7d4674b7e96b47084fe9; manifest sha256 8f91b18037937b6e63b220c2ca1f7008dd87d89efd22c3c99e2afa0ab8dc3ee6; gate ACCEPTED incl. head_branch; publish-path rehearsal from the downloaded bundle green (dry-run + 9/9 preflight, nothing published).
