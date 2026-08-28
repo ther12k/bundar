@@ -72,26 +72,61 @@ export interface LoadResult {
 const INTERNAL_DEP_PREFIX = "@bundar/";
 const INTERNAL_EXACT_DEPS = new Set(["create-bundar"]);
 
+interface PackedManifestRead {
+  readonly ok: boolean;
+  readonly stdout?: string;
+  readonly detail: string;
+}
+
+/**
+ * Reads package/package.json from a candidate tarball. A spawn-level
+ * failure (status null, e.g. EAGAIN fork pressure while the full test
+ * battery and browser lanes share the machine) is transient and retried;
+ * a real archive error (tar exits non-zero with a diagnostic) is rejected
+ * immediately.
+ */
+function readPackedManifest(absoluteTarball: string): PackedManifestRead {
+  let lastDetail = "unknown tar failure";
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const tar = spawnSync(
+      "tar",
+      ["-xOf", absoluteTarball, "package/package.json"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    );
+    if (tar.status === 0 && tar.stdout) {
+      return { ok: true, stdout: tar.stdout, detail: "read" };
+    }
+    if (tar.error !== undefined || tar.status === null) {
+      lastDetail = `tar spawn failed (attempt ${attempt}/3): ${tar.error?.message ?? "null exit status"}`;
+      spawnSync("sleep", ["0.4"]);
+      continue;
+    }
+    const stderr = (tar.stderr ?? "").trim();
+    return {
+      ok: false,
+      detail:
+        stderr.length > 0 ? stderr.slice(0, 200) : `tar exited ${tar.status}`,
+    };
+  }
+  return { ok: false, detail: lastDetail };
+}
+
 function inspectPackedIdentity(
   entry: LoadedCandidateEntry,
 ): CandidateManifestIssue[] {
   const issues: CandidateManifestIssue[] = [];
-  const tar = spawnSync(
-    "tar",
-    ["-xOf", entry.absoluteTarball!, "package/package.json"],
-    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-  );
-  if (tar.status !== 0 || !tar.stdout) {
+  const read = readPackedManifest(entry.absoluteTarball!);
+  if (!read.ok) {
     return [
       {
         stage: "packed",
-        detail: `${entry.name}: cannot read package/package.json from ${entry.tarballFile}`,
+        detail: `${entry.name}: cannot read package/package.json from ${entry.tarballFile} — ${read.detail}`,
       },
     ];
   }
   let packed: Record<string, unknown>;
   try {
-    packed = JSON.parse(tar.stdout);
+    packed = JSON.parse(read.stdout!);
   } catch {
     return [
       { stage: "packed", detail: `${entry.name}: packed manifest is not JSON` },

@@ -493,3 +493,53 @@ describe("wave 8: shared strict candidate-manifest loader", () => {
     expect(`${result.stdout}`).toContain("DRY-RUN complete");
   }, 30_000);
 });
+
+describe("wave 10: loader resilience", () => {
+  test("a real archive error is rejected immediately with the tar diagnostic", () => {
+    if (!existsSync(join(REPO, "artifacts/packages/checksums.txt"))) return;
+    const dir = mkdtempSync(join(tmpdir(), "bundar-w10-arcerr-"));
+    try {
+      const bogus = join(dir, "no-manifest.tgz");
+      const payload = join(dir, "payload.txt");
+      writeFileSync(payload, "not a package manifest\n");
+      expect(
+        spawnSync("tar", ["-czf", bogus, "-C", dir, "payload.txt"]).status,
+      ).toBe(0);
+      const sha256 = createHash("sha256")
+        .update(readFileSync(bogus))
+        .digest("hex");
+      const manifestPath = join(dir, "candidate-manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          sourceSha: "6f7f6f7f6f7f6f7f6f7f6f7f6f7f6f7f6f7f6f7f",
+          version: "0.1.0-alpha.2",
+          distTag: "canary",
+          packages: [
+            {
+              name: "@bundar/core",
+              version: "0.1.0-alpha.2",
+              tarballFile: "no-manifest.tgz",
+              tarballPath: "no-manifest.tgz",
+              sha256,
+            },
+          ],
+        }) + "\n",
+      );
+      const loaded = loadAndVerifyCandidateManifest({
+        manifestPath,
+        rootDir: dir,
+        requireExactPackageSet: false,
+      });
+      expect(loaded.ok).toBe(false);
+      const packed = loaded.errors.filter((e) => e.stage === "packed");
+      expect(packed.length).toBe(1);
+      expect(packed[0]!.detail).toMatch(/Not found in archive|tar exited/);
+      // The failure message must carry the underlying tar diagnostic, not
+      // the transient-spawn retry wording.
+      expect(packed[0]!.detail).not.toContain("spawn failed");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
