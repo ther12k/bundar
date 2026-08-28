@@ -9,6 +9,7 @@ describe("BR-014/015 @bundar/forms contracts and orchestration", () => {
       "FORMS_CONTRACT_VERSION",
       "INVALID_SUBMISSION_STATUS",
       "executeFormAction",
+      "invalidField",
       "isStandardSchemaLike",
       "resolveValidationAdapter",
       "standardSchemaAdapter",
