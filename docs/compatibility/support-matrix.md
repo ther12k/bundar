@@ -66,12 +66,13 @@ advance promise covering every future htmx 2 minor.
 | --- | --- |
 | Pre-1.0 | Only `main` and explicitly documented prereleases receive fixes |
 | Cadence | Evidence-driven; **no fixed release-cadence promise** |
-| Support/backport durations | **Delegated to GH-178.** Until that decision lands, Bundar makes **no LTS, backport-window, security-response-SLA, or minor-release-support-duration claim** |
+| Support/backport durations | **Event-based policy defined in `SECURITY.md` and `SUPPORT.md`:** newest release in each supported channel, no LTS, no guaranteed superseded-minor backports, and no calendar-duration support window |
 | Deprecation | Documented before removal; breaking removals only in a major release after 1.0 |
 
-The current [SUPPORT.md](../../SUPPORT.md) statement that no LTS, backport
-window, or SLA exists is the truthful policy until GH-178 approves and
-lands the exact commitments.
+Maintenance commitments are governed by the approved GH-178 policy in
+[SECURITY.md](../../SECURITY.md) and [SUPPORT.md](../../SUPPORT.md). The
+project uses event-based support boundaries rather than calendar-duration
+windows.
 
 ## Provenance
 
