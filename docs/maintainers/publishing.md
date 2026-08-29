@@ -15,6 +15,16 @@ generated:
 
 # Publishing guide for maintainers
 
+> **Status: operationally tested in rehearsal — not yet authoritative.**
+> This procedure has been exercised end-to-end in Model B rehearsal
+> (candidate bundle verification, dry-run publication, registry preflight)
+> on every release wave. It becomes the FINAL publication procedure only
+> after GH-130/GH-132 complete the first real canary publication with
+> registry verification, at which point actual live-publish findings,
+> verified rollback/revocation steps, and this provisional box are
+> incorporated here. Channel and end-of-life policy statements follow the
+> approved GH-178 policy (see `SUPPORT.md` / `SECURITY.md`).
+
 This guide documents the complete publication procedure for Bundar packages.
 No credential value should ever be committed, printed, or included in any artifact.
 
