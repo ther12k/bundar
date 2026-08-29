@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T00:07:10.873Z",
+  "generatedAt": "2026-08-29T02:51:56.597Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -289,7 +289,7 @@
       "name": "create-bundar",
       "version": "0.0.0",
       "tarball": "create-bundar-0.0.0.tgz",
-      "sha256": "2638181fef043d338c6d3eac920b81ce152b1d87b8472a6575bf2f12c88e9824",
+      "sha256": "938171537177d5c0f55949988c42553b7201abccb48cda8f936becacadf037a8",
       "fileCount": 8,
       "files": [
         "src/index.ts",
@@ -301,8 +301,8 @@
         "templates/feature.ts",
         "package.json"
       ],
-      "unpackedBytes": 33573,
-      "packedBytes": 9736,
+      "unpackedBytes": 34514,
+      "packedBytes": 10213,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {},
@@ -311,8 +311,8 @@
   ],
   "summary": {
     "packages": 9,
-    "totalUnpackedBytes": 700439,
-    "totalPackedBytes": 208976,
+    "totalUnpackedBytes": 701380,
+    "totalPackedBytes": 209453,
     "findings": 0
   }
 }
