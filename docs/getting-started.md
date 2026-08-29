@@ -23,7 +23,7 @@ bun run dev      # hot reload: bun --hot src/main.ts
 ```
 
 The smallest coherent app is five files — see
-[the minimal starter](templates/minimal/README.md) for each file's exact
+[the minimal starter](../templates/minimal/README.md) for each file's exact
 purpose. `bun run dev` reloads edited modules in the same process; syntax
 errors keep the last-good code serving until you fix them.
 
@@ -147,7 +147,7 @@ Invalid input re-renders at 422 with the field error — the user keeps
 typing; valid input redirects (no-JS) or swaps (enhanced). The full
 pattern with transactions and out-of-band updates lives in
 [`examples/todo/src/features/todos/todos.routes.ts`](https://github.com/ther12k/bundar/blob/main/examples/todo/src/features/todos/todos.routes.ts)
-and the [form actions guide](docs/guides/form-actions.md).
+and the [form actions guide](guides/form-actions.md).
 
 ## 5. Security in the main path
 

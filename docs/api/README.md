@@ -13,4 +13,4 @@
 | [@bundar/testing](./testing.md) | 16 | 0 |
 | [@bundar/cli](./cli.md) | 8 | 5 |
 
-Topic deep-dives: [compatibility matrix](../compatibility/matrix.md), [htmx 2 profile](../compatibility/htmx2.md), [htmx 4 beta profile](../compatibility/htmx4-beta6.md), [guides](../guides/README.md).
+Topic deep-dives: [compatibility matrix](../compatibility/matrix.md), [htmx 2 profile](../compatibility/htmx2.md), [htmx 4 beta profile](../compatibility/htmx4-beta6.md), [guides](../guides/architecture.md).

@@ -170,6 +170,40 @@ if (codeowners !== null) {
   }
 }
 
+// --- 5b. Relative markdown links resolve (GH-187 follow-up) ------------------
+
+// Every relative `.md` link inside README and docs/** must resolve relative
+// to the linking document — a link written from the wrong base silently
+// 404s the reader (observed: guides/form-actions.md linking
+// `guides/validation.md` from inside docs/guides/).
+
+function walkMarkdown(dir: string): string[] {
+  const found: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === "node_modules") continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...walkMarkdown(path));
+    else if (entry.name.endsWith(".md")) found.push(path);
+  }
+  return found;
+}
+
+for (const docPath of [
+  join(repositoryRoot, "README.md"),
+  ...walkMarkdown(join(repositoryRoot, "docs")),
+]) {
+  const content = readFileSync(docPath, "utf8");
+  const base = join(docPath, "..");
+  for (const match of content.matchAll(/\]\(([^)#]+\.md)(#[^)]*)?\)/g)) {
+    const target = match[1]!;
+    if (/^(https?:|mailto:|\/)/.test(target)) continue;
+    if (!existsSync(join(base, target))) {
+      const display = docPath.slice(repositoryRoot.length + 1);
+      problems.push(`${display} links to a missing relative file: ${target}`);
+    }
+  }
+}
+
 // --- Result ----------------------------------------------------------------
 
 if (problems.length > 0) {

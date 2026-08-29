@@ -104,7 +104,7 @@ summary is used — with no dangling field anchors.
 
 Inside invalid renderers, `field(name)` exposes one field's submitted
 values and errors without coercion. See the
-[validation guide](guides/validation.md) for the exact view shape and the
+[validation guide](./validation.md) for the exact view shape and the
 multi-value guarantees.
 
 ## Transactions
@@ -128,6 +128,6 @@ resolution. Post-mutation aborts route through rollback — never a commit.
 the documented pre-1.0 compatibility window. Existing applications are not
 required to migrate immediately; the facade is the preferred
 application-level API for newly written validated form actions. See the
-[migration guide](guides/form-action-migration.md) for the mechanical
+[migration guide](./form-action-migration.md) for the mechanical
 transformation, and the [API reference](../api/forms.md) for the full
 surface.
