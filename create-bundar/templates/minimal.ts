@@ -114,13 +114,13 @@ export function Layout({
  * that works WITHOUT JavaScript (Post/Redirect/Get) and WITH htmx
  * (fragment swap) — the same handlers serve both worlds.
  */
-import { App, parseForm, text } from "@bundar/core";
+import { App, text } from "@bundar/core";
+import type { StandardSchema } from "@bundar/schema";
 import { jsx } from "@bundar/jsx";
 import {
-  action,
-  actionResponse,
+  createFormActions,
   createHtmxAssetHandler,
-  errorViewResponse,
+  defineFormAction,
   view,
 } from "@bundar/htmx";
 import { Layout } from "./layout";
@@ -150,32 +150,52 @@ export function createApp(): App {
     ),
   );
 
-  // Progressive form: identical validation for both worlds.
-  app.post("/subscribe", async (context) => {
-    const form = await parseForm(context);
-    const email = String(form.get("email") ?? "").trim().slice(0, 200);
-    if (!email.includes("@") || email.length < 3) {
-      return errorViewResponse(
-        context.request,
-        { status: 422, code: "unprocessable", message: "Enter a valid email address" },
-        {
-          renderDocument: (view_) =>
-            Layout({ title: "Invalid email", children: jsx("h1", { children: view_.message }) }),
-          renderFragment: (view_) =>
-            jsx("p", { id: "form-error", children: view_.message }),
-        },
-        { dialect },
-      );
-    }
-    return actionResponse(
-      context.request,
-      action({
-        fragment: jsx("p", { id: "subscribed", children: "Subscribed: " + email }),
-        redirectTo: "/?subscribed=1",
-      }),
-      { dialect },
-    );
+  // Progressive form: the separated workflow — the dialect is bound once,
+  // run() owns the mutation, the success renderer draws only from the
+  // result, and invalid rendering reads fields through field(name).
+  const forms = createFormActions({ dialect });
+  const subscribeSchema: StandardSchema<unknown, { email: string }> = {
+    "~standard": {
+      version: 1,
+      vendor: "bundar.starter",
+      validate: (value: unknown) => {
+        const record = value as Record<string, unknown>;
+        const email = typeof record["email"] === "string" ? record["email"] : "";
+        if (email.trim().length < 3 || !email.includes("@")) {
+          return {
+            issues: [{ message: "Enter a valid email address", path: ["email"] }],
+          };
+        }
+        return { value: { email: email.trim().toLowerCase() } };
+      },
+    },
+  };
+  const subscribe = defineFormAction({
+    // Standard Schema v1 inline — any conforming validator can replace it
+    // without touching routes or views (and with zero extra dependencies).
+    schema: subscribeSchema,
+    run: ({ email }) => ({ email }),
+    success: {
+      fragment: ({ email }) =>
+        jsx("p", { id: "subscribed", children: "Subscribed: " + email }),
+      redirectTo: "/?subscribed=1",
+    },
+    invalid: {
+      fragment: ({ field }) =>
+        jsx("p", { id: "form-error", children: field("email").error ?? "" }),
+      // the specific validation message travels in the FIELD data now;
+      // view_.message is the generic envelope ("Validation failed")
+      document: (render, view_) =>
+        Layout({
+          title: "Invalid email",
+          children: jsx("h1", {
+            children: render.field("email").error ?? view_.message,
+          }),
+        }),
+      target: "#subscribe-form",
+    },
   });
+  app.post("/subscribe", forms.handle(subscribe));
 
   return app;
 }

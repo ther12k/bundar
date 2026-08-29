@@ -2,23 +2,8 @@
  * Views for the subscribe feature (BR-028): real TSX components rendering
  * typed data. Views never call actions or touch protocol code.
  */
-import type { InvalidFormRender } from "@bundar/forms";
+import type { InvalidFieldView } from "@bundar/forms";
 import { urls } from "../../routes.gen";
-
-const EMPTY_RENDER: InvalidFormRender = {
-  errors: {
-    fields: {},
-    global: [],
-    order: [],
-    submitted: {},
-    field: () => [],
-    has: () => false,
-    first: [],
-    empty: true,
-  },
-  submitted: {},
-  firstErrorField: null,
-};
 
 export function homeContent() {
   return (
@@ -31,11 +16,7 @@ export function homeContent() {
 }
 
 /** The progressive form: works without JS (PRG) and with htmx (fragments). */
-export function SubscribeForm({
-  render = EMPTY_RENDER,
-}: {
-  render?: InvalidFormRender;
-}) {
+export function SubscribeForm({ field }: { field?: InvalidFieldView }) {
   return (
     <form
       id="subscribe-form"
@@ -48,11 +29,11 @@ export function SubscribeForm({
         type="email"
         name="email"
         placeholder="you@example.com"
-        value={(render.submitted["email"] as string | undefined) ?? ""}
+        value={field?.value ?? ""}
       />
       {/* the error region inside the form: field messages land here */}
       <p id="email-error" role="alert">
-        {render.errors.first[0]?.message ?? ""}
+        {field?.error ?? ""}
       </p>
       <button type="submit">Subscribe</button>
     </form>

@@ -1,6 +1,6 @@
 # M5 developer-experience cleanroom report (GH-081)
 
-Generated: 2026-08-28T14:31:48.824Z by `bun run test:dx-cleanroom`.
+Generated: 2026-08-29T02:50:32.549Z by `bun run test:dx-cleanroom`.
 
 Simulated fresh checkout: the journey consumes PACKED tarballs via a
 local registry (workspace:* rewritten to file: links — the documented
@@ -11,25 +11,25 @@ and migration guides; htmx 4 remains experimental (no GA claim).
 
 | Step | Latency (ms) | Outcome |
 | --- | ---: | --- |
-| pack @bundar/core | 36 | ok |
-| pack @bundar/jsx | 23 | ok |
-| pack @bundar/schema | 15 | ok |
-| pack @bundar/forms | 22 | ok |
-| pack @bundar/security | 34 | ok |
-| pack @bundar/htmx | 30 | ok |
-| pack @bundar/testing | 17 | ok |
-| pack @bundar/cli | 19 | ok |
-| pack create-bundar | 29 | ok |
-| registry | 408 | 9 packed tarballs with file: rewrites |
-| generate | 17 | create-bundar app with packed-tarball deps |
-| install | 985 | ok |
-| typecheck | 2889 | ok |
-| test | 66 | ok |
-| build | 30 | ok |
-| routes:generate | 125 | ok |
-| routes:check | 131 | ok |
-| live-http | 15 | health, form PRG, fragment, 422 with clear message |
-| routes:check (drifted) | 191 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
+| pack @bundar/core | 25 | ok |
+| pack @bundar/jsx | 21 | ok |
+| pack @bundar/schema | 12 | ok |
+| pack @bundar/forms | 15 | ok |
+| pack @bundar/security | 18 | ok |
+| pack @bundar/htmx | 28 | ok |
+| pack @bundar/testing | 15 | ok |
+| pack @bundar/cli | 20 | ok |
+| pack create-bundar | 14 | ok |
+| registry | 356 | 9 packed tarballs with file: rewrites |
+| generate | 21 | create-bundar app with packed-tarball deps |
+| install | 41 | ok |
+| typecheck | 3495 | ok |
+| test | 78 | ok |
+| build | 47 | ok |
+| routes:generate | 138 | ok |
+| routes:check | 141 | ok |
+| live-http | 19 | health, form PRG, fragment, 422 with clear message |
+| routes:check (drifted) | 141 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
 bundar routes:check: src/routes.gen.ts is stale (routes changed since generation); re-run routes:gen |
 
 Total scripted steps executed: 19 (all exit-0 except the
