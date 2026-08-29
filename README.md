@@ -56,12 +56,12 @@ Bundar is aimed primarily at admin panels, internal tools, approval workflows, d
 | Area | Current status |
 | --- | --- |
 | Release | `v0.1.0-alpha.1` GitHub pre-release; M0–M6 release gates passed |
-| Runtime | Bun `>=1.4.0`; Bun-only, with no Node/Deno/edge runtime adapter |
+| Runtime | Bun-only. Installation minimum Bun `>=1.4.0`; the release-verified reference is the exact Bun pinned by the Candidate Release Battery (currently 1.4.0). Platform: Linux x64 production-supported |
 | Stable hypermedia dialect | htmx `2.0.10`, pinned and selected by default |
 | Experimental dialect | htmx `4.0.0-beta6`; selectable, never default, and not a GA claim |
 | htmx 4 GA work | M7 is explicitly deferred because no official GA release exists; reopen GH-089–GH-096 when upstream GA ships |
 | JavaScript-disabled flows | Core form workflows use Post/Redirect/Get and are tested without htmx headers |
-| Browser evidence | Chrome for Testing lanes are covered; other browser engines remain unclaimed in this alpha |
+| Browser conformance | Verified against the Chromium revision supplied by the repository's pinned Playwright toolchain; Firefox/WebKit are explicitly out of scope |
 | Registry publication | Pending maintainer credentials; source packages still use private workspace manifests |
 | Post-alpha planning | The post-alpha review and beta-readiness bundle are complete (~85 microtasks, M8 chain); the path to beta runs through correctness, package-boundary, production-security, conformance, and guarded-publication tasks behind a single evidence-backed GO/NO-GO gate |
 | License | MIT |
@@ -277,7 +277,7 @@ The reference stores and fixture logins are intentionally replaceable test seams
 
 ## Development
 
-Bundar requires Bun `>=1.4.0` and uses Bun for package management, tests, building, browser harnesses, and release tooling.
+Bundar requires Bun `>=1.4.0` (installation minimum — the release-verified reference version is disclosed in the [support matrix](docs/compatibility/support-matrix.md)) and uses Bun for package management, tests, building, browser harnesses, and release tooling. Production support is Linux x64; macOS may work for local development but is not part of the verified production support matrix.
 
 ```bash
 bun install --frozen-lockfile

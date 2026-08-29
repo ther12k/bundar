@@ -8,7 +8,11 @@ through the human-gated release workflow to non-default dist-tags
 branch receives security fixes; there are no stable releases, backports,
 or long-term support promises yet (see `SUPPORT.md`). The
 supported-versions and backport policy will be published here ahead of
-`1.0.0-rc.1` (milestone M9).
+`1.0.0-rc.1` (milestone M9; exact durations are the GH-178 decision).
+
+Security fixes target the supported scope recorded in the approved 1.0
+support matrix ([`docs/compatibility/support-matrix.md`](docs/compatibility/support-matrix.md)):
+Bun-only (installation minimum `>=1.4.0`), Linux x64 production.
 
 ## Reporting a vulnerability
 

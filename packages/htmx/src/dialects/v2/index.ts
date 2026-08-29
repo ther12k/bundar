@@ -103,7 +103,11 @@ export const htmx2: HtmxDialectAdapter = Object.freeze({
   id: "htmx2",
   displayName: "HTMX 2",
   maturity: "stable",
-  supportedRange: ">=2.0.0 <3.0.0",
+  // GH-176 approved matrix: the SUPPORTED LINE is htmx 2.0.x — the declared
+  // range must not promise untested future 2.x minors. The tested reference
+  // is HTMX2_TESTED_VERSION; a new htmx patch becomes the tested reference
+  // only after the full dialect + browser battery passes.
+  supportedRange: ">=2.0.0 <2.1.0",
   capabilities: capabilities({
     "request-metadata": "native",
     "response-directives": "native",

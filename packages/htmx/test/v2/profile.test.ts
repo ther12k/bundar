@@ -13,7 +13,7 @@ describe("GH-043 v2 adapter identity and pinning", () => {
     expect(htmx2.id).toBe("htmx2");
     expect(htmx2.maturity).toBe("stable");
     expect(HTMX2_TESTED_VERSION).toBe("2.0.10");
-    expect(htmx2.supportedRange).toBe(">=2.0.0 <3.0.0");
+    expect(htmx2.supportedRange).toBe(">=2.0.0 <2.1.0");
     expect(htmx2.metadata["htmx2:pinnedVersion"]).toBe("2.0.10");
   });
 

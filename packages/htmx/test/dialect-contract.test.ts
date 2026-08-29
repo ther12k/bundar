@@ -16,7 +16,7 @@ describe("GH-040 dialect adapter interface", () => {
   test("htmx2 adapter is a stable, immutable, complete implementation", () => {
     expect(htmx2.id).toBe("htmx2");
     expect(htmx2.maturity).toBe("stable");
-    expect(htmx2.supportedRange).toBe(">=2.0.0 <3.0.0");
+    expect(htmx2.supportedRange).toBe(">=2.0.0 <2.1.0");
     expect(Object.isFrozen(htmx2)).toBe(true);
     expect(Object.isFrozen(htmx2.capabilities)).toBe(true);
     expect(Object.isFrozen(htmx2.metadata)).toBe(true);
