@@ -5,7 +5,7 @@ importantly — when you should NOT use it.
 
 ## Packages and the frozen boundaries
 
-### The form-action split (GH-180 series)
+### The form-action split
 
 Validated form workflows are split across two packages on purpose:
 
