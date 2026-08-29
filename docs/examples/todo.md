@@ -5,7 +5,7 @@ workflow: validated create/edit/toggle/delete, filters, counts, flash,
 out-of-band updates, history-friendly PRG, and a no-JS fallback — one
 handler set for every browser mode.
 
-## Separated form actions (GH-185)
+## Separated form actions
 
 Create and edit run on the separated facade — `createFormActions({ dialect })`
 bound once in `registerTodoRoutes`. The create action shows the

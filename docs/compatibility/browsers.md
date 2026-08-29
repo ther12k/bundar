@@ -16,7 +16,7 @@ Updated: 2026-08-25 · Machine-readable source:
 - The claim is deliberately **narrow and explicit**: Bundar's browser
   conformance suite is verified against the Chromium revision supplied by
   the repository's pinned Playwright toolchain; no cross-engine guarantee
-  is made. The approved 1.0 matrix (GH-176) carries exactly this scope.
+  is made. The approved 1.0 support matrix carries exactly this scope.
 - Multi-engine lanes may be revisited before any GA announcement
   (`reviewTrigger` in the JSON artifact). Until then, absence of Firefox/
   WebKit results is the DOCUMENTED state, not a silent gap.
