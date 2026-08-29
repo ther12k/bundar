@@ -223,7 +223,7 @@ htmx browser
   POST form → validate → mutate → HTML fragment + response directives
 ```
 
-`runFormAction()` composes bounded parsing, Standard Schema validation, safe retained values, field-error rendering, optional transaction hooks, and the final ordinary/enhanced response. Business validation runs once and does not branch on HTMX headers.
+`defineFormAction()` and `createFormActions()` provide the preferred application-level form workflow. They separate validated business execution in `run()` from rendering in `success.fragment()`, while preserving ordinary Post/Redirect/Get and enhanced fragment responses. `runFormAction()` remains available as the lower-level compatibility surface.
 
 Read the [getting-started guide](docs/getting-started.md), [validation guide](docs/guides/validation.md), and [Todo walkthrough](docs/examples/todo.md) for the complete pattern.
 

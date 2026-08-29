@@ -1,80 +1,58 @@
-# Validation guide
+# Validation and field rendering
 
-Bundar validates request data through the [Standard Schema
-v1](https://standardschema.dev) interface: any conforming validator works,
-and Bundar ships — and requires — none. `@bundar/core` never depends on
-`@bundar/schema`; apps that skip validation skip the package entirely.
+Bundar validates through Standard Schema v1 — any conforming validator
+works, none ships. This page covers what invalid submissions hand to your
+renderers, and the field helper that keeps multi-value input honest.
 
-## Sources and mapping
+## The invalid render object
 
-| helper | input passed to the schema | notes |
-| --- | --- | --- |
-| `validateForm(context, schema)` | form fields as a record; repeated keys become `string[]` | body read once by the bounded parser; a second read fails with `BodyConsumedError` |
-| `validateJson(context, schema)` | the parsed JSON value | same single-consumption guarantee |
-| `validateQuery(context, schema)` | query record; repeated keys become `string[]` in submission order | lazy, per request |
-| `validateParams(context, schema)` | the decoded route params record | router-decoded |
-| `validateHeaders(context, schema)` | headers record, lowercased keys | per request |
-
-Coercion is the validator's responsibility. Bundar passes plain decoded
-data in and returns the schema's typed output untouched — `z.coerce.number()`
-turns form strings into numbers, not Bundar.
-
-## Results
-
-`ValidationResult<T>` is either `{ success: true, value: T }` (the typed,
-validated value — inference flows from the schema) or `{ success: false,
-issues }` with each issue normalized to `{ message, path: PropertyKey[] }`.
-Library-specific details are never discarded: the original issue object is
-preserved on `issue.raw` as the explicit escape hatch for renderers that want
-vendor codes or metadata.
-
-Malformed dialect behavior (a schema without a valid `~standard` object, or
-a `validate` returning a nonconforming result) fails closed with
-`SchemaDialectError` rather than guessing.
-
-## Rendering errors
-
-`toFieldErrors(result, { submitted })` turns a failed result into stable
-rendering data without a JSON round trip: per-field message lists (multiple
-errors preserved in issue order), form-level globals kept separate,
-deterministic first-appearance ordering, nested paths mapped to addressable
-ids (`items.0.name`), and safe submitted values retained for re-rendering.
-Sensitive keys (`SENSITIVE_FIELD_KEYS`: passwords, tokens, secrets, payment
-data, … plus your own `redactKeys`) and all uploaded/byte content are
-dropped by policy — `security:validation-redaction` plants a secret in every
-documented key and proves the serialized model contains none.
-
-In @bundar/jsx, `ErrorSummary({ errors })` renders the accessible summary:
-`role="alert"`, heading, and anchor links targeting each field (`items.0.name`
-→ `#items-0-name`, optional `targetPrefix`), with globals listed without
-links. It renders nothing for an empty model and escapes every message.
-
-## Consumer proof
-
-`tests/consumer/schema/` validates the same app-shaped fixture against two
-independent real validators — Zod 4 and Valibot 1 — at both the type level
-(`bunx tsc`) and runtime (`bun run test:consumer:schema`).
-
-## Invalid submissions without JavaScript
-
-Ordinary (no-JS) invalid submissions re-render your APPLICATION document
-when you pass `renderInvalidDocument` to `runFormAction` — the same
-validation result as the enhanced path, represented as the full page:
+`invalid.fragment` and `invalid.document` receive an `InvalidFormView` —
+the workflow's render data (ordered field errors, retained safe values,
+focus hint) plus a per-field accessor:
 
 ```ts
-runFormAction(context, {
- schema,
- action: { fragment, redirectTo },
- renderForm,          // enhanced: form region fragment
- renderInvalidDocument: (render, view) =>
-  myLayout(renderForm(render)), // ordinary: the complete document
-});
+const title = field("title");
+
+title.value;    // first submitted scalar value, or undefined
+title.values;   // every submitted value, in submission order
+title.multiple; // true only when more than one value was submitted
+title.error;    // this field's first message, or undefined
+title.errors;   // this field's messages, in issue order
+title.invalid;  // true when the field has at least one message
 ```
 
-The renderer receives the redacted retained values, the field-error
-model, and the first-error hint — mirror your page composition so the
-user keeps the list/context and the forms stay submittable (token from
-the request cookie). Without the option, the framework's generic error
-document is used: announced via a `role="alert"` summary WITHOUT field
-anchor links (the fields are not in that document — dangling anchors
-were the pre- defect).
+## Multi-value behavior
+
+| Submission | `value` | `values` | `multiple` |
+| --- | --- | --- | --- |
+| (missing) | `undefined` | `[]` | `false` |
+| `title=one` | `"one"` | `["one"]` | `false` |
+| `title=one&title=two` | `"one"` | `["one", "two"]` | `true` |
+
+Guarantees, plainly:
+
+- `value` is the first submitted scalar value — never a joined string.
+- `values` preserves submission order, duplicates included.
+- duplicate values are never silently comma-joined.
+- `error` is the first error for that field only.
+- `errors` contains only that field's errors, in original issue order.
+- global (form-level) errors never leak into a field view.
+- sensitive retained values follow Bundar's redaction policy — sensitive
+  keys are absent before your renderer ever sees them.
+
+## The anti-pattern
+
+```ts
+// WRONG: arrays become "one,two" — malformed and duplicate submissions
+// silently disappear into comma-joined text
+String(render.submitted["title"])
+```
+
+Use the accessor instead:
+
+```ts
+field("title").value ?? ""
+```
+
+Retained values are already safe (redacted); re-render them verbatim so
+the user sees exactly what they submitted.

@@ -94,17 +94,23 @@ fragment. One handler set, verified in both lanes by
 
 ## 4. Forms with validation — the main path, both worlds
 
-`runFormAction` runs parse → validate → act with identical rules for
-every browser:
+`defineFormAction` separates what a form DOES from what it RENDERS:
+`run()` performs the business work and returns a domain result;
+`success.fragment()` renders only that result; `invalid.fragment()`
+re-renders the form with field-aware error data. The dialect is bound
+once, and `forms.handle()` returns the composed response — ordinary
+browsers get Post/Redirect/Get, htmx browsers get fragments.
 
 <!-- snippet: getting-started-form -->
 ```ts
 import type { App } from "@bundar/core";
-import { runFormAction } from "@bundar/htmx";
+import { createFormActions, defineFormAction } from "@bundar/htmx";
+import { htmx2 } from "@bundar/htmx/2";
+import type { StandardSchema } from "@bundar/schema";
 
-const titleSchema = {
+const titleSchema: StandardSchema<unknown, { title: string }> = {
   "~standard": {
-    version: 1 as const,
+    version: 1,
     vendor: "guide",
     validate: (value: unknown) => {
       const record = value as Record<string, unknown>;
@@ -117,23 +123,31 @@ const titleSchema = {
 };
 
 export function registerForm(app: App): void {
-  app.post("/subscribe", (context) =>
-    runFormAction(context, {
-      schema: titleSchema,
-      action: {
-        fragment: (out: { title: string }) => out.title,
-        redirectTo: "/",
-      },
-      renderForm: () => "",
-    }).then((outcome) => outcome.response),
-  );
+  // bind the dialect once — every form action shares this binding
+  const forms = createFormActions({ dialect: htmx2 });
+
+  const subscribe = defineFormAction({
+    schema: titleSchema,
+    run: ({ title }) => ({ title }), // business execution — may mutate
+    success: {
+      fragment: (result) => result.title, // rendering only — pure
+      redirectTo: "/",
+    },
+    invalid: {
+      fragment: ({ field }) => field("title").error ?? "",
+      target: "#form",
+    },
+  });
+
+  app.post("/subscribe", forms.handle(subscribe));
 }
 ```
 
 Invalid input re-renders at 422 with the field error — the user keeps
 typing; valid input redirects (no-JS) or swaps (enhanced). The full
-pattern with retained values lives in
-[`examples/todo/src/app.ts`](https://github.com/ther12k/bundar/blob/main/examples/todo/src/app.ts).
+pattern with transactions and out-of-band updates lives in
+[`examples/todo/src/features/todos/todos.routes.ts`](https://github.com/ther12k/bundar/blob/main/examples/todo/src/features/todos/todos.routes.ts)
+and the [form actions guide](docs/guides/form-actions.md).
 
 ## 5. Security in the main path
 

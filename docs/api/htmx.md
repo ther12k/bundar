@@ -6,7 +6,7 @@ Dialect negotiation, actions, updates, events, assets.
 
 > ⚠️ **Experimental** — the htmx 4 beta adapter (`@bundar/htmx/4`, 4.0.0-beta6, integrity `sha256-28fae7bbe8e8…`) is `maturity: experimental`. No GA compatibility claim. Cross-reference: [compatibility matrix](../compatibility/matrix.md).
 
-## Runtime exports (73)
+## Runtime exports (75)
 
 - `ACTION_VARY_HEADERS`
 - `ActionDefinitionError`
@@ -44,7 +44,9 @@ Dialect negotiation, actions, updates, events, assets.
 - `composeFragment`
 - `composeNavigation`
 - `createApplicationEvent`
+- `createFormActions`
 - `createHtmxAssetHandler`
+- `defineFormAction`
 - `diagnoseExtension`
 - `diagnoseInheritance`
 - `encodeDirectives`

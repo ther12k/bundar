@@ -7,9 +7,9 @@
 | [@bundar/core](./core.md) | 90 | 6 |
 | [@bundar/jsx](./jsx.md) | 49 | 35 |
 | [@bundar/schema](./schema.md) | 5 | 11 |
-| [@bundar/forms](./forms.md) | 11 | 0 |
+| [@bundar/forms](./forms.md) | 13 | 0 |
 | [@bundar/security](./security.md) | 42 | 26 |
-| [@bundar/htmx](./htmx.md) | 73 | 68 |
+| [@bundar/htmx](./htmx.md) | 75 | 68 |
 | [@bundar/testing](./testing.md) | 16 | 0 |
 | [@bundar/cli](./cli.md) | 8 | 5 |
 

@@ -5,6 +5,42 @@ workflow: validated create/edit/toggle/delete, filters, counts, flash,
 out-of-band updates, history-friendly PRG, and a no-JS fallback — one
 handler set for every browser mode.
 
+## Separated form actions (GH-185)
+
+Create and edit run on the separated facade — `createFormActions({ dialect })`
+bound once in `registerTodoRoutes`. The create action shows the
+mutation/result/render split:
+
+```ts
+run: ({ title }, context) => {
+  const item = repository.create({ title });
+  addFlash(context, "success", `Added "${item.title}".`);
+  return { item, counts: repository.counts() };  // post-mutation reads travel in the result
+},
+success: {
+  fragment: ({ item, counts }) =>
+    enhancedFragment(todoItem({ item, token: "" }), counts),
+},
+```
+
+The renderer consumes the result without querying or mutating. Edit goes
+further with a discriminated domain result:
+
+```ts
+type RenameTodoResult =
+  | { kind: "renamed"; item: Todo; counts: TodoCounts }
+  | { kind: "not-found" };
+```
+
+`run()` decides what happened; the result records that decision;
+`success.fragment()` decides how it looks (the renamed item fragment, or
+the not-found region). This is preferable to rendering or throwing from
+the mutation callback: the repository decision stays data.
+
+Toggle and delete intentionally remain on direct action composition —
+they are not validated forms, so the validated-form facade would widen,
+not clarify, their contracts.
+
 ## The moving parts
 
 ```
