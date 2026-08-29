@@ -10,6 +10,13 @@ until the public API contract is frozen for 1.0 (milestone M9;
 
 ## What is supported
 
+- **Scope:** the approved 1.0 support matrix
+  ([`docs/compatibility/support-matrix.md`](docs/compatibility/support-matrix.md)):
+  Bun-only (installation minimum `>=1.4.0`; release-verified reference
+  disclosed separately), Linux x64 production. macOS may work for local
+  development but is not part of the verified production support matrix;
+  Windows and arm64 are not claimed. Browser conformance covers the
+  Chromium revision supplied by the pinned Playwright toolchain.
 - **Bugs and regressions:** open a GitHub issue with reproduction steps,
   environment versions, and evidence. Security vulnerabilities are the
   exception — report them privately per [`SECURITY.md`](SECURITY.md).
