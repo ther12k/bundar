@@ -5,6 +5,37 @@ importantly — when you should NOT use it.
 
 ## Packages and the frozen boundaries
 
+### The form-action split (GH-180 series)
+
+Validated form workflows are split across two packages on purpose:
+
+```
+@bundar/forms   (neutral workflow)
+  parse → validate → retain safe values → execute run()
+  → resolve the domain result → build the fragment
+  → transaction + cancellation semantics → neutral outcome
+
+            ↓  FormResponseAdapter (the delivery boundary)
+
+@bundar/htmx    (HTTP/HTMX delivery)
+  ordinary/enhanced detection, Post/Redirect/Get, fragment delivery,
+  Vary, cache policy, HX directives, retarget/reswap, invalid documents
+```
+
+`@bundar/forms` does not know about HTMX headers or dialects; `@bundar/htmx`
+adapts the neutral workflow into HTTP/HTMX delivery. Application code sits
+on top with two helpers:
+
+- `defineFormAction()` — an inference-friendly definition helper (identity
+  at runtime): Input flows from the schema, `Result` from `run()`.
+- `createFormActions({ dialect })` — binds the application's delivery
+  policy once; `forms.handle()` returns the composed Response, and
+  `forms.execute()` exposes the discriminated outcome.
+
+The facade is an additive adapter over the existing executor — not a
+controller, service container, or new runtime layer.
+
+
 | Package | Depends on | Role |
 | --- | --- | --- |
 | `@bundar/core` | nothing | App, routing→Bun.serve route tables, Context, middleware onion, error boundary, request budgets |

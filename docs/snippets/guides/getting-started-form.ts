@@ -1,10 +1,12 @@
 /** Guide snippet: getting-started §4 (validated form action) — CI-run. */
 import type { App } from "@bundar/core";
-import { runFormAction } from "@bundar/htmx";
+import { createFormActions, defineFormAction } from "@bundar/htmx";
+import { htmx2 } from "@bundar/htmx/2";
+import type { StandardSchema } from "@bundar/schema";
 
-const titleSchema = {
+const titleSchema: StandardSchema<unknown, { title: string }> = {
   "~standard": {
-    version: 1 as const,
+    version: 1,
     vendor: "guide",
     validate: (value: unknown) => {
       const record = value as Record<string, unknown>;
@@ -17,14 +19,21 @@ const titleSchema = {
 };
 
 export function registerForm(app: App): void {
-  app.post("/subscribe", (context) =>
-    runFormAction(context, {
-      schema: titleSchema,
-      action: {
-        fragment: (out: { title: string }) => out.title,
-        redirectTo: "/",
-      },
-      renderForm: () => "",
-    }).then((outcome) => outcome.response),
-  );
+  // bind the dialect once — every form action shares this binding
+  const forms = createFormActions({ dialect: htmx2 });
+
+  const subscribe = defineFormAction({
+    schema: titleSchema,
+    run: ({ title }) => ({ title }), // business execution — may mutate
+    success: {
+      fragment: (result) => result.title, // rendering only — pure
+      redirectTo: "/",
+    },
+    invalid: {
+      fragment: ({ field }) => field("title").error ?? "",
+      target: "#form",
+    },
+  });
+
+  app.post("/subscribe", forms.handle(subscribe));
 }
