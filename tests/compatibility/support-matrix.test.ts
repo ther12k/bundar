@@ -108,7 +108,7 @@ describe("GH-176 approved support matrix", () => {
 
     const security = read("SECURITY.md");
     expect(has(security, "docs/compatibility/support-matrix.md")).toBe(true);
-    expect(has(security, "GH-178 decision")).toBe(true);
+    expect(has(security, "approved in GH-178")).toBe(true);
 
     const browsers = read("docs/compatibility/browsers.md");
     expect(
