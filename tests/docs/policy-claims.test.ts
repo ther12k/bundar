@@ -105,6 +105,12 @@ describe("GH-178 policy claims — positive", () => {
       has(SUPPORT, "not part of the verified production support matrix"),
     ).toBe(true);
     expect(SUPPORT.includes("Windows and arm64 are not claimed")).toBe(true);
+    expect(
+      has(
+        MATRIX,
+        "Event-based policy defined in `SECURITY.md` and `SUPPORT.md`",
+      ),
+    ).toBe(true);
   });
 
   test("publishing guide remains provisional until GH-130/GH-132 live canary", () => {
@@ -138,5 +144,12 @@ describe("GH-178 policy claims — negative (scope must not silently broaden)", 
         expect(/LTS: none|No LTS|no LTS/i.test(context)).toBe(true);
       }
     }
+  });
+
+  test("support-matrix no longer defers maintenance policy to GH-178", () => {
+    // GH-178 stage 1 landed the policy; the matrix must not still carry
+    // the pre-decision delegation wording
+    expect(MATRIX.includes("Delegated to GH-178")).toBe(false);
+    expect(MATRIX.includes("Until that decision lands")).toBe(false);
   });
 });

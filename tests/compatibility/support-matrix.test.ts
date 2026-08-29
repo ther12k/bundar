@@ -75,11 +75,14 @@ describe("GH-176 approved support matrix", () => {
     expect(
       has(matrix, "only after the full dialect and browser battery passes"),
     ).toBe(true);
-    // cadence boundary: dependency recorded, no invented durations
-    expect(has(matrix, "Delegated to GH-178")).toBe(true);
-    expect(has(matrix, "no LTS, backport-window, security-response-SLA")).toBe(
-      true,
-    );
+    // maintenance: the landed GH-178 event-based policy, not a delegation
+    expect(
+      has(
+        matrix,
+        "Event-based policy defined in `SECURITY.md` and `SUPPORT.md`",
+      ),
+    ).toBe(true);
+    expect(has(matrix, "no calendar-duration support window")).toBe(true);
   });
 
   test("the approved wording constraints hold across README and policy docs", () => {
