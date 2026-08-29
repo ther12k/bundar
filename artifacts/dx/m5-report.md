@@ -1,6 +1,6 @@
 # M5 developer-experience cleanroom report (GH-081)
 
-Generated: 2026-08-29T02:50:32.549Z by `bun run test:dx-cleanroom`.
+Generated: 2026-08-29T03:06:26.690Z by `bun run test:dx-cleanroom`.
 
 Simulated fresh checkout: the journey consumes PACKED tarballs via a
 local registry (workspace:* rewritten to file: links — the documented
@@ -11,25 +11,25 @@ and migration guides; htmx 4 remains experimental (no GA claim).
 
 | Step | Latency (ms) | Outcome |
 | --- | ---: | --- |
-| pack @bundar/core | 25 | ok |
-| pack @bundar/jsx | 21 | ok |
-| pack @bundar/schema | 12 | ok |
+| pack @bundar/core | 35 | ok |
+| pack @bundar/jsx | 18 | ok |
+| pack @bundar/schema | 14 | ok |
 | pack @bundar/forms | 15 | ok |
-| pack @bundar/security | 18 | ok |
-| pack @bundar/htmx | 28 | ok |
+| pack @bundar/security | 23 | ok |
+| pack @bundar/htmx | 32 | ok |
 | pack @bundar/testing | 15 | ok |
 | pack @bundar/cli | 20 | ok |
 | pack create-bundar | 14 | ok |
-| registry | 356 | 9 packed tarballs with file: rewrites |
+| registry | 354 | 9 packed tarballs with file: rewrites |
 | generate | 21 | create-bundar app with packed-tarball deps |
-| install | 41 | ok |
-| typecheck | 3495 | ok |
-| test | 78 | ok |
+| install | 757 | ok |
+| typecheck | 3908 | ok |
+| test | 87 | ok |
 | build | 47 | ok |
-| routes:generate | 138 | ok |
-| routes:check | 141 | ok |
-| live-http | 19 | health, form PRG, fragment, 422 with clear message |
-| routes:check (drifted) | 141 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
+| routes:generate | 133 | ok |
+| routes:check | 151 | ok |
+| live-http | 15 | health, form PRG, fragment, 422 with clear message |
+| routes:check (drifted) | 161 | FAILED exit 1: $ bun ./node_modules/@bundar/cli/src/bin.ts routes check --entry src/app.ts --out src/routes.gen.ts
 bundar routes:check: src/routes.gen.ts is stale (routes changed since generation); re-run routes:gen |
 
 Total scripted steps executed: 19 (all exit-0 except the

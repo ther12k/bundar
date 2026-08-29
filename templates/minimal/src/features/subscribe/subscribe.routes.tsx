@@ -39,12 +39,12 @@ const subscribe = defineFormAction({
   schema: subscribeSchema,
   run: ({ email }) => ({ email }),
   success: {
-    fragment: ({ email }) => <SubscribedFragment email={email} />,
+    fragment: ({ email }) => SubscribedFragment({ email }),
     // typed URL — renaming the route fails routes:check, not at runtime
     redirectTo: urls.home(),
   },
   invalid: {
-    fragment: ({ field }) => <SubscribeForm field={field("email")} />,
+    fragment: ({ field }) => SubscribeForm({ field: field("email") }),
     target: "#subscribe-form",
   },
 });
