@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T06:05:47.238Z",
+  "generatedAt": "2026-08-29T07:42:59.873Z",
   "policy": {
     "approvedLicenses": [
       "MIT",
@@ -184,7 +184,7 @@
       "name": "@bundar/htmx",
       "version": "0.0.0",
       "tarball": "bundar-htmx-0.0.0.tgz",
-      "sha256": "27b0bde22ea84b99b47ea8d49d152a3ce070579da6bb79806cfdd7e5da27f787",
+      "sha256": "a34777ab3400fbc93ea1bf84aa48a2dea1f4050306905c66b4a030f7aa9317f9",
       "fileCount": 28,
       "files": [
         "src/script.ts",
@@ -216,8 +216,8 @@
         "README.md",
         "package.json"
       ],
-      "unpackedBytes": 224110,
-      "packedBytes": 67514,
+      "unpackedBytes": 224401,
+      "packedBytes": 67641,
       "sizeWithinBudget": true,
       "license": "MIT",
       "runtimeDependencies": {
@@ -311,8 +311,8 @@
   ],
   "summary": {
     "packages": 9,
-    "totalUnpackedBytes": 701380,
-    "totalPackedBytes": 209453,
+    "totalUnpackedBytes": 701671,
+    "totalPackedBytes": 209580,
     "findings": 0
   }
 }
