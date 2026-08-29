@@ -113,14 +113,19 @@ export async function executeFormAction<Output>(
   }
 
   // 4. valid: exactly-once success path inside the transaction hooks
+  // GH-184 conformance alignment: the pre-begin checkpoint keeps an abort
+  // from stranding an open transaction, and the checkpoint after fragment
+  // resolution (inside the rollback boundary) sends a post-rendering abort
+  // through rollback instead of committing a response nobody will observe.
+  context.signal.throwIfAborted(); // checkpoint: before transaction begin
   let handle: unknown;
   if (definition.transaction !== undefined) {
     handle = await definition.transaction.begin();
   }
-  context.signal.throwIfAborted(); // checkpoint: before action execution
   let fragment: unknown;
   try {
     fragment = await definition.buildFragment(result.value);
+    context.signal.throwIfAborted(); // checkpoint: after rendering, before commit
   } catch (error) {
     if (definition.transaction !== undefined) {
       await definition.transaction.rollback(handle);
