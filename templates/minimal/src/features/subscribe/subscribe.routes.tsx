@@ -4,7 +4,7 @@
  * semantics come from the framework; this module wires them to the
  * feature's schema and views.
  */
-import { runFormAction, view } from "@bundar/htmx";
+import { createFormActions, defineFormAction, view } from "@bundar/htmx";
 import type { App, Context } from "@bundar/core";
 import { dialect } from "../../platform/dialect";
 import { Layout } from "../../layout";
@@ -30,23 +30,27 @@ export function homeHandler(context: Context) {
   );
 }
 
+// The separated workflow, dialect bound once: run() performs the
+// mutation, the success renderer draws only from the domain result, and
+// invalid rendering reads fields through field(name).
+const forms = createFormActions({ dialect });
+
+const subscribe = defineFormAction({
+  schema: subscribeSchema,
+  run: ({ email }) => ({ email }),
+  success: {
+    fragment: ({ email }) => <SubscribedFragment email={email} />,
+    // typed URL — renaming the route fails routes:check, not at runtime
+    redirectTo: urls.home(),
+  },
+  invalid: {
+    fragment: ({ field }) => <SubscribeForm field={field("email")} />,
+    target: "#subscribe-form",
+  },
+});
+
 export async function subscribeHandler(context: Context): Promise<Response> {
-  const outcome = await runFormAction(
-    context,
-    {
-      schema: subscribeSchema,
-      action: {
-        fragment: (output: { email: string }) =>
-          SubscribedFragment({ email: output.email }),
-        // typed URL — renaming the route fails routes:check, not at runtime
-        redirectTo: urls.home(),
-      },
-      renderForm: (render) => <SubscribeForm render={render} />,
-      formTarget: "#subscribe-form",
-    },
-    { dialect },
-  );
-  return outcome.response;
+  return forms.handle(subscribe)(context);
 }
 
 export function registerSubscribeRoutes(app: App): void {
