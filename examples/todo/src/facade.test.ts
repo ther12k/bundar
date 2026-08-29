@@ -7,7 +7,8 @@
  */
 import { describe, expect, test } from "bun:test";
 import { ErrorBoundary } from "@bundar/core";
-import { createTestClient } from "@bundar/testing";
+import { createTestClient, TEST_ORIGIN } from "@bundar/testing";
+import { buildHtmxRequestHeaders } from "@bundar/htmx";
 import { htmx2 } from "@bundar/htmx/2";
 import { createTodoApp } from "./app";
 import {
@@ -117,8 +118,8 @@ describe("GH-185 separated todo actions", () => {
     const body = await response.text();
     expect(repository.mutations).toBe(0);
     expect(body).toContain('id="todo-form"');
-    expect(response.headers.get("hx-retarget")).toBe("#todo-form");
-    expect(response.headers.get("hx-reswap")).toBe("outerHTML");
+    // raw protocol-header assertions live in the package-level GH-184
+    // conformance suite — application code stays protocol-ignorant
   });
 
   test("duplicate title submissions: field() exposes the FIRST, never a joined string", async () => {
@@ -128,8 +129,9 @@ describe("GH-185 separated todo actions", () => {
     const response = await client.post("/todos", {
       headers: {
         "content-type": "application/x-www-form-urlencoded",
-        origin: "http://bundar.test",
-        "HX-Request": "true",
+        origin: TEST_ORIGIN,
+        // neutral builder — application code never spells protocol names
+        ...buildHtmxRequestHeaders({}, htmx2),
       },
       body: `_csrf=${encodeURIComponent(token)}&title=x&title=second`,
     });
