@@ -4,6 +4,12 @@
  * Post/Redirect/Get; enhanced (htmx) requests get fragments plus
  * out-of-band region updates via NORMALIZED update intents. Mutations ride
  * the session-bound synchronizer CSRF posture composed by the app shell.
+ *
+ * GH-185: create and edit run on the separated form-action facade — the
+ * dialect is bound once, `run()` owns repository mutation and flash, the
+ * success renderer draws only from the returned domain result, and invalid
+ * rendering reads fields through `field(name)`. Toggle and delete keep
+ * their direct action composition (they are not validated forms).
  */
 import { jsx } from "@bundar/jsx";
 import type { App, Context } from "@bundar/core";
@@ -11,10 +17,12 @@ import {
   action,
   actionResponse,
   composeFragment,
+  createFormActions,
+  defineFormAction,
   errorViewResponse,
-  runFormAction,
   view,
   type HtmxDialectAdapter,
+  type InvalidFormView,
 } from "@bundar/htmx";
 import {
   addFlash,
@@ -30,7 +38,16 @@ import { urls } from "../../routes.gen";
 import type { UpdateSpec } from "@bundar/htmx";
 import { parseFilter, titleSchema } from "./todos.schema";
 import { countsRegion, filterLinks, todoForm, todoItem } from "./todos.view";
-import type { TodoCounts, TodoRepository } from "./todos.types";
+import type { Todo, TodoCounts, TodoRepository } from "./todos.types";
+
+/** Edit outcome: the repository decides; rendering only draws from it. */
+type RenameTodoResult =
+  | {
+      readonly kind: "renamed";
+      readonly item: Todo;
+      readonly counts: TodoCounts;
+    }
+  | { readonly kind: "not-found" };
 
 export interface TodoRouteDeps {
   readonly repository: TodoRepository;
@@ -43,6 +60,8 @@ export interface TodoRouteDeps {
 export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
   const { repository, csrfSecret } = deps;
   const dialectOptions = { dialect: deps.dialect };
+  /** The separated facade, dialect bound once for the whole feature. */
+  const forms = createFormActions({ dialect: deps.dialect });
 
   /** Enhanced mutation fragment: item swap PLUS counts OOB intent. */
   const enhancedFragment = (
@@ -91,68 +110,68 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
       dialectOptions,
     );
 
+  /** Field-aware invalid presentation shared by create and edit. */
+  const todoInvalid = {
+    fragment: (render: InvalidFormView, context: Context) =>
+      todoForm({
+        token: readCsrfTokenFromRequest(context.request),
+        title: render.field("title").value ?? "",
+        error: render.field("title").error ?? "",
+      }),
+    document: (render: InvalidFormView, _view: unknown, context: Context) => {
+      const title = render.field("title");
+      const token = readCsrfTokenFromRequest(context.request);
+      return Layout({
+        title: "Todos",
+        flash: [],
+        children: [
+          countsRegion(
+            repository.counts(),
+            "all",
+          ) as import("@bundar/jsx").JSXChild,
+          filterLinks("all") as import("@bundar/jsx").JSXChild,
+          jsx("ul", {
+            id: "todo-list",
+            children: repository.list("all").map((item) =>
+              todoItem({
+                item,
+                token,
+              }),
+            ),
+          }),
+          todoForm({
+            token,
+            title: title.value ?? "",
+            error: title.error ?? "",
+          }) as import("@bundar/jsx").JSXChild,
+        ],
+      });
+    },
+    target: "#todo-form",
+  };
+
   app.group("", (actions) => {
     actions.use(deps.csrf);
 
     // Create: validated form action; enhanced responses carry the new
-    // item AND the counts region as a normalized OOB intent.
-    actions.post(
-      "/todos",
-      (context) =>
-        runFormAction(
-          context,
-          {
-            schema: titleSchema,
-            action: {
-              fragment: (output: { title: string }) => {
-                const created = repository.create({ title: output.title });
-                addFlash(context, "success", `Added "${created.title}".`);
-                return enhancedFragment(
-                  todoItem({ item: created, token: "" }),
-                  repository.counts(),
-                );
-              },
-              redirectTo: urls["todo-list"](),
-            },
-            renderForm: (render) =>
-              todoForm({
-                token: readCsrfTokenFromRequest(context.request),
-                title: (render.submitted["title"] as string | undefined) ?? "",
-                error: render.errors.first[0]?.message ?? "",
-              }),
-            formTarget: "#todo-form",
-            renderInvalidDocument: (render) =>
-              Layout({
-                title: "Todos",
-                flash: [],
-                children: [
-                  countsRegion(
-                    repository.counts(),
-                    "all",
-                  ) as import("@bundar/jsx").JSXChild,
-                  filterLinks("all") as import("@bundar/jsx").JSXChild,
-                  jsx("ul", {
-                    id: "todo-list",
-                    children: repository.list("all").map((item) =>
-                      todoItem({
-                        item,
-                        token: readCsrfTokenFromRequest(context.request),
-                      }),
-                    ),
-                  }),
-                  todoForm({
-                    token: readCsrfTokenFromRequest(context.request),
-                    title:
-                      (render.submitted["title"] as string | undefined) ?? "",
-                    error: render.errors.first[0]?.message ?? "",
-                  }) as import("@bundar/jsx").JSXChild,
-                ],
-              }),
-          },
-          dialectOptions,
-        ).then((outcome) => outcome.response),
-      { name: "todo-create" },
-    );
+    // item AND the counts region as a normalized OOB intent. run() owns
+    // mutation, flash, and post-mutation reads; the renderer is pure.
+    const createTodo = defineFormAction({
+      schema: titleSchema,
+      run: ({ title }, context) => {
+        const item = repository.create({ title });
+        addFlash(context, "success", `Added "${item.title}".`);
+        return { item, counts: repository.counts() };
+      },
+      success: {
+        fragment: ({ item, counts }) =>
+          enhancedFragment(todoItem({ item, token: "" }), counts),
+        redirectTo: urls["todo-list"](),
+      },
+      invalid: todoInvalid,
+    });
+
+    actions.post("/todos", forms.handle(createTodo), { name: "todo-create" });
 
     actions.post(
       "/todos/:id/toggle",
@@ -182,71 +201,38 @@ export function registerTodoRoutes(app: App, deps: TodoRouteDeps): void {
       { name: "todo-toggle" },
     );
 
-    actions.post(
-      "/todos/:id/edit",
-      (context) => {
+    // Edit: the not-found decision happens in run() and travels inside the
+    // domain result; rendering never mutates.
+    const renameTodo = defineFormAction({
+      schema: titleSchema,
+      run: ({ title }, context): RenameTodoResult => {
         const id = Number(context.params["id"]);
-        return runFormAction(
-          context,
-          {
-            schema: titleSchema,
-            action: {
-              fragment: (output: { title: string }) => {
-                const renamed = repository.rename(id, output.title);
-                if (renamed === undefined) {
-                  return jsx("p", {
-                    id: "todo-error",
-                    children: "Todo not found",
-                  });
-                }
-                addFlash(context, "success", `Renamed to "${renamed.title}".`);
-                return enhancedFragment(
-                  todoItem({ item: renamed, token: "" }),
-                  repository.counts(),
-                );
-              },
-              redirectTo: urls["todo-list"](),
-            },
-            renderForm: (render) =>
-              todoForm({
-                token: readCsrfTokenFromRequest(context.request),
-                title: (render.submitted["title"] as string | undefined) ?? "",
-                error: render.errors.first[0]?.message ?? "",
-              }),
-            formTarget: "#todo-form",
-            renderInvalidDocument: (render) =>
-              Layout({
-                title: "Todos",
-                flash: [],
-                children: [
-                  countsRegion(
-                    repository.counts(),
-                    "all",
-                  ) as import("@bundar/jsx").JSXChild,
-                  filterLinks("all") as import("@bundar/jsx").JSXChild,
-                  jsx("ul", {
-                    id: "todo-list",
-                    children: repository.list("all").map((item) =>
-                      todoItem({
-                        item,
-                        token: readCsrfTokenFromRequest(context.request),
-                      }),
-                    ),
-                  }),
-                  todoForm({
-                    token: readCsrfTokenFromRequest(context.request),
-                    title:
-                      (render.submitted["title"] as string | undefined) ?? "",
-                    error: render.errors.first[0]?.message ?? "",
-                  }) as import("@bundar/jsx").JSXChild,
-                ],
-              }),
-          },
-          dialectOptions,
-        ).then((outcome) => outcome.response);
+        const renamed = repository.rename(id, title);
+        if (renamed === undefined) return { kind: "not-found" };
+        addFlash(context, "success", `Renamed to "${renamed.title}".`);
+        return { kind: "renamed", item: renamed, counts: repository.counts() };
       },
-      { name: "todo-edit" },
-    );
+      success: {
+        fragment: (result) => {
+          if (result.kind === "not-found") {
+            return jsx("p", {
+              id: "todo-error",
+              children: "Todo not found",
+            });
+          }
+          return enhancedFragment(
+            todoItem({ item: result.item, token: "" }),
+            result.counts,
+          );
+        },
+        redirectTo: urls["todo-list"](),
+      },
+      invalid: todoInvalid,
+    });
+
+    actions.post("/todos/:id/edit", forms.handle(renameTodo), {
+      name: "todo-edit",
+    });
 
     actions.post(
       "/todos/:id/delete",
