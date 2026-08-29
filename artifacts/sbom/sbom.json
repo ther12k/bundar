@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:4f93b11e-7eb2-4296-a1a1-c1b441fea7d7",
+  "serialNumber": "urn:uuid:3e63edb9-aa7d-402d-96ed-188666f2677d",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-29T09:37:35.115Z",
+    "timestamp": "2026-08-29T09:41:31.824Z",
     "component": {
       "type": "application",
       "bom-ref": "pkg:npm/bundar-root@0.0.0",
@@ -45,7 +45,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "41c20b0ddd35e7d5b35e911888e8be4883d9a4fd6f810ee4e5a6256e161c8000"
+          "content": "8914d56f35db58f312cfbd41dec3d50d3b84af61d3b41f18a49dcc49f99d931d"
         }
       ],
       "purl": "pkg:npm/%40bundar/core@0.1.0-alpha.2"
@@ -65,7 +65,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "aa2e82a62f89339f406ad8f742409f295db33799f15c1a11975c402a18f3471a"
+          "content": "a9819d6fc16ed6947abaf72e69f7aa2d1cb9cca3e2d81ca82bfc43d2d60ffc7c"
         }
       ],
       "purl": "pkg:npm/%40bundar/jsx@0.1.0-alpha.2"
@@ -85,7 +85,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "72298f068a91ff497069845a2c9b78731724ec19a44a5250e27a9134a5a45b41"
+          "content": "f7038b26dc99b75541dfbdcac8b01030018ceed16e631b6c24820f8d557ded91"
         }
       ],
       "purl": "pkg:npm/%40bundar/schema@0.1.0-alpha.2"
@@ -105,7 +105,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "953f13a2950842d03bebe2bcad8a003b0f314fcec25c5231f10ff759281a6ecb"
+          "content": "45c8784decfe70868daf6adf172b80820d923c48a7775af1ba7ed562e3fba211"
         }
       ],
       "purl": "pkg:npm/%40bundar/forms@0.1.0-alpha.2"
@@ -125,7 +125,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "61384f3bf54d9e836acd4615574629660ea886adc268004c23d12e9dd5c68d3f"
+          "content": "a8a15c6ce3b9553f5aa77f1df287fe314ffc8a10d7dd7f0e55a21e6929aea328"
         }
       ],
       "purl": "pkg:npm/%40bundar/security@0.1.0-alpha.2"
@@ -145,7 +145,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8c148944424d3d0fd0a80196e169dce98a2c441c97914d15e786dfe1c7599d62"
+          "content": "274fc23fe112d352b5d225d7a4552dd46b7c7664658d6326a4d4bec1d8757379"
         }
       ],
       "purl": "pkg:npm/%40bundar/htmx@0.1.0-alpha.2"
@@ -165,7 +165,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a143cecc7294ac9fa92726336f4cccb9151df0086adab3d00433004de1d8a2f0"
+          "content": "c105fd568446c0a59a118f95c0da712ed53ff48c8bdcef16445ad9acdc8b67c6"
         }
       ],
       "purl": "pkg:npm/%40bundar/testing@0.1.0-alpha.2"
@@ -185,7 +185,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "164aef7b29cd549224d32680803f2d829a050b7d71538063d711c2cf4829ac07"
+          "content": "15d56369b70115ee8661a06df31501dc688c0572eed2254251cdc92094909fbc"
         }
       ],
       "purl": "pkg:npm/%40bundar/cli@0.1.0-alpha.2"
@@ -205,7 +205,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "992d5499334f64286077a89565aa6ae0a865b0fa35a1ae80f0ae8fa213ba7686"
+          "content": "2217cbdbb2184f00a2bc645b588eeb539b6e95ba3b0b3dd1791210ab359ca5f0"
         }
       ],
       "purl": "pkg:npm/create-bundar@0.1.0-alpha.2"
