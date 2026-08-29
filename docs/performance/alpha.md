@@ -27,6 +27,32 @@ reintroduced per-request composer (measured: ~1.30× observed versus a
 fails closed on composition-count violations independent of machine
 speed or load.
 
+## Reference-environment policy (GH-191)
+
+Budgets are enforced on ONE declared reference environment; everywhere
+else the same comparison is advisory.
+
+- **Reference (enforced)**: the public Candidate Release Battery
+  (`.github/workflows/candidate-release.yml`), which opts in via
+  `BUNDAR_BENCH_REFERENCE=1` — GitHub-hosted `ubuntu-latest`, Bun 1.4.0.
+  A fail-level breach fails the battery. This environment may regenerate
+  committed budgets: pooling three fresh runs (`bench:regression
+  --generate`) there produces the new `artifacts/bench/alpha-budgets.json`,
+  which is reviewed and committed.
+- **Everywhere else (advisory)**: workstations and other machines report
+  the same comparison WITH their environment fingerprint and the raw-Bun
+  baseline (the drift canary: when raw Bun's own ready-time rises against
+  its budget p50, the machine — not the framework — moved). Timing
+  breaches are labeled ADVISORY and do not fail the run; budgets are never
+  regenerated locally. Correctness gates are never advisory: parity,
+  the BR-004 semantic guard, and missing budgets fail closed everywhere.
+
+Rationale: absolute startup timings drift with machine load (observed
+GH-191: a workstation's raw-bun baseline rose ~1.6× above its budget p50
+while every same-run ratio stayed flat — the machine moved, not the
+framework). Same-run ratios are stable, but startup/RSS budgets are
+absolute by design, so enforcement needs a fixed reference.
+
 ## Startup and memory (median of 7 samples)
 
 | Mode | Ready p50 | RSS p50 |

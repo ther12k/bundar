@@ -41,6 +41,9 @@ jobs:
       - name: Full release-candidate battery (28 steps)
         env:
           GH_TOKEN: ${{ github.token }}
+          # the public battery IS the benchmark reference environment (GH-191)
+          BUNDAR_BENCH_REFERENCE: "1"
+          BUNDAR_BENCH_ENVIRONMENT: "candidate-release-battery (GitHub-hosted ubuntu-latest)"
         run: bun run ci:release
       - name: Upload candidate artifacts (the authoritative candidate)
         if: always()
